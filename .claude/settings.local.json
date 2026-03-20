@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /c/Users/webbd/source/PaperBinder/docs/**/*.md)",
+      "Bash(find /c/Users/webbd/source/PaperBinder -name *.sln -o -name *.csproj -o -name *.fsproj)",
+      "Bash(find /c/Users/webbd/source/PaperBinder -type f \\\\\\(-name *.cs -o -name *.tsx -o -name *.ts -o -name *.jsx -o -name *.js \\\\\\))"
+    ]
+  }
+}
