@@ -1,0 +1,51 @@
+# Task Tracking Policy
+
+## Purpose
+
+Define the agent-operated, long-lived task board model for PaperBinder.
+Use this task board whenever work needs durable state across checkpoints, PRs, or sessions.
+
+## Artifacts
+
+- Intake + constraints: `docs/05-taskboard/taskboard-intake.md`
+- Active board: `docs/05-taskboard/work-queue.md`
+- Durable task specs: `docs/05-taskboard/tasks/T-####-*.md`
+- Exploration logs: `docs/05-taskboard/task-log/`
+
+## Task Lifecycle
+
+Allowed `Status` values:
+- `queued`
+- `active`
+- `blocked`
+- `done`
+- `cancelled`
+
+Transition expectations:
+- `queued -> active`: task is pulled into `Now` lane.
+- `active -> blocked`: blocker is explicit in task file and queue.
+- `blocked -> active`: blocker cleared and re-prioritized.
+- `active -> done`: acceptance criteria met and outcome recorded.
+- `queued|active|blocked -> cancelled`: no longer needed; rationale recorded.
+
+## Queue Rules
+
+- `work-queue.md` is the current execution board.
+- WIP in `Now`: max 3 active tasks.
+- `Next` stays curated and ordered by risk/value/dependency.
+- `Blocked` items must include blocker and unblock condition.
+
+## Agent Operating Rules
+
+- Triage Inbox into tasks with stable IDs `T-####`.
+- Do not renumber task IDs.
+- Prefer splitting tasks over inflating a single task.
+- Keep one primary task ID per cohesive change set.
+- Update task `Status`, `Updated`, and `Outcome` in the same change set that changes execution state.
+- Persist multi-checkpoint and cross-session execution state in the task board, not only in transient chat context.
+
+## Logging Rules
+
+- Keep task files stable and concise.
+- Put iterative findings and dead-ends into `task-log/`.
+- Summarize only durable outcomes in task files.

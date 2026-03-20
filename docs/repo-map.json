@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "1.0",
+  "repo": "PaperBinder",
+  "generatedBy": "manual",
+  "canonicalEntryPoints": {
+    "aiIndex": "docs/ai-index.md",
+    "intent": "docs/00-intent/README.md",
+    "taskboard": "docs/05-taskboard/README.md",
+    "product": "docs/10-product/README.md",
+    "architecture": "docs/20-architecture/README.md",
+    "security": "docs/30-security/README.md",
+    "contracts": "docs/40-contracts/README.md"
+  },
+  "nodes": [
+    { "id": "idx", "type": "doc", "path": "docs/ai-index.md", "tags": ["index"] },
+    { "id": "intent", "type": "doc", "path": "docs/00-intent/README.md", "tags": ["intent"] },
+    { "id": "taskboard", "type": "doc", "path": "docs/05-taskboard/README.md", "tags": ["taskboard", "execution-state"] },
+    { "id": "product", "type": "doc", "path": "docs/10-product/README.md", "tags": ["product"] },
+    { "id": "fd", "type": "doc", "path": "docs/15-feature-definition/README.md", "tags": ["features"] },
+    { "id": "arch", "type": "doc", "path": "docs/20-architecture/README.md", "tags": ["architecture"] },
+    { "id": "sec", "type": "doc", "path": "docs/30-security/README.md", "tags": ["security"] },
+    { "id": "contracts", "type": "doc", "path": "docs/40-contracts/README.md", "tags": ["contracts"] },
+    { "id": "eng", "type": "doc", "path": "docs/50-engineering/README.md", "tags": ["engineering"] },
+    { "id": "exec", "type": "doc", "path": "docs/55-execution/README.md", "tags": ["execution"] },
+    { "id": "exec-plan", "type": "doc", "path": "docs/55-execution/execution-plan.md", "tags": ["execution", "plan", "v1"] },
+    { "id": "ai", "type": "doc", "path": "docs/60-ai/README.md", "tags": ["ai-subsystem"] },
+    { "id": "ops", "type": "doc", "path": "docs/70-operations/README.md", "tags": ["operations"] },
+    { "id": "tests", "type": "doc", "path": "docs/80-testing/README.md", "tags": ["testing"] },
+    { "id": "adr", "type": "doc", "path": "docs/90-adr/README.md", "tags": ["adr"] },
+    { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] }
+  ],
+  "edges": [
+    { "from": "idx", "to": "intent", "rel": "lane-index" },
+    { "from": "idx", "to": "taskboard", "rel": "lane-index" },
+    { "from": "idx", "to": "product", "rel": "lane-index" },
+    { "from": "idx", "to": "fd", "rel": "lane-index" },
+    { "from": "idx", "to": "arch", "rel": "lane-index" },
+    { "from": "idx", "to": "sec", "rel": "lane-index" },
+    { "from": "idx", "to": "contracts", "rel": "lane-index" },
+    { "from": "idx", "to": "eng", "rel": "lane-index" },
+    { "from": "idx", "to": "exec", "rel": "lane-index" },
+    { "from": "exec", "to": "exec-plan", "rel": "contains" },
+    { "from": "idx", "to": "ai", "rel": "lane-index" },
+    { "from": "idx", "to": "ops", "rel": "lane-index" },
+    { "from": "idx", "to": "tests", "rel": "lane-index" },
+    { "from": "idx", "to": "adr", "rel": "lane-index" },
+    { "from": "idx", "to": "delivery", "rel": "lane-index" }
+  ]
+}
