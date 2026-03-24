@@ -1,4 +1,4 @@
-﻿# PaperBinder Reviewer Guide
+# PaperBinder Reviewer Guide
 
 This guide is for interviewers and technical reviewers who want a fast, accurate read of the repository.
 

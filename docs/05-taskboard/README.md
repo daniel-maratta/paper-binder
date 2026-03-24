@@ -22,3 +22,7 @@
 ## Operating Rule
 
 Use the taskboard whenever checkpoint execution, blockers, or discovered follow-up work need durable repo-native state.
+
+Task files must capture review-gate outcomes, validation plans, validation evidence, and durable outcomes without turning the repo into a chat transcript.
+
+Default to a single active task in `Now` unless deliberate low-conflict parallel work justifies using the full WIP allowance.

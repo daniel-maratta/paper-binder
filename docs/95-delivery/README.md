@@ -13,3 +13,5 @@
 ## PR Artifacts
 
 - `docs/95-delivery/pr/`
+
+Checkpoint PR artifacts must include critic-review summary, validation evidence, and unresolved-risk disclosure when implementation work is proposed for merge.

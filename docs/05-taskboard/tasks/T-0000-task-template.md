@@ -43,8 +43,19 @@ One paragraph describing the outcome.
 ## Blocked By
 - (none)
 
+## Review Gates
+- Scope Lock:
+- Pre-PR Critique:
+- Escalation Notes:
+
+## Current State
+- Short, durable note on what state the task is in now
+
 ## Touch Points
 - List likely files/modules that will change
+
+## Next Action
+- The next concrete handoff step for the executor, critic, or owner
 
 ## Validation Evidence
 - Record concrete commands, results, and manual verification once work is done

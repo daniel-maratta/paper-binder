@@ -1,4 +1,4 @@
-﻿# Scaling Considerations (Reviewer Summary)
+# Scaling Considerations (Reviewer Summary)
 
 PaperBinder v1 is intentionally small, but the architecture leaves room for controlled scaling.
 

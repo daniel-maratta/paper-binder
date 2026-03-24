@@ -6,12 +6,15 @@ How pull requests are structured and merged during execution plan delivery.
 
 Every checkpoint ends in a merge to `main`. This workflow defines how PRs are created, scoped, and validated to maintain the execution plan's invariants.
 
+This workflow is a PR-specific companion to [agent-operating-model.md](./agent-operating-model.md). Use the operating model for role responsibilities and review-gate timing.
+
 ## PR Scope Rules
 
 - A PR must be cohesive: one logical concern per PR.
 - A checkpoint may produce 1-5 PRs. Prefer fewer, well-scoped PRs over many tiny ones.
 - Every PR must leave `main` buildable, testable, and documentation-consistent.
 - No speculative abstractions. Build only what the checkpoint requires.
+- The relevant task file must already contain validation evidence and pre-PR critique outcome before merge handoff.
 
 ## PR Contents Checklist
 
@@ -22,6 +25,7 @@ Before opening a PR, verify:
 - [ ] Canonical docs are updated in the same PR if behavior, contracts, or terms changed.
 - [ ] Tenant scoping is not weakened for implementation convenience.
 - [ ] No non-goals are introduced without explicit ADR and scope approval.
+- [ ] Critic review summary and unresolved-risk status are included in the PR artifact.
 
 ## PR Validation
 

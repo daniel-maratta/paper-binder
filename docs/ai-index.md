@@ -36,6 +36,7 @@ Start here, then load only the lane docs relevant to the task.
 ## Execution References
 
 - [docs/55-execution/execution-plan.md](./55-execution/execution-plan.md)
+- [docs/55-execution/workflows/agent-operating-model.md](./55-execution/workflows/agent-operating-model.md)
 
 ## Local-Only Overrides
 

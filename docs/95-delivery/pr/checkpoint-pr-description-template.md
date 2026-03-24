@@ -13,6 +13,11 @@ Status: Template
 - Included:
 - Not included:
 
+## Critic Review
+- Scope-lock outcome:
+- Findings summary:
+- Unresolved risks or accepted gaps:
+
 ## Risks And Rollout Notes
 - Config or migration considerations
 - Security or operational considerations
