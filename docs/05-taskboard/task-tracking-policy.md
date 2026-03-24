@@ -32,6 +32,8 @@ Transition expectations:
 
 - `work-queue.md` is the current execution board.
 - WIP in `Now`: max 3 active tasks.
+- Default target in `Now`: 1 active task for clearer human/agent handoff.
+- Use 2-3 active tasks only when parallel work is deliberate, low-conflict, and still reviewable.
 - `Next` stays curated and ordered by risk/value/dependency.
 - `Blocked` items must include blocker and unblock condition.
 
@@ -42,6 +44,7 @@ Transition expectations:
 - Prefer splitting tasks over inflating a single task.
 - Keep one primary task ID per cohesive change set.
 - Update task `Status`, `Updated`, and `Outcome` in the same change set that changes execution state.
+- Record review-gate outcomes in the task file when scope is locked, critique is complete, or escalation decisions are made.
 - Persist multi-checkpoint and cross-session execution state in the task board, not only in transient chat context.
 
 ## Logging Rules
@@ -49,3 +52,4 @@ Transition expectations:
 - Keep task files stable and concise.
 - Put iterative findings and dead-ends into `task-log/`.
 - Summarize only durable outcomes in task files.
+- Keep detailed critique dialogue and prompt-specific notes outside committed taskboard artifacts.

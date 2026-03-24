@@ -20,8 +20,9 @@ Phase files provide entry/exit conditions, checkpoint summaries, and task integr
 
 Workflow files define agent operating procedures for executing the plan.
 
+- [workflows/agent-operating-model.md](./workflows/agent-operating-model.md) - Canonical owner/executor/critic workflow and review-gate model
 - [workflows/checkpoint-lifecycle.md](./workflows/checkpoint-lifecycle.md) - How to work through a single checkpoint from plan to merge
-- [workflows/task-mapping.md](./workflows/task-mapping.md) - How checkpoints map to the task board under `docs/00-intent/`
+- [workflows/task-mapping.md](./workflows/task-mapping.md) - How checkpoints map to the task board under `docs/05-taskboard/`
 - [workflows/pr-workflow.md](./workflows/pr-workflow.md) - PR scope, validation, and merge discipline
 
 ## Alignment

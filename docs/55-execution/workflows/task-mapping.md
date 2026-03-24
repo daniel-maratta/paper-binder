@@ -6,6 +6,8 @@ How execution plan checkpoints integrate with the task board.
 
 The execution plan defines *what* to build and in what order. The task board under `docs/05-taskboard/` tracks *progress* and *state*. This workflow bridges the two systems so agents can execute checkpoints while maintaining a durable progress record.
 
+This workflow is a taskboard-specific companion to [agent-operating-model.md](./agent-operating-model.md). Use the operating model for role boundaries and review cadence.
+
 ## Mapping Rules
 
 ### Checkpoint to Task Relationship
@@ -24,6 +26,7 @@ When starting a checkpoint:
 3. In the `Context` section, reference the checkpoint: e.g., "Part of CP5 - Tenancy Resolution And Immutable Tenant Context."
 4. In the `Acceptance Criteria` section, derive criteria from the checkpoint's merge gate conditions.
 5. In the `Touch Points` section, list the likely files/modules from the checkpoint's commit descriptions.
+6. In the `Validation Plan` and `Review Gates` sections, define how the work will be checked before merge.
 
 ### Task Naming Convention
 
@@ -55,6 +58,7 @@ Do not expand an existing task to absorb discovered work. Split into a new task.
 
 - Agents may maintain a local to-do list (e.g., via TodoWrite) for in-session tracking, but durable progress must be recorded in the task files and work queue.
 - Update `Status`, `Updated`, and `Outcome` in the task file in the same change set that completes the work.
+- Record only durable review conclusions in `Review Gates`; keep detailed review discussion outside committed task files.
 - Keep task files stable and concise. Put iterative discoveries in `docs/05-taskboard/task-log/`.
 
 ## Key References

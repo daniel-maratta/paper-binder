@@ -1,4 +1,4 @@
-﻿# PaperBinder Architecture Overview
+# PaperBinder Architecture Overview
 
 This is the one-page reviewer entry point for interview pre-read.
 

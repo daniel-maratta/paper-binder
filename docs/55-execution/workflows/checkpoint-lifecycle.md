@@ -6,6 +6,8 @@ How an agent works through a single checkpoint from the execution plan.
 
 Each checkpoint in `execution-plan.md` is a mergeable increment that leaves `main` green. This workflow defines the steps an agent follows to execute a checkpoint from start to merge.
 
+This workflow is a checkpoint-specific companion to [agent-operating-model.md](./agent-operating-model.md). Use the operating model for roles, review gates, and durable-state rules.
+
 ## Lifecycle
 
 ### 1. Plan
@@ -14,6 +16,7 @@ Each checkpoint in `execution-plan.md` is a mergeable increment that leaves `mai
 - Read the relevant phase file in [phases/](../phases/) for entry conditions and context.
 - Identify the commits listed for the checkpoint.
 - Check `docs/05-taskboard/work-queue.md` for related active or blocked tasks.
+- Record intended validation and review-gate expectations in the task file before broad implementation starts.
 
 ### 2. Create Tasks
 
@@ -21,6 +24,7 @@ Each checkpoint in `execution-plan.md` is a mergeable increment that leaves `mai
 - Reference the checkpoint ID (e.g., `CP3`) in the task's Context section.
 - Add tasks to `docs/05-taskboard/work-queue.md` in the appropriate lane.
 - Respect WIP limits: max 3 tasks in `Now`.
+- Use the task file's `Review Gates` section to capture scope lock, pre-PR critique, and escalation outcomes.
 
 ### 3. Execute
 
@@ -28,12 +32,14 @@ Each checkpoint in `execution-plan.md` is a mergeable increment that leaves `mai
 - Each commit should be cohesive and buildable.
 - Ship contract updates and tests in the same change set as the behavior they cover.
 - Update task status to `active` when work begins.
+- Keep unrelated discoveries out of the current checkpoint by creating a new task or Inbox entry.
 
 ### 4. Validate Merge Gate
 
 - Verify every condition listed in the checkpoint's merge gate.
 - Run the build, test suite, and any docs validation scripts.
 - Confirm no tenant isolation, auth, or lease invariants are violated.
+- Complete pre-PR critique before considering the checkpoint work ready to merge.
 
 ### 5. Merge And Close
 
