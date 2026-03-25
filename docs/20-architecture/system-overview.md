@@ -5,6 +5,7 @@ Status: Current (v1)
 ## AI Summary
 
 - Architecture is a single-database, tenant-scoped web system with API, worker, and SPA.
+- Public-demo hosting uses a single ASP.NET app host that serves both the SPA and API.
 - Tenant context is resolved early and remains immutable per request.
 - Authorization is policy-based RBAC at the API boundary.
 - Runtime persistence uses Dapper; EF Core is migrations/tooling only.
@@ -23,10 +24,8 @@ PaperBinder is composed of five major layers:
 ## Deployment Topology
 
 - Single PostgreSQL database.
-- Two backend deployables:
-  - PaperBinder.Api
-  - PaperBinder.Worker
-- React SPA served separately (or via API host in early dev).
+- Primary app host: `PaperBinder.Api` serves the React SPA and API from the same ASP.NET host.
+- Worker runtime: `PaperBinder.Worker` performs lease cleanup as a separate deployable or containerized runtime when needed.
 - Post-auth traffic routed via tenant subdomain.
 
 ---
