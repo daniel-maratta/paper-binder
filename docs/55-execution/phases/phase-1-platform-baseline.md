@@ -16,7 +16,7 @@ Establish the workspace, deployment topology, persistence pipeline, and HTTP con
 
 ### CP1 - Workspace Bootstrap And CI
 
-- .NET solution and project skeleton (API, worker, domain, application, infrastructure, migrations, tests).
+- .NET solution and project skeleton (API host serving SPA + API, worker, domain, application, infrastructure, migrations, tests).
 - Vite React client scaffold.
 - Root scripts for restore, build, test, docs validation, local startup.
 - Agents must create the required bootstrap and validation scripts in this checkpoint; do not assume pre-existing helper scripts.
@@ -25,7 +25,7 @@ Establish the workspace, deployment topology, persistence pipeline, and HTTP con
 ### CP2 - Runtime Configuration And Local Deployment Scaffold
 
 - Typed backend configuration and frontend environment handling.
-- Docker Compose, PostgreSQL container, reverse proxy baseline.
+- Docker Compose, PostgreSQL container, reverse proxy baseline, and single app-host wiring for SPA + API delivery.
 - `.env.example` aligned to deployment docs.
 - Local runbook and deployment docs updated.
 
