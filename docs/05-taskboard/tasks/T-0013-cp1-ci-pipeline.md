@@ -16,7 +16,7 @@ agent
 2026-03-24
 
 ## Updated
-2026-03-24
+2026-03-25
 
 ## Checkpoint
 CP1
@@ -31,13 +31,14 @@ Add CI for backend build/test, frontend build, and docs/reference validation so 
 - CP1 requires CI, not just local scripts.
 - The pipeline should reuse the same commands documented for local execution where practical.
 - This task should stay focused on build and validation enforcement, not deployment automation.
+- VS Code support should consume the same command surface that CI enforces.
 
 ## Acceptance Criteria
 - [ ] CI runs backend restore/build/test
 - [ ] CI runs frontend build
 - [ ] CI runs docs/reference validation
 - [ ] CI status is documented where checkpoint delivery artifacts expect it
-- [ ] CI matches the repo’s actual command surface rather than bespoke duplicated logic
+- [ ] CI matches the repo's actual command surface rather than bespoke duplicated logic
 
 ## Dependencies
 - [T-0002](./T-0002-agent-operating-model.md)
@@ -67,7 +68,8 @@ Add CI for backend build/test, frontend build, and docs/reference validation so 
 - Pending implementation.
 
 ## Decision Notes
-- Prefer CI steps that reuse the repo’s documented local commands.
+- Prefer CI steps that reuse the repo's documented local commands.
+- Editor convenience must not diverge from the commands CI validates.
 
 ## Validation Plan
 - Run the CI workflow or equivalent local commands.
