@@ -19,6 +19,7 @@ Establish the workspace, deployment topology, persistence pipeline, and HTTP con
 - .NET solution and project skeleton (API host serving SPA + API, worker, domain, application, infrastructure, migrations, tests).
 - Vite React client scaffold.
 - Root scripts for restore, build, test, docs validation, local startup.
+- VS Code workspace support artifacts that call the canonical root scripts and startup targets (for example `.vscode/tasks.json`, `.vscode/launch.json`, `.vscode/extensions.json`, and `.editorconfig` as needed).
 - Agents must create the required bootstrap and validation scripts in this checkpoint; do not assume pre-existing helper scripts.
 - CI for backend build/test, frontend build, docs/reference validation.
 
@@ -46,6 +47,7 @@ Establish the workspace, deployment topology, persistence pipeline, and HTTP con
 ## Exit Criteria
 
 - Clean checkout restores and builds backend and frontend.
+- VS Code can run the standard restore/build/test/local-start flows without introducing a separate command surface.
 - CI is green.
 - Local stack boots with reverse proxy, app container, and database.
 - Migrations apply cleanly.

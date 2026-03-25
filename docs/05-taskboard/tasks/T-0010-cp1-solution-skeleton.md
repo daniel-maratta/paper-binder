@@ -16,7 +16,7 @@ agent
 2026-03-24
 
 ## Updated
-2026-03-24
+2026-03-25
 
 ## Checkpoint
 CP1
@@ -36,6 +36,7 @@ Create the .NET solution and backend project skeleton required for the repo to b
 - [ ] Solution file exists and restores cleanly
 - [ ] Backend projects exist for API, worker, domain/application, infrastructure, migrations, and tests
 - [ ] Project references align with documented boundaries
+- [ ] Solution and project layout are launchable from VS Code without requiring a separate non-script workflow
 - [ ] Solution builds successfully
 - [ ] Docs are updated if the implemented structure changes canonical repo expectations
 
@@ -66,9 +67,11 @@ Create the .NET solution and backend project skeleton required for the repo to b
 
 ## Decision Notes
 - Keep project boundaries aligned to current architecture docs and coding standards.
+- Favor a solution and startup layout that works cleanly with VS Code launch configuration and integrated terminal usage.
 
 ## Validation Plan
 - Run restore and build for the solution.
+- Verify the chosen solution layout can be targeted cleanly by VS Code launch settings.
 - Verify project references match documented boundaries.
 - Verify any changed docs remain synchronized.
 

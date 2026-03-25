@@ -16,7 +16,7 @@ agent
 2026-03-24
 
 ## Updated
-2026-03-24
+2026-03-25
 
 ## Checkpoint
 CP1
@@ -37,6 +37,7 @@ Create the Vite React frontend scaffold aligned to the locked PaperBinder stack 
 - [ ] Package manager and engine metadata are pinned per repo policy
 - [ ] Frontend build succeeds
 - [ ] Baseline structure aligns with current frontend standards
+- [ ] Frontend workspace can be run from VS Code tasks/launch settings without adding a separate command surface
 - [ ] Docs are updated if scaffold decisions affect canonical expectations
 
 ## Dependencies
@@ -66,9 +67,11 @@ Create the Vite React frontend scaffold aligned to the locked PaperBinder stack 
 
 ## Decision Notes
 - Keep dependencies conservative and aligned with the locked stack.
+- Keep workspace conventions friendly to VS Code integrated terminal and task execution.
 
 ## Validation Plan
 - Run frontend install/restore command and frontend build.
+- Verify the frontend command surface can be invoked cleanly from VS Code task wiring.
 - Verify scaffold choices match stack and frontend standards docs.
 - Verify any changed docs remain synchronized.
 
