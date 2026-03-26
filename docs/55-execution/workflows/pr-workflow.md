@@ -49,3 +49,4 @@ Before merging, the PR must satisfy:
 - Each PR should reference its associated task ID(s) in the commit message or PR description (e.g., "Refs T-0020").
 - When the final PR for a checkpoint merges, update all associated tasks to `Status: done` and record outcomes.
 - Move completed tasks to `Recently Done` in `docs/05-taskboard/work-queue.md`.
+- When the final PR for a checkpoint merges, update `docs/55-execution/checkpoint-status.md` to mark the checkpoint complete and record any residual checkpoint-level follow-ups.

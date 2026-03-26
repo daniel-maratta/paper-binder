@@ -5,6 +5,7 @@ This lane contains PaperBinder execution artifacts for product delivery.
 ## Canonical Plan
 
 - [execution-plan.md](./execution-plan.md) - The V1 execution plan (17 checkpoints, 5 phases)
+- [checkpoint-status.md](./checkpoint-status.md) - Canonical checkpoint-level progress ledger
 
 ## Phases
 
@@ -40,5 +41,7 @@ Agents executing this plan track progress via:
 - [docs/05-taskboard/taskboard-intake.md](../05-taskboard/taskboard-intake.md) - Objectives, constraints, and intake inbox
 - [docs/05-taskboard/tasks/](../05-taskboard/tasks/) - Durable task specs
 - [docs/05-taskboard/task-tracking-policy.md](../05-taskboard/task-tracking-policy.md) - Lifecycle and queue rules
+- [checkpoint-status.md](./checkpoint-status.md) - Checkpoint-level done/active/next/blocked view
 
 Use the task board when execution state needs to persist across checkpoints, PRs, or sessions.
+Use the checkpoint ledger when reviewers or agents need a concise plan-level view without inspecting individual task files.
