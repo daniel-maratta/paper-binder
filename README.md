@@ -66,6 +66,34 @@ This is not intended to become a commercial product.
 
 ---
 
+## Bootstrap
+
+Canonical workspace commands live in `scripts/`:
+
+- Windows PowerShell:
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\restore.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
+- Linux/macOS with PowerShell Core:
+  - `pwsh ./scripts/restore.ps1`
+  - `pwsh ./scripts/build.ps1`
+  - `pwsh ./scripts/test.ps1`
+  - `pwsh ./scripts/validate-docs.ps1`
+  - `pwsh ./scripts/start-local.ps1`
+
+VS Code tasks and launch settings are thin wrappers over the same command surface in `.vscode/`.
+
+For local Development, the API host is backend-only and serves a minimal live-state page at `http://localhost:5080`; the SPA runs separately on `http://localhost:5173`.
+
+Policy:
+- CP1 keeps the backend host reviewer-friendly without exposing interactive API docs.
+- Backend root indicates process liveness only; it is not a product UI surface.
+- Interactive API documentation can be introduced later when real endpoint contracts exist and authorization policy is in place.
+
+---
+
 ## Status
 
 This repository is under active development.

@@ -12,6 +12,12 @@ dist
 dist-ssr
 playwright-report
 test-results
+*.tsbuildinfo
+.npm-cache
+.nuget
+**/bin/
+**/obj/
+src/PaperBinder.Api/wwwroot/
 *.local
 .env
 AGENTS.local.md
@@ -19,10 +25,13 @@ AGENTS.local.md
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.vs/
 .idea
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
+.dotnet/
