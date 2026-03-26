@@ -1,0 +1,57 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Restore",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/restore.ps1"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/build.ps1", "-Configuration", "Debug"],
+      "group": "build",
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build Release",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/build.ps1", "-Configuration", "Release"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Test",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/test.ps1", "-Configuration", "Debug"],
+      "group": "test",
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Test Release",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/test.ps1", "-Configuration", "Release"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Validate Docs",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/validate-docs.ps1"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Local Stack",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/start-local.ps1"],
+      "problemMatcher": []
+    }
+  ]
+}

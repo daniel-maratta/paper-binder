@@ -1,7 +1,7 @@
 # T-0012: CP1 Root Scripts And Docs Validation
 
 ## Status
-queued
+done
 
 ## Type
 feature
@@ -34,12 +34,12 @@ Add root-level restore, build, test, docs-validation, and local-startup scripts 
 - VS Code support must layer on top of these scripts rather than inventing a parallel editor-only command surface.
 
 ## Acceptance Criteria
-- [ ] Root scripts exist for restore, build, test, docs validation, and local startup
-- [ ] Scripts invoke the actual backend/frontend commands used by the repo
-- [ ] VS Code tasks and launch settings call the canonical root scripts or startup targets rather than duplicating logic
-- [ ] Docs validation checks links/references appropriate to the repo state
-- [ ] README/runbook references are updated to match the scripts
-- [ ] Script behavior is documented clearly enough for CI reuse
+- [x] Root scripts exist for restore, build, test, docs validation, and local startup
+- [x] Scripts invoke the actual backend/frontend commands used by the repo
+- [x] VS Code tasks and launch settings call the canonical root scripts or startup targets rather than duplicating logic
+- [x] Docs validation checks links/references appropriate to the repo state
+- [x] README/runbook references are updated to match the scripts
+- [x] Script behavior is documented clearly enough for CI reuse
 
 ## Dependencies
 - [T-0002](./T-0002-agent-operating-model.md)
@@ -49,12 +49,12 @@ Add root-level restore, build, test, docs-validation, and local-startup scripts 
 - [T-0011](./T-0011-cp1-frontend-scaffold.md) for frontend command targets
 
 ## Review Gates
-- Scope Lock: Pending until task becomes active.
-- Pre-PR Critique: Pending until implementation and validation are complete.
+- Scope Lock: Locked to the canonical CP1 command surface only: restore, build, test, docs validation, local startup, and VS Code wrappers over those commands.
+- Pre-PR Critique: Passed with no open blocker findings after script execution and docs validation completed successfully.
 - Escalation Notes: (none)
 
 ## Current State
-- Queued for CP1 and waiting on concrete backend/frontend command targets.
+- Completed. The repo now has shared PowerShell scripts under `scripts/` plus `.vscode/tasks.json` and `.vscode/launch.json` that reuse the same command surface.
 
 ## Touch Points
 - root scripts
@@ -67,7 +67,11 @@ Add root-level restore, build, test, docs-validation, and local-startup scripts 
 - Leave queued until T-0010 and T-0011 establish the actual command surface, then add root scripts, VS Code wrappers, and docs validation around those commands.
 
 ## Validation Evidence
-- Pending implementation.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\restore.ps1` completed successfully after redirecting npm/NuGet caches into the workspace.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` completed successfully.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release` completed successfully.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` completed successfully.
+- README and `docs/70-operations/runbook-local.md` now reference the shipped command surface instead of future-state bootstrap steps.
 
 ## Decision Notes
 - Script names should stay simple and reviewer-friendly.
@@ -80,7 +84,9 @@ Add root-level restore, build, test, docs-validation, and local-startup scripts 
 - Verify referenced commands align with backend and frontend work.
 
 ## Outcome (Fill when done)
-- Pending implementation.
+- Added canonical restore/build/test/docs-validation/local-start scripts under `scripts/`.
+- Added a repo-native docs validator that checks `docs/repo-map.json`, canonical entry points, markdown links, and local heading anchors.
+- Added VS Code tasks/launch support that layers on top of the same scripts instead of introducing a parallel command surface.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

@@ -1,0 +1,32 @@
+{
+  "name": "paperbinder-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "npm@11.8.0",
+  "engines": {
+    "node": "24.13.x",
+    "npm": "11.8.x"
+  },
+  "scripts": {
+    "dev": "vite --host localhost --port 5173",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host localhost --port 4173"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/node": "^24.5.2",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.0.4",
+    "tailwindcss": "^4.1.14",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9"
+  }
+}
