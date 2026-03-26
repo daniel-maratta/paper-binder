@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch API",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/PaperBinder.Api/bin/Debug/net10.0/PaperBinder.Api.dll",
+      "cwd": "${workspaceFolder}/src/PaperBinder.Api",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5080"
+      },
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Launch Worker",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/PaperBinder.Worker/bin/Debug/net10.0/PaperBinder.Worker.dll",
+      "cwd": "${workspaceFolder}/src/PaperBinder.Worker",
+      "env": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Launch Frontend Dev Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm.cmd run dev",
+      "cwd": "${workspaceFolder}/src/PaperBinder.Web"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch Local Stack",
+      "configurations": ["Launch API", "Launch Worker", "Launch Frontend Dev Server"]
+    }
+  ]
+}

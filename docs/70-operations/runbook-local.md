@@ -2,62 +2,69 @@
 
 ## AI Summary
 
-- Local flow: start Postgres, apply migrations, run API + worker + SPA.
-- Provisioning verifies tenant bootstrap and redirect behavior.
-- Common failures cover DB connectivity, cookie/domain config, and lease extension rules.
-- Test commands are included for unit, integration, and full-suite runs.
+- CP1 provides a real workspace command surface before database/runtime topology exists.
+- Canonical local commands live in `scripts/` and are reused by VS Code and CI.
+- Current local startup runs the API host, worker host, and Vite SPA scaffold.
+- Docker, Postgres, and migrations become part of the local flow in later checkpoints.
 
 ## Prerequisites
 
-- Docker Desktop (or compatible container runtime)
-- .NET SDK (version pinned by `global.json` once set)
+- PowerShell
+- .NET SDK pinned by `global.json`
 - Node.js pinned via repo `.nvmrc`
 - npm pinned via `package.json` `packageManager`
 
-## Local Startup (Minimum Flow)
+## Canonical Commands
 
-1. Start PostgreSQL container:
-   - `docker compose up -d postgres`
-2. Apply migrations:
-   - `dotnet run --project src/PaperBinder.Migrations`
-3. Start API:
-   - `dotnet run --project src/PaperBinder.Api`
-4. Start worker:
-   - `dotnet run --project src/PaperBinder.Worker`
-5. Start SPA:
-   - `npm --prefix src/PaperBinder.Web run dev`
+- Windows PowerShell:
+  - Restore: `powershell -ExecutionPolicy Bypass -File .\scripts\restore.ps1`
+  - Build: `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1`
+  - Test: `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1`
+  - Validate docs: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
+  - Start local stack: `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
+- Linux/macOS with PowerShell Core:
+  - Restore: `pwsh ./scripts/restore.ps1`
+  - Build: `pwsh ./scripts/build.ps1`
+  - Test: `pwsh ./scripts/test.ps1`
+  - Validate docs: `pwsh ./scripts/validate-docs.ps1`
+  - Start local stack: `pwsh ./scripts/start-local.ps1`
 
-If project paths differ during scaffolding, adjust commands to the active solution layout.
+## VS Code Flow
 
-## Seed and Provision Flow
+- Restore: task `Restore`
+- Build: task `Build`
+- Test: task `Test`
+- Docs validation: task `Validate Docs`
+- Local stack launch: task `Start Local Stack` or launch compound `Launch Local Stack`
 
-1. Call provisioning endpoint:
-   - `POST /api/provision` with request header `X-Api-Version: 1` and valid challenge token
-2. Capture returned:
-   - `tenantSlug`
-   - generated credentials
-   - `expiresAt`
-3. Log in with generated credentials and valid challenge token, then verify redirect to tenant subdomain.
-4. Verify tenant lease:
-   - `GET /api/tenant/lease`
-   - `POST /api/tenant/lease/extend` (when eligible)
+## Current CP1 Runtime Shape
 
-## Common Failures and Fixes
+- API host project: `src/PaperBinder.Api`
+- Worker host project: `src/PaperBinder.Worker`
+- Frontend project: `src/PaperBinder.Web`
+- Frontend dev server URL: `http://localhost:5173` on `localhost` only
+- API local-start URL: `http://localhost:5080`
+- Development backend landing page: `http://localhost:5080`
 
-- Database connection failure
-  - Verify container is running and connection string env var matches local port/user/password.
-- Login loops / auth cookie missing
-  - Verify cookie domain config matches local hostnames and HTTPS expectations.
-- Tenant forbidden on valid login
-  - Confirm host subdomain matches the provisioned `tenantSlug`.
-- Extension endpoint returns conflict
-  - Confirm lease remaining is less than or equal to 10 minutes and extension count is below 3.
+`scripts/start-local.ps1` starts the three processes in the background and writes stdout/stderr logs under `logs/local-start/`.
+It assumes the canonical restore/build path has already been run and then starts the hosts sequentially, waiting for each one to become ready.
+In local Development, the API host does not serve the SPA fallback; use `http://localhost:5173` for the frontend and `http://localhost:5080` for the backend host. The backend root is a simple reviewer-facing live-state page, not a product UI or interactive API documentation surface.
+
+## Current CP1 Limits
+
+- No Docker Compose or PostgreSQL wiring exists yet.
+- No EF Core migrations pipeline exists yet.
+- No provisioning, auth, or tenant-host feature flow exists yet.
+- Health endpoints and HTTP protocol middleware land in CP4.
+- Interactive API documentation is intentionally deferred until endpoint contracts and authorization policy exist.
 
 ## Running Tests Locally
 
-- Unit tests:
-  - `dotnet test --filter \"Category=Unit\"`
-- Integration tests:
-  - `dotnet test --filter \"Category=Integration\"`
-- Full suite:
-  - `dotnet test`
+- Standard path:
+  1. `powershell -ExecutionPolicy Bypass -File .\scripts\restore.ps1`
+  2. `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1`
+  3. `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1`
+- Cross-platform equivalent:
+  1. `pwsh ./scripts/restore.ps1`
+  2. `pwsh ./scripts/build.ps1`
+  3. `pwsh ./scripts/test.ps1`

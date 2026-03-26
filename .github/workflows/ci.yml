@@ -1,1 +1,43 @@
-﻿# TODO: fill in
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: src/PaperBinder.Web/package-lock.json
+
+      - name: Restore
+        shell: pwsh
+        run: ./scripts/restore.ps1
+
+      - name: Build
+        shell: pwsh
+        run: ./scripts/build.ps1 -Configuration Release
+
+      - name: Test
+        shell: pwsh
+        run: ./scripts/test.ps1 -Configuration Release
+
+      - name: Validate docs
+        shell: pwsh
+        run: ./scripts/validate-docs.ps1
