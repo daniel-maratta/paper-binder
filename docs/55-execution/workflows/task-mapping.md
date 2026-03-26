@@ -8,6 +8,8 @@ The execution plan defines *what* to build and in what order. The task board und
 
 This workflow is a taskboard-specific companion to [agent-operating-model.md](./agent-operating-model.md). Use the operating model for role boundaries and review cadence.
 
+Checkpoint-level progress is additionally summarized in [checkpoint-status.md](../checkpoint-status.md); use that ledger for done/active/next visibility, while task files and the work queue remain the task-level source of truth.
+
 ## Mapping Rules
 
 ### Checkpoint to Task Relationship
@@ -42,6 +44,7 @@ Examples:
 
 - Add new tasks to `Next` in `docs/05-taskboard/work-queue.md`.
 - Pull into `Now` when starting work (respect WIP limit of 3).
+- Mark the checkpoint `active` in `docs/55-execution/checkpoint-status.md` when the checkpoint's first task is pulled into execution.
 - Move to `Recently Done` when the task's acceptance criteria are met and `Status: done`.
 - If blocked, move to `Blocked` with an explicit unblock condition.
 
@@ -51,6 +54,7 @@ During execution, agents will discover work not anticipated by the checkpoint pl
 - Bugs: create a new task with `type:bug` context.
 - Scope expansion: add to the `Inbox` in `docs/05-taskboard/taskboard-intake.md` for triage.
 - Technical debt: create a task if it blocks the current checkpoint; otherwise add to `Inbox`.
+- If the discovered work affects checkpoint sequencing, readiness, or merge closure, add a short note to `docs/55-execution/checkpoint-status.md` after recording the durable detail in the taskboard.
 
 Do not expand an existing task to absorb discovered work. Split into a new task.
 

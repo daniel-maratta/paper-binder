@@ -11,6 +11,7 @@ Use this document when starting checkpoint work, defining tasks, reviewing chang
 ## Core Model
 
 - The taskboard under `docs/05-taskboard/` is the durable source of truth for in-flight execution state.
+- `docs/55-execution/checkpoint-status.md` is the canonical checkpoint-level progress ledger.
 - A checkpoint is the delivery unit. Checkpoints define outcome and merge gate.
 - A PR is the merge unit. A checkpoint may span 1-5 cohesive PRs.
 - The workflow is role-based and model-agnostic:
@@ -45,6 +46,7 @@ Use this document when starting checkpoint work, defining tasks, reviewing chang
 ### 1. Select Checkpoint
 
 - Read the checkpoint in `../execution-plan.md` and the relevant phase file in `../phases/`.
+- Read `../checkpoint-status.md` to confirm current checkpoint state, sequencing, and any open checkpoint-level follow-ups.
 - Confirm dependencies, entry conditions, and merge gate.
 - Check the taskboard for active, blocked, or related queued tasks.
 
@@ -85,6 +87,7 @@ Use this document when starting checkpoint work, defining tasks, reviewing chang
 - Merge only when the relevant build, test, and docs-validation expectations pass.
 - Update task status, validation evidence, review-gate outcomes, and task outcome in the same change set.
 - Move completed tasks to `Recently Done` in `docs/05-taskboard/work-queue.md`.
+- Update `../checkpoint-status.md` when checkpoint state changes, especially on checkpoint start, block, or completion.
 
 ## Review Gates
 
@@ -124,6 +127,7 @@ Minimum committed state for implementation work:
 - task file with scope, acceptance criteria, review gates, validation plan, validation evidence, and outcome
 - task file with a durable current-state note and next-action handoff
 - queue entry in `docs/05-taskboard/work-queue.md`
+- checkpoint entry in `docs/55-execution/checkpoint-status.md` when checkpoint status changes
 - PR description using the checkpoint template when implementation work is opened for review
 
 Detailed critic transcripts, prompt strategies, and model-specific orchestration remain outside PaperBinder.
