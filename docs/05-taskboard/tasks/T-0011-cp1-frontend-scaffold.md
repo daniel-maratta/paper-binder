@@ -1,7 +1,7 @@
 # T-0011: CP1 Frontend Scaffold
 
 ## Status
-queued
+done
 
 ## Type
 feature
@@ -33,12 +33,12 @@ Create the Vite React frontend scaffold aligned to the locked PaperBinder stack 
 - This task covers the client workspace only; root scripts and CI wiring are separate tasks.
 
 ## Acceptance Criteria
-- [ ] Frontend app scaffold exists with React, TypeScript, and Vite
-- [ ] Package manager and engine metadata are pinned per repo policy
-- [ ] Frontend build succeeds
-- [ ] Baseline structure aligns with current frontend standards
-- [ ] Frontend workspace can be run from VS Code tasks/launch settings without adding a separate command surface
-- [ ] Docs are updated if scaffold decisions affect canonical expectations
+- [x] Frontend app scaffold exists with React, TypeScript, and Vite
+- [x] Package manager and engine metadata are pinned per repo policy
+- [x] Frontend build succeeds
+- [x] Baseline structure aligns with current frontend standards
+- [x] Frontend workspace can be run from VS Code tasks/launch settings without adding a separate command surface
+- [x] Docs are updated if scaffold decisions affect canonical expectations
 
 ## Dependencies
 - [T-0002](./T-0002-agent-operating-model.md)
@@ -47,12 +47,12 @@ Create the Vite React frontend scaffold aligned to the locked PaperBinder stack 
 - (none)
 
 ## Review Gates
-- Scope Lock: Pending until task becomes active.
-- Pre-PR Critique: Pending until implementation and validation are complete.
+- Scope Lock: Locked to a Vite/React/TypeScript scaffold with Tailwind and a minimal Radix primitive usage only; no SSR, BFF, realtime, or extra form/state libraries were introduced.
+- Pre-PR Critique: Passed with no open blocker findings after the frontend build, workspace launch wiring, and docs updates validated successfully.
 - Escalation Notes: (none)
 
 ## Current State
-- Queued for CP1. Waiting on execution after solution-skeleton work begins or completes.
+- Completed. `src/PaperBinder.Web` now contains the pinned React/Vite/TypeScript scaffold, route placeholders, Tailwind wiring, and the committed `package-lock.json`.
 
 ## Touch Points
 - frontend application directory
@@ -63,7 +63,9 @@ Create the Vite React frontend scaffold aligned to the locked PaperBinder stack 
 - Keep this queued until the CP1 backend skeleton is underway, then implement the Vite React scaffold against the locked frontend stack.
 
 ## Validation Evidence
-- Pending implementation.
+- `npm.cmd install --prefix src/PaperBinder.Web` completed successfully and generated `src/PaperBinder.Web/package-lock.json`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` completed successfully, including the Vite production build.
+- The VS Code frontend launch configuration now starts `npm.cmd run dev` from `src/PaperBinder.Web`.
 
 ## Decision Notes
 - Keep dependencies conservative and aligned with the locked stack.
@@ -76,7 +78,9 @@ Create the Vite React frontend scaffold aligned to the locked PaperBinder stack 
 - Verify any changed docs remain synchronized.
 
 ## Outcome (Fill when done)
-- Pending implementation.
+- Added the Vite React frontend scaffold under `src/PaperBinder.Web`.
+- Pinned Node/npm expectations in the frontend package manifest to match the repo root policy.
+- Added a minimal route shell and styling baseline that stay inside the documented frontend constraints and leave feature behavior to later checkpoints.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

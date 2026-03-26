@@ -1,7 +1,7 @@
 # T-0010: CP1 Solution Skeleton
 
 ## Status
-queued
+done
 
 ## Type
 feature
@@ -33,12 +33,12 @@ Create the .NET solution and backend project skeleton required for the repo to b
 - This task covers backend workspace structure only; frontend scaffolding, scripts, and CI are separate tasks.
 
 ## Acceptance Criteria
-- [ ] Solution file exists and restores cleanly
-- [ ] Backend projects exist for API, worker, domain/application, infrastructure, migrations, and tests
-- [ ] Project references align with documented boundaries
-- [ ] Solution and project layout are launchable from VS Code without requiring a separate non-script workflow
-- [ ] Solution builds successfully
-- [ ] Docs are updated if the implemented structure changes canonical repo expectations
+- [x] Solution file exists and restores cleanly
+- [x] Backend projects exist for API, worker, domain/application, infrastructure, migrations, and tests
+- [x] Project references align with documented boundaries
+- [x] Solution and project layout are launchable from VS Code without requiring a separate non-script workflow
+- [x] Solution builds successfully
+- [x] Docs are updated if the implemented structure changes canonical repo expectations
 
 ## Dependencies
 - [T-0002](./T-0002-agent-operating-model.md)
@@ -47,12 +47,12 @@ Create the .NET solution and backend project skeleton required for the repo to b
 - (none)
 
 ## Review Gates
-- Scope Lock: Pending until task becomes active.
-- Pre-PR Critique: Pending until implementation and validation are complete.
+- Scope Lock: Locked to the documented CP1 backend boundary only: standard `.sln`, backend project skeleton, project references, and VS Code launchability without adding runtime/domain behavior ahead of later checkpoints.
+- Pre-PR Critique: Passed with no open blocker findings after validating restore, release build, tests, and docs integrity against the new workspace shape.
 - Escalation Notes: (none)
 
 ## Current State
-- Queued for CP1. No implementation work has started yet.
+- Completed. The repo now has a standard `PaperBinder.sln` plus API, worker, domain, application, infrastructure, migrations, and test projects under the documented `src/` and `tests/` layout.
 
 ## Touch Points
 - `*.sln`
@@ -63,7 +63,11 @@ Create the .NET solution and backend project skeleton required for the repo to b
 - Pull this task into `Now`, lock scope against current architecture docs, and implement the backend solution skeleton.
 
 ## Validation Evidence
-- Pending implementation.
+- `npm.cmd install --prefix src/PaperBinder.Web` completed successfully and generated the frontend lockfile.
+- `dotnet restore PaperBinder.sln` completed successfully against the pinned .NET 10 SDK.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` completed successfully.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release` completed successfully.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` completed successfully.
 
 ## Decision Notes
 - Keep project boundaries aligned to current architecture docs and coding standards.
@@ -76,7 +80,9 @@ Create the .NET solution and backend project skeleton required for the repo to b
 - Verify any changed docs remain synchronized.
 
 ## Outcome (Fill when done)
-- Pending implementation.
+- Added the Phase 1 / CP1 backend workspace skeleton under `src/` and `tests/`.
+- Aligned project references with the documented boundary rules: application depends on domain, infrastructure depends on application/domain, and host/test projects depend on the appropriate downstream assemblies.
+- Added a standard `.sln` and API host static-file wiring so the compiled SPA can be served from the ASP.NET host without committing generated frontend assets.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.
