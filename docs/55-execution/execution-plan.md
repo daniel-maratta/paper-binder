@@ -49,7 +49,7 @@ Merge gate:
 Outcome: configuration and local host topology are real early.
 
 Commits:
-1. Add typed backend configuration and frontend environment handling.
+1. Add typed backend configuration, frontend environment handling, and minimal health/readiness probes needed for topology verification.
 2. Add local Docker Compose, PostgreSQL container wiring, and reverse proxy baseline.
 3. Add `.env.example` aligned to deployment docs and canonical config keys.
 4. Update local runbook and deployment docs to match actual startup shape.
@@ -78,7 +78,7 @@ Outcome: the API surface follows the documented protocol before feature growth.
 
 Commits:
 1. Add ProblemDetails handling, `/api/*` `X-Api-Version` behavior, and `X-Correlation-Id` middleware.
-2. Add `GET /health/live` and `GET /health/ready` per contract.
+2. Add contract-focused integration coverage for `GET /health/live` and `GET /health/ready` alongside the protocol baseline.
 3. Add standard error-code mapping for contract-sensitive failures.
 4. Add integration tests for versioned API routes, non-versioned health routes, correlation headers, and ProblemDetails shape.
 

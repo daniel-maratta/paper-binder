@@ -23,6 +23,7 @@ Related standards:
 - Tenant lease extension-window rules and cleanup hard-delete behavior.
 - Challenge + pre-auth rate-limit behavior on provisioning and root login.
 - Impersonation constraints (tenant-local only) and required audit events.
+- Startup configuration validation and health/readiness behavior for the local/prod runtime topology.
 
 ## Test Layer Guidance
 

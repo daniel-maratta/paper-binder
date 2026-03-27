@@ -27,6 +27,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0014: CP2 Runtime Configuration And Local Deployment Scaffold](./tasks/T-0014-cp2-runtime-configuration-and-local-deployment-scaffold.md)
 - [T-0013: CP1 CI Pipeline](./tasks/T-0013-cp1-ci-pipeline.md)
 - [T-0012: CP1 Root Scripts And Docs Validation](./tasks/T-0012-cp1-root-scripts-and-docs-validation.md)
 - [T-0011: CP1 Frontend Scaffold](./tasks/T-0011-cp1-frontend-scaffold.md)

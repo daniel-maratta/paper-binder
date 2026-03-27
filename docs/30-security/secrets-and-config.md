@@ -12,6 +12,7 @@
   - Examples: database password, cookie encryption keys, API keys.
 - Config: non-sensitive behavior settings.
   - Examples: app URLs, feature flags, lease and cleanup cadence.
+- Frontend build-time config uses `VITE_PAPERBINDER_*` keys and stays non-secret in v1.
 
 ## Lease Configuration Naming
 
@@ -34,8 +35,12 @@
 - `PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE=120`
 - `PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE=10`
 - `PAPERBINDER_AUDIT_RETENTION_MODE=RetainTenantPurgedSummary`
+- `VITE_PAPERBINDER_ROOT_URL=https://lab.danielmaratta.com`
+- `VITE_PAPERBINDER_API_BASE_URL=https://lab.danielmaratta.com`
+- `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=lab.danielmaratta.com`
 
 Do not commit real values.
+Keep the repo-root `.env.example` synchronized with these keys using fake values only.
 
 `PAPERBINDER_AUDIT_RETENTION_MODE` must be exactly one supported mode:
 - `PurgeTenantAudit`
@@ -57,4 +62,5 @@ Do not commit real values.
 
 - Use a local `.env` file for development-only secrets.
 - `.env` must remain gitignored.
+- Start local Docker Compose and VS Code process-debug flows from the same repo-root `.env` contract.
 - Prefer platform secret stores where available; do not embed secrets in source files.

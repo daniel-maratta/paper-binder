@@ -55,4 +55,4 @@ Status: Draft
 ## Follow-Ups
 - `CP2` adds typed runtime configuration, local Docker/Postgres topology, and deployment-aligned environment handling.
 - `CP3` adds persistence infrastructure and the actual migration pipeline now that the workspace skeleton exists.
-- `CP4` adds the documented HTTP protocol baseline, including health endpoints, versioning behavior, correlation IDs, and ProblemDetails enforcement.
+- `CP4` adds the remaining documented HTTP protocol baseline, including versioning behavior, correlation IDs, ProblemDetails enforcement, and contract-focused protocol coverage.

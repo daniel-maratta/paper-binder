@@ -85,11 +85,12 @@ Canonical workspace commands live in `scripts/`:
 
 VS Code tasks and launch settings are thin wrappers over the same command surface in `.vscode/`.
 
-For local Development, the API host is backend-only and serves a minimal live-state page at `http://localhost:5080`; the SPA runs separately on `http://localhost:5173`.
+For local development, the canonical startup path is Docker Compose at `http://paperbinder.localhost:8080`, with optional process-debug surfaces on `http://localhost:5080` (API) and `http://localhost:5173` (Vite).
 
 Policy:
-- CP1 keeps the backend host reviewer-friendly without exposing interactive API docs.
-- Backend root indicates process liveness only; it is not a product UI surface.
+- CP2 makes the canonical local stack Docker Compose-based at `http://paperbinder.localhost:8080`, fronted by Caddy and backed by PostgreSQL.
+- Process-based API (`http://localhost:5080`) and Vite (`http://localhost:5173`) launches remain available for focused debugging, not as the canonical local topology.
+- Backend root in process-based Development indicates process liveness only; it is not a product UI surface.
 - Interactive API documentation can be introduced later when real endpoint contracts exist and authorization policy is in place.
 
 ---
