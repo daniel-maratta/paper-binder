@@ -26,8 +26,8 @@ Use this document to answer:
 ## Current Snapshot
 
 - Current checkpoint: none active
-- Last completed checkpoint: `CP1`
-- Next checkpoint: `CP2`
+- Last completed checkpoint: `CP2`
+- Next checkpoint: `CP3`
 - Open checkpoint blockers: none
 - Open incidental follow-ups: none recorded
 
@@ -36,8 +36,8 @@ Use this document to answer:
 | Checkpoint | Status | Notes |
 | --- | --- | --- |
 | `CP1` | done | Workspace bootstrap and CI shipped on branch `checkpoint-1-workspace-bootstrap-and-ci`; tasks `T-0010` through `T-0013` are complete. |
-| `CP2` | next | Runtime configuration and local deployment scaffold not started. |
-| `CP3` | queued | Persistence baseline and migration pipeline not started. |
+| `CP2` | done | Runtime configuration and local deployment scaffold shipped via task [T-0014](../05-taskboard/tasks/T-0014-cp2-runtime-configuration-and-local-deployment-scaffold.md) and PR artifact [cp2-runtime-configuration-and-local-deployment-scaffold-pr-description.md](../95-delivery/pr/cp2-runtime-configuration-and-local-deployment-scaffold-pr-description.md). |
+| `CP3` | next | Persistence baseline and migration pipeline not started. |
 | `CP4` | queued | HTTP contract baseline not started. |
 | `CP5` | queued | Tenancy resolution and immutable tenant context not started. |
 | `CP6` | queued | Identity, authentication, and membership validation not started. |

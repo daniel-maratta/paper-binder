@@ -1,0 +1,60 @@
+services:
+  proxy:
+    image: caddy:2.10
+    depends_on:
+      - app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./deploy/local/Caddyfile:/etc/caddy/Caddyfile:ro
+
+  app:
+    build:
+      context: .
+      dockerfile: src/PaperBinder.Api/Dockerfile
+      args:
+        VITE_PAPERBINDER_ROOT_URL: ${VITE_PAPERBINDER_ROOT_URL}
+        VITE_PAPERBINDER_API_BASE_URL: ${VITE_PAPERBINDER_API_BASE_URL}
+        VITE_PAPERBINDER_TENANT_BASE_DOMAIN: ${VITE_PAPERBINDER_TENANT_BASE_DOMAIN}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Local
+      ASPNETCORE_URLS: http://+:8080
+      PAPERBINDER_DB_CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      PAPERBINDER_AUTH_COOKIE_DOMAIN: ${PAPERBINDER_AUTH_COOKIE_DOMAIN}
+      PAPERBINDER_AUTH_COOKIE_NAME: ${PAPERBINDER_AUTH_COOKIE_NAME}
+      PAPERBINDER_AUTH_KEY_RING_PATH: /data/keys
+      PAPERBINDER_CHALLENGE_SITE_KEY: ${PAPERBINDER_CHALLENGE_SITE_KEY}
+      PAPERBINDER_CHALLENGE_SECRET_KEY: ${PAPERBINDER_CHALLENGE_SECRET_KEY}
+      PAPERBINDER_LEASE_DEFAULT_MINUTES: ${PAPERBINDER_LEASE_DEFAULT_MINUTES}
+      PAPERBINDER_LEASE_EXTENSION_MINUTES: ${PAPERBINDER_LEASE_EXTENSION_MINUTES}
+      PAPERBINDER_LEASE_MAX_EXTENSIONS: ${PAPERBINDER_LEASE_MAX_EXTENSIONS}
+      PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS: ${PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS}
+      PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE: ${PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE}
+      PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE: ${PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE}
+      PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE: ${PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE}
+      PAPERBINDER_AUDIT_RETENTION_MODE: ${PAPERBINDER_AUDIT_RETENTION_MODE}
+    volumes:
+      - paperbinder_keys:/data/keys
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - paperbinder_postgres:/var/lib/postgresql/data
+
+volumes:
+  paperbinder_keys:
+  paperbinder_postgres:

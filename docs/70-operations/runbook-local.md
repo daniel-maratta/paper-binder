@@ -2,10 +2,10 @@
 
 ## AI Summary
 
-- CP1 provides a real workspace command surface before database/runtime topology exists.
-- Canonical local commands live in `scripts/` and are reused by VS Code and CI.
-- Current local startup runs the API host, worker host, and Vite SPA scaffold.
-- Docker, Postgres, and migrations become part of the local flow in later checkpoints.
+- CP2 makes local startup a real Docker Compose topology with Caddy, a single app host, and PostgreSQL.
+- Canonical local commands still live in `scripts/` and are reused by VS Code where appropriate.
+- The repo-root `.env` file drives Docker Compose, backend process debugging, and frontend build-time configuration.
+- Process-based API, worker, and Vite launches remain available for focused debugging outside the canonical local stack.
 
 ## Prerequisites
 
@@ -13,6 +13,7 @@
 - .NET SDK pinned by `global.json`
 - Node.js pinned via repo `.nvmrc`
 - npm pinned via `package.json` `packageManager`
+- Docker Engine with Docker Compose plugin
 
 ## Canonical Commands
 
@@ -35,27 +36,41 @@
 - Build: task `Build`
 - Test: task `Test`
 - Docs validation: task `Validate Docs`
-- Local stack launch: task `Start Local Stack` or launch compound `Launch Local Stack`
+- Local stack launch: task `Start Local Stack`
+- Focused process debugging: launch `Launch API`, `Launch Worker`, or `Launch Frontend Dev Server`
 
-## Current CP1 Runtime Shape
+## Local Startup Shape
 
-- API host project: `src/PaperBinder.Api`
-- Worker host project: `src/PaperBinder.Worker`
-- Frontend project: `src/PaperBinder.Web`
-- Frontend dev server URL: `http://localhost:5173` on `localhost` only
-- API local-start URL: `http://localhost:5080`
-- Development backend landing page: `http://localhost:5080`
+- Root host URL: `http://paperbinder.localhost:8080`
+- Tenant host example: `http://demo.paperbinder.localhost:8080/app`
+- Compose file: `docker-compose.yml`
+- Reverse proxy config: `deploy/local/Caddyfile`
+- App image build: `src/PaperBinder.Api/Dockerfile`
+- Repo-root environment contract: `.env` copied from `.env.example`
 
-`scripts/start-local.ps1` starts the three processes in the background and writes stdout/stderr logs under `logs/local-start/`.
-It assumes the canonical restore/build path has already been run and then starts the hosts sequentially, waiting for each one to become ready.
-In local Development, the API host does not serve the SPA fallback; use `http://localhost:5173` for the frontend and `http://localhost:5080` for the backend host. The backend root is a simple reviewer-facing live-state page, not a product UI or interactive API documentation surface.
+`scripts/start-local.ps1` now runs `docker compose up -d --build`, then waits for `GET /health/live` and `GET /health/ready` through the proxy surface before returning control.
+The local app container serves the compiled SPA and API from one ASP.NET host, while the reverse proxy keeps root-host and tenant-host routing aligned with the documented deployment shape.
 
-## Current CP1 Limits
+## First-Time Local Stack Setup
 
-- No Docker Compose or PostgreSQL wiring exists yet.
-- No EF Core migrations pipeline exists yet.
+1. Copy `.env.example` to `.env`.
+2. Review or adjust local values if needed.
+3. Run `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`.
+
+The checked-in `.env.example` values are fake/demo-safe and are intended to work for the local Docker topology without exposing real secrets.
+
+## Process Debugging Surfaces
+
+- API process-debug URL: `http://localhost:5080`
+- Frontend dev server URL: `http://localhost:5173`
+- Backend root in Development remains a reviewer-facing live-state page rather than a product UI surface.
+- `Launch API` and `Launch Worker` read environment variables from the repo-root `.env`.
+
+## Current CP2 Limits
+
+- No migrations pipeline exists yet.
 - No provisioning, auth, or tenant-host feature flow exists yet.
-- Health endpoints and HTTP protocol middleware land in CP4.
+- HTTP versioning, correlation, ProblemDetails middleware, and contract-focused protocol coverage still land in CP4.
 - Interactive API documentation is intentionally deferred until endpoint contracts and authorization policy exist.
 
 ## Running Tests Locally

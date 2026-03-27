@@ -1,3 +1,58 @@
-namespace PaperBinder.Api;
+using PaperBinder.Api;
+using PaperBinder.Infrastructure.Configuration;
 
-public partial class Program;
+public partial class Program
+{
+    public static WebApplication BuildApp(
+        string[] args,
+        string? environmentName = null,
+        IReadOnlyDictionary<string, string?>? configurationOverrides = null)
+    {
+        var options = new WebApplicationOptions
+        {
+            Args = args,
+            EnvironmentName = environmentName
+        };
+
+        var builder = WebApplication.CreateBuilder(options);
+
+        if (configurationOverrides is not null)
+        {
+            builder.Configuration.AddInMemoryCollection(configurationOverrides);
+        }
+
+        var runtimeSettings = PaperBinderRuntimeSettings.Load(key => builder.Configuration[key]);
+
+        builder.Services.AddSingleton(runtimeSettings);
+        builder.Services.AddSingleton<DatabaseTcpReadinessProbe>();
+
+        var app = builder.Build();
+
+        app.MapPaperBinderHealthEndpoints();
+        MapFrontendSurface(app);
+
+        return app;
+    }
+
+    private static void MapFrontendSurface(WebApplication app)
+    {
+        var webRootPath = app.Environment.WebRootPath
+            ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+        var frontendEntryPoint = Path.Combine(webRootPath, "index.html");
+        var shouldServeCompiledFrontend = FrontendHostingPolicy.ShouldServeCompiledFrontend(
+            app.Environment.EnvironmentName,
+            File.Exists(frontendEntryPoint));
+
+        if (shouldServeCompiledFrontend)
+        {
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+            app.MapFallbackToFile("index.html");
+            return;
+        }
+
+        app.MapGet("/", () => Results.Content(
+            BackendLandingPage.Render(app.Environment.EnvironmentName),
+            "text/html"));
+    }
+}
