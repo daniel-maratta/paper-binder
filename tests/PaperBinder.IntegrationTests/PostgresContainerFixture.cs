@@ -36,7 +36,7 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
         await adminConnection.OpenAsync();
 
         await using (var createDatabaseCommand = new NpgsqlCommand(
-            $"CREATE DATABASE {databaseName};",
+            $"CREATE DATABASE {QuoteIdentifier(databaseName)};",
             adminConnection))
         {
             await createDatabaseCommand.ExecuteNonQueryAsync();
@@ -81,9 +81,15 @@ public sealed class PostgresContainerFixture : IAsyncLifetime
         }
 
         await using var dropDatabaseCommand = new NpgsqlCommand(
-            $"DROP DATABASE IF EXISTS {databaseName};",
+            $"DROP DATABASE IF EXISTS {QuoteIdentifier(databaseName)};",
             adminConnection);
         await dropDatabaseCommand.ExecuteNonQueryAsync();
+    }
+
+    private static string QuoteIdentifier(string identifier)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
+        return "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
     }
 
     private static bool LooksLikeDockerAvailabilityFailure(Exception exception)

@@ -10,7 +10,7 @@ internal static class HealthEndpoints
             Results.Json(HealthStatusResponse.Create("alive", clock)));
 
         app.MapGet("/health/ready", async (
-            DatabaseReadinessProbe readinessProbe,
+            IDatabaseReadinessProbe readinessProbe,
             ISystemClock clock,
             CancellationToken cancellationToken) =>
         {

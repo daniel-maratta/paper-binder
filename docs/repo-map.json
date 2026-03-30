@@ -32,6 +32,7 @@
     { "id": "ops", "type": "doc", "path": "docs/70-operations/README.md", "tags": ["operations"] },
     { "id": "tests", "type": "doc", "path": "docs/80-testing/README.md", "tags": ["testing"] },
     { "id": "adr", "type": "doc", "path": "docs/90-adr/README.md", "tags": ["adr"] },
+    { "id": "adr-0007", "type": "doc", "path": "docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md", "tags": ["adr", "persistence", "database"] },
     { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] }
   ],
   "edges": [
@@ -61,6 +62,8 @@
     { "from": "idx", "to": "ops", "rel": "lane-index" },
     { "from": "idx", "to": "tests", "rel": "lane-index" },
     { "from": "idx", "to": "adr", "rel": "lane-index" },
+    { "from": "idx", "to": "adr-0007", "rel": "key-decision" },
+    { "from": "adr", "to": "adr-0007", "rel": "contains" },
     { "from": "idx", "to": "delivery", "rel": "lane-index" }
   ]
 }

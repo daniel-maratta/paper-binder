@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0.100 AS publish
 WORKDIR /src
 
 COPY global.json ./
+COPY Directory.Build.props ./
 COPY src/PaperBinder.Migrations/PaperBinder.Migrations.csproj src/PaperBinder.Migrations/
 COPY src/PaperBinder.Infrastructure/PaperBinder.Infrastructure.csproj src/PaperBinder.Infrastructure/
 COPY src/PaperBinder.Application/PaperBinder.Application.csproj src/PaperBinder.Application/

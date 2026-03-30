@@ -3,7 +3,7 @@ using PaperBinder.Application.Persistence;
 
 namespace PaperBinder.Api;
 
-internal sealed class DatabaseReadinessProbe(ISqlConnectionFactory connectionFactory)
+internal sealed class DatabaseReadinessProbe(ISqlConnectionFactory connectionFactory) : IDatabaseReadinessProbe
 {
     public async Task<bool> IsReadyAsync(CancellationToken cancellationToken)
     {
@@ -15,13 +15,7 @@ internal sealed class DatabaseReadinessProbe(ISqlConnectionFactory connectionFac
             command.CommandTimeout = 2;
 
             var result = await command.ExecuteScalarAsync(cancellationToken);
-            return result switch
-            {
-                1 => true,
-                1L => true,
-                1m => true,
-                _ => false
-            };
+            return result is int scalar && scalar == 1;
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {

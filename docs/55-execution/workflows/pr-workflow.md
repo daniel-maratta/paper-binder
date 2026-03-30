@@ -26,6 +26,7 @@ Before opening a PR, verify:
 - [ ] Tenant scoping is not weakened for implementation convenience.
 - [ ] No non-goals are introduced without explicit ADR and scope approval.
 - [ ] Critic review summary and unresolved-risk status are included in the PR artifact.
+- [ ] The PR artifact status line reflects the current handoff state (`Draft` while in progress, `Review Ready` when ready for reviewer handoff).
 
 ## PR Validation
 
@@ -43,6 +44,7 @@ Before merging, the PR must satisfy:
 - No long-lived feature branches. Checkpoint work should merge within the checkpoint's natural scope.
 - If a PR is blocked, record the blocker in the associated task file and move the task to `Blocked` in `docs/05-taskboard/work-queue.md`.
 - After merge, verify `main` is green. If not, fix forward immediately.
+- Do not rewrite older merged PR artifacts solely to replace `Draft` with `Merged`; only update a merged artifact's status when that post-merge state is itself relevant to the current delivery docs.
 
 ## Relationship To Checkpoints And Tasks
 

@@ -1,4 +1,3 @@
-using PaperBinder.Infrastructure;
 using PaperBinder.Infrastructure.Persistence;
 using PaperBinder.Migrations;
 
@@ -17,5 +16,3 @@ else
         Console.WriteLine($"- {migration}");
     }
 }
-
-Console.WriteLine($"Loaded infrastructure assembly: {typeof(InfrastructureAssemblyMarker).Assembly.GetName().Name}");

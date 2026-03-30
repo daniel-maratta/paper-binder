@@ -1,10 +1,13 @@
 using System.Data;
 using System.Data.Common;
+using Microsoft.Extensions.Logging;
 using PaperBinder.Application.Persistence;
 
 namespace PaperBinder.Infrastructure.Persistence;
 
-public sealed class NpgsqlTransactionScopeRunner(ISqlConnectionFactory connectionFactory) : ITransactionScopeRunner
+public sealed class NpgsqlTransactionScopeRunner(
+    ISqlConnectionFactory connectionFactory,
+    ILogger<NpgsqlTransactionScopeRunner> logger) : ITransactionScopeRunner
 {
     public Task ExecuteAsync(
         Func<DbConnection, DbTransaction, CancellationToken, Task> operation,
@@ -42,15 +45,21 @@ public sealed class NpgsqlTransactionScopeRunner(ISqlConnectionFactory connectio
         }
     }
 
-    private static async Task RollbackAsync(DbTransaction transaction)
+    private async Task RollbackAsync(DbTransaction transaction)
     {
         try
         {
             await transaction.RollbackAsync(CancellationToken.None);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // Preserve the original failure from the transaction body.
+            logger.LogWarning(
+                ex,
+                "Database transaction rollback failed after an earlier operation error. TransactionType={TransactionType} ConnectionType={ConnectionType} ConnectionState={ConnectionState}",
+                transaction.GetType().FullName,
+                transaction.Connection?.GetType().FullName,
+                transaction.Connection?.State);
         }
     }
 }

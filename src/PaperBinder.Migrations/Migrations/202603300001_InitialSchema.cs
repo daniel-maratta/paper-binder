@@ -1,9 +1,13 @@
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using PaperBinder.Infrastructure.Persistence;
 
 #nullable disable
 
 namespace PaperBinder.Migrations.Migrations;
 
+[DbContext(typeof(PaperBinderDbContext))]
+[Migration("202603300001_InitialSchema")]
 public partial class InitialSchema : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)

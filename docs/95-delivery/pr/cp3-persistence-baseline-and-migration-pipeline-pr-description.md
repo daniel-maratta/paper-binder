@@ -1,5 +1,5 @@
 # CP3 PR Description: Persistence Baseline And Migration Pipeline
-Status: Draft
+Status: Review Ready
 
 ## Checkpoint
 - `CP3`: Persistence Baseline And Migration Pipeline
@@ -24,9 +24,9 @@ Status: Draft
 
 ## Critic Review
 - Scope-lock outcome: Passed. The change stays inside CP3 boundaries: persistence foundations, migration workflow, integration harness, and synchronized docs.
-- Findings summary: No code or build blocker remained after package/version alignment and Release build validation.
-- Unresolved risks or accepted gaps:
-  - CP3 merge-gate validation is blocked in this environment because Docker client access exists but no Docker daemon is running, so the Testcontainers-backed integration tests and migration container cannot complete here.
+- Critique outcome: All 9 actionable findings have been addressed on this branch.
+- Accepted deferrals: The remaining two observations are scope-correct deferrals and do not block CP3.
+- Validation outcome: Docker-backed migration and integration validation now pass.
 
 ## Risks And Rollout Notes
 - Config or migration considerations:
@@ -42,6 +42,9 @@ Status: Draft
   - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\preflight.ps1 -Profile Test -DockerIntegrationMode Require`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\migrate.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release -DockerIntegrationMode Require`
   - `docker compose config`
   - `docker version`
 - Tests added/updated:
@@ -54,8 +57,8 @@ Status: Draft
 - Manual verification:
   - Confirmed `docker compose config` resolves the new `migrations` service and app dependency graph correctly.
   - Confirmed build and docs validation pass.
-  - Could not complete Docker-backed migration/runtime verification because the Docker daemon was unavailable at `npipe://./pipe/docker_engine`.
+  - Confirmed the containerized migration workflow now restores correctly after copying `Directory.Build.props` into the .NET Docker build stages.
+  - Confirmed the initial EF migration is now discovered at runtime after adding the required migration metadata, and the Docker-backed persistence tests pass against real PostgreSQL databases.
 
 ## Follow-Ups
-- Re-run `scripts/migrate.ps1` and `scripts/test.ps1 -Configuration Release` once Docker daemon access is available; if those pass, CP3 can move from `blocked` to `done`.
-- `CP4` remains next once CP3 merge-gate validation is complete.
+- `CP4` is next.

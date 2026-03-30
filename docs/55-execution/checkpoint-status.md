@@ -25,10 +25,10 @@ Use this document to answer:
 
 ## Current Snapshot
 
-- Current checkpoint: `CP3`
-- Last completed checkpoint: `CP2`
-- Next checkpoint: `CP3`
-- Open checkpoint blockers: Docker daemon unavailable for the remaining CP3 Docker-backed validation in the current environment.
+- Current checkpoint: `none active`
+- Last completed checkpoint: `CP3`
+- Next checkpoint: `CP4`
+- Open checkpoint blockers: none.
 - Open incidental follow-ups: investigate opaque `dotnet restore` exit-1 behavior on the current Windows/.NET 10 SDK stack.
 
 ## Checkpoint Status
@@ -37,7 +37,7 @@ Use this document to answer:
 | --- | --- | --- |
 | `CP1` | done | Workspace bootstrap and CI shipped on branch `checkpoint-1-workspace-bootstrap-and-ci`; tasks `T-0010` through `T-0013` are complete. |
 | `CP2` | done | Runtime configuration and local deployment scaffold shipped via task [T-0014](../05-taskboard/tasks/T-0014-cp2-runtime-configuration-and-local-deployment-scaffold.md) and PR artifact [cp2-runtime-configuration-and-local-deployment-scaffold-pr-description.md](../95-delivery/pr/cp2-runtime-configuration-and-local-deployment-scaffold-pr-description.md). |
-| `CP3` | blocked | Implementation is in place via task [T-0015](../05-taskboard/tasks/T-0015-cp3-persistence-baseline-and-migration-pipeline.md); follow-up hardening in [T-0016](../05-taskboard/tasks/T-0016-repo-validation-tooling-hardening.md) improves preflight, package-version governance, and split test buckets, but Docker-backed migration/integration validation remains blocked until a Docker daemon is available. |
+| `CP3` | done | Persistence baseline and migration pipeline shipped via task [T-0015](../05-taskboard/tasks/T-0015-cp3-persistence-baseline-and-migration-pipeline.md), with follow-up hardening in [T-0016](../05-taskboard/tasks/T-0016-repo-validation-tooling-hardening.md). Docker-backed migration and integration validation now pass. PR artifact: [cp3-persistence-baseline-and-migration-pipeline-pr-description.md](../95-delivery/pr/cp3-persistence-baseline-and-migration-pipeline-pr-description.md). |
 | `CP4` | queued | HTTP contract baseline not started. |
 | `CP5` | queued | Tenancy resolution and immutable tenant context not started. |
 | `CP6` | queued | Identity, authentication, and membership validation not started. |

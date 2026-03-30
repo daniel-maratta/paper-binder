@@ -26,7 +26,7 @@ public partial class Program
 
         builder.Services.AddSingleton(runtimeSettings);
         builder.Services.AddPaperBinderPersistence(runtimeSettings);
-        builder.Services.AddSingleton<DatabaseReadinessProbe>();
+        builder.Services.AddSingleton<IDatabaseReadinessProbe, DatabaseReadinessProbe>();
 
         var app = builder.Build();
 
