@@ -35,6 +35,8 @@ Examples:
 - [ ] Tighten correlation ID docs around API failures | type:docs | source:architecture pass
 - [ ] Verify tenant purge edge case around expired-but-not-purged state | type:risk | source:test findings
 
+- [ ] Investigate opaque `dotnet restore` exit-1 behavior on the current Windows/.NET 10 SDK stack | type:risk | source:T-0016 validation
+
 ## Triage Rules
 
 - Agents periodically convert Inbox entries into `T-####` task files.

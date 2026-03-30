@@ -3,6 +3,7 @@ using PaperBinder.Infrastructure;
 
 namespace PaperBinder.IntegrationTests;
 
+[Trait("Category", IntegrationTestCategories.NonDocker)]
 public sealed class SolutionBootstrapTests
 {
     [Fact]

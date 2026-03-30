@@ -28,6 +28,15 @@ Transition expectations:
 - `active -> done`: acceptance criteria met and outcome recorded.
 - `queued|active|blocked -> cancelled`: no longer needed; rationale recorded.
 
+## Validation State Terms
+
+Use these terms precisely in task files, PR artifacts, and checkpoint notes:
+- `implemented`: scoped code/docs/tests are in place, but required validation is still incomplete or blocked
+- `validated`: the required commands/checks for the scoped change passed in the current environment and evidence is recorded
+- `done`: the task status only after the work is both implemented and validated, with no unresolved blocker finding remaining
+
+`blocked` may still contain implemented work when environment or dependency constraints prevent required validation from finishing.
+
 ## Queue Rules
 
 - `work-queue.md` is the current execution board.

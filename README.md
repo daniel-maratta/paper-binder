@@ -71,27 +71,35 @@ This is not intended to become a commercial product.
 Canonical workspace commands live in `scripts/`:
 
 - Windows PowerShell:
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\preflight.ps1 -Profile Full`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\restore.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\migrate.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
+  - `pwsh ./scripts/preflight.ps1 -Profile Full`
   - `pwsh ./scripts/restore.ps1`
   - `pwsh ./scripts/build.ps1`
   - `pwsh ./scripts/test.ps1`
+  - `pwsh ./scripts/migrate.ps1`
   - `pwsh ./scripts/validate-docs.ps1`
   - `pwsh ./scripts/start-local.ps1`
 
 VS Code tasks and launch settings are thin wrappers over the same command surface in `.vscode/`.
 
+The Windows `powershell -ExecutionPolicy Bypass -File ...` path is the supported baseline for this repo; it is not a one-off workaround and the checked-in VS Code tasks use the same entrypoint.
+
 For local development, the canonical startup path is Docker Compose at `http://paperbinder.localhost:8080`, with optional process-debug surfaces on `http://localhost:5080` (API) and `http://localhost:5173` (Vite).
 
 Policy:
 - CP2 makes the canonical local stack Docker Compose-based at `http://paperbinder.localhost:8080`, fronted by Caddy and backed by PostgreSQL.
+- CP3 adds a dedicated migrations executable and Docker Compose migration service so schema changes apply before the app host is considered ready.
 - Process-based API (`http://localhost:5080`) and Vite (`http://localhost:5173`) launches remain available for focused debugging, not as the canonical local topology.
 - Backend root in process-based Development indicates process liveness only; it is not a product UI surface.
 - Interactive API documentation can be introduced later when real endpoint contracts exist and authorization policy is in place.
+- `scripts/test.ps1` always runs unit tests plus the non-Docker integration bucket; Docker-backed integration tests run automatically when Docker is available and can be required explicitly via `-DockerIntegrationMode Require` for checkpoint or CI validation.
 
 ---
 

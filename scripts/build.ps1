@@ -17,6 +17,9 @@ $envPath = Join-Path $repoRoot ".env"
 $envExamplePath = Join-Path $repoRoot ".env.example"
 $createdTemporaryEnv = $false
 
+Assert-PaperBinderDotNetSdkAvailable
+Assert-PaperBinderFrontendToolchainAvailable
+
 if (-not (Test-Path $envPath)) {
   if (-not (Test-Path $envExamplePath)) {
     throw "Missing .env and .env.example at the repo root."

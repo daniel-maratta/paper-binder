@@ -75,6 +75,10 @@ Use this document when starting checkpoint work, defining tasks, reviewing chang
 - Run targeted validation for the changed behavior.
 - Verify the checkpoint merge gate conditions addressed by the change.
 - Record concrete commands, checks, and manual verification in the task file.
+- Use the terms `implemented`, `validated`, and `done` precisely:
+  - `implemented`: scoped changes are in place
+  - `validated`: required evidence is recorded from the current environment
+  - `done`: only after both implementation and validation are complete
 
 ### 6. Critique Before PR Or Merge
 

@@ -3,6 +3,7 @@ using PaperBinder.Api;
 
 namespace PaperBinder.IntegrationTests;
 
+[Trait("Category", IntegrationTestCategories.NonDocker)]
 public sealed class FrontendHostingPolicyTests
 {
     [Fact]
