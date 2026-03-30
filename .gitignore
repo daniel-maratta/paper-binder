@@ -22,6 +22,7 @@ src/PaperBinder.Api/wwwroot/
 *.local
 .env
 AGENTS.local.md
+.claude/*.local.json
 
 # Editor directories and files
 .vscode/*
