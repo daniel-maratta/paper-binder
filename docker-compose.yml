@@ -19,6 +19,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
     environment:
       ASPNETCORE_ENVIRONMENT: Local
       ASPNETCORE_URLS: http://+:8080
@@ -38,6 +40,17 @@ services:
       PAPERBINDER_AUDIT_RETENTION_MODE: ${PAPERBINDER_AUDIT_RETENTION_MODE}
     volumes:
       - paperbinder_keys:/data/keys
+
+  migrations:
+    build:
+      context: .
+      dockerfile: src/PaperBinder.Migrations/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PAPERBINDER_DB_CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+    restart: "no"
 
   db:
     image: postgres:17-alpine

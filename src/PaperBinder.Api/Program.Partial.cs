@@ -1,5 +1,6 @@
 using PaperBinder.Api;
 using PaperBinder.Infrastructure.Configuration;
+using PaperBinder.Infrastructure.Persistence;
 
 public partial class Program
 {
@@ -24,7 +25,8 @@ public partial class Program
         var runtimeSettings = PaperBinderRuntimeSettings.Load(key => builder.Configuration[key]);
 
         builder.Services.AddSingleton(runtimeSettings);
-        builder.Services.AddSingleton<DatabaseTcpReadinessProbe>();
+        builder.Services.AddPaperBinderPersistence(runtimeSettings);
+        builder.Services.AddSingleton<DatabaseReadinessProbe>();
 
         var app = builder.Build();
 
