@@ -4,7 +4,11 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+### Added
+- CP2 runtime scaffold: typed backend runtime configuration, minimal health/readiness endpoints, root `.env.example`, Docker Compose local topology, Caddy reverse proxy config, and a containerized single app-host build for SPA + API delivery.
+
 ### Docs
+- Updated README, operations runbooks, security config guidance, testing strategy, and execution-plan docs to reflect the CP2 local topology and shared `.env` contract.
 - Refined ADR-0023 wording to tighten router boundaries: React Router client-side SPA routing only, no framework mode, and no route-module server features/server loaders/actions in v1.
 - Locked npm (not pnpm) as the frontend package manager and propagated npm-based local runbook/tooling guidance.
 - Updated frontend Node/npm pins to Node `24.13.x` and npm `11.8.x` via `.nvmrc` and `package.json`.
@@ -38,5 +42,4 @@ All notable changes to this project are documented in this file.
 - Updated scope and PRD to remove document content editing from v1 and clarify immutable document behavior with optional supersession metadata.
 - Added concrete v1 feature slices and acceptance criteria in `docs/10-product/user-stories.md`.
 - Filled architecture/security placeholders for tenancy resolution, ASP.NET Core Identity posture, and tenant isolation rules.
-
 

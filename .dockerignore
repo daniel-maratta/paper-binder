@@ -1,0 +1,16 @@
+.git
+.github
+.vscode
+logs
+node_modules
+**/node_modules
+**/bin
+**/obj
+src/PaperBinder.Api/wwwroot
+src/PaperBinder.Web/dist
+tests
+docs
+review
+*.local
+.env
+AGENTS.local.md

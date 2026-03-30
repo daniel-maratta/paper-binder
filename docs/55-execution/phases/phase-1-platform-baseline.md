@@ -25,7 +25,7 @@ Establish the workspace, deployment topology, persistence pipeline, and HTTP con
 
 ### CP2 - Runtime Configuration And Local Deployment Scaffold
 
-- Typed backend configuration and frontend environment handling.
+- Typed backend configuration, frontend environment handling, and minimal health/readiness probes for local topology verification.
 - Docker Compose, PostgreSQL container, reverse proxy baseline, and single app-host wiring for SPA + API delivery.
 - `.env.example` aligned to deployment docs.
 - Local runbook and deployment docs updated.
@@ -40,7 +40,7 @@ Establish the workspace, deployment topology, persistence pipeline, and HTTP con
 ### CP4 - HTTP Contract Baseline
 
 - ProblemDetails handling, `X-Api-Version`, `X-Correlation-Id` middleware.
-- `GET /health/live` and `GET /health/ready` per contract.
+- Contract-focused integration coverage for `GET /health/live` and `GET /health/ready`.
 - Standard error-code mapping.
 - Integration tests for versioned API routes, non-versioned health routes, correlation headers, ProblemDetails shape.
 

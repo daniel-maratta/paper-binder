@@ -1,6 +1,7 @@
 import { Slot } from "@radix-ui/react-slot";
 import type { ButtonHTMLAttributes } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { frontendEnvironment } from "./environment";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   asChild?: boolean;
@@ -23,16 +24,18 @@ function Button({ asChild = false, className = "", ...props }: ButtonProps) {
 }
 
 function LandingPage() {
+  const { apiBaseUrl, rootUrl, tenantBaseDomain } = frontendEnvironment;
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fb923c,_#ffedd5_30%,_#f8fafc_70%)] text-slate-950">
       <section className="mx-auto flex min-h-screen max-w-6xl flex-col justify-between px-6 py-8 lg:px-10">
         <header className="flex items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-slate-700">PaperBinder</p>
-            <h1 className="mt-2 font-serif text-3xl md:text-5xl">Workspace bootstrap is now wired.</h1>
+            <h1 className="mt-2 font-serif text-3xl md:text-5xl">Runtime configuration and local topology are now wired.</h1>
           </div>
           <span className="rounded-full border border-slate-900/10 bg-white/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-slate-700">
-            CP1
+            CP2
           </span>
         </header>
 
@@ -43,6 +46,20 @@ function LandingPage() {
               tooling, Tailwind styling, and a light Radix primitive baseline. Root-host and tenant-host flows
               stay in one app, but feature routes remain intentionally minimal until later checkpoints.
             </p>
+            <dl className="mt-8 grid gap-4 rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-5 text-sm text-slate-700 md:grid-cols-3">
+              <div>
+                <dt className="text-xs uppercase tracking-[0.22em] text-slate-500">Root Host</dt>
+                <dd className="mt-2 break-all font-medium text-slate-950">{rootUrl}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.22em] text-slate-500">API Base</dt>
+                <dd className="mt-2 break-all font-medium text-slate-950">{apiBaseUrl}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.22em] text-slate-500">Tenant Domain</dt>
+                <dd className="mt-2 break-all font-medium text-slate-950">{tenantBaseDomain}</dd>
+              </div>
+            </dl>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button>Provisioning Shell</Button>
               <Button>Root Host Placeholder</Button>
@@ -54,13 +71,15 @@ function LandingPage() {
             <p className="text-xs uppercase tracking-[0.28em] text-orange-200">Baseline</p>
             <ul className="mt-6 space-y-4 text-sm leading-6 text-slate-300">
               <li>Local development keeps the API host and SPA dev server on distinct surfaces, with the backend host limited to a reviewer-facing live-state page.</li>
+              <li>Build-time environment validation now locks the root host, API base URL, and tenant base domain to one explicit frontend contract.</li>
               <li>Separate worker, migrations, domain, application, infrastructure, and test projects.</li>
               <li>Root PowerShell scripts become the canonical restore, build, test, validate, and start surface.</li>
             </ul>
             <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4">
               <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Next up</p>
               <p className="mt-2 text-sm text-slate-200">
-                CP2 will wire typed configuration, local containers, and the concrete runtime topology.
+                CP3 adds the persistence baseline: schema migrations, runtime data access plumbing, and a
+                Postgres-backed integration harness.
               </p>
             </div>
           </aside>

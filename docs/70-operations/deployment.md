@@ -28,6 +28,12 @@ Services:
 - PostgreSQL container.
 - Optional worker container (if cleanup is not in-process).
 
+Repository deployment baseline:
+- `docker-compose.yml`
+- `src/PaperBinder.Api/Dockerfile`
+- `deploy/local/Caddyfile`
+- repo-root `.env` copied from `.env.example`
+
 DNS:
 - Cloudflare DNS only (no proxy mode).
 - `lab.danielmaratta.com` and `*.lab.danielmaratta.com` records to host IP.
@@ -48,8 +54,12 @@ DNS:
 - `PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE=120`
 - `PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE=10`
 - `PAPERBINDER_AUDIT_RETENTION_MODE=RetainTenantPurgedSummary`
+- `VITE_PAPERBINDER_ROOT_URL=https://lab.danielmaratta.com`
+- `VITE_PAPERBINDER_API_BASE_URL=https://lab.danielmaratta.com`
+- `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=lab.danielmaratta.com`
 
 Keep secrets out of git. Use server-side `.env` or secret injection.
+Keep `.env.example` aligned to the canonical runtime and frontend build-time keys using fake values only.
 
 ## Deploy Procedure
 
