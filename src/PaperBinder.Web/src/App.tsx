@@ -73,7 +73,7 @@ function LandingPage() {
               <li>Build-time environment validation keeps the root host, API base URL, and tenant base domain explicit in the frontend contract.</li>
               <li>Schema changes now run through a dedicated migrations executable and Docker Compose migration service.</li>
               <li>Health readiness now depends on a real database query instead of a TCP-only socket probe.</li>
-              <li>Integration tests now provision isolated PostgreSQL databases and apply migrations before asserting persistence behavior.</li>
+              <li>Reviewer UI launches can serve this compiled SPA through the API host, while focused debugging still keeps the API and Vite surfaces separate.</li>
             </ul>
             <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4">
               <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Next up</p>

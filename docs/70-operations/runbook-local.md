@@ -44,6 +44,15 @@
 - Local stack launch: task `Start Local Stack`
 - Focused process debugging: launch `Launch API`, `Launch Worker`, or `Launch Frontend Dev Server`
 
+## Visual Studio Flow
+
+- Open `PaperBinder.sln`.
+- Preferred reviewer entry point: select the shared `Reviewer UI` solution launch profile from `PaperBinder.slnLaunch`.
+- If your Visual Studio build does not expose shared solution launch profiles, set `PaperBinder.Api` as the startup project and use the `reviewer-ui` launch profile from `launchSettings.json`.
+- For a process-based reviewer UI + worker session, use the shared `Reviewer UI + Worker` solution launch profile when available.
+
+Local Visual Studio process launches now load missing configuration keys from the repo-root `.env` file, and fall back to `.env.example` when `.env` is absent. The API project build also restores and builds the frontend workspace before copying the compiled SPA into `wwwroot`, so the reviewer UI launch does not depend on a separate Vite process.
+
 ## Local Startup Shape
 
 - Root host URL: `http://paperbinder.localhost:8080`
@@ -71,7 +80,9 @@ The checked-in `.env.example` values are fake/demo-safe and are intended to work
 
 - API process-debug URL: `http://localhost:5080`
 - Frontend dev server URL: `http://localhost:5173`
-- Backend root in Development remains a reviewer-facing live-state page rather than a product UI surface.
+- Plain Development API launches still show a backend-process live-state page rather than the product UI surface.
+- Visual Studio `reviewer-ui` launches serve the compiled SPA through the API host and load missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
+- Visual Studio `worker-process` launches also load missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
 - `Launch API` and `Launch Worker` read environment variables from the repo-root `.env`.
 
 ## Current CP3 Limits

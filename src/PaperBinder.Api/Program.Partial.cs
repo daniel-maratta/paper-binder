@@ -9,6 +9,8 @@ public partial class Program
         string? environmentName = null,
         IReadOnlyDictionary<string, string?>? configurationOverrides = null)
     {
+        LocalDotEnvBootstrapper.LoadMissingEnvironmentVariables(Directory.GetCurrentDirectory());
+
         var options = new WebApplicationOptions
         {
             Args = args,
@@ -41,9 +43,20 @@ public partial class Program
         var webRootPath = app.Environment.WebRootPath
             ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
         var frontendEntryPoint = Path.Combine(webRootPath, "index.html");
+        var requestedHostingMode = app.Configuration[FrontendHostingPolicy.HostingModeConfigurationKey];
+        var hasFrontendEntryPoint = File.Exists(frontendEntryPoint);
+
+        if (FrontendHostingPolicy.RequiresCompiledFrontend(requestedHostingMode) && !hasFrontendEntryPoint)
+        {
+            throw new InvalidOperationException(
+                $"Compiled frontend hosting was requested via {FrontendHostingPolicy.HostingModeConfigurationKey}, " +
+                $"but {frontendEntryPoint} does not exist. Build the solution so the frontend assets are copied into wwwroot.");
+        }
+
         var shouldServeCompiledFrontend = FrontendHostingPolicy.ShouldServeCompiledFrontend(
             app.Environment.EnvironmentName,
-            File.Exists(frontendEntryPoint));
+            hasFrontendEntryPoint,
+            requestedHostingMode);
 
         if (shouldServeCompiledFrontend)
         {

@@ -1,0 +1,24 @@
+[
+  {
+    "Name": "Reviewer UI",
+    "Projects": [
+      {
+        "Path": "src\\PaperBinder.Api\\PaperBinder.Api.csproj",
+        "Action": "Start"
+      }
+    ]
+  },
+  {
+    "Name": "Reviewer UI + Worker",
+    "Projects": [
+      {
+        "Path": "src\\PaperBinder.Api\\PaperBinder.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\PaperBinder.Worker\\PaperBinder.Worker.csproj",
+        "Action": "StartWithoutDebugging"
+      }
+    ]
+  }
+]

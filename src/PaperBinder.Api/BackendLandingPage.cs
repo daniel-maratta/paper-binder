@@ -76,7 +76,7 @@ public static class BackendLandingPage
       <span class="badge">Backend Host Live</span>
       <h1>PaperBinder API is running.</h1>
       <p>
-        This endpoint is a reviewer-facing landing page for the backend host. In local development,
+        This endpoint is a backend-process live-state page. In ordinary local development,
         the SPA runs separately on <code>http://localhost:5173</code>.
       </p>
       <ul>

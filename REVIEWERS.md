@@ -70,3 +70,4 @@ Then confirm constraints in canonical docs:
 ## Local Validation
 
 Use `docs/70-operations/runbook-local.md` for setup and run commands.
+For the fastest reviewer-facing process launch in Visual Studio, open `PaperBinder.sln` and use the shared `Reviewer UI` solution launch profile when available.
