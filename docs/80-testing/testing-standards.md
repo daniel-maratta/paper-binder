@@ -13,9 +13,11 @@
 - API protocol changes require explicit integration coverage, including scope boundaries (`X-Api-Version` on `/api/*`, `X-Correlation-Id` on all routes).
 - Security-boundary changes require explicit regression tests.
 - Docs and lint checks must pass before merge-ready status.
+- Environment-gated integration coverage must either run or be skipped with an explicit, visible reason; silent omission is not acceptable.
 
 ## Test Design Rules
 
 - Avoid flaky timing/network dependencies in default test suites.
 - Use controllable clocks and explicit fixtures for time-based behavior.
 - Keep assertions specific enough to catch regressions without overspecifying internals.
+- When only part of the integration suite needs Docker, tag and execute that bucket separately from non-Docker integration tests.

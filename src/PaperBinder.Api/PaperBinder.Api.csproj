@@ -4,12 +4,46 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <FrontendRoot>..\PaperBinder.Web\</FrontendRoot>
+    <FrontendRestoreStamp>$(FrontendRoot)node_modules\.paperbinder.restore.stamp</FrontendRestoreStamp>
+    <FrontendDistIndex>$(FrontendRoot)dist\index.html</FrontendDistIndex>
+    <NpmCommand Condition="'$(OS)' == 'Windows_NT'">npm.cmd</NpmCommand>
+    <NpmCommand Condition="'$(OS)' != 'Windows_NT'">npm</NpmCommand>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PaperBinder.Application\PaperBinder.Application.csproj" />
     <ProjectReference Include="..\PaperBinder.Infrastructure\PaperBinder.Infrastructure.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <FrontendBuildInput Include="$(FrontendRoot)package.json" />
+    <FrontendBuildInput Include="$(FrontendRoot)package-lock.json" />
+    <FrontendBuildInput Include="$(FrontendRoot)tsconfig*.json" />
+    <FrontendBuildInput Include="$(FrontendRoot)vite.config.ts" />
+    <FrontendBuildInput Include="$(FrontendRoot)src\**\*" />
+    <FrontendBuildInput Include="$(MSBuildProjectDirectory)\..\..\package.json" />
+    <FrontendBuildInput Include="$(MSBuildProjectDirectory)\..\..\.env" Condition="Exists('$(MSBuildProjectDirectory)\..\..\.env')" />
+    <FrontendBuildInput Include="$(MSBuildProjectDirectory)\..\..\.env.example" Condition="Exists('$(MSBuildProjectDirectory)\..\..\.env.example')" />
+  </ItemGroup>
+
+  <Target Name="RestoreFrontendDependencies"
+          BeforeTargets="Build"
+          Inputs="$(FrontendRoot)package.json;$(FrontendRoot)package-lock.json"
+          Outputs="$(FrontendRestoreStamp)"
+          Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(FrontendRoot)package.json')">
+    <Exec Command="$(NpmCommand) ci" WorkingDirectory="$(FrontendRoot)" />
+    <WriteLinesToFile File="$(FrontendRestoreStamp)" Lines="restored" Overwrite="true" />
+  </Target>
+
+  <Target Name="BuildFrontendAssets"
+          BeforeTargets="Build"
+          DependsOnTargets="RestoreFrontendDependencies"
+          Inputs="@(FrontendBuildInput)"
+          Outputs="$(FrontendDistIndex)"
+          Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(FrontendRoot)package.json')">
+    <Exec Command="$(NpmCommand) run build" WorkingDirectory="$(FrontendRoot)" />
+  </Target>
 
   <Target Name="CopyFrontendBuildOutput" AfterTargets="Build" Condition="Exists('..\PaperBinder.Web\dist\index.html')">
     <ItemGroup>

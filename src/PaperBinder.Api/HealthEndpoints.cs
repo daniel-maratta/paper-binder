@@ -1,18 +1,21 @@
+using PaperBinder.Application.Time;
+
 namespace PaperBinder.Api;
 
 internal static class HealthEndpoints
 {
     public static void MapPaperBinderHealthEndpoints(this WebApplication app)
     {
-        app.MapGet("/health/live", () =>
-            Results.Json(HealthStatusResponse.Create("alive")));
+        app.MapGet("/health/live", (ISystemClock clock) =>
+            Results.Json(HealthStatusResponse.Create("alive", clock)));
 
         app.MapGet("/health/ready", async (
-            DatabaseTcpReadinessProbe readinessProbe,
+            IDatabaseReadinessProbe readinessProbe,
+            ISystemClock clock,
             CancellationToken cancellationToken) =>
         {
             var isReady = await readinessProbe.IsReadyAsync(cancellationToken);
-            var response = HealthStatusResponse.Create(isReady ? "ready" : "not_ready");
+            var response = HealthStatusResponse.Create(isReady ? "ready" : "not_ready", clock);
 
             return isReady
                 ? Results.Json(response)
@@ -24,7 +27,7 @@ internal static class HealthEndpoints
         string Status,
         DateTimeOffset Timestamp)
     {
-        public static HealthStatusResponse Create(string status) =>
-            new(status, DateTimeOffset.UtcNow);
+        public static HealthStatusResponse Create(string status, ISystemClock clock) =>
+            new(status, clock.UtcNow);
     }
 }

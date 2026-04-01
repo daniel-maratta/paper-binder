@@ -20,6 +20,10 @@ Do not use legacy `stage` terminology for current execution planning or PR artif
 - Use checkpoint templates for implementation PRs.
 - Use the phase summary template only when a PR intentionally summarizes a completed phase or consolidates phase-level outcomes.
 - Use the release template for the final reviewer-facing release PR or equivalent delivery artifact.
+- For live PR artifacts, use `Status: Draft` while validation or review prep is still in progress.
+- For the current checkpoint or release artifact, use `Status: Review Ready` once the artifact is ready for reviewer handoff.
+- Use `Status: Merged` only when a currently relevant artifact is intentionally updated after merge to record its merged state.
+- Do not mass-update historical merged PR artifacts just to remove `Draft`; treat them as historical snapshots unless a broader delivery-doc consistency pass is underway.
 
 ## Versioning Rules
 

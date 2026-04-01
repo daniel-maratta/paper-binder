@@ -9,9 +9,9 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Get-RepoRoot
 $envFile = Join-Path $repoRoot ".env"
 
-if (-not (Test-Path $envFile)) {
-  throw "Missing .env at $envFile. Copy .env.example to .env before starting the local stack."
-}
+Assert-PaperBinderEnvFileExists
+[void](Assert-PaperBinderDockerAvailable)
+Assert-PaperBinderComposeAccess
 
 function Get-DotEnvValue {
   param(

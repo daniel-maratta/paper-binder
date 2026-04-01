@@ -112,6 +112,7 @@ Runtime:
 Schema:
 - Separate migrations tooling/project.
 - No mixed EF Core + Dapper runtime access in application code.
+- See [ADR-0007](../90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md) for the persistence stack decision.
 
 ---
 

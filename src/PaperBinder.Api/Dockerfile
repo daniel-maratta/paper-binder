@@ -19,6 +19,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0.100 AS publish
 WORKDIR /src
 
 COPY global.json ./
+COPY Directory.Build.props ./
 COPY src/PaperBinder.Api/PaperBinder.Api.csproj src/PaperBinder.Api/
 COPY src/PaperBinder.Application/PaperBinder.Application.csproj src/PaperBinder.Application/
 COPY src/PaperBinder.Domain/PaperBinder.Domain.csproj src/PaperBinder.Domain/

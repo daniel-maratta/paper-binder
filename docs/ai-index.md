@@ -33,6 +33,11 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/90-adr/README.md](./90-adr/README.md)
 - [docs/95-delivery/README.md](./95-delivery/README.md)
 
+## Key ADRs
+
+- [docs/90-adr/ADR-0005-no-bff.md](./90-adr/ADR-0005-no-bff.md)
+- [docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md](./90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md)
+
 ## Execution References
 
 - [docs/55-execution/execution-plan.md](./55-execution/execution-plan.md)

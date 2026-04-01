@@ -68,6 +68,7 @@ Out of scope:
 ## Recovery and Rollback
 
 - Restart services: `docker compose restart`.
+- Re-apply schema if the migration container did not complete cleanly: `docker compose run --rm migrations`.
 - Redeploy current revision: `docker compose up -d --build`.
 - Roll back to previous known-good revision/tag when needed.
 - Validate schema compatibility during rollback.

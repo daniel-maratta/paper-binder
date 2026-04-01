@@ -13,10 +13,17 @@ Integration tests in v1 must cover:
 ## Test Environment Setup
 
 - PostgreSQL test container.
-- Schema migrations applied at test start.
-- Seeded tenants and users for at least two tenants.
-- API host configured with tenant-resolution middleware and cookie auth enabled.
-- Worker or cleanup job entrypoint invokable in test context.
+- Create an isolated database per test or per fixture scope inside the shared container.
+- Apply schema migrations through `PaperBinder.Migrations` or the shared migration runner before exercising runtime code.
+- Seed only the minimal rows required by the scenario under test.
+- Use the real API host or runtime persistence services instead of in-memory substitutes when validating data-access behavior.
+- Worker or cleanup job entrypoint remains invokable in test context once that behavior lands.
+
+## Execution Buckets
+
+- `Category=NonDocker`: integration coverage that runs without Docker and should stay fast enough for default local feedback.
+- `Category=Docker`: integration coverage that requires a working Docker daemon and backs persistence-sensitive or container-backed verification.
+- `scripts/test.ps1` runs both buckets separately so Docker availability failures are explicit rather than buried inside the entire integration suite.
 
 ## Naming and Location Conventions
 
@@ -45,7 +52,9 @@ Integration tests in v1 must cover:
 ## Execution Expectations
 
 - Integration tests are deterministic and isolated.
+- Baseline persistence tests should prove migration application, real database readiness checks, and runtime transaction behavior against PostgreSQL.
 - Clock-sensitive lease tests use a controllable clock abstraction.
 - Failures must emit trace/correlation identifiers in test logs where available.
 - Assertions should verify `X-Api-Version` on representative `/api/*` endpoints.
 - Assertions should verify `X-Correlation-Id` on representative API and non-API endpoints.
+- Docker-backed tests should emit a clear preflight or fixture-level failure message when Docker is unavailable.

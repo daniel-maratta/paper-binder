@@ -2,6 +2,7 @@ using PaperBinder.Infrastructure.Configuration;
 
 namespace PaperBinder.IntegrationTests;
 
+[Trait("Category", IntegrationTestCategories.NonDocker)]
 public sealed class RuntimeConfigurationTests
 {
     [Fact]

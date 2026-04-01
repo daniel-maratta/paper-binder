@@ -24,6 +24,7 @@ Host baseline:
 
 Services:
 - Caddy reverse proxy (TLS + host routing).
+- Dedicated migrations executable/container for schema updates.
 - ASP.NET app container (SPA + API).
 - PostgreSQL container.
 - Optional worker container (if cleanup is not in-process).
@@ -31,6 +32,7 @@ Services:
 Repository deployment baseline:
 - `docker-compose.yml`
 - `src/PaperBinder.Api/Dockerfile`
+- `src/PaperBinder.Migrations/Dockerfile`
 - `deploy/local/Caddyfile`
 - repo-root `.env` copied from `.env.example`
 
@@ -69,9 +71,11 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
 4. Run:
    - `docker compose pull` or
    - `docker compose build`
-5. Start/update services:
+5. Apply schema updates:
+   - `docker compose run --rm migrations`
+6. Start/update services:
    - `docker compose up -d`
-6. Verify:
+7. Verify:
    - unauthenticated `GET /health/live` returns `200`
    - unauthenticated `GET /health/ready` returns `200`
    - health payloads are minimal and non-sensitive (no dependency internals, no version metadata)
@@ -87,6 +91,7 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
 - Tagged-image flow: redeploy previous known-good tag.
 - Source flow: checkout previous commit and redeploy with compose.
 - Validate DB schema compatibility before rollback if migrations ran.
+- If rollback requires a down-migration, execute it explicitly through the migrations workflow before restoring the older app image.
 
 ## Data and Observability Minimums
 
