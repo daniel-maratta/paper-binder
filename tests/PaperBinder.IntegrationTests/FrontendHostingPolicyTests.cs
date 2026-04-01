@@ -3,6 +3,7 @@ using PaperBinder.Api;
 
 namespace PaperBinder.IntegrationTests;
 
+[Trait("Category", IntegrationTestCategories.NonDocker)]
 public sealed class FrontendHostingPolicyTests
 {
     [Fact]
@@ -13,6 +14,17 @@ public sealed class FrontendHostingPolicyTests
             hasFrontendEntryPoint: true);
 
         Assert.False(shouldServe);
+    }
+
+    [Fact]
+    public void ExplicitCompiledMode_ServesCompiledFrontend_InDevelopment()
+    {
+        var shouldServe = FrontendHostingPolicy.ShouldServeCompiledFrontend(
+            Environments.Development,
+            hasFrontendEntryPoint: true,
+            FrontendHostingPolicy.CompiledHostingMode);
+
+        Assert.True(shouldServe);
     }
 
     [Fact]
@@ -36,12 +48,13 @@ public sealed class FrontendHostingPolicyTests
     }
 
     [Fact]
-    public void BackendLandingPage_RendersReviewerFacingLiveState()
+    public void BackendLandingPage_RendersBackendLiveState()
     {
         var html = BackendLandingPage.Render(Environments.Development);
 
         Assert.Contains("PaperBinder API is running.", html);
         Assert.Contains("Backend Host Live", html);
+        Assert.Contains("backend-process live-state page", html);
         Assert.Contains(Environments.Development, html);
     }
 }

@@ -39,3 +39,4 @@ Define PaperBinder runtime data-access rules for tenant isolation and auditabili
 - `docs/30-security/tenant-isolation.md`
 - `docs/20-architecture/data-model.md`
 - `docs/80-testing/integration-tests.md`
+- `docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md`

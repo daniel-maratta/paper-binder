@@ -27,7 +27,8 @@ Out of scope:
 ## Integration Test Data
 
 - Use dedicated containerized Postgres.
-- Reset schema per run (or equivalent isolation strategy).
+- Prefer one isolated database per test or fixture scope inside the shared Postgres container.
+- Apply migrations to the isolated database before the test touches runtime persistence paths.
 - Seed minimal required reference data.
 
 ## E2E Test Data

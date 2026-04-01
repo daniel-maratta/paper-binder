@@ -1,6 +1,11 @@
 # Release PR Description Template
 Status: Template
 
+Status guidance:
+- Use `Draft` while the release artifact is still accumulating validation and walkthrough material.
+- Use `Review Ready` when the current release artifact is ready for final reviewer handoff.
+- Use `Merged` only if this artifact is intentionally updated after merge.
+
 ## Release
 - Version:
 - Related checkpoint:

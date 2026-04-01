@@ -14,6 +14,7 @@ Related standards:
 - Tests must be deterministic and isolated.
 - Prefer integration tests for boundary behavior.
 - Prefer unit tests for domain invariants and handler logic.
+- Repository test scripts should separate environment-light validation from Docker-backed validation so local feedback stays useful without hiding skipped merge-gate coverage.
 
 ## Non-Negotiable Coverage
 
@@ -31,9 +32,16 @@ Related standards:
   - Multi-tenant query boundaries.
   - Authentication/authorization boundary behavior.
   - Provisioning and cleanup workflows.
+  - Split repo execution into non-Docker and Docker-backed buckets when Docker is required for only part of the suite.
 - Unit tests:
   - Domain invariants.
   - Command/query handler behavior under explicit preconditions.
+
+## Validation Contract
+
+- `scripts/test.ps1` must always make Docker-backed coverage status explicit.
+- Local `Auto` mode may skip Docker-backed integration tests with a clear message when Docker is unavailable.
+- Checkpoint or CI merge-gate validation must require the Docker-backed bucket explicitly rather than assuming it ran.
 
 ## Environment-Gated Test Bypass Reminder
 

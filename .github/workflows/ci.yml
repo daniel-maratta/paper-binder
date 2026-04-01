@@ -36,7 +36,7 @@ jobs:
 
       - name: Test
         shell: pwsh
-        run: ./scripts/test.ps1 -Configuration Release
+        run: ./scripts/test.ps1 -Configuration Release -DockerIntegrationMode Require
 
       - name: Validate docs
         shell: pwsh

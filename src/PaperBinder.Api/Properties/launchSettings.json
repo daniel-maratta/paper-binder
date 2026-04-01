@@ -1,14 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "http": {
+    "reviewer-ui": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "",
       "applicationUrl": "http://localhost:5080",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "PAPERBINDER_FRONTEND_HOSTING_MODE": "compiled"
       }
     }
   }

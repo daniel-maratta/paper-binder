@@ -1,6 +1,12 @@
 # Checkpoint PR Description Template
 Status: Template
 
+Status guidance:
+- Use `Draft` while the checkpoint PR artifact or validation is still in progress.
+- Use `Review Ready` when the current checkpoint artifact is ready for reviewer handoff.
+- Use `Merged` only if this artifact is intentionally updated after merge.
+- Leave older merged artifacts alone unless you are already doing a broader delivery-doc consistency pass.
+
 ## Checkpoint
 - `CP#`:
 - Task IDs:

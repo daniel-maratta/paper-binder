@@ -58,8 +58,8 @@ Frontend UI stack lock-in is defined by this stack baseline plus the PaperBinder
 ### Data and Persistence
 
 - PostgreSQL (single shared database with tenant scoping)
-- Dapper for runtime queries/commands
-- EF Core for migrations/tooling only (no EF runtime query path)
+- Dapper for runtime queries/commands ([ADR-0007](../90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md))
+- EF Core for migrations/tooling only (no EF runtime query path; [ADR-0007](../90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md))
 
 ### API and Protocol Contracts
 
@@ -139,3 +139,4 @@ Frontend UI stack lock-in is defined by this stack baseline plus the PaperBinder
 - `docs/60-ai/ai-subsystem-overview.md`
 - `docs/60-ai/ai-architecture.md`
 - `docs/90-adr/ADR-0005-no-bff.md`
+- `docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md`
