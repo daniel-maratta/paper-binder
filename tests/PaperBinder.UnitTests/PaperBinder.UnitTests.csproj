@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\PaperBinder.Api\PaperBinder.Api.csproj" />
     <ProjectReference Include="..\..\src\PaperBinder.Application\PaperBinder.Application.csproj" />
     <ProjectReference Include="..\..\src\PaperBinder.Domain\PaperBinder.Domain.csproj" />
   </ItemGroup>

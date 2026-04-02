@@ -6,8 +6,10 @@ All notable changes to this project are documented in this file.
 
 ### Added
 - CP2 runtime scaffold: typed backend runtime configuration, minimal health/readiness endpoints, root `.env.example`, Docker Compose local topology, Caddy reverse proxy config, and a containerized single app-host build for SPA + API delivery.
+- CP4 HTTP contract baseline: global `X-Correlation-Id` middleware, `/api/*` version negotiation with `API_VERSION_UNSUPPORTED` ProblemDetails failures, and a canonical `/api/*` fallback that returns RFC 7807 errors with trace/correlation metadata.
 
 ### Docs
+- Updated API contract and integration-testing docs to record the live CP4 protocol behavior: invalid client correlation IDs are replaced server-side, invalid API-version failures still emit `X-Api-Version: 1`, and unmatched `/api/*` routes return ProblemDetails instead of falling through to SPA handling.
 - Updated README, operations runbooks, security config guidance, testing strategy, and execution-plan docs to reflect the CP2 local topology and shared `.env` contract.
 - Refined ADR-0023 wording to tighten router boundaries: React Router client-side SPA routing only, no framework mode, and no route-module server features/server loaders/actions in v1.
 - Locked npm (not pnpm) as the frontend package manager and propagated npm-based local runbook/tooling guidance.
@@ -42,4 +44,3 @@ All notable changes to this project are documented in this file.
 - Updated scope and PRD to remove document content editing from v1 and clarify immutable document behavior with optional supersession metadata.
 - Added concrete v1 feature slices and acceptance criteria in `docs/10-product/user-stories.md`.
 - Filled architecture/security placeholders for tenancy resolution, ASP.NET Core Identity posture, and tenant isolation rules.
-
