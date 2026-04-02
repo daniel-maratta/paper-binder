@@ -42,11 +42,13 @@ Integration tests in v1 must cover:
 - `Should_NotDeleteActiveTenant_When_CleanupJobRuns`.
 - `Should_ReturnBadRequest_When_ApiVersionIsUnsupported`.
 - `Should_DefaultToV1_When_ApiVersionHeaderIsMissing`.
+- `Should_ReturnProblemDetails_When_ApiRouteDoesNotExist`.
 - `Should_NotRequireApiVersion_When_RouteIsNotUnderApiPrefix`.
 - `Should_NotRequireApiVersion_When_RouteIsHealthEndpoint`.
 - `Should_AllowAnonymousHealthChecks_WithMinimalPayload`.
 - `Should_EchoCorrelationId_When_ClientSuppliesHeader`.
 - `Should_GenerateCorrelationId_When_HeaderIsMissing`.
+- `Should_ReplaceInvalidCorrelationId_When_ClientSuppliesRejectedHeader`.
 - `Should_IncludeTraceAndCorrelationIds_When_ProblemDetailsIsReturned`.
 
 ## Execution Expectations
@@ -57,4 +59,5 @@ Integration tests in v1 must cover:
 - Failures must emit trace/correlation identifiers in test logs where available.
 - Assertions should verify `X-Api-Version` on representative `/api/*` endpoints.
 - Assertions should verify `X-Correlation-Id` on representative API and non-API endpoints.
+- Assertions should verify health endpoints remain outside API version negotiation even when they return `503`.
 - Docker-backed tests should emit a clear preflight or fixture-level failure message when Docker is unavailable.

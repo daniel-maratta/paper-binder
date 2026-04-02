@@ -58,6 +58,8 @@ Out of scope:
 - In v1, omitted version defaults to `1`.
 - Unsupported/malformed versions on `/api/*` return `400` ProblemDetails with stable error code `API_VERSION_UNSUPPORTED`.
 - `/api/*` responses include the negotiated version in `X-Api-Version`.
+- Invalid-version error responses still emit `X-Api-Version: 1`.
+- Unmatched `/api/*` routes return `404` ProblemDetails rather than falling through to SPA fallback behavior.
 - Non-API routes (SPA HTML/assets and health endpoints) do not participate in API version negotiation.
 
 ## Non-API Operational Endpoints
@@ -85,6 +87,7 @@ Out of scope:
 ## Correlation Headers
 
 - Request header: `X-Correlation-Id` (optional client-supplied correlation token).
+- Client values are reused only when they are single visible ASCII tokens with no whitespace/control characters and length `1-64`; otherwise the server generates a replacement correlation ID.
 - Response header: `X-Correlation-Id` (always present).
 - ProblemDetails payloads must include both `traceId` and `correlationId`.
 

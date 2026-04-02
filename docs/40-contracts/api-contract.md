@@ -23,8 +23,10 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 - Version negotiation applies to `/api/*` routes only.
 - On `/api/*`, request header `X-Api-Version` is optional in v1 and defaults to `1`.
 - On `/api/*`, response header `X-Api-Version` is always returned.
+- If `X-Api-Version` is malformed or unsupported on `/api/*`, the error response still returns `X-Api-Version: 1`.
 - Non-API routes (SPA HTML/assets, health endpoints) do not participate in API version negotiation.
 - Request header `X-Correlation-Id` is optional.
+- Client-supplied `X-Correlation-Id` is reused only when it is a single visible ASCII token with no whitespace/control characters and length `1-64`; otherwise the server generates a replacement value.
 - Response header `X-Correlation-Id` is always returned.
 - v1 RBAC simplification: users have one effective role per tenant. Future versions may support multi-role aggregation.
 
@@ -51,6 +53,7 @@ Notes:
 - `traceId` is required for incident correlation.
 - `correlationId` is required for request/incident correlation.
 - Unsupported API version errors use `errorCode` `API_VERSION_UNSUPPORTED`.
+- Unmatched `/api/*` routes return `404` ProblemDetails and still include `traceId`, `correlationId`, `X-Api-Version`, and `X-Correlation-Id`.
 
 ## API Surface
 
