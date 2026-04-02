@@ -25,9 +25,9 @@ Use this document to answer:
 
 ## Current Snapshot
 
-- Current checkpoint: `none active`
+- Current checkpoint: `CP4`
 - Last completed checkpoint: `CP3`
-- Next checkpoint: `CP4`
+- Next checkpoint: `CP5`
 - Open checkpoint blockers: none.
 - Open incidental follow-ups: investigate opaque `dotnet restore` exit-1 behavior on the current Windows/.NET 10 SDK stack.
 
@@ -38,7 +38,7 @@ Use this document to answer:
 | `CP1` | done | Workspace bootstrap and CI shipped on branch `checkpoint-1-workspace-bootstrap-and-ci`; tasks `T-0010` through `T-0013` are complete. |
 | `CP2` | done | Runtime configuration and local deployment scaffold shipped via task [T-0014](../05-taskboard/tasks/T-0014-cp2-runtime-configuration-and-local-deployment-scaffold.md) and PR artifact [cp2-runtime-configuration-and-local-deployment-scaffold-pr-description.md](../95-delivery/pr/cp2-runtime-configuration-and-local-deployment-scaffold-pr-description.md). |
 | `CP3` | done | Persistence baseline and migration pipeline shipped via task [T-0015](../05-taskboard/tasks/T-0015-cp3-persistence-baseline-and-migration-pipeline.md), with follow-up hardening in [T-0016](../05-taskboard/tasks/T-0016-repo-validation-tooling-hardening.md). Docker-backed migration and integration validation now pass. PR artifact: [cp3-persistence-baseline-and-migration-pipeline-pr-description.md](../95-delivery/pr/cp3-persistence-baseline-and-migration-pipeline-pr-description.md). |
-| `CP4` | queued | HTTP contract baseline not started. |
+| `CP4` | active | HTTP contract baseline is implemented and validated on the current branch via task [T-0017](../05-taskboard/tasks/T-0017-cp4-http-contract-baseline.md). PR artifact: [cp4-http-contract-baseline-pr-description.md](../95-delivery/pr/cp4-http-contract-baseline-pr-description.md). |
 | `CP5` | queued | Tenancy resolution and immutable tenant context not started. |
 | `CP6` | queued | Identity, authentication, and membership validation not started. |
 | `CP7` | queued | Pre-auth abuse controls and provisioning surface not started. |

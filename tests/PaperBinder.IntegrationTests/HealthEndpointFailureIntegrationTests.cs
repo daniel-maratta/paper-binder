@@ -6,6 +6,9 @@ namespace PaperBinder.IntegrationTests;
 [Trait("Category", IntegrationTestCategories.NonDocker)]
 public sealed class HealthEndpointFailureIntegrationTests
 {
+    private const string ApiVersionHeader = "X-Api-Version";
+    private const string CorrelationIdHeader = "X-Correlation-Id";
+
     [Fact]
     public async Task Should_ReturnServiceUnavailable_When_DatabaseQueryFails()
     {
@@ -19,8 +22,16 @@ public sealed class HealthEndpointFailureIntegrationTests
         var readyPayload = await readyResponse.Content.ReadFromJsonAsync<HealthPayload>();
 
         Assert.Equal(HttpStatusCode.ServiceUnavailable, readyResponse.StatusCode);
+        Assert.False(readyResponse.Headers.Contains(ApiVersionHeader));
+        Assert.Matches("^[a-f0-9]{32}$", GetRequiredHeader(readyResponse, CorrelationIdHeader));
         Assert.NotNull(readyPayload);
         Assert.Equal("not_ready", readyPayload!.Status);
+    }
+
+    private static string GetRequiredHeader(HttpResponseMessage response, string headerName)
+    {
+        Assert.True(response.Headers.TryGetValues(headerName, out var values));
+        return Assert.Single(values);
     }
 
     private static int GetUnusedPort()

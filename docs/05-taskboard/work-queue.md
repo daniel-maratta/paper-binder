@@ -27,6 +27,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0017: CP4 HTTP Contract Baseline](./tasks/T-0017-cp4-http-contract-baseline.md)
 - [T-0015: CP3 Persistence Baseline And Migration Pipeline](./tasks/T-0015-cp3-persistence-baseline-and-migration-pipeline.md)
 - [T-0016: Repo Validation Tooling Hardening](./tasks/T-0016-repo-validation-tooling-hardening.md)
 - [T-0014: CP2 Runtime Configuration And Local Deployment Scaffold](./tasks/T-0014-cp2-runtime-configuration-and-local-deployment-scaffold.md)
