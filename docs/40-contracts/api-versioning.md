@@ -11,6 +11,7 @@ This file is the PaperBinder-specific versioning policy for current `/api/*` beh
 - Current supported major version: `1`.
 - If `X-Api-Version` is omitted, server defaults to `1` in v1.
 - `/api/*` response header: `X-Api-Version` is always returned with the negotiated version.
+- Invalid-version error responses still emit `X-Api-Version: 1`.
 - Non-API routes (SPA HTML/assets and health endpoints) do not participate in API version negotiation.
 
 ## Unsupported Versions
@@ -21,6 +22,7 @@ This file is the PaperBinder-specific versioning policy for current `/api/*` beh
   - `traceId`
   - `correlationId`
 - `detail` should indicate supported versions.
+- Requests to unmatched `/api/*` routes still participate in version negotiation and return `404` ProblemDetails after version handling succeeds.
 
 ## Evolution Rules
 

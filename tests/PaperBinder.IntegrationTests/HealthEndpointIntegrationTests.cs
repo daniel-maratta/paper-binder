@@ -7,6 +7,9 @@ namespace PaperBinder.IntegrationTests;
 [Collection(PostgresDatabaseCollection.Name)]
 public sealed class HealthEndpointIntegrationTests
 {
+    private const string ApiVersionHeader = "X-Api-Version";
+    private const string CorrelationIdHeader = "X-Correlation-Id";
+
     private readonly PostgresContainerFixture _postgres;
 
     public HealthEndpointIntegrationTests(PostgresContainerFixture postgres)
@@ -27,16 +30,28 @@ public sealed class HealthEndpointIntegrationTests
 
         Assert.Equal(HttpStatusCode.OK, liveResponse.StatusCode);
         Assert.Equal(HttpStatusCode.OK, readyResponse.StatusCode);
+        Assert.False(liveResponse.Headers.Contains(ApiVersionHeader));
+        Assert.False(readyResponse.Headers.Contains(ApiVersionHeader));
 
         var livePayload = await liveResponse.Content.ReadFromJsonAsync<HealthPayload>();
         var readyPayload = await readyResponse.Content.ReadFromJsonAsync<HealthPayload>();
+        var liveCorrelationId = GetRequiredHeader(liveResponse, CorrelationIdHeader);
+        var readyCorrelationId = GetRequiredHeader(readyResponse, CorrelationIdHeader);
 
         Assert.NotNull(livePayload);
         Assert.NotNull(readyPayload);
         Assert.Equal("alive", livePayload!.Status);
         Assert.Equal("ready", readyPayload!.Status);
+        Assert.Matches("^[a-f0-9]{32}$", liveCorrelationId);
+        Assert.Matches("^[a-f0-9]{32}$", readyCorrelationId);
         Assert.True(livePayload.Timestamp >= requestedAtUtc);
         Assert.True(readyPayload.Timestamp >= requestedAtUtc);
+    }
+
+    private static string GetRequiredHeader(HttpResponseMessage response, string headerName)
+    {
+        Assert.True(response.Headers.TryGetValues(headerName, out var values));
+        return Assert.Single(values);
     }
 
     private sealed record HealthPayload(
