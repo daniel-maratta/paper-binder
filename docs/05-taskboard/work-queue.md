@@ -27,6 +27,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0018: CP5 Tenancy Resolution And Immutable Tenant Context](./tasks/T-0018-cp5-tenancy-resolution-and-immutable-tenant-context.md)
 - [T-0017: CP4 HTTP Contract Baseline](./tasks/T-0017-cp4-http-contract-baseline.md)
 - [T-0015: CP3 Persistence Baseline And Migration Pipeline](./tasks/T-0015-cp3-persistence-baseline-and-migration-pipeline.md)
 - [T-0016: Repo Validation Tooling Hardening](./tasks/T-0016-repo-validation-tooling-hardening.md)
