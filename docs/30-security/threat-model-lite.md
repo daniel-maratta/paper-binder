@@ -19,7 +19,9 @@ This is a lightweight threat model for v1. It documents primary risks and baseli
 - IDOR / broken access control
   - Mitigations: policy-based auth at API boundary, tenant-scoped query predicates, integration tests for forbidden cross-tenant access.
 - Cross-tenant data leakage
-  - Mitigations: mandatory `tenant_id` predicates, immutable request tenant context, repository guardrails and test coverage.
+  - Mitigations: strict host validation, server-side tenant lookup, immutable request tenant context, mandatory `tenant_id` predicates, repository guardrails and test coverage.
+- Host header spoofing / tenant confusion
+  - Mitigations: configured root-domain validation, single-label tenant-host parsing, reject unknown tenant hosts before handlers run, and ignore client tenant hints for scoping.
 - CSRF (cookie auth)
   - Mitigations: anti-forgery tokens for state-changing browser flows, strict same-site strategy, origin checks for sensitive endpoints.
 - XSS

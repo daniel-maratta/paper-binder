@@ -33,11 +33,11 @@ function LandingPage() {
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-slate-700">PaperBinder</p>
             <h1 className="mt-2 font-serif text-3xl md:text-5xl">
-              The HTTP contract baseline is live: correlation, versioning, and ProblemDetails are enforced.
+              Tenant resolution now happens at the host boundary, and request tenant context is established once.
             </h1>
           </div>
           <span className="rounded-full border border-slate-900/10 bg-white/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-slate-700">
-            CP4
+            CP5
           </span>
         </header>
 
@@ -76,13 +76,13 @@ function LandingPage() {
               <li>Schema changes now run through a dedicated migrations executable and Docker Compose migration service.</li>
               <li>Health readiness now depends on a real database query instead of a TCP-only socket probe.</li>
               <li>Reviewer UI launches can serve this compiled SPA through the API host, while focused debugging still keeps the API and Vite surfaces separate.</li>
-              <li>`/api/*` now enforces version negotiation and returns RFC 7807 ProblemDetails with correlation metadata on contract failures.</li>
+              <li>Tenant hosts are now validated against the configured base domain, and unknown tenant hosts are rejected before tenant-scoped handlers run.</li>
             </ul>
             <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4">
               <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Next up</p>
               <p className="mt-2 text-sm text-slate-200">
-                CP5 moves the boundary earlier in the request path with host-derived tenant resolution and immutable
-                tenant context.
+                CP6 wires authenticated user identity and tenant membership validation onto the same host-derived
+                request boundary.
               </p>
             </div>
           </aside>
