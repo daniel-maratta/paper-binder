@@ -9,6 +9,7 @@ internal static class TestRuntimeConfiguration
         new Dictionary<string, string?>
         {
             [PaperBinderConfigurationKeys.DbConnection] = databaseConnection,
+            [PaperBinderConfigurationKeys.PublicRootUrl] = "http://paperbinder.localhost:8080",
             [PaperBinderConfigurationKeys.AuthCookieDomain] = ".paperbinder.localhost",
             [PaperBinderConfigurationKeys.AuthCookieName] = "paperbinder.auth",
             [PaperBinderConfigurationKeys.AuthKeyRingPath] = "paperbinder-local-keys",

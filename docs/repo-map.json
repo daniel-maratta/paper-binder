@@ -33,7 +33,10 @@
     { "id": "tests", "type": "doc", "path": "docs/80-testing/README.md", "tags": ["testing"] },
     { "id": "adr", "type": "doc", "path": "docs/90-adr/README.md", "tags": ["adr"] },
     { "id": "adr-0007", "type": "doc", "path": "docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md", "tags": ["adr", "persistence", "database"] },
-    { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] }
+    { "id": "adr-0008", "type": "doc", "path": "docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md", "tags": ["adr", "identity", "security"] },
+    { "id": "task-t0019", "type": "doc", "path": "docs/05-taskboard/tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md", "tags": ["task", "checkpoint", "cp6"] },
+    { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] },
+    { "id": "delivery-cp6", "type": "doc", "path": "docs/95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md", "tags": ["delivery", "pr", "cp6"] }
   ],
   "edges": [
     { "from": "idx", "to": "intent", "rel": "lane-index" },
@@ -63,7 +66,11 @@
     { "from": "idx", "to": "tests", "rel": "lane-index" },
     { "from": "idx", "to": "adr", "rel": "lane-index" },
     { "from": "idx", "to": "adr-0007", "rel": "key-decision" },
+    { "from": "idx", "to": "adr-0008", "rel": "key-decision" },
     { "from": "adr", "to": "adr-0007", "rel": "contains" },
-    { "from": "idx", "to": "delivery", "rel": "lane-index" }
+    { "from": "adr", "to": "adr-0008", "rel": "contains" },
+    { "from": "taskboard", "to": "task-t0019", "rel": "contains" },
+    { "from": "idx", "to": "delivery", "rel": "lane-index" },
+    { "from": "delivery", "to": "delivery-cp6", "rel": "contains" }
   ]
 }

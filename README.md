@@ -77,6 +77,7 @@ Canonical workspace commands live in `scripts/`:
   - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\migrate.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
   - `pwsh ./scripts/preflight.ps1 -Profile Full`
@@ -85,6 +86,7 @@ Canonical workspace commands live in `scripts/`:
   - `pwsh ./scripts/test.ps1`
   - `pwsh ./scripts/migrate.ps1`
   - `pwsh ./scripts/validate-docs.ps1`
+  - `pwsh ./scripts/validate-launch-profiles.ps1`
   - `pwsh ./scripts/start-local.ps1`
 - Visual Studio:
   - Open `PaperBinder.sln`.
@@ -96,6 +98,7 @@ Canonical workspace commands live in `scripts/`:
 VS Code tasks and launch settings are thin wrappers over the same command surface in `.vscode/`.
 The primary reviewer launch now stays in parity across both editors as `Reviewer Full Stack`, with `App + Worker (Process)` as the fast localhost-only fallback.
 The authoritative launch-profile contract lives in `docs/70-operations/runbook-local.md`.
+Checkpoint-complete validation now also requires `scripts/validate-launch-profiles.ps1` plus recorded manual launch verification in both VS Code and Visual Studio before a checkpoint can be declared done.
 
 The Windows `powershell -ExecutionPolicy Bypass -File ...` path is the supported baseline for this repo; it is not a one-off workaround and the checked-in VS Code tasks use the same entrypoint.
 

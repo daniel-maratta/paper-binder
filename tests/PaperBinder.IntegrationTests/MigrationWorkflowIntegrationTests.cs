@@ -28,15 +28,18 @@ public sealed class MigrationWorkflowIntegrationTests(PostgresContainerFixture p
                   and table_name = 'tenants');
             """);
 
-        var migrationId = await connection.QuerySingleAsync<string>(
+        var migrationIds = (await connection.QueryAsync<string>(
             """
             select "MigrationId"
             from "__EFMigrationsHistory";
-            """);
+            """)).ToArray();
 
-        Assert.Single(appliedMigrations);
+        Assert.Equal(2, appliedMigrations.Count);
         Assert.Empty(secondRunMigrations);
         Assert.True(tenantsTableExists);
-        Assert.Contains("InitialSchema", migrationId);
+        Assert.Contains(appliedMigrations, migrationId => migrationId.Contains("InitialSchema", StringComparison.Ordinal));
+        Assert.Contains(appliedMigrations, migrationId => migrationId.Contains("AddIdentityAndTenantMembership", StringComparison.Ordinal));
+        Assert.Contains(migrationIds, migrationId => migrationId.Contains("InitialSchema", StringComparison.Ordinal));
+        Assert.Contains(migrationIds, migrationId => migrationId.Contains("AddIdentityAndTenantMembership", StringComparison.Ordinal));
     }
 }

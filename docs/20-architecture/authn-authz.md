@@ -5,14 +5,17 @@
 - Authentication uses ASP.NET Core Identity with server-issued cross-subdomain cookie/principal trust.
 - Cross-subdomain cookie authentication is the only supported mechanism in v1.
 - JWT authentication is not supported in v1.
-- Post-auth tenant context is derived server-side from membership and routing context.
-- Root-host pre-auth actions (provision/login) require challenge verification and rate limiting.
+- Root-host login is live in CP6 and resolves tenant redirect target from server-side membership.
+- Authenticated unsafe `/api/*` routes require a readable CSRF cookie paired with `X-CSRF-TOKEN`.
+- Post-auth tenant context is derived server-side from membership and routing context and is materialized only after membership and tenant-expiry validation succeed.
+- Root-host pre-auth challenge verification and rate limiting remain CP7 work; CP6 keeps those routes ready for that later guard layer.
 
 ## Trust Model
 
 Trusted inputs:
 - Server-issued auth cookie / Identity principal.
 - Server-side host and tenant routing configuration.
+- Explicit public-root configuration used for redirect URL construction.
 
 Untrusted inputs:
 - Request headers (including forwarded headers unless explicitly validated/configured).
@@ -23,8 +26,8 @@ Subdomain is routing input only and must match authenticated tenant membership/c
 
 ## Authorization
 
-- Authorization uses policy-based RBAC at the API boundary.
-- Endpoints invoking handlers must declare policy requirements.
+- CP6 enforces the authenticated-user and tenant-membership boundary before feature handlers run.
+- Policy-based RBAC remains the v1 authorization model, but explicit named-policy endpoint mapping lands in CP8.
 - Handlers do not perform ad-hoc role checks and do not accept caller-role arguments.
 - v1 uses one effective role per user per tenant as a simplification.
 - Future versions may support additive multi-role aggregation without moving authorization out of API-boundary policy checks.

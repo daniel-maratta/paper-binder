@@ -24,6 +24,7 @@ Do not use legacy `stage` terminology for current execution planning or PR artif
 - For the current checkpoint or release artifact, use `Status: Review Ready` once the artifact is ready for reviewer handoff.
 - Use `Status: Merged` only when a currently relevant artifact is intentionally updated after merge to record its merged state.
 - Do not mass-update historical merged PR artifacts just to remove `Draft`; treat them as historical snapshots unless a broader delivery-doc consistency pass is underway.
+- Checkpoint PR artifacts must include launch-profile validation evidence and the manual VS Code plus Visual Studio verification outcome before the checkpoint can be called done.
 
 ## Versioning Rules
 

@@ -5,6 +5,7 @@
 - This lane covers deployment, runbooks, observability, and cost controls.
 - `runbook-local.md` is the fastest path for local execution.
 - `runbook-local.md` also carries the authoritative launch-profile contract for Visual Studio and VS Code parity.
+- `scripts/validate-launch-profiles.ps1` is the scriptable drift guard for that contract.
 - Keep operational docs aligned with actual startup and runtime behavior.
 
 ## Read First

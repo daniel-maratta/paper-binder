@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using PaperBinder.Application.Time;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Configuration;
 
@@ -9,14 +10,14 @@ internal sealed class TenantResolutionMiddleware(
     RequestDelegate next,
     IHostEnvironment hostEnvironment)
 {
-    public const string InvalidHostErrorCode = "TENANT_HOST_INVALID";
-    public const string TenantNotFoundErrorCode = "TENANT_NOT_FOUND";
-
     public async Task InvokeAsync(
         HttpContext context,
         PaperBinderRuntimeSettings runtimeSettings,
         IRequestTenantContextSetter tenantContextSetter,
+        IRequestResolvedTenantHostContextSetter requestHostContextSetter,
         ITenantLookupService tenantLookupService,
+        ITenantMembershipLookupService tenantMembershipLookupService,
+        ISystemClock clock,
         IProblemDetailsService problemDetailsService)
     {
         var hostMatch = PaperBinderTenantHostResolution.Resolve(
@@ -27,6 +28,7 @@ internal sealed class TenantResolutionMiddleware(
         switch (hostMatch.Kind)
         {
             case PaperBinderTenantHostMatchKind.System:
+                requestHostContextSetter.EstablishSystemHost();
                 tenantContextSetter.EstablishSystem();
                 await next(context);
                 return;
@@ -41,11 +43,57 @@ internal sealed class TenantResolutionMiddleware(
                         StatusCodes.Status404NotFound,
                         "Tenant not found.",
                         "The requested tenant host does not map to an active PaperBinder tenant.",
-                        TenantNotFoundErrorCode);
+                        PaperBinderErrorCodes.TenantNotFound);
                     return;
                 }
 
-                tenantContextSetter.EstablishTenant(tenant);
+                requestHostContextSetter.EstablishTenantHost(tenant);
+
+                if (context.User.Identity?.IsAuthenticated == true)
+                {
+                    if (!PaperBinderAuthenticatedUser.TryGetUserId(context.User, out var userId))
+                    {
+                        await PaperBinderProblemDetails.WriteApiProblemAsync(
+                            context,
+                            problemDetailsService,
+                            StatusCodes.Status401Unauthorized,
+                            "Authentication required.",
+                            "The request requires a valid authenticated session.");
+                        return;
+                    }
+
+                    var membership = await tenantMembershipLookupService.FindMembershipAsync(
+                        userId,
+                        tenant.Tenant.TenantId,
+                        context.RequestAborted);
+
+                    if (membership is null)
+                    {
+                        await RejectAsync(
+                            context,
+                            problemDetailsService,
+                            StatusCodes.Status403Forbidden,
+                            "Tenant access denied.",
+                            "The authenticated user does not belong to the requested tenant.",
+                            PaperBinderErrorCodes.TenantForbidden);
+                        return;
+                    }
+
+                    if (tenant.ExpiresAtUtc <= clock.UtcNow)
+                    {
+                        await RejectAsync(
+                            context,
+                            problemDetailsService,
+                            StatusCodes.Status410Gone,
+                            "Tenant expired.",
+                            "The requested tenant has expired and can no longer be accessed.",
+                            PaperBinderErrorCodes.TenantExpired);
+                        return;
+                    }
+
+                    tenantContextSetter.EstablishTenant(tenant.Tenant);
+                }
+
                 await next(context);
                 return;
 
@@ -56,7 +104,7 @@ internal sealed class TenantResolutionMiddleware(
                     StatusCodes.Status400BadRequest,
                     "Invalid tenant host.",
                     "The request host is not a valid PaperBinder root or tenant host.",
-                    InvalidHostErrorCode);
+                    PaperBinderErrorCodes.TenantHostInvalid);
                 return;
         }
     }

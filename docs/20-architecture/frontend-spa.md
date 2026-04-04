@@ -34,7 +34,7 @@ Out of scope:
 ## Host Contexts
 
 - Root host (`lab.danielmaratta.com`):
-  - challenge, login, tenant provisioning.
+  - login now; challenge and tenant provisioning in CP7.
 - Tenant host (`{tenant}.lab.danielmaratta.com`):
   - binders/documents, lease status, tenant actions.
 
@@ -49,10 +49,10 @@ Out of scope:
 
 - API errors use ProblemDetails.
 - User-facing handling includes:
-  - challenge failure
   - invalid credentials
   - expired or unknown tenant
-  - rate limiting (`429`)
+  - challenge failure once CP7 lands
+  - rate limiting (`429`) once CP7 lands
 
 ## Alternatives Considered
 

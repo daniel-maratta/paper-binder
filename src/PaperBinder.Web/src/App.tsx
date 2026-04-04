@@ -33,11 +33,11 @@ function LandingPage() {
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-slate-700">PaperBinder</p>
             <h1 className="mt-2 font-serif text-3xl md:text-5xl">
-              Tenant resolution now happens at the host boundary, and request tenant context is established once.
+              Identity, cookie auth, and tenant membership validation now share the same host-derived request boundary.
             </h1>
           </div>
           <span className="rounded-full border border-slate-900/10 bg-white/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-slate-700">
-            CP5
+            CP6
           </span>
         </header>
 
@@ -76,13 +76,14 @@ function LandingPage() {
               <li>Schema changes now run through a dedicated migrations executable and Docker Compose migration service.</li>
               <li>Health readiness now depends on a real database query instead of a TCP-only socket probe.</li>
               <li>Reviewer UI launches can serve this compiled SPA through the API host, while focused debugging still keeps the API and Vite surfaces separate.</li>
-              <li>Tenant hosts are now validated against the configured base domain, and unknown tenant hosts are rejected before tenant-scoped handlers run.</li>
+              <li>Root-host login now issues a cross-subdomain auth cookie and a companion CSRF token for authenticated unsafe API routes.</li>
+              <li>Tenant hosts now require authenticated membership and active lease state before tenant context is materialized for feature handling.</li>
             </ul>
             <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4">
               <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Next up</p>
               <p className="mt-2 text-sm text-slate-200">
-                CP6 wires authenticated user identity and tenant membership validation onto the same host-derived
-                request boundary.
+                CP7 adds challenge verification, pre-auth rate limiting, and the first real provisioning surface on
+                the root host.
               </p>
             </div>
           </aside>

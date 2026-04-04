@@ -37,6 +37,7 @@ Start here, then load only the lane docs relevant to the task.
 
 - [docs/90-adr/ADR-0005-no-bff.md](./90-adr/ADR-0005-no-bff.md)
 - [docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md](./90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md)
+- [docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md](./90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md)
 
 ## Execution References
 

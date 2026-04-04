@@ -9,7 +9,7 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 
 - Tenant scope is server-resolved from host plus membership; client tenant IDs are ignored.
 - v1 auth is cookie-based only; `/api/*` version defaults to `1` with response header echo.
-- Pre-auth provisioning/login require challenge verification and are rate-limited.
+- Root-host login is live in CP6; root-host challenge verification and pre-auth rate limiting land in CP7.
 - Tenant lease uses canonical routes `/api/tenant/lease` and `/api/tenant/lease/extend`.
 - Documents remain immutable; archive state is visibility metadata only.
 - Health endpoints are non-API routes, anonymous, minimal, and non-versioned.
@@ -18,6 +18,7 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 
 - Tenant context source: request host/subdomain resolved server-side plus authenticated membership validation.
 - Auth mechanism: cross-subdomain cookie only in v1 (no JWT).
+- Authenticated unsafe `/api/*` requests require a CSRF cookie/header pair.
 - Tenant scope is resolved server-side. Client-provided tenant identifiers are ignored.
 - Request hosts must be either the configured root host or a single-label tenant subdomain beneath it; other hosts are rejected before route handlers execute.
 - API versioning contract: `docs/40-contracts/api-versioning.md`.
@@ -56,6 +57,10 @@ Notes:
 - Unsupported API version errors use `errorCode` `API_VERSION_UNSUPPORTED`.
 - Invalid tenant hosts on `/api/*` return `400` ProblemDetails with `errorCode` `TENANT_HOST_INVALID`.
 - Unknown tenant hosts on `/api/*` return `404` ProblemDetails with `errorCode` `TENANT_NOT_FOUND`.
+- Invalid credentials return `401` ProblemDetails with `errorCode` `INVALID_CREDENTIALS`.
+- Invalid CSRF tokens return `403` ProblemDetails with `errorCode` `CSRF_TOKEN_INVALID`.
+- Missing or wrong-tenant membership returns `403` ProblemDetails with `errorCode` `TENANT_FORBIDDEN`.
+- Expired-but-not-purged tenants return `410` ProblemDetails with `errorCode` `TENANT_EXPIRED`.
 - Unmatched `/api/*` routes return `404` ProblemDetails and still include `traceId`, `correlationId`, `X-Api-Version`, and `X-Correlation-Id`.
 
 ## API Surface
@@ -63,6 +68,7 @@ Notes:
 ### Provisioning and Lease
 
 - `POST /api/provision`
+  - Status: planned for CP7; not implemented in the current CP6 build
   - Auth required: N
   - Tenant context source: none (system context, pre-auth)
   - Challenge required: Y
@@ -126,21 +132,26 @@ Notes:
 - `POST /api/auth/login`
   - Auth required: N
   - Tenant context source: credential plus server-side membership (host may be root domain)
-  - Challenge required: Y
-  - Rate limited: Y
+  - Challenge required: N in CP6, planned `Y` in CP7
+  - Rate limited: N in CP6, planned `Y` in CP7
   - Request example:
     ```json
-    { "email": "owner@acme-demo.local", "password": "<password>", "challengeToken": "<token>" }
+    { "email": "owner@acme-demo.local", "password": "<password>" }
     ```
   - Response example (`200`):
     ```json
     { "redirectUrl": "https://acme-demo.paperbinder.local/app" }
     ```
+  - Failure semantics:
+    - `401` when credentials are invalid.
+    - `403` when the user has no tenant membership.
+    - `410` when the resolved tenant is expired but not yet purged.
   - Idempotency: effectively idempotent for valid repeated submissions.
 
 - `POST /api/auth/logout`
   - Auth required: Y
   - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
   - Request example:
     ```json
     {}
@@ -255,7 +266,7 @@ Health payloads must not include dependency internals or version metadata.
 
 ## RBAC Policy Map
 
-- `POST /api/provision` -> anonymous, challenge-required, rate-limited system-context endpoint.
+- `POST /api/provision` -> planned CP7 anonymous system-context endpoint.
 - `GET /api/tenant/lease` -> authenticated tenant member.
 - `POST /api/tenant/lease/extend` -> `TenantAdmin`.
 - `POST /api/auth/logout` -> authenticated user.

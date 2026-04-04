@@ -22,15 +22,15 @@ This document removes route-level ambiguity for the React SPA described in:
 - Root host: `lab.danielmaratta.com`
 - Tenant host: `{tenant}.lab.danielmaratta.com`
 
-Root-host flows are pre-auth (provision/login challenge flows).
+Root-host flows are pre-auth provisioning/login flows. In the current CP6 build, login is live but challenge verification still lands in CP7.
 Tenant-host flows are authenticated and tenant-scoped.
 
 ## Root Host Route Map
 
 | Route | View Purpose | Primary API Calls | Auth Expectation | Notes |
 | --- | --- | --- | --- | --- |
-| `/` | Welcome/About + challenge + provision + login entry | `POST /api/provision`, `POST /api/auth/login` | Anonymous allowed | Primary CTA: provision and auto-login; challenge required on pre-auth actions. |
-| `/login` | Dedicated login view (if split from `/`) | `POST /api/auth/login` | Anonymous allowed | Same semantics as root login section; challenge required. |
+| `/` | Welcome/About + provision + login entry | `POST /api/provision`, `POST /api/auth/login` | Anonymous allowed | CP6 ships login only; provisioning and challenge friction still land in CP7. |
+| `/login` | Dedicated login view (if split from `/`) | `POST /api/auth/login` | Anonymous allowed | Same semantics as root login section; challenge/rate-limit guards are deferred to CP7. |
 | `/about` | Static product/repo context | none | Anonymous allowed | May be a route or in-page section. |
 
 ## Tenant Host Route Map

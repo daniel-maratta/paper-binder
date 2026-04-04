@@ -44,6 +44,7 @@ DNS:
 ## Required Configuration (Illustrative)
 
 - `PAPERBINDER_DB_CONNECTION=...`
+- `PAPERBINDER_PUBLIC_ROOT_URL=https://lab.danielmaratta.com`
 - `PAPERBINDER_AUTH_COOKIE_DOMAIN=.lab.danielmaratta.com`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
 - `PAPERBINDER_AUTH_KEY_RING_PATH=...`
@@ -81,11 +82,12 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
    - unauthenticated `GET /health/ready` returns `200`
    - health payloads are minimal and non-sensitive (no dependency internals, no version metadata)
    - root host loads
-   - challenge flow works
-   - provisioning and root login challenge checks work
+   - root-host login works and redirects to the server-resolved tenant host
+   - tenant-host logout requires CSRF and clears both auth and CSRF cookies
    - `GET /api/tenant/lease` and `POST /api/tenant/lease/extend` behavior matches lease rules
    - tenant subdomain routing works
    - auth persists across subdomains
+   - note: challenge verification, pre-auth rate limiting, and provisioning remain CP7 work and are not yet part of CP6 validation
 
 ## Rollback Procedure
 
@@ -100,7 +102,8 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
 - Prefer off-host backup storage.
 - Track at minimum:
   - app 5xx rate
-  - challenge verification failures
+  - invalid credential volume
+  - CSRF validation failures
   - provisioning volume
   - tenant cleanup activity
 
@@ -108,9 +111,9 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
 
 - Public ingress only on 80/443.
 - SSH not publicly exposed.
-- Pre-auth endpoints rate-limited.
-- Challenge check required for provisioning and root login.
+- Parent-domain auth cookie and CSRF cookie must align with `PAPERBINDER_PUBLIC_ROOT_URL`.
 - Auth cookie uses `Secure`, `HttpOnly`, and CSRF protections.
+- Root-host challenge verification and pre-auth rate limiting are planned for CP7.
 
 ## Alternatives Considered
 
