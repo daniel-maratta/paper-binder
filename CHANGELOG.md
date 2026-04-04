@@ -7,8 +7,12 @@ All notable changes to this project are documented in this file.
 ### Added
 - CP2 runtime scaffold: typed backend runtime configuration, minimal health/readiness endpoints, root `.env.example`, Docker Compose local topology, Caddy reverse proxy config, and a containerized single app-host build for SPA + API delivery.
 - CP4 HTTP contract baseline: global `X-Correlation-Id` middleware, `/api/*` version negotiation with `API_VERSION_UNSUPPORTED` ProblemDetails failures, and a canonical `/api/*` fallback that returns RFC 7807 errors with trace/correlation metadata.
+- CP6 auth boundary: ASP.NET Core Identity managers with Dapper-backed runtime stores, `users` plus `user_tenants` schema, root-host login, tenant-host logout, cross-subdomain cookie auth, and CSRF protection for authenticated unsafe API routes.
+- CP6 tenant validation: authenticated tenant-host requests now require matching membership and active tenant state before request tenant context is established.
 
 ### Docs
+- Added ADR-0008 to lock the CP6 auth boundary: ASP.NET Core Identity managers with Dapper runtime stores, parent-domain cookie auth, and membership authority in `user_tenants`.
+- Updated architecture, security, API-contract, operations, testing, taskboard, and delivery docs to describe the live CP6 login/logout/CSRF/membership behavior and to defer challenge verification and root-login rate limiting explicitly to CP7.
 - Updated API contract and integration-testing docs to record the live CP4 protocol behavior: invalid client correlation IDs are replaced server-side, invalid API-version failures still emit `X-Api-Version: 1`, and unmatched `/api/*` routes return ProblemDetails instead of falling through to SPA handling.
 - Updated README, operations runbooks, security config guidance, testing strategy, and execution-plan docs to reflect the CP2 local topology and shared `.env` contract.
 - Refined ADR-0023 wording to tighten router boundaries: React Router client-side SPA routing only, no framework mode, and no route-module server features/server loaders/actions in v1.

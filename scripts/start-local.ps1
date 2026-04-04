@@ -10,8 +10,6 @@ $repoRoot = Get-RepoRoot
 $envFile = Join-Path $repoRoot ".env"
 
 Assert-PaperBinderEnvFileExists
-[void](Assert-PaperBinderDockerAvailable)
-Assert-PaperBinderComposeAccess
 
 function Get-DotEnvValue {
   param(
@@ -70,10 +68,21 @@ function Wait-ForUrl {
   throw "Timed out waiting for $Url."
 }
 
-$rootUrl = Get-DotEnvValue -Path $envFile -Key "VITE_PAPERBINDER_ROOT_URL"
+$rootUrl = Get-DotEnvValue -Path $envFile -Key "PAPERBINDER_PUBLIC_ROOT_URL"
 if ([string]::IsNullOrWhiteSpace($rootUrl)) {
-  throw "VITE_PAPERBINDER_ROOT_URL must be present in .env."
+  $rootUrl = Get-DotEnvValue -Path $envFile -Key "VITE_PAPERBINDER_ROOT_URL"
 }
+
+if ([string]::IsNullOrWhiteSpace($rootUrl)) {
+  throw "PAPERBINDER_PUBLIC_ROOT_URL (or VITE_PAPERBINDER_ROOT_URL fallback) must be present in .env."
+}
+
+if ([string]::IsNullOrWhiteSpace($env:PAPERBINDER_PUBLIC_ROOT_URL)) {
+  $env:PAPERBINDER_PUBLIC_ROOT_URL = $rootUrl
+}
+
+[void](Assert-PaperBinderDockerAvailable)
+Assert-PaperBinderComposeAccess
 
 Invoke-ExternalCommand -FilePath "docker" -Arguments @("compose", "up", "-d", "--build") -WorkingDirectory $repoRoot
 

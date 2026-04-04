@@ -27,6 +27,7 @@ PaperBinder is composed of five major layers:
 - Primary app host: `PaperBinder.Api` serves the React SPA and API from the same ASP.NET host.
 - Worker runtime: `PaperBinder.Worker` performs lease cleanup as a separate deployable and runs as a separate container in the local/demo Compose topology.
 - Post-auth traffic routed via tenant subdomain.
+- Public root redirects and cookie security expectations are anchored to the configured `PAPERBINDER_PUBLIC_ROOT_URL`.
 
 ---
 
@@ -37,6 +38,8 @@ PaperBinder is composed of five major layers:
 - Post-auth tenant derived from user membership.
 - Pre-auth provisioning does not require subdomain.
 - After login, redirect to tenant subdomain.
+- Authenticated tenant-host requests establish tenant context only after membership and active-tenant validation.
+- Anonymous tenant-host requests do not receive an established tenant request context.
 
 Tenant isolation is enforced via:
 - Middleware resolution
@@ -52,7 +55,9 @@ Tenant isolation is enforced via:
 - Email/password authentication.
 - Cross-subdomain cookie auth (parent-domain cookie) only in v1.
 - No JWT auth in v1.
-- Tenant membership stored in join table.
+- Tenant membership stored in `user_tenants`.
+- Identity managers use Dapper-backed runtime stores and the default ASP.NET Core password hasher.
+- Authenticated unsafe `/api/*` routes require CSRF token validation.
 
 After authentication:
 - Tenant is resolved from membership.

@@ -36,6 +36,8 @@ Before merging, the PR must satisfy:
 - [ ] Frontend build passes.
 - [ ] All relevant test suites pass (unit, integration, E2E as applicable).
 - [ ] Docs validation passes (if docs validation scripts exist).
+- [ ] `scripts/validate-launch-profiles.ps1` passes.
+- [ ] Manual verification confirms every checked-in launch profile still works in VS Code and Visual Studio, or the documented Visual Studio fallback path is recorded.
 - [ ] The checkpoint's merge gate conditions that this PR addresses are met.
 
 ## Merge Discipline

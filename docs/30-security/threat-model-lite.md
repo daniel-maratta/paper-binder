@@ -21,13 +21,18 @@ This is a lightweight threat model for v1. It documents primary risks and baseli
 - Cross-tenant data leakage
   - Mitigations: strict host validation, server-side tenant lookup, immutable request tenant context, mandatory `tenant_id` predicates, repository guardrails and test coverage.
 - Host header spoofing / tenant confusion
-  - Mitigations: configured root-domain validation, single-label tenant-host parsing, reject unknown tenant hosts before handlers run, and ignore client tenant hints for scoping.
+  - Mitigations: configured root-domain validation, single-label tenant-host parsing, reject unknown tenant hosts before handlers run, require membership before tenant context establishment, and ignore client tenant hints for scoping.
 - CSRF (cookie auth)
-  - Mitigations: anti-forgery tokens for state-changing browser flows, strict same-site strategy, origin checks for sensitive endpoints.
+  - Mitigations: readable CSRF cookie plus `X-CSRF-TOKEN` validation on authenticated unsafe `/api/*`, `SameSite=Lax`, and parent-domain auth cookie scoping.
 - XSS
   - Mitigations: output encoding, markdown sanitization, baseline Content Security Policy.
 - Session fixation / hijack
   - Mitigations: secure cookie flags (`Secure`, `HttpOnly`, `SameSite`), auth session rotation on login boundary events, bounded session lifetime.
+
+## Deferred Controls
+
+- Root-host pre-auth challenge verification remains CP7 work.
+- Root-host pre-auth rate limiting remains CP7 work.
 
 ## Non-Goals
 

@@ -3,12 +3,14 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Dapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using PaperBinder.Api;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Tenancy;
+using PaperBinder.Infrastructure.Identity;
 
 namespace PaperBinder.IntegrationTests;
 
@@ -80,7 +82,7 @@ public sealed class TenantResolutionDatabaseIntegrationTests(PostgresContainerFi
     private const string TenantNotFoundErrorCode = "TENANT_NOT_FOUND";
 
     [Fact]
-    public async Task Should_ResolveTenantContextFromHost_When_TenantSlugExists()
+    public async Task Should_NotEstablishTenantContextForAnonymousTenantHostRequests()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
@@ -94,23 +96,28 @@ public sealed class TenantResolutionDatabaseIntegrationTests(PostgresContainerFi
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(payload);
-        Assert.True(payload!.IsEstablished);
+        Assert.False(payload!.IsEstablished);
         Assert.False(payload.IsSystemContext);
-        Assert.Equal(tenant.Id, payload.TenantId);
-        Assert.Equal(tenant.Slug, payload.TenantSlug);
-        Assert.Equal(tenant.Name, payload.TenantName);
+        Assert.Null(payload.TenantId);
+        Assert.Null(payload.TenantSlug);
+        Assert.Null(payload.TenantName);
     }
 
     [Fact]
-    public async Task Should_IgnoreSpoofedTenantHints_When_HostResolvesKnownTenant()
+    public async Task Should_IgnoreSpoofedTenantHints_When_HostResolvesKnownTenantForAuthenticatedUser()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
 
         var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp5-hint-target");
+        var user = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp5-hint-target.local", "checkpoint-6-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, user, tenant);
+
+        var session = await AuthIntegrationTestClient.LoginAsync(host, user.Email, user.Password);
         using var request = new HttpRequestMessage(HttpMethod.Get, "/__tests/tenant-context?tenantId=00000000-0000-0000-0000-000000000999");
         request.Headers.Host = $"{tenant.Slug}.paperbinder.localhost";
         request.Headers.Add("X-Tenant-Id", Guid.NewGuid().ToString("D"));
+        request.Headers.Add("Cookie", session.ToCookieHeader());
 
         var response = await host.Client.SendAsync(request);
         var payload = await response.Content.ReadFromJsonAsync<TenantContextResponse>();
@@ -181,6 +188,94 @@ internal static class TenantResolutionIntegrationTestHost
         return tenant;
     }
 
+    public static async Task<SeededUser> SeedUserAsync(
+        PaperBinderApplicationHost host,
+        string email,
+        string password)
+    {
+        using var scope = host.Application.Services.CreateScope();
+        var user = new PaperBinderUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = email,
+            NormalizedUserName = email.ToUpperInvariant(),
+            Email = email,
+            NormalizedEmail = email.ToUpperInvariant(),
+            EmailConfirmed = true,
+            SecurityStamp = Guid.NewGuid().ToString("N")
+        };
+
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<PaperBinderUser>>();
+        user.PasswordHash = passwordHasher.HashPassword(user, password);
+
+        var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
+        await using var connection = await connectionFactory.OpenConnectionAsync();
+        await connection.ExecuteAsync(
+            """
+            insert into users (
+                id,
+                user_name,
+                normalized_user_name,
+                email,
+                normalized_email,
+                email_confirmed,
+                password_hash,
+                security_stamp)
+            values (
+                @Id,
+                @UserName,
+                @NormalizedUserName,
+                @Email,
+                @NormalizedEmail,
+                @EmailConfirmed,
+                @PasswordHash,
+                @SecurityStamp);
+            """,
+            user);
+
+        return new SeededUser(user.Id, user.Email, password);
+    }
+
+    public static async Task SeedMembershipAsync(
+        PaperBinderApplicationHost host,
+        SeededUser user,
+        SeededTenant tenant,
+        TenantRole role = TenantRole.TenantAdmin,
+        bool isOwner = true)
+    {
+        var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
+        await using var connection = await connectionFactory.OpenConnectionAsync();
+        await connection.ExecuteAsync(
+            """
+            insert into user_tenants (user_id, tenant_id, role, is_owner)
+            values (@UserId, @TenantId, @Role, @IsOwner);
+            """,
+            new
+            {
+                UserId = user.Id,
+                TenantId = tenant.Id,
+                Role = role.ToString(),
+                IsOwner = isOwner
+            });
+    }
+
+    public static async Task ExpireTenantAsync(PaperBinderApplicationHost host, SeededTenant tenant)
+    {
+        var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
+        await using var connection = await connectionFactory.OpenConnectionAsync();
+        await connection.ExecuteAsync(
+            """
+            update tenants
+            set expires_at_utc = @ExpiresAtUtc
+            where id = @TenantId;
+            """,
+            new
+            {
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(-1),
+                TenantId = tenant.Id
+            });
+    }
+
     public static string GetRequiredHeader(HttpResponseMessage response, string headerName)
     {
         Assert.True(response.Headers.TryGetValues(headerName, out var values));
@@ -231,6 +326,11 @@ internal sealed record SeededTenant(
     string Name,
     DateTimeOffset CreatedAtUtc,
     DateTimeOffset ExpiresAtUtc);
+
+internal sealed record SeededUser(
+    Guid Id,
+    string Email,
+    string Password);
 
 internal sealed record ProblemDetailsResponse(
     string? Type,

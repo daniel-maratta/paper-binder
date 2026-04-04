@@ -80,9 +80,13 @@ function Assert-ComposeServiceRunning {
 
 & $startLocalScript
 
-$rootUrl = Get-DotEnvValue -Path $envFile -Key "VITE_PAPERBINDER_ROOT_URL"
+$rootUrl = Get-DotEnvValue -Path $envFile -Key "PAPERBINDER_PUBLIC_ROOT_URL"
 if ([string]::IsNullOrWhiteSpace($rootUrl)) {
-  throw "VITE_PAPERBINDER_ROOT_URL must be present in .env."
+  $rootUrl = Get-DotEnvValue -Path $envFile -Key "VITE_PAPERBINDER_ROOT_URL"
+}
+
+if ([string]::IsNullOrWhiteSpace($rootUrl)) {
+  throw "PAPERBINDER_PUBLIC_ROOT_URL (or VITE_PAPERBINDER_ROOT_URL fallback) must be present in .env."
 }
 
 $tenantUrl = "$($rootUrl.Replace('://paperbinder.', '://demo.paperbinder.'))/app"

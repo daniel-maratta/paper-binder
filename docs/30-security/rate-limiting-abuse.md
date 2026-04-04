@@ -4,6 +4,10 @@ Status: V1 (Minimal)
 This document defines baseline anti-abuse controls for the public demo.
 This file is the PaperBinder-specific abuse surface and policy binding.
 
+Current implementation note:
+- The CP6 build adds cookie auth, CSRF, and tenant membership validation.
+- Root-host challenge verification and rate limiting remain planned CP7 controls.
+
 ## Scope
 
 In scope:

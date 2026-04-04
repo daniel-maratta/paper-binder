@@ -4,6 +4,7 @@ namespace PaperBinder.Infrastructure.Configuration;
 
 public sealed record PaperBinderRuntimeSettings(
     DatabaseSettings Database,
+    PublicUrlSettings PublicUrl,
     AuthCookieSettings AuthCookie,
     ChallengeSettings Challenge,
     LeaseSettings Lease,
@@ -17,6 +18,7 @@ public sealed record PaperBinderRuntimeSettings(
         var errors = new List<string>();
 
         var connectionString = GetRequiredValue(getValue, PaperBinderConfigurationKeys.DbConnection, errors);
+        var publicRootUrl = GetRequiredValue(getValue, PaperBinderConfigurationKeys.PublicRootUrl, errors);
         var cookieDomain = GetRequiredValue(getValue, PaperBinderConfigurationKeys.AuthCookieDomain, errors);
         var cookieName = GetRequiredValue(getValue, PaperBinderConfigurationKeys.AuthCookieName, errors);
         var keyRingPath = GetRequiredValue(getValue, PaperBinderConfigurationKeys.AuthKeyRingPath, errors);
@@ -38,6 +40,13 @@ public sealed record PaperBinderRuntimeSettings(
             database = TryParseDatabaseSettings(connectionString!, errors);
         }
 
+        PublicUrlSettings? publicUrl = null;
+        if (!string.IsNullOrWhiteSpace(publicRootUrl) &&
+            !string.IsNullOrWhiteSpace(cookieDomain))
+        {
+            publicUrl = TryParsePublicUrl(publicRootUrl!, cookieDomain!, errors);
+        }
+
         AuditRetentionMode? auditRetentionMode = null;
         if (!string.IsNullOrWhiteSpace(auditRetentionModeValue))
         {
@@ -57,6 +66,7 @@ public sealed record PaperBinderRuntimeSettings(
 
         return new PaperBinderRuntimeSettings(
             database!,
+            publicUrl!,
             new AuthCookieSettings(cookieDomain!, cookieName!, keyRingPath!),
             new ChallengeSettings(challengeSiteKey!, challengeSecretKey!),
             new LeaseSettings(defaultMinutes, extensionMinutes, maxExtensions, cleanupIntervalSeconds),
@@ -136,6 +146,47 @@ public sealed record PaperBinderRuntimeSettings(
         }
     }
 
+    private static PublicUrlSettings? TryParsePublicUrl(
+        string publicRootUrl,
+        string cookieDomain,
+        ICollection<string> errors)
+    {
+        if (!Uri.TryCreate(publicRootUrl, UriKind.Absolute, out var uri) ||
+            string.IsNullOrWhiteSpace(uri.Scheme) ||
+            string.IsNullOrWhiteSpace(uri.Host))
+        {
+            errors.Add($"Configuration key `{PaperBinderConfigurationKeys.PublicRootUrl}` must be a valid absolute URL.");
+            return null;
+        }
+
+        if (!string.IsNullOrEmpty(uri.UserInfo) ||
+            !string.IsNullOrEmpty(uri.Query) ||
+            !string.IsNullOrEmpty(uri.Fragment))
+        {
+            errors.Add(
+                $"Configuration key `{PaperBinderConfigurationKeys.PublicRootUrl}` must not include user info, query-string, or fragment components.");
+            return null;
+        }
+
+        if (!string.IsNullOrEmpty(uri.AbsolutePath) &&
+            !string.Equals(uri.AbsolutePath, "/", StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"Configuration key `{PaperBinderConfigurationKeys.PublicRootUrl}` must use the root path only.");
+            return null;
+        }
+
+        var normalizedCookieHost = cookieDomain.Trim().Trim('.').ToLowerInvariant();
+        if (!string.Equals(uri.Host, normalizedCookieHost, StringComparison.OrdinalIgnoreCase))
+        {
+            errors.Add(
+                $"Configuration key `{PaperBinderConfigurationKeys.PublicRootUrl}` host must match `{PaperBinderConfigurationKeys.AuthCookieDomain}`.");
+            return null;
+        }
+
+        return new PublicUrlSettings(uri);
+    }
+
     private static AuditRetentionMode AddAuditModeError(
         string invalidValue,
         ICollection<string> errors)
@@ -150,6 +201,9 @@ public sealed record DatabaseSettings(
     string ConnectionString,
     string Host,
     int Port);
+
+public sealed record PublicUrlSettings(
+    Uri RootUrl);
 
 public sealed record AuthCookieSettings(
     string Domain,
@@ -183,6 +237,7 @@ public enum AuditRetentionMode
 public static class PaperBinderConfigurationKeys
 {
     public const string DbConnection = "PAPERBINDER_DB_CONNECTION";
+    public const string PublicRootUrl = "PAPERBINDER_PUBLIC_ROOT_URL";
     public const string AuthCookieDomain = "PAPERBINDER_AUTH_COOKIE_DOMAIN";
     public const string AuthCookieName = "PAPERBINDER_AUTH_COOKIE_NAME";
     public const string AuthKeyRingPath = "PAPERBINDER_AUTH_KEY_RING_PATH";

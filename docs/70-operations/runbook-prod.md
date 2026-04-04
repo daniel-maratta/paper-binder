@@ -29,7 +29,8 @@ Out of scope:
    - probe payloads remain minimal (no dependency internals or version metadata)
 3. Confirm root and tenant host routing.
 4. Confirm DB connectivity.
-5. Check challenge verification and rate-limit behavior.
+5. Check root-host login, tenant-host logout, and CSRF behavior.
+6. Remember that challenge verification and root-login rate limiting remain CP7 work and are not expected in the current CP6 build.
 
 ## Common Incidents
 
@@ -45,9 +46,8 @@ Out of scope:
 - Verify host parsing logic in app.
 
 ### Provisioning Spikes or Bot Noise
-- Verify challenge secret/config.
-- Verify challenge verification path.
-- Tighten pre-auth rate limits.
+- Root-host challenge/rate-limit enforcement is not live until CP7.
+- Use edge-level mitigations or temporary route restrictions if demo abuse appears before CP7 lands.
 - Optionally disable provisioning temporarily via config.
 
 ### Tenant Cleanup Not Running
@@ -55,6 +55,7 @@ Out of scope:
 - Verify lease settings and cleanup logs.
 
 ### Cross-Subdomain Login Issues
+- Verify `PAPERBINDER_PUBLIC_ROOT_URL` matches the deployed root host.
 - Verify cookie domain is `.lab.danielmaratta.com`.
 - Verify secure cookie flags and CSRF flow.
 
