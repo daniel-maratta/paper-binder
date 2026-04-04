@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="$(PaperBinderDapperVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="$(PaperBinderMicrosoftExtensionsIdentityCoreVersion)" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(PaperBinderDependencyInjectionAbstractionsVersion)" />
     <PackageReference Include="Npgsql" Version="$(PaperBinderNpgsqlVersion)" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(PaperBinderNpgsqlEntityFrameworkCorePostgreSqlVersion)" />

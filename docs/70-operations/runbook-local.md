@@ -24,6 +24,7 @@
   - Test: `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1`
   - Migrate schema: `powershell -ExecutionPolicy Bypass -File .\scripts\migrate.ps1`
   - Validate docs: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
+  - Validate launch profiles: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
   - Start local stack: `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
   - Preflight: `pwsh ./scripts/preflight.ps1 -Profile Full`
@@ -32,6 +33,7 @@
   - Test: `pwsh ./scripts/test.ps1`
   - Migrate schema: `pwsh ./scripts/migrate.ps1`
   - Validate docs: `pwsh ./scripts/validate-docs.ps1`
+  - Validate launch profiles: `pwsh ./scripts/validate-launch-profiles.ps1`
   - Start local stack: `pwsh ./scripts/start-local.ps1`
 
 ## VS Code Flow
@@ -42,6 +44,7 @@
 - Test: task `Test`
 - Migrate schema: task `Migrate Schema`
 - Docs validation: task `Validate Docs`
+- Launch profile validation: task `Validate Launch Profiles`
 - Preferred reviewer entry point: launch `Reviewer Full Stack` or run task `Reviewer Full Stack`
 - Local stack launch: task `Start Local Stack`
 - Fast process-debug alternative: launch `App + Worker (Process)`
@@ -93,6 +96,26 @@ Local Visual Studio process launches now load missing configuration keys from th
   - `README.md`
   - `docs/70-operations/runbook-local.md`
 - If the reviewer path changes, also re-verify the Docker-backed startup script and the documented reviewer URLs.
+- `scripts/validate-launch-profiles.ps1` must pass before a checkpoint or launch-profile-affecting PR is called review-ready.
+
+## Checkpoint Completion Verification
+
+- Before declaring any checkpoint done, run `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`.
+- Record manual launch verification for every checked-in launch surface in the checkpoint PR artifact's `Validation Evidence` section.
+- Manual VS Code verification must cover:
+  - `Reviewer Full Stack`
+  - `App + Worker (Process)`
+  - `API Only`
+  - `UI Only`
+  - `Worker Only`
+  - `Launch Frontend Dev Server`
+- Manual Visual Studio verification must cover:
+  - `Reviewer Full Stack`
+  - `App + Worker (Process)`
+  - `API Only`
+  - `UI Only`
+  - `Worker Only`
+- If a Visual Studio build does not expose shared solution launch profiles, verify the equivalent project launch profiles instead and record that fallback explicitly.
 
 ## Local Startup Shape
 
@@ -117,6 +140,7 @@ Use `scripts/migrate.ps1` when you need to rerun migrations manually against the
 4. Run `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`.
 
 The checked-in `.env.example` values are fake/demo-safe and are intended to work for the local Docker topology without exposing real secrets.
+`PAPERBINDER_PUBLIC_ROOT_URL` should stay aligned with the root host URL exposed by the local reverse proxy.
 
 ## Process Debugging Surfaces
 
@@ -129,12 +153,13 @@ The checked-in `.env.example` values are fake/demo-safe and are intended to work
 - `Worker Only` loads missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
 - VS Code `Launch Frontend Dev Server` remains available when you specifically want the standalone Vite surface on `http://localhost:5173`.
 
-## Current CP3 Limits
+## Current CP6 Limits
 
-- No provisioning, auth, or tenant-host feature flow exists yet.
-- HTTP versioning, correlation, ProblemDetails middleware, and contract-focused protocol coverage still land in CP4.
+- Root-host login, tenant-host logout, cookie auth, CSRF enforcement, and membership-based tenant validation are now live.
+- Provisioning, challenge verification, and pre-auth rate limiting remain CP7 work.
+- Policy-based named endpoint authorization and tenant-user administration remain later-checkpoint work.
 - Interactive API documentation is intentionally deferred until endpoint contracts and authorization policy exist.
-- The baseline schema is intentionally narrow: it establishes the first tenant lease table and migration workflow without pulling auth or binder/document features forward.
+- Binder, document, lease, and impersonation feature flows remain later-checkpoint work.
 
 ## Running Tests Locally
 

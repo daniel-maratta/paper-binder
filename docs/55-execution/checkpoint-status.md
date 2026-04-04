@@ -25,9 +25,9 @@ Use this document to answer:
 
 ## Current Snapshot
 
-- Current checkpoint: `CP5`
-- Last completed checkpoint: `CP4`
-- Next checkpoint: `CP6`
+- Current checkpoint: `CP6`
+- Last completed checkpoint: `CP5`
+- Next checkpoint: `CP7`
 - Open checkpoint blockers: none.
 - Open incidental follow-ups: investigate opaque `dotnet restore` exit-1 behavior on the current Windows/.NET 10 SDK stack.
 
@@ -39,8 +39,8 @@ Use this document to answer:
 | `CP2` | done | Runtime configuration and local deployment scaffold shipped via task [T-0014](../05-taskboard/tasks/T-0014-cp2-runtime-configuration-and-local-deployment-scaffold.md) and PR artifact [description.md](../95-delivery/pr/cp2-runtime-configuration-and-local-deployment-scaffold/description.md). |
 | `CP3` | done | Persistence baseline and migration pipeline shipped via task [T-0015](../05-taskboard/tasks/T-0015-cp3-persistence-baseline-and-migration-pipeline.md), with follow-up hardening in [T-0016](../05-taskboard/tasks/T-0016-repo-validation-tooling-hardening.md). Docker-backed migration and integration validation now pass. PR artifact: [description.md](../95-delivery/pr/cp3-persistence-baseline-and-migration-pipeline/description.md). |
 | `CP4` | done | HTTP contract baseline shipped via task [T-0017](../05-taskboard/tasks/T-0017-cp4-http-contract-baseline.md). PR artifact: [description.md](../95-delivery/pr/cp4-http-contract-baseline/description.md). |
-| `CP5` | active | Tenancy resolution and immutable tenant context are implemented and validated on the current branch via task [T-0018](../05-taskboard/tasks/T-0018-cp5-tenancy-resolution-and-immutable-tenant-context.md). PR artifact: [description.md](../95-delivery/pr/cp5-tenancy-resolution-and-immutable-tenant-context/description.md). |
-| `CP6` | queued | Identity, authentication, and membership validation not started. |
+| `CP5` | done | Tenancy resolution and immutable tenant context shipped on the current branch via task [T-0018](../05-taskboard/tasks/T-0018-cp5-tenancy-resolution-and-immutable-tenant-context.md). PR artifact: [description.md](../95-delivery/pr/cp5-tenancy-resolution-and-immutable-tenant-context/description.md). |
+| `CP6` | active | Identity, cookie auth, CSRF, and tenant membership validation are implemented and validated on the current branch via task [T-0019](../05-taskboard/tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md). PR artifact: [description.md](../95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md). |
 | `CP7` | queued | Pre-auth abuse controls and provisioning surface not started. |
 | `CP8` | queued | Authorization policies and tenant user administration not started. |
 | `CP9` | queued | Binder domain and policy model not started. |
@@ -83,6 +83,7 @@ When incidental work is discovered:
 - Set `Current checkpoint` to `none active` unless the next checkpoint has already started.
 - Update `Next checkpoint` to the next planned checkpoint or active checkpoint as applicable.
 - Link the PR artifact in `docs/95-delivery/pr/` if one exists.
+- Do not mark the checkpoint `done` until launch-profile validation and manual VS Code plus Visual Studio verification are recorded in the checkpoint PR artifact.
 
 ### When Follow-Up Work Appears
 

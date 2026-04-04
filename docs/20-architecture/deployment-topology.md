@@ -23,7 +23,7 @@ Components:
 - ASP.NET app host:
   - serves SPA + API
   - exposes `/health/live` and `/health/ready` (anonymous, minimal payload)
-  - validates challenge for pre-auth actions
+  - issues the cross-subdomain auth cookie and companion CSRF cookie
   - resolves tenant from host/subdomain + membership
 - PostgreSQL:
   - tenant and app data
@@ -50,7 +50,7 @@ Components:
    - controls: TLS, coarse limits, headers
 2. Reverse proxy -> app:
    - threats: header spoofing, host injection
-   - controls: strict host/subdomain resolution and forwarded-header validation
+   - controls: strict host/subdomain resolution and explicit public-root configuration for redirect construction
 3. App -> database:
    - threats: injection, over-privileged access
    - controls: parameterized queries and least-privileged DB user
@@ -60,11 +60,12 @@ Components:
 - Root host: `lab.danielmaratta.com` (pre-auth).
 - Tenant host: `{tenant}.lab.danielmaratta.com` (tenant-scoped).
 - Tenant context is resolved server-side from host + membership.
+- `PAPERBINDER_PUBLIC_ROOT_URL` is the canonical public root origin and must share the same host as the configured parent-domain auth cookie.
 
 ## Anti-Abuse Friction
 
-- Turnstile (or equivalent challenge) is required on root-host pre-auth actions.
-- Verification is server-side before provisioning or root-host login executes.
+- Turnstile (or equivalent challenge) is planned for root-host pre-auth actions in CP7.
+- Verification is not yet enforced in the current CP6 build.
 - Challenge is friction, not an authorization boundary.
 
 ## Alternatives Considered

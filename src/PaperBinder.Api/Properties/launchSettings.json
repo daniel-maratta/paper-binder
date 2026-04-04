@@ -4,7 +4,7 @@
     "Reviewer Full Stack": {
       "commandName": "Executable",
       "executablePath": "powershell",
-      "commandLineArgs": "-ExecutionPolicy Bypass -File ..\\..\\scripts\\reviewer-full-stack.ps1",
+      "commandLineArgs": "-ExecutionPolicy Bypass -File .\\scripts\\reviewer-full-stack.ps1",
       "workingDirectory": "..\\..\\"
     },
     "API Only": {

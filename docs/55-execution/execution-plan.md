@@ -23,6 +23,7 @@ V3 keeps V1's checkpoint model, tightens ordering, and requires documentation up
 
 - Every checkpoint ends in a merge to `main`.
 - Every checkpoint must leave `main` buildable, testable, and documentation-consistent.
+- No checkpoint is complete until launch-profile validation passes and manual VS Code plus Visual Studio launch verification is recorded in the PR artifact.
 - Every feature PR ships with contract updates and tests in the same change set.
 - Tenant isolation, auth boundary correctness, and lease semantics are release-blocking invariants.
 - No checkpoint introduces non-goals without explicit ADR and scope approval.

@@ -31,6 +31,7 @@ Status guidance:
 ## Validation Evidence
 - Commands run:
 - Tests added/updated:
+- Launch profile verification:
 - Manual verification:
 
 ## Follow-Ups

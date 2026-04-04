@@ -48,6 +48,38 @@ public sealed class HealthEndpointIntegrationTests
         Assert.True(readyPayload.Timestamp >= requestedAtUtc);
     }
 
+    [Fact]
+    public async Task Should_AllowAnonymousHealthChecks_OnKnownTenantHosts()
+    {
+        await using var database = await _postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp6-health-tenant");
+        var liveResponse = await SendTenantHostHealthRequestAsync(host, tenant.Slug, "/health/live");
+        var readyResponse = await SendTenantHostHealthRequestAsync(host, tenant.Slug, "/health/ready");
+
+        Assert.Equal(HttpStatusCode.OK, liveResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, readyResponse.StatusCode);
+
+        var livePayload = await liveResponse.Content.ReadFromJsonAsync<HealthPayload>();
+        var readyPayload = await readyResponse.Content.ReadFromJsonAsync<HealthPayload>();
+
+        Assert.NotNull(livePayload);
+        Assert.NotNull(readyPayload);
+        Assert.Equal("alive", livePayload!.Status);
+        Assert.Equal("ready", readyPayload!.Status);
+    }
+
+    private static async Task<HttpResponseMessage> SendTenantHostHealthRequestAsync(
+        PaperBinderApplicationHost host,
+        string tenantSlug,
+        string path)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
+        request.Headers.Host = $"{tenantSlug}.paperbinder.localhost";
+        return await host.Client.SendAsync(request);
+    }
+
     private static string GetRequiredHeader(HttpResponseMessage response, string headerName)
     {
         Assert.True(response.Headers.TryGetValues(headerName, out var values));
