@@ -6,6 +6,7 @@ Integration tests in v1 must cover:
 
 - Tenant isolation (no cross-tenant reads/writes).
 - Tenant host validation and server-authoritative tenant resolution.
+- Authentication, cookie, CSRF, and membership boundary behavior.
 - RBAC enforcement at API boundary.
 - Tenant lease and cleanup behavior (best-effort SLA behavior validation).
 - API version negotiation behavior on `/api/*` routes (`X-Api-Version`).
@@ -41,10 +42,17 @@ Integration tests in v1 must cover:
 - `Should_AllowTenantLeaseExtension_OnlyWithinAllowedWindow`.
 - `Should_DeleteExpiredTenantData_When_CleanupJobRuns`.
 - `Should_NotDeleteActiveTenant_When_CleanupJobRuns`.
-- `Should_ResolveTenantContextFromHost_When_TenantSlugExists`.
+- `Should_NotEstablishTenantContextForAnonymousTenantHostRequests`.
 - `Should_IgnoreSpoofedTenantHints_When_HostResolvesKnownTenant`.
 - `Should_ReturnNotFoundForUnknownTenantHost_EvenWhen_ClientSuppliesSpoofedHints`.
 - `Should_ReturnBadRequestProblemDetails_When_HostIsOutsideConfiguredBaseDomain`.
+- `Should_LoginAndEstablishTenantContext_When_CredentialsAreValid`.
+- `Should_ReturnForbidden_When_LoginUserHasNoTenantMembership`.
+- `Should_Logout_When_TenantHostRequestIncludesValidCsrfToken`.
+- `Should_RejectLogout_When_CsrfTokenIsMissing`.
+- `Should_ReturnForbidden_When_AuthenticatedUserTargetsDifferentTenantHost`.
+- `Should_ReturnGone_When_LoginTargetsExpiredTenant`.
+- `Should_AllowAnonymousHealthChecks_OnKnownTenantHosts`.
 - `Should_ReturnBadRequest_When_ApiVersionIsUnsupported`.
 - `Should_DefaultToV1_When_ApiVersionHeaderIsMissing`.
 - `Should_ReturnProblemDetails_When_ApiRouteDoesNotExist`.

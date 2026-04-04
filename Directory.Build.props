@@ -4,6 +4,7 @@
     <PaperBinderDapperVersion>2.1.72</PaperBinderDapperVersion>
     <PaperBinderEntityFrameworkCoreDesignVersion>10.0.4</PaperBinderEntityFrameworkCoreDesignVersion>
     <PaperBinderDependencyInjectionAbstractionsVersion>10.0.4</PaperBinderDependencyInjectionAbstractionsVersion>
+    <PaperBinderMicrosoftExtensionsIdentityCoreVersion>10.0.4</PaperBinderMicrosoftExtensionsIdentityCoreVersion>
     <PaperBinderHostingVersion>10.0.0</PaperBinderHostingVersion>
     <PaperBinderMicrosoftNetTestSdkVersion>17.14.1</PaperBinderMicrosoftNetTestSdkVersion>
     <PaperBinderNpgsqlVersion>10.0.2</PaperBinderNpgsqlVersion>

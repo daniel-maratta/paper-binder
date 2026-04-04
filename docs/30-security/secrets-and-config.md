@@ -22,6 +22,7 @@
 ## Required Environment Variables (Examples)
 
 - `PAPERBINDER_DB_CONNECTION=Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=<secret>`
+- `PAPERBINDER_PUBLIC_ROOT_URL=https://lab.danielmaratta.com`
 - `PAPERBINDER_AUTH_COOKIE_DOMAIN=.paperbinder.local`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
 - `PAPERBINDER_AUTH_KEY_RING_PATH=<path-or-provider-ref>`
@@ -41,6 +42,9 @@
 
 Do not commit real values.
 Keep the repo-root `.env.example` synchronized with these keys using fake values only.
+
+`PAPERBINDER_PUBLIC_ROOT_URL` must be an absolute root URL with the same host as `PAPERBINDER_AUTH_COOKIE_DOMAIN`.
+Redirect construction must use this trusted config value rather than the raw incoming request scheme/host.
 
 `PAPERBINDER_AUDIT_RETENTION_MODE` must be exactly one supported mode:
 - `PurgeTenantAudit`

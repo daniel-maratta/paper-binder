@@ -61,6 +61,13 @@
       "problemMatcher": []
     },
     {
+      "label": "Validate Launch Profiles",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/validate-launch-profiles.ps1"],
+      "problemMatcher": []
+    },
+    {
       "label": "Start Local Stack",
       "type": "process",
       "command": "powershell",
