@@ -2,28 +2,56 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch API",
+      "name": "Reviewer Full Stack",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -ExecutionPolicy Bypass -File ./scripts/reviewer-full-stack.ps1",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "UI Only",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build",
       "program": "${workspaceFolder}/src/PaperBinder.Api/bin/Debug/net10.0/PaperBinder.Api.dll",
       "cwd": "${workspaceFolder}/src/PaperBinder.Api",
-      "envFile": "${workspaceFolder}/.env",
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://localhost:5080"
+        "ASPNETCORE_URLS": "http://localhost:5080",
+        "PAPERBINDER_FRONTEND_HOSTING_MODE": "compiled"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(http://\\S+)"
       },
       "console": "integratedTerminal",
       "stopAtEntry": false
     },
     {
-      "name": "Launch Worker",
+      "name": "API Only",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/PaperBinder.Api/bin/Debug/net10.0/PaperBinder.Api.dll",
+      "cwd": "${workspaceFolder}/src/PaperBinder.Api",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5080"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(http://\\S+)"
+      },
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Worker Only",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build",
       "program": "${workspaceFolder}/src/PaperBinder.Worker/bin/Debug/net10.0/PaperBinder.Worker.dll",
       "cwd": "${workspaceFolder}/src/PaperBinder.Worker",
-      "envFile": "${workspaceFolder}/.env",
       "env": {
         "DOTNET_ENVIRONMENT": "Development"
       },
@@ -36,6 +64,12 @@
       "request": "launch",
       "command": "npm.cmd run dev",
       "cwd": "${workspaceFolder}/src/PaperBinder.Web"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "App + Worker (Process)",
+      "configurations": ["UI Only", "Worker Only"]
     }
   ]
 }

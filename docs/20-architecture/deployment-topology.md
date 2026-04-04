@@ -27,7 +27,7 @@ Components:
   - resolves tenant from host/subdomain + membership
 - PostgreSQL:
   - tenant and app data
-- Worker runtime (in-process or separate container):
+- Worker runtime (separate container in the local/demo Compose topology):
   - tenant lease cleanup
 
 ## Platform Assumptions

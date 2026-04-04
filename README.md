@@ -88,21 +88,27 @@ Canonical workspace commands live in `scripts/`:
   - `pwsh ./scripts/start-local.ps1`
 - Visual Studio:
   - Open `PaperBinder.sln`.
-  - If available in your Visual Studio build, choose the shared `Reviewer UI` solution launch profile.
-  - If shared solution launch profiles are unavailable, set `PaperBinder.Api` as the startup project and use the `reviewer-ui` launch profile.
+  - Preferred reviewer entry point: choose `Reviewer Full Stack` from the shared solution launch profiles in `PaperBinder.slnLaunch`.
+  - Fast process-debug alternative: choose `App + Worker (Process)` when you want the compiled SPA and worker without Docker.
+  - Focused debugging remains available via `API Only`, `UI Only`, and `Worker Only`.
+  - If shared solution launch profiles are unavailable in your Visual Studio build, fall back to the matching project launch profile on `PaperBinder.Api` or `PaperBinder.Worker`.
 
 VS Code tasks and launch settings are thin wrappers over the same command surface in `.vscode/`.
-A committed Visual Studio solution launch profile lives in `PaperBinder.slnLaunch`; the reviewer-facing option is `Reviewer UI`.
+The primary reviewer launch now stays in parity across both editors as `Reviewer Full Stack`, with `App + Worker (Process)` as the fast localhost-only fallback.
+The authoritative launch-profile contract lives in `docs/70-operations/runbook-local.md`.
 
 The Windows `powershell -ExecutionPolicy Bypass -File ...` path is the supported baseline for this repo; it is not a one-off workaround and the checked-in VS Code tasks use the same entrypoint.
 
-For local development, the canonical startup path is Docker Compose at `http://paperbinder.localhost:8080`, with optional process-debug surfaces on `http://localhost:5080` (API) and `http://localhost:5173` (Vite).
+For local development, the canonical reviewer startup path is Docker Compose at `http://paperbinder.localhost:8080`, with optional process-debug surfaces on `http://localhost:5080` (API host) and `http://localhost:5173` (Vite).
 
 Policy:
 - CP2 makes the canonical local stack Docker Compose-based at `http://paperbinder.localhost:8080`, fronted by Caddy and backed by PostgreSQL.
-- CP3 adds a dedicated migrations executable and Docker Compose migration service so schema changes apply before the app host is considered ready.
+- CP3 adds a dedicated migrations executable and Docker Compose migration service so schema changes apply before the app host and worker are considered ready.
 - Process-based API (`http://localhost:5080`) and Vite (`http://localhost:5173`) launches remain available for focused debugging, not as the canonical local topology.
-- Plain process-based API launches in Development indicate process liveness only; the dedicated Visual Studio `reviewer-ui` profile is the exception and serves the compiled SPA for reviewer convenience.
+- `Reviewer Full Stack` is the highest-value reviewer path because it starts the proxy, database, migrations, app host, and worker together, verifies health endpoints, and opens both the reviewer root host and the API liveness endpoint.
+- `App + Worker (Process)` is the fast engineering path when you only want the compiled SPA on `http://localhost:5080` and a separate worker process.
+- `API Only` launches in Development indicate process liveness only, while `UI Only` serves the compiled SPA through the same API host.
+- VS Code keeps the separate `Launch Frontend Dev Server` path as an extra focused frontend-debug surface.
 - Interactive API documentation can be introduced later when real endpoint contracts exist and authorization policy is in place.
 - `scripts/test.ps1` always runs unit tests plus the non-Docker integration bucket; Docker-backed integration tests run automatically when Docker is available and can be required explicitly via `-DockerIntegrationMode Require` for checkpoint or CI validation.
 

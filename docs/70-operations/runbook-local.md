@@ -40,18 +40,59 @@
 - Restore: task `Restore`
 - Build: task `Build`
 - Test: task `Test`
+- Migrate schema: task `Migrate Schema`
 - Docs validation: task `Validate Docs`
+- Preferred reviewer entry point: launch `Reviewer Full Stack` or run task `Reviewer Full Stack`
 - Local stack launch: task `Start Local Stack`
-- Focused process debugging: launch `Launch API`, `Launch Worker`, or `Launch Frontend Dev Server`
+- Fast process-debug alternative: launch `App + Worker (Process)`
+- Focused process-debug launches: `API Only`, `UI Only`, and `Worker Only`
+- Extra focused frontend debugging: launch `Launch Frontend Dev Server`
 
 ## Visual Studio Flow
 
 - Open `PaperBinder.sln`.
-- Preferred reviewer entry point: select the shared `Reviewer UI` solution launch profile from `PaperBinder.slnLaunch`.
-- If your Visual Studio build does not expose shared solution launch profiles, set `PaperBinder.Api` as the startup project and use the `reviewer-ui` launch profile from `launchSettings.json`.
-- For a process-based reviewer UI + worker session, use the shared `Reviewer UI + Worker` solution launch profile when available.
+- Preferred reviewer entry point: choose `Reviewer Full Stack` from the shared solution launch profiles in `PaperBinder.slnLaunch`.
+- Fast process-debug alternative: choose `App + Worker (Process)` when you want the compiled SPA and worker without Docker.
+- Focused debugging remains available through `API Only`, `UI Only`, and `Worker Only`.
+- If your Visual Studio build does not expose shared solution launch profiles, fall back to the matching project launch profile in `src/PaperBinder.Api/Properties/launchSettings.json` or `src/PaperBinder.Worker/Properties/launchSettings.json`.
 
-Local Visual Studio process launches now load missing configuration keys from the repo-root `.env` file, and fall back to `.env.example` when `.env` is absent. The API project build also restores and builds the frontend workspace before copying the compiled SPA into `wwwroot`, so the reviewer UI launch does not depend on a separate Vite process.
+Local Visual Studio process launches now load missing configuration keys from the repo-root `.env` file, and fall back to `.env.example` when `.env` is absent. The API project build also restores and builds the frontend workspace before copying the compiled SPA into `wwwroot`, so the `UI Only` launch does not depend on a separate Vite process. `Reviewer Full Stack` runs the canonical Docker-backed startup script instead of a localhost-only process launch.
+
+## Launch Profile Contract
+
+- The checked-in launch surface is intentional and must stay in parity across Visual Studio and VS Code.
+- Canonical shared profile names:
+  - `Reviewer Full Stack`
+  - `App + Worker (Process)`
+  - `API Only`
+  - `UI Only`
+  - `Worker Only`
+- VS Code may also expose `Reviewer Full Stack` as a task and may keep `Launch Frontend Dev Server` as an extra frontend-only debugging surface.
+- `Reviewer Full Stack` is the highest-value reviewer path and must remain Docker-backed rather than silently degrading into a localhost-only process launch.
+- `App + Worker (Process)` is an engineering convenience path and must remain clearly named as a process launch, not a full local stack launch.
+- `API Only` must remain the plain backend-process live-state launch on `http://localhost:5080`.
+- `UI Only` must remain the compiled-SPA-through-API-host launch on `http://localhost:5080`.
+- `Worker Only` must remain the standalone worker-process launch with visible console logging.
+
+### Reviewer Full Stack Behavior
+
+- Startup entrypoint: `scripts/reviewer-full-stack.ps1`
+- Backing topology: Docker Compose via `docker-compose.yml`
+- Expected services: `proxy`, `db`, `migrations`, `app`, `worker`
+- Browser behavior: opens `http://paperbinder.localhost:8080` and `http://paperbinder.localhost:8080/health/live`
+- Verification behavior: confirms `/health/live` and `/health/ready`, prints compose status, and prints recent worker logs
+
+### Drift Guard
+
+- If any launch profile name or behavior changes, update these files in the same change set:
+  - `PaperBinder.slnLaunch`
+  - `.vscode/launch.json`
+  - `.vscode/tasks.json` when the change affects task-backed launches
+  - `src/PaperBinder.Api/Properties/launchSettings.json`
+  - `src/PaperBinder.Worker/Properties/launchSettings.json`
+  - `README.md`
+  - `docs/70-operations/runbook-local.md`
+- If the reviewer path changes, also re-verify the Docker-backed startup script and the documented reviewer URLs.
 
 ## Local Startup Shape
 
@@ -60,11 +101,12 @@ Local Visual Studio process launches now load missing configuration keys from th
 - Compose file: `docker-compose.yml`
 - Reverse proxy config: `deploy/local/Caddyfile`
 - App image build: `src/PaperBinder.Api/Dockerfile`
+- Worker image build: `src/PaperBinder.Worker/Dockerfile`
 - Migration image build: `src/PaperBinder.Migrations/Dockerfile`
 - Repo-root environment contract: `.env` copied from `.env.example`
 
-`scripts/start-local.ps1` now runs `docker compose up -d --build`, which includes a one-shot `migrations` service that applies pending schema changes before the app host is allowed to finish startup.
-The local app container serves the compiled SPA and API from one ASP.NET host, while the reverse proxy keeps root-host and tenant-host routing aligned with the documented deployment shape.
+`scripts/start-local.ps1` now runs `docker compose up -d --build`, which includes a one-shot `migrations` service plus a long-running worker service, and applies pending schema changes before the app host is allowed to finish startup.
+The local stack serves the compiled SPA and API from one ASP.NET host behind the reverse proxy, while the worker runs as a separate container so reviewers can see the same background-runtime shape the docs describe.
 Use `scripts/migrate.ps1` when you need to rerun migrations manually against the current local stack.
 
 ## First-Time Local Stack Setup
@@ -80,10 +122,12 @@ The checked-in `.env.example` values are fake/demo-safe and are intended to work
 
 - API process-debug URL: `http://localhost:5080`
 - Frontend dev server URL: `http://localhost:5173`
-- Plain Development API launches still show a backend-process live-state page rather than the product UI surface.
-- Visual Studio `reviewer-ui` launches serve the compiled SPA through the API host and load missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
-- Visual Studio `worker-process` launches also load missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
-- `Launch API` and `Launch Worker` read environment variables from the repo-root `.env`.
+- `Reviewer Full Stack` opens the canonical root host at `http://paperbinder.localhost:8080` and the API liveness endpoint at `http://paperbinder.localhost:8080/health/live`, verifies health endpoints, prints compose status, and shows recent worker logs.
+- `App + Worker (Process)` keeps everything on localhost and does not start Docker containers.
+- `API Only` shows the backend-process live-state page rather than the product UI surface.
+- `UI Only` serves the compiled SPA through the API host and loads missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
+- `Worker Only` loads missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
+- VS Code `Launch Frontend Dev Server` remains available when you specifically want the standalone Vite surface on `http://localhost:5173`.
 
 ## Current CP3 Limits
 
