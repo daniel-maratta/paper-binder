@@ -7,6 +7,7 @@
     <FrontendRoot>..\PaperBinder.Web\</FrontendRoot>
     <FrontendRestoreStamp>$(FrontendRoot)node_modules\.paperbinder.restore.stamp</FrontendRestoreStamp>
     <FrontendDistIndex>$(FrontendRoot)dist\index.html</FrontendDistIndex>
+    <SkipFrontendBuild>false</SkipFrontendBuild>
     <NpmCommand Condition="'$(OS)' == 'Windows_NT'">npm.cmd</NpmCommand>
     <NpmCommand Condition="'$(OS)' != 'Windows_NT'">npm</NpmCommand>
   </PropertyGroup>
@@ -31,7 +32,7 @@
           BeforeTargets="Build"
           Inputs="$(FrontendRoot)package.json;$(FrontendRoot)package-lock.json"
           Outputs="$(FrontendRestoreStamp)"
-          Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(FrontendRoot)package.json')">
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(SkipFrontendBuild)' != 'true' and Exists('$(FrontendRoot)package.json')">
     <Exec Command="$(NpmCommand) ci" WorkingDirectory="$(FrontendRoot)" />
     <WriteLinesToFile File="$(FrontendRestoreStamp)" Lines="restored" Overwrite="true" />
   </Target>
@@ -41,7 +42,7 @@
           DependsOnTargets="RestoreFrontendDependencies"
           Inputs="@(FrontendBuildInput)"
           Outputs="$(FrontendDistIndex)"
-          Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(FrontendRoot)package.json')">
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(SkipFrontendBuild)' != 'true' and Exists('$(FrontendRoot)package.json')">
     <Exec Command="$(NpmCommand) run build" WorkingDirectory="$(FrontendRoot)" />
   </Target>
 

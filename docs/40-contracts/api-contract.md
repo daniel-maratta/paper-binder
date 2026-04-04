@@ -19,6 +19,7 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 - Tenant context source: request host/subdomain resolved server-side plus authenticated membership validation.
 - Auth mechanism: cross-subdomain cookie only in v1 (no JWT).
 - Tenant scope is resolved server-side. Client-provided tenant identifiers are ignored.
+- Request hosts must be either the configured root host or a single-label tenant subdomain beneath it; other hosts are rejected before route handlers execute.
 - API versioning contract: `docs/40-contracts/api-versioning.md`.
 - Version negotiation applies to `/api/*` routes only.
 - On `/api/*`, request header `X-Api-Version` is optional in v1 and defaults to `1`.
@@ -53,6 +54,8 @@ Notes:
 - `traceId` is required for incident correlation.
 - `correlationId` is required for request/incident correlation.
 - Unsupported API version errors use `errorCode` `API_VERSION_UNSUPPORTED`.
+- Invalid tenant hosts on `/api/*` return `400` ProblemDetails with `errorCode` `TENANT_HOST_INVALID`.
+- Unknown tenant hosts on `/api/*` return `404` ProblemDetails with `errorCode` `TENANT_NOT_FOUND`.
 - Unmatched `/api/*` routes return `404` ProblemDetails and still include `traceId`, `correlationId`, `X-Api-Version`, and `X-Correlation-Id`.
 
 ## API Surface

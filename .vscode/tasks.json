@@ -47,6 +47,13 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "Migrate Schema",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/migrate.ps1"],
+      "problemMatcher": []
+    },
+    {
       "label": "Validate Docs",
       "type": "process",
       "command": "powershell",
@@ -58,6 +65,13 @@
       "type": "process",
       "command": "powershell",
       "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/start-local.ps1"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Reviewer Full Stack",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/reviewer-full-stack.ps1"],
       "problemMatcher": []
     }
   ]

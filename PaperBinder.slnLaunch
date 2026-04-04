@@ -1,23 +1,56 @@
 [
   {
-    "Name": "Reviewer UI",
+    "Name": "Reviewer Full Stack",
     "Projects": [
       {
         "Path": "src\\PaperBinder.Api\\PaperBinder.Api.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "Reviewer Full Stack"
       }
     ]
   },
   {
-    "Name": "Reviewer UI + Worker",
+    "Name": "App + Worker (Process)",
     "Projects": [
       {
         "Path": "src\\PaperBinder.Api\\PaperBinder.Api.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "UI Only"
       },
       {
         "Path": "src\\PaperBinder.Worker\\PaperBinder.Worker.csproj",
-        "Action": "StartWithoutDebugging"
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "Worker Only"
+      }
+    ]
+  },
+  {
+    "Name": "API Only",
+    "Projects": [
+      {
+        "Path": "src\\PaperBinder.Api\\PaperBinder.Api.csproj",
+        "Action": "Start",
+        "DebugTarget": "API Only"
+      }
+    ]
+  },
+  {
+    "Name": "UI Only",
+    "Projects": [
+      {
+        "Path": "src\\PaperBinder.Api\\PaperBinder.Api.csproj",
+        "Action": "Start",
+        "DebugTarget": "UI Only"
+      }
+    ]
+  },
+  {
+    "Name": "Worker Only",
+    "Projects": [
+      {
+        "Path": "src\\PaperBinder.Worker\\PaperBinder.Worker.csproj",
+        "Action": "Start",
+        "DebugTarget": "Worker Only"
       }
     ]
   }

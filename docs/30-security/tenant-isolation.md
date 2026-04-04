@@ -16,6 +16,7 @@ Tenant isolation is a security boundary in PaperBinder.
 - Tenant scoping is enforced in query construction, never after fetch.
 - Cross-tenant data access is rejected by default.
 - Tenant context is resolved early and is immutable per request.
+- Request hosts outside the configured root/tenant pattern are rejected before tenant-scoped handling runs.
 - No cross-tenant joins are allowed except explicit, reviewed system-context queries.
 
 ## Data Access Expectations
@@ -24,6 +25,7 @@ Tenant isolation is a security boundary in PaperBinder.
 - Primary access paths include composite indexes containing `TenantId`.
 - System-level cleanup jobs may access multiple tenants only for expiry deletion logic.
 - Any data access that depends on tenant scope must take tenant context as an explicit input parameter.
+- Client tenant hints in headers, query-string values, or payloads must not override host-derived tenant context.
 - Ambient/static tenant state is prohibited for scoping decisions.
 
 ## Validation Expectations

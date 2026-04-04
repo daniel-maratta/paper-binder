@@ -25,7 +25,7 @@ PaperBinder is composed of five major layers:
 
 - Single PostgreSQL database.
 - Primary app host: `PaperBinder.Api` serves the React SPA and API from the same ASP.NET host.
-- Worker runtime: `PaperBinder.Worker` performs lease cleanup as a separate deployable or containerized runtime when needed.
+- Worker runtime: `PaperBinder.Worker` performs lease cleanup as a separate deployable and runs as a separate container in the local/demo Compose topology.
 - Post-auth traffic routed via tenant subdomain.
 
 ---

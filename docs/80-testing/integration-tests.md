@@ -5,6 +5,7 @@
 Integration tests in v1 must cover:
 
 - Tenant isolation (no cross-tenant reads/writes).
+- Tenant host validation and server-authoritative tenant resolution.
 - RBAC enforcement at API boundary.
 - Tenant lease and cleanup behavior (best-effort SLA behavior validation).
 - API version negotiation behavior on `/api/*` routes (`X-Api-Version`).
@@ -40,6 +41,10 @@ Integration tests in v1 must cover:
 - `Should_AllowTenantLeaseExtension_OnlyWithinAllowedWindow`.
 - `Should_DeleteExpiredTenantData_When_CleanupJobRuns`.
 - `Should_NotDeleteActiveTenant_When_CleanupJobRuns`.
+- `Should_ResolveTenantContextFromHost_When_TenantSlugExists`.
+- `Should_IgnoreSpoofedTenantHints_When_HostResolvesKnownTenant`.
+- `Should_ReturnNotFoundForUnknownTenantHost_EvenWhen_ClientSuppliesSpoofedHints`.
+- `Should_ReturnBadRequestProblemDetails_When_HostIsOutsideConfiguredBaseDomain`.
 - `Should_ReturnBadRequest_When_ApiVersionIsUnsupported`.
 - `Should_DefaultToV1_When_ApiVersionHeaderIsMissing`.
 - `Should_ReturnProblemDetails_When_ApiRouteDoesNotExist`.
@@ -59,5 +64,6 @@ Integration tests in v1 must cover:
 - Failures must emit trace/correlation identifiers in test logs where available.
 - Assertions should verify `X-Api-Version` on representative `/api/*` endpoints.
 - Assertions should verify `X-Correlation-Id` on representative API and non-API endpoints.
+- Assertions should verify tenant host parsing and rejection behavior before tenant-scoped handlers execute.
 - Assertions should verify health endpoints remain outside API version negotiation even when they return `503`.
 - Docker-backed tests should emit a clear preflight or fixture-level failure message when Docker is unavailable.
