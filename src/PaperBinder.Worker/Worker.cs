@@ -6,6 +6,8 @@ public sealed class Worker(ILogger<Worker> logger, ISystemClock clock) : Backgro
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        logger.LogInformation("PaperBinder.Worker service started.");
+
         while (!stoppingToken.IsCancellationRequested)
         {
             logger.LogInformation("PaperBinder.Worker heartbeat at {TimeUtc}.", clock.UtcNow);

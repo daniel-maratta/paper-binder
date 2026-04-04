@@ -29,11 +29,13 @@ public partial class Program
         builder.Services.AddSingleton(runtimeSettings);
         builder.Services.AddPaperBinderPersistence(runtimeSettings);
         builder.Services.AddPaperBinderHttpContract();
+        builder.Services.AddPaperBinderTenancy();
         builder.Services.AddSingleton<IDatabaseReadinessProbe, DatabaseReadinessProbe>();
 
         var app = builder.Build();
 
         app.UsePaperBinderHttpContract();
+        app.UsePaperBinderTenancy();
         app.MapPaperBinderHealthEndpoints();
         app.MapPaperBinderApiFallback();
         MapFrontendSurface(app);

@@ -1,6 +1,33 @@
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
+    "Reviewer Full Stack": {
+      "commandName": "Executable",
+      "executablePath": "powershell",
+      "commandLineArgs": "-ExecutionPolicy Bypass -File ..\\..\\scripts\\reviewer-full-stack.ps1",
+      "workingDirectory": "..\\..\\"
+    },
+    "API Only": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "",
+      "applicationUrl": "http://localhost:5080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "UI Only": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "",
+      "applicationUrl": "http://localhost:5080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "PAPERBINDER_FRONTEND_HOSTING_MODE": "compiled"
+      }
+    },
     "reviewer-ui": {
       "commandName": "Project",
       "dotnetRunMessages": true,

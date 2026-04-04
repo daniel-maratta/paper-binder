@@ -29,7 +29,7 @@ RUN dotnet restore src/PaperBinder.Api/PaperBinder.Api.csproj
 COPY src/ ./src/
 COPY --from=frontend-build /src/PaperBinder.Web/dist ./src/PaperBinder.Web/dist
 
-RUN dotnet publish src/PaperBinder.Api/PaperBinder.Api.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish src/PaperBinder.Api/PaperBinder.Api.csproj -c Release -o /app/publish --no-restore -p:SkipFrontendBuild=true
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app

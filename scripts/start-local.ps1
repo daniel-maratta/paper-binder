@@ -42,17 +42,26 @@ function Wait-ForUrl {
   $deadline = [DateTimeOffset]::UtcNow.AddSeconds(60)
 
   while ([DateTimeOffset]::UtcNow -lt $deadline) {
+    $statusCode = $null
+
     try {
       $response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 2
-      if ($AllowedStatusCodes -contains [int]$response.StatusCode) {
-        return
-      }
+      $statusCode = [int]$response.StatusCode
     }
     catch {
-      $statusCode = $_.Exception.Response.StatusCode.value__
-      if ($AllowedStatusCodes -contains $statusCode) {
-        return
+      $response = $_.Exception.Response
+      if ($null -ne $response) {
+        try {
+          $statusCode = [int]$response.StatusCode
+        }
+        catch {
+          $statusCode = $null
+        }
       }
+    }
+
+    if ($null -ne $statusCode -and $AllowedStatusCodes -contains $statusCode) {
+      return
     }
 
     Start-Sleep -Milliseconds 500

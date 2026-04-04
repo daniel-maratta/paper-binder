@@ -26,12 +26,13 @@ Services:
 - Caddy reverse proxy (TLS + host routing).
 - Dedicated migrations executable/container for schema updates.
 - ASP.NET app container (SPA + API).
+- ASP.NET worker container.
 - PostgreSQL container.
-- Optional worker container (if cleanup is not in-process).
 
 Repository deployment baseline:
 - `docker-compose.yml`
 - `src/PaperBinder.Api/Dockerfile`
+- `src/PaperBinder.Worker/Dockerfile`
 - `src/PaperBinder.Migrations/Dockerfile`
 - `deploy/local/Caddyfile`
 - repo-root `.env` copied from `.env.example`
