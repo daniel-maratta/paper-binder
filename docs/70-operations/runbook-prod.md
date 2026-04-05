@@ -30,7 +30,7 @@ Out of scope:
 3. Confirm root and tenant host routing.
 4. Confirm DB connectivity.
 5. Check root-host login, tenant-host logout, and CSRF behavior.
-6. Remember that challenge verification and root-login rate limiting remain CP7 work and are not expected in the current CP6 build.
+6. Confirm root-host provisioning/login require challenge proof and return `429` with `Retry-After` when the shared pre-auth budget is exhausted.
 
 ## Common Incidents
 
@@ -46,8 +46,8 @@ Out of scope:
 - Verify host parsing logic in app.
 
 ### Provisioning Spikes or Bot Noise
-- Root-host challenge/rate-limit enforcement is not live until CP7.
-- Use edge-level mitigations or temporary route restrictions if demo abuse appears before CP7 lands.
+- Root-host challenge/rate-limit enforcement is live on provisioning and root-host login.
+- Use edge-level mitigations or temporary route restrictions if single-node limits are insufficient during a spike.
 - Optionally disable provisioning temporarily via config.
 
 ### Tenant Cleanup Not Running

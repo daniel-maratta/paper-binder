@@ -82,12 +82,13 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
    - unauthenticated `GET /health/ready` returns `200`
    - health payloads are minimal and non-sensitive (no dependency internals, no version metadata)
    - root host loads
+   - root-host provisioning requires challenge proof, returns one-time credentials, and redirects to the server-resolved tenant host
    - root-host login works and redirects to the server-resolved tenant host
    - tenant-host logout requires CSRF and clears both auth and CSRF cookies
+   - root-host provisioning/login return `429` with `Retry-After` when the shared pre-auth rate-limit budget is exhausted
    - `GET /api/tenant/lease` and `POST /api/tenant/lease/extend` behavior matches lease rules
    - tenant subdomain routing works
    - auth persists across subdomains
-   - note: challenge verification, pre-auth rate limiting, and provisioning remain CP7 work and are not yet part of CP6 validation
 
 ## Rollback Procedure
 
@@ -113,7 +114,7 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
 - SSH not publicly exposed.
 - Parent-domain auth cookie and CSRF cookie must align with `PAPERBINDER_PUBLIC_ROOT_URL`.
 - Auth cookie uses `Secure`, `HttpOnly`, and CSRF protections.
-- Root-host challenge verification and pre-auth rate limiting are planned for CP7.
+- Root-host provisioning and login require challenge verification and shared pre-auth rate limiting.
 
 ## Alternatives Considered
 

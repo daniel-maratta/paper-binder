@@ -8,7 +8,7 @@
 - Root-host login is live in CP6 and resolves tenant redirect target from server-side membership.
 - Authenticated unsafe `/api/*` routes require a readable CSRF cookie paired with `X-CSRF-TOKEN`.
 - Post-auth tenant context is derived server-side from membership and routing context and is materialized only after membership and tenant-expiry validation succeed.
-- Root-host pre-auth challenge verification and rate limiting remain CP7 work; CP6 keeps those routes ready for that later guard layer.
+- Root-host provisioning and login now require server-side challenge verification plus shared per-IP pre-auth rate limiting before expensive auth/provision work runs.
 
 ## Trust Model
 

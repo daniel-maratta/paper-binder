@@ -4,6 +4,6 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup>
-    <ActiveDebugProfile>reviewer-ui</ActiveDebugProfile>
+    <ActiveDebugProfile>Reviewer Full Stack</ActiveDebugProfile>
   </PropertyGroup>
 </Project>

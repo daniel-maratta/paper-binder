@@ -162,10 +162,21 @@ internal static class TenantResolutionIntegrationTestHost
         return await PaperBinderApplicationHost.StartAsync(configuration, ConfigureTenantContextProbe);
     }
 
-    public static async Task<PaperBinderApplicationHost> StartDockerHostAsync(string databaseConnection) =>
-        await PaperBinderApplicationHost.StartAsync(
-            TestRuntimeConfiguration.Create(databaseConnection),
-            ConfigureTenantContextProbe);
+    public static async Task<PaperBinderApplicationHost> StartDockerHostAsync(
+        string databaseConnection,
+        IReadOnlyDictionary<string, string?>? configurationOverrides = null)
+    {
+        var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(databaseConnection));
+        if (configurationOverrides is not null)
+        {
+            foreach (var pair in configurationOverrides)
+            {
+                configuration[pair.Key] = pair.Value;
+            }
+        }
+
+        return await PaperBinderApplicationHost.StartAsync(configuration, ConfigureTenantContextProbe);
+    }
 
     public static async Task<SeededTenant> SeedTenantAsync(PaperBinderApplicationHost host, string slug)
     {

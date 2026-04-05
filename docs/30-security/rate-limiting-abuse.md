@@ -5,8 +5,9 @@ This document defines baseline anti-abuse controls for the public demo.
 This file is the PaperBinder-specific abuse surface and policy binding.
 
 Current implementation note:
-- The CP6 build adds cookie auth, CSRF, and tenant membership validation.
-- Root-host challenge verification and rate limiting remain planned CP7 controls.
+- The current build adds server-side Turnstile verification for root-host `POST /api/provision` and `POST /api/auth/login`.
+- The current build applies a shared per-IP fixed-window rate limit across those two root-host pre-auth routes.
+- `PB_ENV=Test` allows a fixed bypass token for automated tests only; production behavior always verifies with the configured secret key.
 
 ## Scope
 
@@ -38,6 +39,10 @@ Apply rate limiting in one canonical place:
 - Preferred: ASP.NET Core rate limiting middleware.
 - Alternative: reverse-proxy coarse limits.
 
+Current CP7 implementation:
+- ASP.NET Core rate limiting middleware is the canonical enforcement point.
+- Login and provision intentionally share one per-IP pre-auth budget in v1.
+
 Suggested starting limits:
 - Pre-auth: strict per-IP limits.
 - Authenticated: per-identity/per-tenant budgets.
@@ -49,15 +54,19 @@ Tune limits based on observed traffic.
 
 - Challenge completion is not authentication.
 - Require challenge proof on `POST /api/provision` and `POST /api/auth/login`.
-- Rate limit challenge verification, provisioning, and login endpoints.
+- Rate limit provisioning and root-host login together under one shared pre-auth budget.
 - Log failed verification events and throttle aggressively.
+- In tests only, `PB_ENV=Test` may use the fixed bypass token instead of the real provider verification round-trip.
 
 ## Response Semantics
 
 - Return `429 Too Many Requests`.
 - Return ProblemDetails payload.
 - Include `Retry-After` when supported.
-- Prefer stable machine-readable `errorCode` values for throttle and challenge failures.
+- Use stable machine-readable `errorCode` values:
+  - `CHALLENGE_REQUIRED`
+  - `CHALLENGE_FAILED`
+  - `RATE_LIMITED`
 
 ## Alternatives Considered
 

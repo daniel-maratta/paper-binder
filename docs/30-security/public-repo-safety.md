@@ -33,7 +33,7 @@ Never commit:
 ### Challenge Configuration
 
 - Turnstile (or equivalent challenge) is anti-abuse friction.
-- Challenge is planned to apply to root-host provisioning and root-host login in CP7.
+- Challenge applies to root-host provisioning and root-host login in the current build.
 - Challenge secrets must remain in environment configuration.
 - Challenge data must never be committed.
 

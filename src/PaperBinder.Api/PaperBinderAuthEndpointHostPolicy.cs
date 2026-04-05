@@ -8,6 +8,12 @@ internal static class PaperBinderAuthEndpointHostPolicy
         return requestHostContext.IsSystemHost;
     }
 
+    public static bool AllowsProvision(IRequestResolvedTenantHostContext requestHostContext)
+    {
+        ArgumentNullException.ThrowIfNull(requestHostContext);
+        return requestHostContext.IsSystemHost;
+    }
+
     public static bool AllowsLogout(IRequestResolvedTenantHostContext requestHostContext)
     {
         ArgumentNullException.ThrowIfNull(requestHostContext);

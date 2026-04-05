@@ -59,7 +59,7 @@
 - Focused debugging remains available through `API Only`, `UI Only`, and `Worker Only`.
 - If your Visual Studio build does not expose shared solution launch profiles, fall back to the matching project launch profile in `src/PaperBinder.Api/Properties/launchSettings.json` or `src/PaperBinder.Worker/Properties/launchSettings.json`.
 
-Local Visual Studio process launches now load missing configuration keys from the repo-root `.env` file, and fall back to `.env.example` when `.env` is absent. The API project build also restores and builds the frontend workspace before copying the compiled SPA into `wwwroot`, so the `UI Only` launch does not depend on a separate Vite process. `Reviewer Full Stack` runs the canonical Docker-backed startup script instead of a localhost-only process launch.
+Local Visual Studio process launches now load missing configuration keys from the repo-root `.env` file first, then fill any still-missing keys from `.env.example`. The API project build also restores and builds the frontend workspace before copying the compiled SPA into `wwwroot`, so the `UI Only` launch does not depend on a separate Vite process. `Reviewer Full Stack` runs the canonical Docker-backed startup script instead of a localhost-only process launch.
 
 ## Launch Profile Contract
 
@@ -153,10 +153,11 @@ The checked-in `.env.example` values are fake/demo-safe and are intended to work
 - `Worker Only` loads missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
 - VS Code `Launch Frontend Dev Server` remains available when you specifically want the standalone Vite surface on `http://localhost:5173`.
 
-## Current CP6 Limits
+## Current CP7 Limits
 
-- Root-host login, tenant-host logout, cookie auth, CSRF enforcement, and membership-based tenant validation are now live.
-- Provisioning, challenge verification, and pre-auth rate limiting remain CP7 work.
+- Root-host login, tenant-host logout, cookie auth, CSRF enforcement, membership-based tenant validation, root-host provisioning, and pre-auth abuse controls are now live.
+- Root-host provisioning creates the tenant, owner user, membership, lease state, and authenticated session only; binder/document seed data remains deferred.
+- The checked-in browser UI for provisioning/login remains later frontend-checkpoint work even though the backend contracts are live.
 - Policy-based named endpoint authorization and tenant-user administration remain later-checkpoint work.
 - Interactive API documentation is intentionally deferred until endpoint contracts and authorization policy exist.
 - Binder, document, lease, and impersonation feature flows remain later-checkpoint work.
