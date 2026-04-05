@@ -122,7 +122,7 @@ Outcome: public entry points are protected before demo onboarding is exposed.
 Commits:
 1. Add challenge verification integration with environment-gated test bypass.
 2. Add rate limits for provisioning and root-host login flows.
-3. Add `POST /api/provision` transactional tenant creation and seeded demo data.
+3. Add `POST /api/provision` transactional tenant creation with owner user, membership, lease, and session establishment only.
 4. Add integration tests for challenge-required, rate-limited, successful, and rollback-on-failure paths.
 
 Merge gate:

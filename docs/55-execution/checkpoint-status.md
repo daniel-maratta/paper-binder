@@ -25,9 +25,9 @@ Use this document to answer:
 
 ## Current Snapshot
 
-- Current checkpoint: `CP6`
-- Last completed checkpoint: `CP5`
-- Next checkpoint: `CP7`
+- Current checkpoint: `CP7`
+- Last completed checkpoint: `CP6`
+- Next checkpoint: `CP8`
 - Open checkpoint blockers: none.
 - Open incidental follow-ups: investigate opaque `dotnet restore` exit-1 behavior on the current Windows/.NET 10 SDK stack.
 
@@ -40,8 +40,8 @@ Use this document to answer:
 | `CP3` | done | Persistence baseline and migration pipeline shipped via task [T-0015](../05-taskboard/tasks/T-0015-cp3-persistence-baseline-and-migration-pipeline.md), with follow-up hardening in [T-0016](../05-taskboard/tasks/T-0016-repo-validation-tooling-hardening.md). Docker-backed migration and integration validation now pass. PR artifact: [description.md](../95-delivery/pr/cp3-persistence-baseline-and-migration-pipeline/description.md). |
 | `CP4` | done | HTTP contract baseline shipped via task [T-0017](../05-taskboard/tasks/T-0017-cp4-http-contract-baseline.md). PR artifact: [description.md](../95-delivery/pr/cp4-http-contract-baseline/description.md). |
 | `CP5` | done | Tenancy resolution and immutable tenant context shipped on the current branch via task [T-0018](../05-taskboard/tasks/T-0018-cp5-tenancy-resolution-and-immutable-tenant-context.md). PR artifact: [description.md](../95-delivery/pr/cp5-tenancy-resolution-and-immutable-tenant-context/description.md). |
-| `CP6` | active | Identity, cookie auth, CSRF, and tenant membership validation are implemented and validated on the current branch via task [T-0019](../05-taskboard/tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md). PR artifact: [description.md](../95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md). |
-| `CP7` | queued | Pre-auth abuse controls and provisioning surface not started. |
+| `CP6` | done | Identity, cookie auth, CSRF, and tenant membership validation shipped via task [T-0019](../05-taskboard/tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md). PR artifact: [description.md](../95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md). |
+| `CP7` | active | Pre-auth abuse controls and root-host provisioning are implemented, launch-profile-validated, runtime-verified, and manually launch-verified on the current branch via task [T-0020](../05-taskboard/tasks/T-0020-cp7-pre-auth-abuse-controls-and-provisioning-surface.md). Delivery artifact: [description.md](../95-delivery/pr/cp7-pre-auth-abuse-controls-and-provisioning-surface/description.md). The checkpoint remains active pending final PR merge. |
 | `CP8` | queued | Authorization policies and tenant user administration not started. |
 | `CP9` | queued | Binder domain and policy model not started. |
 | `CP10` | queued | Document domain and immutable document rules not started. |

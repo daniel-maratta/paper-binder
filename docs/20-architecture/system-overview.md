@@ -87,8 +87,9 @@ No ad-hoc role checks are permitted in handlers.
 
 On provisioning:
 - Tenant created.
+- Owner user and tenant membership created.
 - Lease set to 60 minutes.
-- Seeded documents inserted.
+- Authenticated session established for the new owner.
 
 Extension policy:
 - Extension allowed only when remaining lease is <= 10 minutes.

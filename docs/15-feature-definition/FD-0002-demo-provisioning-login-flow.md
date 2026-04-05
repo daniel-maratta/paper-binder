@@ -62,8 +62,8 @@ Representative error codes:
 - `RATE_LIMITED`
 
 ## Domain / architecture impact
-- Provisioning remains transactional (tenant, owner user, seed data).
-- Provisioning lifecycle state stays explicit (`Pending`, `Active`, `Failed`).
+- Provisioning remains transactional (tenant, owner user, membership, and lease state).
+- CP7 does not add a separate provisioning-state store; the tenant row plus lease timestamps remain the authoritative persisted state.
 - Raw credential values are never persisted after issuance boundary.
 - Tenant context for post-auth requests remains immutable per request.
 

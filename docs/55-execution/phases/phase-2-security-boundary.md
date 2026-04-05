@@ -33,7 +33,7 @@ Establish the tenant resolution, authentication, abuse controls, provisioning su
 
 - Challenge verification integration with environment-gated test bypass.
 - Rate limits for provisioning and root-host login flows.
-- `POST /api/provision` transactional tenant creation and seeded demo data.
+- `POST /api/provision` transactional tenant creation with owner user, membership, lease, and session establishment only.
 - Integration tests for challenge-required, rate-limited, successful, and rollback-on-failure paths.
 
 ### CP8 - Authorization Policies And Tenant User Administration
