@@ -64,8 +64,8 @@ Components:
 
 ## Anti-Abuse Friction
 
-- Turnstile (or equivalent challenge) is planned for root-host pre-auth actions in CP7.
-- Verification is not yet enforced in the current CP6 build.
+- Turnstile (or equivalent challenge) is enforced on root-host pre-auth provisioning and login.
+- Root-host provisioning and login share one per-IP pre-auth rate-limit budget in the current build.
 - Challenge is friction, not an authorization boundary.
 
 ## Alternatives Considered

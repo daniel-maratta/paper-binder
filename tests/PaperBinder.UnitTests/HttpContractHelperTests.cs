@@ -149,7 +149,7 @@ public sealed class HttpContractHelperTests
     }
 
     [Fact]
-    public void AuthEndpointHostPolicy_Should_RequireSystemHostForLoginAndTenantHostForLogout()
+    public void AuthEndpointHostPolicy_Should_RequireSystemHostForLoginAndProvision_AndTenantHostForLogout()
     {
         var systemHost = new TestResolvedTenantHostContext(isSystemHost: true, tenantHost: null);
         var tenantHost = new TestResolvedTenantHostContext(
@@ -160,6 +160,8 @@ public sealed class HttpContractHelperTests
 
         Assert.True(PaperBinderAuthEndpointHostPolicy.AllowsLogin(systemHost));
         Assert.False(PaperBinderAuthEndpointHostPolicy.AllowsLogin(tenantHost));
+        Assert.True(PaperBinderAuthEndpointHostPolicy.AllowsProvision(systemHost));
+        Assert.False(PaperBinderAuthEndpointHostPolicy.AllowsProvision(tenantHost));
         Assert.False(PaperBinderAuthEndpointHostPolicy.AllowsLogout(systemHost));
         Assert.True(PaperBinderAuthEndpointHostPolicy.AllowsLogout(tenantHost));
     }

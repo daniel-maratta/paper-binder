@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using PaperBinder.Api;
 
 namespace PaperBinder.IntegrationTests;
 
@@ -8,6 +9,7 @@ namespace PaperBinder.IntegrationTests;
 [Collection(PostgresDatabaseCollection.Name)]
 public sealed class AuthIntegrationTests(PostgresContainerFixture postgres)
 {
+    private const string ChallengeRequiredErrorCode = "CHALLENGE_REQUIRED";
     private const string InvalidCredentialsErrorCode = "INVALID_CREDENTIALS";
     private const string CsrfTokenInvalidErrorCode = "CSRF_TOKEN_INVALID";
     private const string TenantForbiddenErrorCode = "TENANT_FORBIDDEN";
@@ -64,6 +66,26 @@ public sealed class AuthIntegrationTests(PostgresContainerFixture postgres)
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.NotNull(problem);
         Assert.Equal(InvalidCredentialsErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+    }
+
+    [Fact]
+    public async Task Should_RejectLogin_When_ChallengeTokenIsMissing()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp7-login-missing-challenge");
+        var user = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp7-login-missing.local", "checkpoint-7-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, user, tenant);
+
+        using var request = AuthIntegrationTestClient.CreateLoginRequest(user.Email, user.Password, challengeToken: null);
+
+        var response = await host.Client.SendAsync(request);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.NotNull(problem);
+        Assert.Equal(ChallengeRequiredErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
     }
 
     [Fact]
@@ -239,14 +261,18 @@ internal static class AuthIntegrationTestClient
     public const string AuthCookieName = "paperbinder.auth";
     public const string CsrfCookieName = AuthCookieName + ".csrf";
 
-    public static HttpRequestMessage CreateLoginRequest(string email, string password)
+    public static HttpRequestMessage CreateLoginRequest(
+        string email,
+        string password,
+        string? challengeToken = PaperBinderChallengeVerification.TestBypassToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "/api/auth/login")
         {
             Content = JsonContent.Create(new
             {
                 email,
-                password
+                password,
+                challengeToken
             })
         };
 
@@ -257,9 +283,10 @@ internal static class AuthIntegrationTestClient
     public static async Task<AuthenticatedSession> LoginAsync(
         PaperBinderApplicationHost host,
         string email,
-        string password)
+        string password,
+        string? challengeToken = PaperBinderChallengeVerification.TestBypassToken)
     {
-        using var request = CreateLoginRequest(email, password);
+        using var request = CreateLoginRequest(email, password, challengeToken);
         var response = await host.Client.SendAsync(request);
         var payload = await response.Content.ReadFromJsonAsync<LoginResponsePayload>();
         var cookies = ParseCookieValues(response);
@@ -271,7 +298,7 @@ internal static class AuthIntegrationTestClient
         return new AuthenticatedSession(response, payload, authCookieValue, csrfCookieValue);
     }
 
-    private static Dictionary<string, string> ParseCookieValues(HttpResponseMessage response)
+    internal static Dictionary<string, string> ParseCookieValues(HttpResponseMessage response)
     {
         var cookies = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
