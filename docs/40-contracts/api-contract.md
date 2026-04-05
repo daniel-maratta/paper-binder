@@ -9,7 +9,7 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 
 - Tenant scope is server-resolved from host plus membership; client tenant IDs are ignored.
 - v1 auth is cookie-based only; `/api/*` version defaults to `1` with response header echo.
-- Root-host login is live in CP6; root-host challenge verification and pre-auth rate limiting land in CP7.
+- Root-host provisioning and login now enforce server-side challenge verification plus shared pre-auth rate limiting.
 - Tenant lease uses canonical routes `/api/tenant/lease` and `/api/tenant/lease/extend`.
 - Documents remain immutable; archive state is visibility metadata only.
 - Health endpoints are non-API routes, anonymous, minimal, and non-versioned.
@@ -58,9 +58,14 @@ Notes:
 - Invalid tenant hosts on `/api/*` return `400` ProblemDetails with `errorCode` `TENANT_HOST_INVALID`.
 - Unknown tenant hosts on `/api/*` return `404` ProblemDetails with `errorCode` `TENANT_NOT_FOUND`.
 - Invalid credentials return `401` ProblemDetails with `errorCode` `INVALID_CREDENTIALS`.
+- Missing challenge proof returns `400` ProblemDetails with `errorCode` `CHALLENGE_REQUIRED`.
+- Failed challenge verification returns `403` ProblemDetails with `errorCode` `CHALLENGE_FAILED`.
 - Invalid CSRF tokens return `403` ProblemDetails with `errorCode` `CSRF_TOKEN_INVALID`.
+- Tenant-name validation failures return `400` ProblemDetails with `errorCode` `TENANT_NAME_INVALID`.
+- Tenant-name conflicts return `409` ProblemDetails with `errorCode` `TENANT_NAME_CONFLICT`.
 - Missing or wrong-tenant membership returns `403` ProblemDetails with `errorCode` `TENANT_FORBIDDEN`.
 - Expired-but-not-purged tenants return `410` ProblemDetails with `errorCode` `TENANT_EXPIRED`.
+- Pre-auth throttling returns `429` ProblemDetails with `errorCode` `RATE_LIMITED` and includes `Retry-After` when available.
 - Unmatched `/api/*` routes return `404` ProblemDetails and still include `traceId`, `correlationId`, `X-Api-Version`, and `X-Correlation-Id`.
 
 ## API Surface
@@ -68,7 +73,7 @@ Notes:
 ### Provisioning and Lease
 
 - `POST /api/provision`
-  - Status: planned for CP7; not implemented in the current CP6 build
+  - Status: live in the current build
   - Auth required: N
   - Tenant context source: none (system context, pre-auth)
   - Challenge required: Y
@@ -87,6 +92,11 @@ Notes:
       "credentials": { "email": "owner@acme-demo.local", "password": "<generated>" }
     }
     ```
+  - Failure semantics:
+    - `400` when challenge proof is missing or the tenant name is invalid after normalization.
+    - `403` when challenge verification fails.
+    - `409` when the normalized tenant name is unavailable.
+    - `429` when the shared pre-auth rate-limit budget is exhausted.
   - Idempotency: not idempotent.
 
 - `GET /api/tenant/lease`
@@ -132,20 +142,22 @@ Notes:
 - `POST /api/auth/login`
   - Auth required: N
   - Tenant context source: credential plus server-side membership (host may be root domain)
-  - Challenge required: N in CP6, planned `Y` in CP7
-  - Rate limited: N in CP6, planned `Y` in CP7
+  - Challenge required: Y
+  - Rate limited: Y
   - Request example:
     ```json
-    { "email": "owner@acme-demo.local", "password": "<password>" }
+    { "email": "owner@acme-demo.local", "password": "<password>", "challengeToken": "<token>" }
     ```
   - Response example (`200`):
     ```json
     { "redirectUrl": "https://acme-demo.paperbinder.local/app" }
     ```
   - Failure semantics:
+    - `400` when challenge proof is missing.
+    - `403` when challenge verification fails or the user has no tenant membership.
     - `401` when credentials are invalid.
-    - `403` when the user has no tenant membership.
     - `410` when the resolved tenant is expired but not yet purged.
+    - `429` when the shared pre-auth rate-limit budget is exhausted.
   - Idempotency: effectively idempotent for valid repeated submissions.
 
 - `POST /api/auth/logout`
@@ -266,7 +278,7 @@ Health payloads must not include dependency internals or version metadata.
 
 ## RBAC Policy Map
 
-- `POST /api/provision` -> planned CP7 anonymous system-context endpoint.
+- `POST /api/provision` -> anonymous system-context endpoint.
 - `GET /api/tenant/lease` -> authenticated tenant member.
 - `POST /api/tenant/lease/extend` -> `TenantAdmin`.
 - `POST /api/auth/logout` -> authenticated user.

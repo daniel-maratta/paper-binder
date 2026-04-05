@@ -31,8 +31,8 @@ This is a lightweight threat model for v1. It documents primary risks and baseli
 
 ## Deferred Controls
 
-- Root-host pre-auth challenge verification remains CP7 work.
-- Root-host pre-auth rate limiting remains CP7 work.
+- No distributed or multi-node rate-limiting implementation in v1.
+- No advanced bot-scoring model beyond fixed challenge verification in v1.
 
 ## Non-Goals
 

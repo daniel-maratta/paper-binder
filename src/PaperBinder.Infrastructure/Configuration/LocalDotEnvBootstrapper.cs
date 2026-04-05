@@ -9,13 +9,24 @@ public static class LocalDotEnvBootstrapper
             return;
         }
 
-        var envFilePath = FindNearestDotEnvFile(startDirectory);
-        if (envFilePath is null)
+        var configurationDirectory = FindNearestConfigurationDirectory(startDirectory);
+        if (configurationDirectory is null)
         {
             return;
         }
 
-        foreach (var (key, value) in Parse(envFilePath))
+        LoadMissingEnvironmentVariablesFromFile(Path.Combine(configurationDirectory.FullName, ".env"));
+        LoadMissingEnvironmentVariablesFromFile(Path.Combine(configurationDirectory.FullName, ".env.example"));
+    }
+
+    private static void LoadMissingEnvironmentVariablesFromFile(string path)
+    {
+        if (!File.Exists(path))
+        {
+            return;
+        }
+
+        foreach (var (key, value) in Parse(path))
         {
             if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(key)))
             {
@@ -24,22 +35,16 @@ public static class LocalDotEnvBootstrapper
         }
     }
 
-    private static string? FindNearestDotEnvFile(string startDirectory)
+    private static DirectoryInfo? FindNearestConfigurationDirectory(string startDirectory)
     {
         for (var directory = new DirectoryInfo(Path.GetFullPath(startDirectory));
              directory is not null;
              directory = directory.Parent)
         {
-            var dotEnvPath = Path.Combine(directory.FullName, ".env");
-            if (File.Exists(dotEnvPath))
+            if (File.Exists(Path.Combine(directory.FullName, ".env")) ||
+                File.Exists(Path.Combine(directory.FullName, ".env.example")))
             {
-                return dotEnvPath;
-            }
-
-            var dotEnvExamplePath = Path.Combine(directory.FullName, ".env.example");
-            if (File.Exists(dotEnvExamplePath))
-            {
-                return dotEnvExamplePath;
+                return directory;
             }
         }
 
