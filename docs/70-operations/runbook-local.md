@@ -25,6 +25,7 @@
   - Migrate schema: `powershell -ExecutionPolicy Bypass -File .\scripts\migrate.ps1`
   - Validate docs: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
   - Validate launch profiles: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
+  - Validate checkpoint: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - Start local stack: `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
   - Preflight: `pwsh ./scripts/preflight.ps1 -Profile Full`
@@ -34,6 +35,7 @@
   - Migrate schema: `pwsh ./scripts/migrate.ps1`
   - Validate docs: `pwsh ./scripts/validate-docs.ps1`
   - Validate launch profiles: `pwsh ./scripts/validate-launch-profiles.ps1`
+  - Validate checkpoint: `pwsh ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - Start local stack: `pwsh ./scripts/start-local.ps1`
 
 ## VS Code Flow
@@ -45,6 +47,7 @@
 - Migrate schema: task `Migrate Schema`
 - Docs validation: task `Validate Docs`
 - Launch profile validation: task `Validate Launch Profiles`
+- Standard scripted checkpoint closeout: task `Validate Checkpoint (Release)`
 - Preferred reviewer entry point: launch `Reviewer Full Stack` or run task `Reviewer Full Stack`
 - Local stack launch: task `Start Local Stack`
 - Fast process-debug alternative: launch `App + Worker (Process)`
@@ -97,11 +100,16 @@ Local Visual Studio process launches now load missing configuration keys from th
   - `docs/70-operations/runbook-local.md`
 - If the reviewer path changes, also re-verify the Docker-backed startup script and the documented reviewer URLs.
 - `scripts/validate-launch-profiles.ps1` must pass before a checkpoint or launch-profile-affecting PR is called review-ready.
+- The canonical `scripts/build.ps1` path runs the frontend build explicitly before `dotnet build` and then passes `SkipFrontendBuild=true` so frontend tool failures stay visible in script output.
+- The canonical `scripts/restore.ps1` path reruns bodyless `dotnet restore` failures once with richer verbosity and treats a still-opaque restore as a likely restricted/offline-environment issue rather than silently implying a broken project graph.
+- The frontend `npm ci` step retries one transient Windows `EPERM`/`unlink` lock before failing with explicit guidance to close whatever is holding `node_modules`.
 
 ## Checkpoint Completion Verification
 
 - Before declaring any checkpoint done, run `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`.
+- Prefer `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` for the standard scripted checkpoint-validation bundle.
 - Record manual launch verification for every checked-in launch surface in the checkpoint PR artifact's `Validation Evidence` section.
+- `scripts/validate-checkpoint.ps1` does not replace the required manual VS Code and Visual Studio verification evidence.
 - Manual VS Code verification must cover:
   - `Reviewer Full Stack`
   - `App + Worker (Process)`

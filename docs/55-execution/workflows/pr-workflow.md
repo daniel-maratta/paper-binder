@@ -37,8 +37,16 @@ Before merging, the PR must satisfy:
 - [ ] All relevant test suites pass (unit, integration, E2E as applicable).
 - [ ] Docs validation passes (if docs validation scripts exist).
 - [ ] `scripts/validate-launch-profiles.ps1` passes.
+- [ ] Prefer `scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` for the standard scripted checkpoint-validation bundle.
 - [ ] Manual verification confirms every checked-in launch profile still works in VS Code and Visual Studio, or the documented Visual Studio fallback path is recorded.
 - [ ] The checkpoint's merge gate conditions that this PR addresses are met.
+
+## Common Review Misses
+
+- Host-scoped endpoints should include wrong-host deny-path coverage when the behavior is externally observable.
+- If the checkpoint plan promises structured logging or observability behavior, verify the implementation actually emits it.
+- Keep later-checkpoint work explicitly deferred in `Scope Boundaries`; do not silently pull it forward.
+- Keep one canonical checkpoint narrative per delivery folder. Do not duplicate `description.md` into a second prose artifact unless that file has a distinct purpose.
 
 ## Merge Discipline
 

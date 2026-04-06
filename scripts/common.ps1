@@ -66,6 +66,109 @@ function ConvertTo-CommandArgumentString {
   return ($escapedArguments -join " ").Trim()
 }
 
+function Write-CommandOutput {
+  param(
+    [string]$StdOut = "",
+
+    [string]$StdErr = ""
+  )
+
+  if (-not [string]::IsNullOrWhiteSpace($StdOut)) {
+    Write-Host $StdOut
+  }
+
+  if (-not [string]::IsNullOrWhiteSpace($StdErr)) {
+    Write-Host $StdErr
+  }
+}
+
+function Test-DotNetVerbosityArgumentPresent {
+  param(
+    [string[]]$Arguments = @()
+  )
+
+  foreach ($argument in $Arguments) {
+    if ($argument -eq "-v" -or $argument -eq "--verbosity" -or $argument.StartsWith("-v:") -or $argument.StartsWith("--verbosity:")) {
+      return $true
+    }
+  }
+
+  return $false
+}
+
+function Test-OpaqueDotNetFailure {
+  param(
+    [string]$Output = ""
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Output)) {
+    return $true
+  }
+
+  $normalized = ($Output -replace '\x1b\[[0-9;]*m', '').Trim()
+  if ([string]::IsNullOrWhiteSpace($normalized)) {
+    return $true
+  }
+
+  $lines = @($normalized -split "\r?\n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+  if ($lines.Count -le 2 -and $normalized -notmatch '(?i)error|exception|warning|MSB\d{4}|NU\d{4}|spawn EPERM|Access to the path') {
+    return $true
+  }
+
+  return $normalized -match '(?ms)(Build|Restore) FAILED\.\s*0 Warning\(s\)\s*0 Error\(s\)'
+}
+
+function Get-DotNetFailureGuidance {
+  param(
+    [string[]]$Arguments = @(),
+
+    [string]$Output = ""
+  )
+
+  if ($Arguments.Count -eq 0 -or -not (Test-OpaqueDotNetFailure -Output $Output)) {
+    return ""
+  }
+
+  switch ($Arguments[0]) {
+    "restore" {
+      return "Restore failed without a concrete NuGet or MSBuild error body. If this command is running in a restricted or offline environment, rerun it with normal package-source, network, and filesystem access before treating it as a repo-configuration problem."
+    }
+
+    "build" {
+      return "Build failed without a concrete MSBuild error body. Rerun the printed command directly with detailed verbosity and make sure no concurrent build, IDE, or runtime process is holding files under obj/ or bin/."
+    }
+
+    default {
+      return ""
+    }
+  }
+}
+
+function Test-NpmWindowsFileLockFailure {
+  param(
+    [string]$Output = ""
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Output)) {
+    return $false
+  }
+
+  $normalized = ($Output -replace '\x1b\[[0-9;]*m', '').Trim()
+  return $normalized -match '(?i)npm (ERR!|error) code EPERM' -and $normalized -match '(?i)unlink'
+}
+
+function Get-NpmFailureGuidance {
+  param(
+    [string]$Output = ""
+  )
+
+  if (Test-NpmWindowsFileLockFailure -Output $Output) {
+    return "Windows file-lock detected while npm was updating node_modules. Close Vite, node, IDE, or antivirus-scanning processes that may be holding frontend native modules, then rerun the command. If the lock is transient, retry once more before manually deleting src/PaperBinder.Web/node_modules."
+  }
+
+  return ""
+}
+
 function Invoke-CapturedCommand {
   param(
     [Parameter(Mandatory = $true)]
@@ -146,6 +249,56 @@ function Invoke-CapturedCommand {
   }
 }
 
+function Invoke-DotNetCommand {
+  param(
+    [string[]]$Arguments = @(),
+
+    [string]$WorkingDirectory = (Get-RepoRoot)
+  )
+
+  $argumentDisplay = ($Arguments -join " ").Trim()
+  if ([string]::IsNullOrWhiteSpace($argumentDisplay)) {
+    Write-Host "> dotnet"
+  }
+  else {
+    Write-Host "> dotnet $argumentDisplay"
+  }
+
+  $result = Invoke-CapturedCommand -FilePath "dotnet" -Arguments $Arguments -WorkingDirectory $WorkingDirectory
+  Write-CommandOutput -StdOut $result.StdOut -StdErr $result.StdErr
+
+  if ($result.ExitCode -eq 0) {
+    return
+  }
+
+  $details = $result.Output
+  if (Test-OpaqueDotNetFailure -Output $details) {
+    $diagnosticArguments = @($Arguments)
+    if (-not (Test-DotNetVerbosityArgumentPresent -Arguments $diagnosticArguments)) {
+      $diagnosticArguments += @("-v", "detailed")
+    }
+
+    Write-Host "dotnet returned an opaque failure body; rerunning once with detailed verbosity."
+    $diagnosticResult = Invoke-CapturedCommand -FilePath "dotnet" -Arguments $diagnosticArguments -WorkingDirectory $WorkingDirectory
+    Write-CommandOutput -StdOut $diagnosticResult.StdOut -StdErr $diagnosticResult.StdErr
+
+    if (-not [string]::IsNullOrWhiteSpace($diagnosticResult.Output)) {
+      $details = $diagnosticResult.Output
+    }
+  }
+
+  if ([string]::IsNullOrWhiteSpace($details)) {
+    $details = "dotnet exited non-zero with no captured output."
+  }
+
+  $guidance = Get-DotNetFailureGuidance -Arguments $Arguments -Output $details
+  if (-not [string]::IsNullOrWhiteSpace($guidance)) {
+    $details = "$details`n$guidance"
+  }
+
+  throw "Command failed with exit code $($result.ExitCode): dotnet $argumentDisplay`nWorking directory: $WorkingDirectory`n$details"
+}
+
 function Set-PaperBinderDotNetEnvironment {
   $repoRoot = Get-RepoRoot
   $dotnetCliHome = Join-Path $repoRoot ".dotnet"
@@ -163,6 +316,57 @@ function Get-NpmCommand {
   }
 
   return "npm"
+}
+
+function Invoke-NpmCommand {
+  param(
+    [string[]]$Arguments = @(),
+
+    [string]$WorkingDirectory = (Get-RepoRoot),
+
+    [int]$RetryCount = 0
+  )
+
+  $filePath = Get-NpmCommand
+  $argumentDisplay = ($Arguments -join " ").Trim()
+  $attempt = 0
+
+  while ($true) {
+    if ([string]::IsNullOrWhiteSpace($argumentDisplay)) {
+      Write-Host "> $filePath"
+    }
+    else {
+      Write-Host "> $filePath $argumentDisplay"
+    }
+
+    $result = Invoke-CapturedCommand -FilePath $filePath -Arguments $Arguments -WorkingDirectory $WorkingDirectory
+    Write-CommandOutput -StdOut $result.StdOut -StdErr $result.StdErr
+
+    if ($result.ExitCode -eq 0) {
+      return
+    }
+
+    $details = if ([string]::IsNullOrWhiteSpace($result.Output)) {
+      "npm exited non-zero with no captured output."
+    }
+    else {
+      $result.Output
+    }
+
+    if ($attempt -lt $RetryCount -and (Test-NpmWindowsFileLockFailure -Output $details)) {
+      $attempt++
+      Write-Host "npm reported a transient Windows file-lock while updating node_modules; retrying in 2 seconds (attempt $($attempt + 1) of $($RetryCount + 1))."
+      Start-Sleep -Seconds 2
+      continue
+    }
+
+    $guidance = Get-NpmFailureGuidance -Output $details
+    if (-not [string]::IsNullOrWhiteSpace($guidance)) {
+      $details = "$details`n$guidance"
+    }
+
+    throw "Command failed with exit code $($result.ExitCode): $filePath $argumentDisplay`nWorking directory: $WorkingDirectory`n$details"
+  }
 }
 
 function Assert-PaperBinderDotNetSdkAvailable {
