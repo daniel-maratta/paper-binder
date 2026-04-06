@@ -39,8 +39,7 @@ This workflow is a checkpoint-specific companion to [agent-operating-model.md](.
 ### 4. Validate Merge Gate
 
 - Verify every condition listed in the checkpoint's merge gate.
-- Run the build, test suite, and any docs validation scripts.
-- Run `scripts/validate-launch-profiles.ps1`.
+- Prefer `scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` for the standard scripted validation bundle; run additional targeted commands when the checkpoint needs narrower or extra coverage.
 - Record manual VS Code and Visual Studio launch verification in the checkpoint PR artifact before treating the checkpoint as done.
 - Confirm no tenant isolation, auth, or lease invariants are violated.
 - Complete pre-PR critique before considering the checkpoint work ready to merge.

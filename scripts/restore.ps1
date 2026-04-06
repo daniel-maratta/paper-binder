@@ -22,7 +22,7 @@ Assert-PaperBinderDotNetSdkAvailable
 Assert-PaperBinderFrontendToolchainAvailable
 
 foreach ($restoreProject in $restoreProjects) {
-  Invoke-ExternalCommand -FilePath "dotnet" -Arguments @("restore", $restoreProject) -WorkingDirectory $repoRoot
+  Invoke-DotNetCommand -Arguments @("restore", $restoreProject) -WorkingDirectory $repoRoot
 }
 
-Invoke-ExternalCommand -FilePath (Get-NpmCommand) -Arguments @("ci") -WorkingDirectory $frontendRoot
+Invoke-NpmCommand -Arguments @("ci") -WorkingDirectory $frontendRoot -RetryCount 1

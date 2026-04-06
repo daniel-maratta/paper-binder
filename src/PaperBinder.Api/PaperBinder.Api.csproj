@@ -33,7 +33,16 @@
           Inputs="$(FrontendRoot)package.json;$(FrontendRoot)package-lock.json"
           Outputs="$(FrontendRestoreStamp)"
           Condition="'$(DesignTimeBuild)' != 'true' and '$(SkipFrontendBuild)' != 'true' and Exists('$(FrontendRoot)package.json')">
-    <Exec Command="$(NpmCommand) ci" WorkingDirectory="$(FrontendRoot)" />
+    <Exec Command="$(NpmCommand) ci"
+          WorkingDirectory="$(FrontendRoot)"
+          IgnoreExitCode="true"
+          ConsoleToMSBuild="true"
+          StandardOutputImportance="High"
+          StandardErrorImportance="High">
+      <Output TaskParameter="ExitCode" PropertyName="FrontendRestoreExitCode" />
+    </Exec>
+    <Error Condition="'$(FrontendRestoreExitCode)' != '0'"
+           Text="Frontend dependency restore failed in $(FrontendRoot). Rerun '$(NpmCommand) ci' from src/PaperBinder.Web for tool-native diagnostics." />
     <WriteLinesToFile File="$(FrontendRestoreStamp)" Lines="restored" Overwrite="true" />
   </Target>
 
@@ -43,7 +52,16 @@
           Inputs="@(FrontendBuildInput)"
           Outputs="$(FrontendDistIndex)"
           Condition="'$(DesignTimeBuild)' != 'true' and '$(SkipFrontendBuild)' != 'true' and Exists('$(FrontendRoot)package.json')">
-    <Exec Command="$(NpmCommand) run build" WorkingDirectory="$(FrontendRoot)" />
+    <Exec Command="$(NpmCommand) run build"
+          WorkingDirectory="$(FrontendRoot)"
+          IgnoreExitCode="true"
+          ConsoleToMSBuild="true"
+          StandardOutputImportance="High"
+          StandardErrorImportance="High">
+      <Output TaskParameter="ExitCode" PropertyName="FrontendBuildExitCode" />
+    </Exec>
+    <Error Condition="'$(FrontendBuildExitCode)' != '0'"
+           Text="Frontend asset build failed in $(FrontendRoot). Rerun '$(NpmCommand) run build' from src/PaperBinder.Web for tool-native diagnostics." />
   </Target>
 
   <Target Name="CopyFrontendBuildOutput" AfterTargets="Build" Condition="Exists('..\PaperBinder.Web\dist\index.html')">

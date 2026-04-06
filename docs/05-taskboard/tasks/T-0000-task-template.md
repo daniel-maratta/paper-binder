@@ -65,6 +65,7 @@ One paragraph describing the outcome.
 
 ## Validation Plan
 - Commands/checks to run
+- Prefer `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` when the task is targeting checkpoint closeout coverage
 - Required manual verification (if any)
 
 ## Outcome (Fill when done)

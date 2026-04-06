@@ -30,6 +30,7 @@ Status guidance:
 
 ## Validation Evidence
 - Commands run:
+  - Prefer `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` for the standard scripted checkpoint-validation bundle when applicable
 - Tests added/updated:
 - Launch profile verification:
 - Manual verification:

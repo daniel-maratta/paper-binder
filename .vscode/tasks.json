@@ -68,6 +68,13 @@
       "problemMatcher": []
     },
     {
+      "label": "Validate Checkpoint (Release)",
+      "type": "process",
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/validate-checkpoint.ps1", "-Configuration", "Release", "-DockerIntegrationMode", "Require"],
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "Start Local Stack",
       "type": "process",
       "command": "powershell",

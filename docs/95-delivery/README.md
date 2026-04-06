@@ -17,6 +17,7 @@
 Organization:
 - Keep reusable templates at the `pr/` root.
 - Keep concrete PR artifacts in one folder per PR/checkpoint so companion files such as `description.md` and `critic-review.md` stay together.
+- Only keep extra companion docs when they carry distinct value. Do not mirror `description.md` into a second prose artifact such as `implementation-plan.md`.
 - Example: `docs/95-delivery/pr/cp5-tenancy-resolution-and-immutable-tenant-context/`
 
 Checkpoint PR artifacts must include critic-review summary, validation evidence, and unresolved-risk disclosure when implementation work is proposed for merge.
