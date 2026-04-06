@@ -78,6 +78,7 @@ Canonical workspace commands live in `scripts/`:
   - `powershell -ExecutionPolicy Bypass -File .\scripts\migrate.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
   - `pwsh ./scripts/preflight.ps1 -Profile Full`
@@ -87,6 +88,7 @@ Canonical workspace commands live in `scripts/`:
   - `pwsh ./scripts/migrate.ps1`
   - `pwsh ./scripts/validate-docs.ps1`
   - `pwsh ./scripts/validate-launch-profiles.ps1`
+  - `pwsh ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - `pwsh ./scripts/start-local.ps1`
 - Visual Studio:
   - Open `PaperBinder.sln`.
@@ -99,6 +101,9 @@ VS Code tasks and launch settings are thin wrappers over the same command surfac
 The primary reviewer launch now stays in parity across both editors as `Reviewer Full Stack`, with `App + Worker (Process)` as the fast localhost-only fallback.
 The authoritative launch-profile contract lives in `docs/70-operations/runbook-local.md`.
 Checkpoint-complete validation now also requires `scripts/validate-launch-profiles.ps1` plus recorded manual launch verification in both VS Code and Visual Studio before a checkpoint can be declared done.
+`scripts/validate-checkpoint.ps1` bundles the standard scripted closeout path (build, tests, docs validation, launch-profile validation), but it does not replace the required manual verification evidence.
+The canonical `scripts/build.ps1` path now runs the frontend build explicitly before `dotnet build` and then passes `SkipFrontendBuild=true` into the solution build so Vite/npm failures surface with tool-native output instead of an opaque MSBuild exit.
+`scripts/restore.ps1` now reruns bodyless `dotnet restore` failures once with richer verbosity and treats persistent no-body restore failures as a likely restricted/offline-environment issue rather than silently implying a broken project graph. Its `npm ci` step also retries one transient Windows `EPERM`/`unlink` lock before failing with explicit close-the-locking-process guidance.
 
 The Windows `powershell -ExecutionPolicy Bypass -File ...` path is the supported baseline for this repo; it is not a one-off workaround and the checked-in VS Code tasks use the same entrypoint.
 

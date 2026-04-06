@@ -29,7 +29,7 @@ Use this document to answer:
 - Last completed checkpoint: `CP6`
 - Next checkpoint: `CP8`
 - Open checkpoint blockers: none.
-- Open incidental follow-ups: investigate opaque `dotnet restore` exit-1 behavior on the current Windows/.NET 10 SDK stack.
+- Open incidental follow-ups: none.
 
 ## Checkpoint Status
 
@@ -55,7 +55,7 @@ Use this document to answer:
 
 ## Open Incidentals And Follow-Ups
 
-- `dotnet restore` still exits with no surfaced error body in the current Windows/.NET 10 SDK environment. Build, test, and docs validation passed, but clean-checkout restore behavior should be investigated as follow-up taskboard work.
+- none.
 
 When incidental work is discovered:
 - put raw intake items in [docs/05-taskboard/taskboard-intake.md](../05-taskboard/taskboard-intake.md)

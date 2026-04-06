@@ -27,6 +27,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0021: Build And Restore Diagnostics Hardening](./tasks/T-0021-build-and-restore-diagnostics-hardening.md)
 - [T-0020: CP7 Pre-Auth Abuse Controls And Provisioning Surface](./tasks/T-0020-cp7-pre-auth-abuse-controls-and-provisioning-surface.md)
 - [T-0019: CP6 Identity, Cookie Auth, And Tenant Membership Validation](./tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md)
 - [T-0018: CP5 Tenancy Resolution And Immutable Tenant Context](./tasks/T-0018-cp5-tenancy-resolution-and-immutable-tenant-context.md)

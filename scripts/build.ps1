@@ -12,8 +12,10 @@ $ErrorActionPreference = "Stop"
 Set-PaperBinderDotNetEnvironment
 
 $repoRoot = Get-RepoRoot
+$frontendRoot = Join-Path $repoRoot "src/PaperBinder.Web"
 
 Assert-PaperBinderDotNetSdkAvailable
 Assert-PaperBinderFrontendToolchainAvailable
 
-Invoke-ExternalCommand -FilePath "dotnet" -Arguments @("build", "PaperBinder.sln", "-c", $Configuration, "--no-restore") -WorkingDirectory $repoRoot
+Invoke-ExternalCommand -FilePath (Get-NpmCommand) -Arguments @("run", "build") -WorkingDirectory $frontendRoot
+Invoke-DotNetCommand -Arguments @("build", "PaperBinder.sln", "-c", $Configuration, "--no-restore", "-p:SkipFrontendBuild=true") -WorkingDirectory $repoRoot
