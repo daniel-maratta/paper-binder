@@ -153,18 +153,26 @@ public sealed class TenantResolutionDatabaseIntegrationTests(PostgresContainerFi
 
 internal static class TenantResolutionIntegrationTestHost
 {
-    public static async Task<PaperBinderApplicationHost> StartNonDockerHostAsync()
+    public static async Task<PaperBinderApplicationHost> StartNonDockerHostAsync(
+        Action<WebApplication>? additionalConfigureBeforeStart = null)
     {
         var unavailablePort = GetUnusedPort();
         var configuration = TestRuntimeConfiguration.Create(
             $"Host=127.0.0.1;Port={unavailablePort};Database=paperbinder;Username=paperbinder;Password=test-password");
 
-        return await PaperBinderApplicationHost.StartAsync(configuration, ConfigureTenantContextProbe);
+        return await PaperBinderApplicationHost.StartAsync(
+            configuration,
+            app =>
+            {
+                ConfigureTenantContextProbe(app);
+                additionalConfigureBeforeStart?.Invoke(app);
+            });
     }
 
     public static async Task<PaperBinderApplicationHost> StartDockerHostAsync(
         string databaseConnection,
-        IReadOnlyDictionary<string, string?>? configurationOverrides = null)
+        IReadOnlyDictionary<string, string?>? configurationOverrides = null,
+        Action<WebApplication>? additionalConfigureBeforeStart = null)
     {
         var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(databaseConnection));
         if (configurationOverrides is not null)
@@ -175,7 +183,13 @@ internal static class TenantResolutionIntegrationTestHost
             }
         }
 
-        return await PaperBinderApplicationHost.StartAsync(configuration, ConfigureTenantContextProbe);
+        return await PaperBinderApplicationHost.StartAsync(
+            configuration,
+            app =>
+            {
+                ConfigureTenantContextProbe(app);
+                additionalConfigureBeforeStart?.Invoke(app);
+            });
     }
 
     public static async Task<SeededTenant> SeedTenantAsync(PaperBinderApplicationHost host, string slug)

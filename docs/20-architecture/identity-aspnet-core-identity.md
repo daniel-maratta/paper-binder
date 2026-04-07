@@ -25,5 +25,6 @@
 - v1 uses one effective role per user per tenant.
 - Future versions may support additive multi-role aggregation.
 - CP6 stores canonical tenant roles (`TenantAdmin`, `BinderWrite`, `BinderRead`) on `user_tenants`.
-- Enforcement remains policy-based at the API boundary, with named policy mapping deferred to CP8.
+- CP8 enforces named API-boundary policies from a request-scoped tenant membership context established during tenant resolution.
+- Tenant-user creation validates passwords with Identity password validators and persists `users` plus `user_tenants` in one Dapper transaction rather than calling `UserManager.CreateAsync()`.
 - Ad-hoc role checks in handlers are not allowed.

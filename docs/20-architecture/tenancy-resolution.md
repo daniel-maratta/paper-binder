@@ -4,10 +4,12 @@
 
 - Tenant resolution is a security boundary.
 - Post-auth tenant context is resolved from subdomain plus authenticated membership.
+- Authenticated tenant membership is materialized once in a scoped request context after membership validation succeeds.
 - Tenant context is immutable for the request lifetime.
 - Tenant ID from client payload is ignored for authorization and data scoping.
 - Tenant context is resolved exactly once in middleware and stored in a scoped `TenantContext`.
 - Tenant host lookup may resolve host identity before request tenant context is established.
+- Host-gated endpoints enforce tenant-host versus system-host rules from the resolved-host request context before CSRF and authorization run.
 - Request hosts must match the configured root host or a single-label tenant subdomain beneath it; malformed or off-domain hosts are rejected before tenant-scoped handling runs.
 - Tenant-scoped services/repositories must take `TenantContext` explicitly; no ambient/static tenant context is allowed.
 - System-context paths (pre-auth endpoints, provisioning, cleanup jobs) must be explicitly marked as system execution and reviewed.
@@ -20,7 +22,7 @@
 4. Resolve authenticated user identity when a tenant-host request presents an auth cookie.
 5. Validate user membership for the requested tenant.
 6. Validate the tenant is active (not expired).
-7. Materialize immutable tenant context for the request.
+7. Materialize immutable tenant context plus authenticated membership context for the request.
 
 Anonymous tenant-host requests stop after host resolution and continue without an established tenant request context. This preserves tenant-host health checks and lets later authenticated flows fail through normal auth behavior instead of inventing an anonymous tenant context.
 
