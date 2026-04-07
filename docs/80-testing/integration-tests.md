@@ -52,6 +52,11 @@ Integration tests in v1 must cover:
 - `Should_RejectLogout_When_CsrfTokenIsMissing`.
 - `Should_ReturnForbidden_When_AuthenticatedUserTargetsDifferentTenantHost`.
 - `Should_ReturnGone_When_LoginTargetsExpiredTenant`.
+- `Should_ListOnlyCurrentTenantUsers_When_CallerIsTenantAdmin`.
+- `Should_CreateTenantUser_AndAllowLogin_When_RequestIsValid`.
+- `Should_ReturnBadRequest_When_TenantUserEmailIsStructurallyInvalid`.
+- `Should_ReturnConflict_When_RequestWouldDemoteLastTenantAdmin`.
+- `Should_ApplyRoleHierarchy_On_TestPolicyProbes`.
 - `Should_AllowAnonymousHealthChecks_OnKnownTenantHosts`.
 - `Should_ReturnBadRequest_When_ApiVersionIsUnsupported`.
 - `Should_DefaultToV1_When_ApiVersionHeaderIsMissing`.

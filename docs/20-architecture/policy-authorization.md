@@ -7,6 +7,19 @@
 - Command/query handlers assume authorization has already been enforced.
 - Handlers must not accept caller-role parameters.
 
+## Named Policies
+
+- `AuthenticatedUser`: requires an authenticated principal plus an established request-scoped tenant membership context.
+- `BinderRead`: requires tenant membership with effective role `BinderRead` or higher.
+- `BinderWrite`: requires tenant membership with effective role `BinderWrite` or higher.
+- `TenantAdmin`: requires tenant membership with effective role `TenantAdmin`.
+
+## Host Gating
+
+- Tenant-host-only and system-host-only routes are marked explicitly with resolved-host metadata.
+- Host gating is enforced from `IRequestResolvedTenantHostContext` before CSRF or authorization middleware runs.
+- Wrong-host requests to scoped routes return `404` instead of falling through to handler logic.
+
 ## Role Model (v1)
 
 - v1 RBAC uses one effective role per user per tenant.

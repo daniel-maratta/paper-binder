@@ -14,6 +14,7 @@ internal sealed class TenantResolutionMiddleware(
         HttpContext context,
         PaperBinderRuntimeSettings runtimeSettings,
         IRequestTenantContextSetter tenantContextSetter,
+        IRequestTenantMembershipContextSetter tenantMembershipContextSetter,
         IRequestResolvedTenantHostContextSetter requestHostContextSetter,
         ITenantLookupService tenantLookupService,
         ITenantMembershipLookupService tenantMembershipLookupService,
@@ -92,6 +93,7 @@ internal sealed class TenantResolutionMiddleware(
                     }
 
                     tenantContextSetter.EstablishTenant(tenant.Tenant);
+                    tenantMembershipContextSetter.Establish(membership);
                 }
 
                 await next(context);

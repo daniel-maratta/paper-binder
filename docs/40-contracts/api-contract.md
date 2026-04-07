@@ -65,6 +65,11 @@ Notes:
 - Tenant-name conflicts return `409` ProblemDetails with `errorCode` `TENANT_NAME_CONFLICT`.
 - Missing or wrong-tenant membership returns `403` ProblemDetails with `errorCode` `TENANT_FORBIDDEN`.
 - Expired-but-not-purged tenants return `410` ProblemDetails with `errorCode` `TENANT_EXPIRED`.
+- Unknown tenant-scoped role-assignment targets return `404` ProblemDetails with `errorCode` `TENANT_USER_NOT_FOUND`.
+- Tenant-user email conflicts return `409` ProblemDetails with `errorCode` `TENANT_USER_EMAIL_CONFLICT`.
+- Last-admin protection failures return `409` ProblemDetails with `errorCode` `LAST_TENANT_ADMIN_REQUIRED`.
+- Invalid tenant role values return `422` ProblemDetails with `errorCode` `TENANT_ROLE_INVALID`.
+- Invalid tenant-user passwords return `422` ProblemDetails with `errorCode` `TENANT_USER_PASSWORD_INVALID`.
 - Pre-auth throttling returns `429` ProblemDetails with `errorCode` `RATE_LIMITED` and includes `Retry-After` when available.
 - Unmatched `/api/*` routes return `404` ProblemDetails and still include `traceId`, `correlationId`, `X-Api-Version`, and `X-Correlation-Id`.
 
@@ -176,17 +181,66 @@ Notes:
 - `GET /api/tenant/users`
   - Auth required: Y (`TenantAdmin`)
   - Tenant context source: subdomain plus cookie
+  - Response example (`200`):
+    ```json
+    {
+      "users": [
+        {
+          "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+          "email": "owner@acme-demo.local",
+          "role": "TenantAdmin",
+          "isOwner": true
+        }
+      ]
+    }
+    ```
   - Idempotency: idempotent.
 
 - `POST /api/tenant/users`
   - Auth required: Y (`TenantAdmin`)
   - Tenant context source: subdomain plus cookie
+  - Request example:
+    ```json
+    {
+      "email": "writer@acme-demo.local",
+      "password": "<temporary-password>",
+      "role": "BinderWrite"
+    }
+    ```
+  - Response example (`201`):
+    ```json
+    {
+      "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "email": "writer@acme-demo.local",
+      "role": "BinderWrite",
+      "isOwner": false
+    }
+    ```
+  - Failure semantics:
+    - `400` when the email is empty, too long, contains whitespace, or does not contain exactly one `@`.
+    - `409` when the requested email already exists.
+    - `422` for invalid role values.
+    - `422` for passwords that fail the configured Identity password validators.
   - Idempotency: not idempotent.
 
 - `POST /api/tenant/users/{userId}/role`
   - Auth required: Y (`TenantAdmin`)
   - Tenant context source: subdomain plus cookie
+  - Request example:
+    ```json
+    { "role": "BinderRead" }
+    ```
+  - Response example (`200`):
+    ```json
+    {
+      "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "email": "writer@acme-demo.local",
+      "role": "BinderRead",
+      "isOwner": false
+    }
+    ```
   - Failure semantics:
+    - `404` when the target user does not belong to the current tenant.
     - `409` when change would demote the last tenant admin.
     - `422` for invalid role value.
   - Idempotency: conditionally idempotent.
@@ -279,9 +333,9 @@ Health payloads must not include dependency internals or version metadata.
 ## RBAC Policy Map
 
 - `POST /api/provision` -> anonymous system-context endpoint.
-- `GET /api/tenant/lease` -> authenticated tenant member.
+- `GET /api/tenant/lease` -> `AuthenticatedUser`.
 - `POST /api/tenant/lease/extend` -> `TenantAdmin`.
-- `POST /api/auth/logout` -> authenticated user.
+- `POST /api/auth/logout` -> `AuthenticatedUser`.
 - `GET /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users/{userId}/role` -> `TenantAdmin`.

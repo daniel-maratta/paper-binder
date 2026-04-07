@@ -15,10 +15,14 @@ internal static class PaperBinderAuthEndpoints
     public static void MapPaperBinderAuthEndpoints(this WebApplication app)
     {
         app.MapPost(PaperBinderAuthRoutes.LoginPath, LoginAsync)
+            .RequirePaperBinderSystemHost()
             .RequireRateLimiting(PaperBinderPreAuthProtectionExtensions.RootHostPreAuthPolicyName);
         app.MapPost(PaperBinderAuthRoutes.ProvisionPath, ProvisionAsync)
+            .RequirePaperBinderSystemHost()
             .RequireRateLimiting(PaperBinderPreAuthProtectionExtensions.RootHostPreAuthPolicyName);
-        app.MapPost(PaperBinderAuthRoutes.LogoutPath, LogoutAsync);
+        app.MapPost(PaperBinderAuthRoutes.LogoutPath, LogoutAsync)
+            .RequirePaperBinderTenantHost()
+            .RequireAuthorization(PaperBinderAuthorizationPolicyNames.AuthenticatedUser);
     }
 
     private static async Task LoginAsync(
@@ -28,22 +32,12 @@ internal static class PaperBinderAuthEndpoints
         ITenantMembershipLookupService tenantMembershipLookupService,
         IChallengeVerificationService challengeVerificationService,
         IProblemDetailsService problemDetailsService,
-        IRequestResolvedTenantHostContext requestHostContext,
         PaperBinderCsrfCookieService csrfCookieService,
         PaperBinderRuntimeSettings runtimeSettings,
         PaperBinder.Application.Time.ISystemClock clock,
         LoginRequest request,
         CancellationToken cancellationToken)
     {
-        if (!PaperBinderAuthEndpointHostPolicy.AllowsLogin(requestHostContext))
-        {
-            await PaperBinderProblemDetails.WriteApiProblemAsync(
-                context,
-                problemDetailsService,
-                StatusCodes.Status404NotFound);
-            return;
-        }
-
         if (!await RequireValidChallengeAsync(
                 context,
                 problemDetailsService,
@@ -120,21 +114,11 @@ internal static class PaperBinderAuthEndpoints
         ITenantProvisioningService tenantProvisioningService,
         IChallengeVerificationService challengeVerificationService,
         IProblemDetailsService problemDetailsService,
-        IRequestResolvedTenantHostContext requestHostContext,
         PaperBinderCsrfCookieService csrfCookieService,
         PaperBinderRuntimeSettings runtimeSettings,
         ProvisionRequest request,
         CancellationToken cancellationToken)
     {
-        if (!PaperBinderAuthEndpointHostPolicy.AllowsProvision(requestHostContext))
-        {
-            await PaperBinderProblemDetails.WriteApiProblemAsync(
-                context,
-                problemDetailsService,
-                StatusCodes.Status404NotFound);
-            return;
-        }
-
         if (!await RequireValidChallengeAsync(
                 context,
                 problemDetailsService,
@@ -182,19 +166,9 @@ internal static class PaperBinderAuthEndpoints
     private static async Task LogoutAsync(
         HttpContext context,
         SignInManager<PaperBinderUser> signInManager,
-        IRequestResolvedTenantHostContext requestHostContext,
         PaperBinderCsrfCookieService csrfCookieService,
         IProblemDetailsService problemDetailsService)
     {
-        if (!PaperBinderAuthEndpointHostPolicy.AllowsLogout(requestHostContext))
-        {
-            await PaperBinderProblemDetails.WriteApiProblemAsync(
-                context,
-                problemDetailsService,
-                StatusCodes.Status404NotFound);
-            return;
-        }
-
         if (context.User.Identity?.IsAuthenticated != true)
         {
             await context.ChallengeAsync(IdentityConstants.ApplicationScheme);

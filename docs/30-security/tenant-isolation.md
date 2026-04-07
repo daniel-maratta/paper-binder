@@ -17,6 +17,8 @@ Tenant isolation is a security boundary in PaperBinder.
 - Cross-tenant data access is rejected by default.
 - Tenant context is resolved early and is immutable per request.
 - Known tenant hosts are resolved early, but request tenant context is established only after authenticated membership and tenant-expiry validation succeed.
+- Authenticated tenant membership is stored in a request-scoped context only after the same validation succeeds.
+- Tenant-host-only and system-host-only endpoints are enforced from the resolved-host request context before CSRF and authorization middleware runs.
 - Request hosts outside the configured root/tenant pattern are rejected before tenant-scoped handling runs.
 - No cross-tenant joins are allowed except explicit, reviewed system-context queries.
 

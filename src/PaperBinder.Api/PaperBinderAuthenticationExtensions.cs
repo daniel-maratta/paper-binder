@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PaperBinder.Application.Provisioning;
+using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Configuration;
 using PaperBinder.Infrastructure.Identity;
 using PaperBinder.Infrastructure.Provisioning;
+using PaperBinder.Infrastructure.Tenancy;
 
 namespace PaperBinder.Api;
 
@@ -56,7 +58,7 @@ internal static class PaperBinderAuthenticationExtensions
                 };
             });
 
-        services.AddAuthorization();
+        services.AddPaperBinderAuthorization();
         services.AddPaperBinderPreAuthProtection(runtimeSettings);
 
         services
@@ -74,6 +76,7 @@ internal static class PaperBinderAuthenticationExtensions
 
         services.AddScoped<PaperBinderCsrfCookieService>();
         services.AddScoped<ITenantProvisioningService, DapperTenantProvisioningService>();
+        services.AddScoped<ITenantUserAdministrationService, DapperTenantUserAdministrationService>();
 
         return services;
     }
@@ -86,6 +89,7 @@ internal static class PaperBinderAuthenticationExtensions
     public static void UsePaperBinderApiProtection(this WebApplication app)
     {
         app.UsePaperBinderPreAuthProtection();
+        app.UseMiddleware<PaperBinderEndpointHostRequirementMiddleware>();
         app.UseMiddleware<PaperBinderCsrfMiddleware>();
         app.UseAuthorization();
     }

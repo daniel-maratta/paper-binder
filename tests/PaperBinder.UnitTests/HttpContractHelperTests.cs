@@ -149,24 +149,6 @@ public sealed class HttpContractHelperTests
     }
 
     [Fact]
-    public void AuthEndpointHostPolicy_Should_RequireSystemHostForLoginAndProvision_AndTenantHostForLogout()
-    {
-        var systemHost = new TestResolvedTenantHostContext(isSystemHost: true, tenantHost: null);
-        var tenantHost = new TestResolvedTenantHostContext(
-            isSystemHost: false,
-            tenantHost: new PaperBinder.Application.Tenancy.ResolvedTenantHost(
-                new PaperBinder.Application.Tenancy.TenantContext(Guid.NewGuid(), "demo", "Demo"),
-                DateTimeOffset.UtcNow.AddMinutes(5)));
-
-        Assert.True(PaperBinderAuthEndpointHostPolicy.AllowsLogin(systemHost));
-        Assert.False(PaperBinderAuthEndpointHostPolicy.AllowsLogin(tenantHost));
-        Assert.True(PaperBinderAuthEndpointHostPolicy.AllowsProvision(systemHost));
-        Assert.False(PaperBinderAuthEndpointHostPolicy.AllowsProvision(tenantHost));
-        Assert.False(PaperBinderAuthEndpointHostPolicy.AllowsLogout(systemHost));
-        Assert.True(PaperBinderAuthEndpointHostPolicy.AllowsLogout(tenantHost));
-    }
-
-    [Fact]
     public void AuthenticatedUserHelper_Should_ParseGuidNameIdentifier()
     {
         var userId = Guid.NewGuid();
@@ -179,18 +161,5 @@ public sealed class HttpContractHelperTests
 
         Assert.True(result);
         Assert.Equal(userId, parsedUserId);
-    }
-
-    private sealed class TestResolvedTenantHostContext(
-        bool isSystemHost,
-        PaperBinder.Application.Tenancy.ResolvedTenantHost? tenantHost) : IRequestResolvedTenantHostContext
-    {
-        public bool IsEstablished => isSystemHost || tenantHost is not null;
-
-        public bool IsSystemHost => isSystemHost;
-
-        public bool IsTenantHost => tenantHost is not null;
-
-        public PaperBinder.Application.Tenancy.ResolvedTenantHost? TenantHost => tenantHost;
     }
 }
