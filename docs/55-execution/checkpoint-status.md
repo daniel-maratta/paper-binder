@@ -25,9 +25,9 @@ Use this document to answer:
 
 ## Current Snapshot
 
-- Current checkpoint: `CP7`
-- Last completed checkpoint: `CP6`
-- Next checkpoint: `CP8`
+- Current checkpoint: `none active`
+- Last completed checkpoint: `CP8`
+- Next checkpoint: `CP9`
 - Open checkpoint blockers: none.
 - Open incidental follow-ups: none.
 
@@ -41,8 +41,8 @@ Use this document to answer:
 | `CP4` | done | HTTP contract baseline shipped via task [T-0017](../05-taskboard/tasks/T-0017-cp4-http-contract-baseline.md). PR artifact: [description.md](../95-delivery/pr/cp4-http-contract-baseline/description.md). |
 | `CP5` | done | Tenancy resolution and immutable tenant context shipped on the current branch via task [T-0018](../05-taskboard/tasks/T-0018-cp5-tenancy-resolution-and-immutable-tenant-context.md). PR artifact: [description.md](../95-delivery/pr/cp5-tenancy-resolution-and-immutable-tenant-context/description.md). |
 | `CP6` | done | Identity, cookie auth, CSRF, and tenant membership validation shipped via task [T-0019](../05-taskboard/tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md). PR artifact: [description.md](../95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md). |
-| `CP7` | active | Pre-auth abuse controls and root-host provisioning are implemented, launch-profile-validated, runtime-verified, and manually launch-verified on the current branch via task [T-0020](../05-taskboard/tasks/T-0020-cp7-pre-auth-abuse-controls-and-provisioning-surface.md). Delivery artifact: [description.md](../95-delivery/pr/cp7-pre-auth-abuse-controls-and-provisioning-surface/description.md). The checkpoint remains active pending final PR merge. |
-| `CP8` | queued | Authorization policies and tenant user administration not started. |
+| `CP7` | done | Pre-auth abuse controls and root-host provisioning shipped via task [T-0020](../05-taskboard/tasks/T-0020-cp7-pre-auth-abuse-controls-and-provisioning-surface.md). PR artifact: [description.md](../95-delivery/pr/cp7-pre-auth-abuse-controls-and-provisioning-surface/description.md). |
+| `CP8` | done | Authorization policies, request-scoped membership context, tenant-host/system-host route gating, and tenant user administration shipped on the current branch via task [T-0022](../05-taskboard/tasks/T-0022-cp8-authorization-policies-and-tenant-user-administration.md). PR artifact: [description.md](../95-delivery/pr/cp8-authorization-policies-and-tenant-user-administration/description.md). Launch-profile validation, manual VS Code and Visual Studio verification, and the canonical restore/build path are all recorded as passing. |
 | `CP9` | queued | Binder domain and policy model not started. |
 | `CP10` | queued | Document domain and immutable document rules not started. |
 | `CP11` | queued | Worker runtime and lease lifecycle not started. |

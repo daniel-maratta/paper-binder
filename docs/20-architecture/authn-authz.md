@@ -27,7 +27,9 @@ Subdomain is routing input only and must match authenticated tenant membership/c
 ## Authorization
 
 - CP6 enforces the authenticated-user and tenant-membership boundary before feature handlers run.
-- Policy-based RBAC remains the v1 authorization model, but explicit named-policy endpoint mapping lands in CP8.
+- CP8 maps explicit named policies at the API boundary: `AuthenticatedUser`, `BinderRead`, `BinderWrite`, and `TenantAdmin`.
+- Policy evaluation uses a request-scoped authenticated membership context populated only after tenant-host membership validation succeeds.
+- Tenant-host-only and system-host-only API routes are gated from the resolved-host request context before CSRF and authorization run.
 - Handlers do not perform ad-hoc role checks and do not accept caller-role arguments.
 - v1 uses one effective role per user per tenant as a simplification.
 - Future versions may support additive multi-role aggregation without moving authorization out of API-boundary policy checks.
