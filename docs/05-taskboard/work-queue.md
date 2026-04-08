@@ -15,7 +15,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Next
 
-- (empty)
+- [T-0024: Track Remaining Test Coverage Gaps](./tasks/T-0024-track-remaining-test-coverage-gaps.md)
 
 ## Later
 
