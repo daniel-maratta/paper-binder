@@ -10,9 +10,12 @@
 
 - Prefer composite foreign keys including `tenant_id` for tenant-owned relationships.
 - If composite foreign keys are impractical, enforce tenant consistency with constraints/triggers and integration tests.
+- CP9 binder shape:
+  - `binders` is a direct tenant-owned table keyed by `id` with `tenant_id`, `name`, and `created_at_utc`.
+  - `binder_policies` is tenant-scoped and references `binders` through composite key `(tenant_id, binder_id)`.
 
 ## Mutability Posture
 
 - Prefer append-only modeling for record-like entities.
 - Mutable updates are allowed only when mutation is intrinsic state (for example tenant status or lease extension) or the entity is not record-like.
-- Required mutable updates must emit audit events.
+- Binder-policy updates are mutable security state, must emit structured security events, and must not widen tenant scope.

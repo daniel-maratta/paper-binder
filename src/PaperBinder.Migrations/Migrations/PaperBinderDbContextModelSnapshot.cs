@@ -64,8 +64,97 @@ partial class PaperBinderDbContextModelSnapshot : ModelSnapshot
                 "tenants",
                 null,
                 tableBuilder => tableBuilder.HasCheckConstraint(
-                    "ck_tenants_lease_extension_count_non_negative",
-                    "lease_extension_count >= 0"));
+                "ck_tenants_lease_extension_count_non_negative",
+                "lease_extension_count >= 0"));
+        });
+
+        modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.BinderStorageModel", builder =>
+        {
+            builder.Property<Guid>("Id")
+                .ValueGeneratedNever()
+                .HasColumnType("uuid")
+                .HasColumnName("id");
+
+            builder.Property<DateTimeOffset>("CreatedAtUtc")
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("created_at_utc");
+
+            builder.Property<string>("Name")
+                .IsRequired()
+                .HasMaxLength(200)
+                .HasColumnType("character varying(200)")
+                .HasColumnName("name");
+
+            builder.Property<Guid>("TenantId")
+                .HasColumnType("uuid")
+                .HasColumnName("tenant_id");
+
+            builder.HasKey("Id")
+                .HasName("pk_binders");
+
+            builder.HasAlternateKey("TenantId", "Id")
+                .HasName("ak_binders_tenant_id_id");
+
+            builder.HasIndex("TenantId", "CreatedAtUtc", "Id")
+                .HasDatabaseName("ix_binders_tenant_id_created_at_utc_id");
+
+            builder.ToTable(
+                "binders",
+                null,
+                tableBuilder => tableBuilder.HasCheckConstraint(
+                    "ck_binders_name_not_blank",
+                    "char_length(btrim(name)) > 0"));
+        });
+
+        modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.BinderPolicyStorageModel", builder =>
+        {
+            builder.Property<Guid>("TenantId")
+                .HasColumnType("uuid")
+                .HasColumnName("tenant_id");
+
+            builder.Property<Guid>("BinderId")
+                .HasColumnType("uuid")
+                .HasColumnName("binder_id");
+
+            builder.Property<string[]>("AllowedRoles")
+                .IsRequired()
+                .ValueGeneratedOnAdd()
+                .HasColumnType("text[]")
+                .HasColumnName("allowed_roles")
+                .HasDefaultValueSql("'{}'::text[]");
+
+            builder.Property<DateTimeOffset>("CreatedAtUtc")
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("created_at_utc");
+
+            builder.Property<string>("Mode")
+                .IsRequired()
+                .HasMaxLength(32)
+                .HasColumnType("character varying(32)")
+                .HasColumnName("mode");
+
+            builder.Property<DateTimeOffset>("UpdatedAtUtc")
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("updated_at_utc");
+
+            builder.HasKey("TenantId", "BinderId")
+                .HasName("pk_binder_policies");
+
+            builder.ToTable(
+                "binder_policies",
+                null,
+                tableBuilder =>
+                {
+                    tableBuilder.HasCheckConstraint(
+                        "ck_binder_policies_allowed_roles_valid",
+                        "allowed_roles <@ ARRAY['TenantAdmin', 'BinderWrite', 'BinderRead']::text[]");
+                    tableBuilder.HasCheckConstraint(
+                        "ck_binder_policies_mode_valid",
+                        "mode in ('inherit', 'restricted_roles')");
+                    tableBuilder.HasCheckConstraint(
+                        "ck_binder_policies_payload_valid",
+                        "((mode = 'inherit' and cardinality(allowed_roles) = 0) or (mode = 'restricted_roles' and cardinality(allowed_roles) > 0))");
+                });
         });
 
         modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.UserStorageModel", builder =>
@@ -182,6 +271,27 @@ partial class PaperBinderDbContextModelSnapshot : ModelSnapshot
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired()
                 .HasConstraintName("fk_user_tenants_user_id");
+        });
+
+        modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.BinderPolicyStorageModel", builder =>
+        {
+            builder.HasOne("PaperBinder.Infrastructure.Persistence.BinderStorageModel", null)
+                .WithMany()
+                .HasForeignKey("TenantId", "BinderId")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired()
+                .HasPrincipalKey("TenantId", "Id")
+                .HasConstraintName("fk_binder_policies_tenant_id_binder_id");
+        });
+
+        modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.BinderStorageModel", builder =>
+        {
+            builder.HasOne("PaperBinder.Infrastructure.Persistence.TenantStorageModel", null)
+                .WithMany()
+                .HasForeignKey("TenantId")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired()
+                .HasConstraintName("fk_binders_tenant_id");
         });
 #pragma warning restore 612, 618
     }

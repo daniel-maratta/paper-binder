@@ -40,8 +40,8 @@ Tenant routes assume redirect entry from provisioning/login to `/app`.
 | Route | View Purpose | Primary API Calls | Auth/Policy Expectation | Notes |
 | --- | --- | --- | --- | --- |
 | `/app` | Tenant home dashboard + lease visibility | `GET /api/tenant/lease` | Authenticated tenant member | Lease indicator must be visible in tenant shell. |
-| `/app/binders` | Binders list | `GET /api/binders` | `BinderRead` | List is tenant-scoped only. |
-| `/app/binders/:binderId` | Binder detail + document summaries | `GET /api/binders/{binderId}` | `BinderRead` | Archived docs excluded by default behavior. |
+| `/app/binders` | Binders list | `GET /api/binders` | `BinderRead` | List is tenant-scoped only and omits restricted binders the caller cannot access. |
+| `/app/binders/:binderId` | Binder detail + document summaries | `GET /api/binders/{binderId}` | `BinderRead` | CP9 returns binder metadata plus `documents: []`; archived/default document behavior lands with document persistence. |
 | `/app/documents/:documentId` | Read-only document view | `GET /api/documents/{documentId}` | `BinderRead` | No in-place editing route in V1. |
 | `/app/users` | Tenant user management | `GET /api/tenant/users`, `POST /api/tenant/users`, `POST /api/tenant/users/{userId}/role` | `TenantAdmin` | Admin-only route; non-admin must receive forbidden behavior. |
 

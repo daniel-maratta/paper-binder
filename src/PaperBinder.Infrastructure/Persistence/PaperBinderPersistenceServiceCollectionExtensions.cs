@@ -1,9 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
+using PaperBinder.Application.Binders;
 using Npgsql;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Time;
 using PaperBinder.Application.Tenancy;
+using PaperBinder.Infrastructure.Binders;
 using PaperBinder.Infrastructure.Configuration;
 using PaperBinder.Infrastructure.Identity;
 using PaperBinder.Infrastructure.Tenancy;
@@ -27,8 +29,10 @@ public static class PaperBinderPersistenceServiceCollectionExtensions
         });
         services.AddSingleton<ISqlConnectionFactory, NpgsqlSqlConnectionFactory>();
         services.AddSingleton<ITransactionScopeRunner, NpgsqlTransactionScopeRunner>();
+        services.AddSingleton<IBinderPolicyEvaluator, BinderPolicyEvaluator>();
         services.AddScoped<ITenantLookupService, DapperTenantLookupService>();
         services.AddScoped<ITenantMembershipLookupService, DapperTenantMembershipLookupService>();
+        services.AddScoped<IBinderService, DapperBinderService>();
         services.AddScoped<IUserStore<PaperBinderUser>, DapperPaperBinderUserStore>();
         services.AddSingleton<ISystemClock, UtcSystemClock>();
         services.AddSingleton<PaperBinderDatabaseMigrator>();

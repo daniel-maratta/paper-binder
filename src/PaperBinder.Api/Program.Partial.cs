@@ -42,6 +42,7 @@ public partial class Program
         app.MapPaperBinderHealthEndpoints();
         app.MapPaperBinderAuthEndpoints();
         app.MapPaperBinderTenantUserEndpoints();
+        app.MapPaperBinderBinderEndpoints();
         app.MapPaperBinderApiFallback();
         MapFrontendSurface(app);
 
