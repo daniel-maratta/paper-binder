@@ -5,6 +5,8 @@ namespace PaperBinder.Infrastructure.Persistence;
 public sealed class PaperBinderDbContext(DbContextOptions<PaperBinderDbContext> options) : DbContext(options)
 {
     internal DbSet<TenantStorageModel> Tenants => Set<TenantStorageModel>();
+    internal DbSet<BinderStorageModel> Binders => Set<BinderStorageModel>();
+    internal DbSet<BinderPolicyStorageModel> BinderPolicies => Set<BinderPolicyStorageModel>();
     internal DbSet<UserStorageModel> Users => Set<UserStorageModel>();
     internal DbSet<UserTenantMembershipStorageModel> UserTenants => Set<UserTenantMembershipStorageModel>();
 
@@ -52,6 +54,91 @@ public sealed class PaperBinderDbContext(DbContextOptions<PaperBinderDbContext> 
             tableBuilder.HasCheckConstraint(
                 "ck_tenants_lease_extension_count_non_negative",
                 "lease_extension_count >= 0"));
+
+        var binder = modelBuilder.Entity<BinderStorageModel>();
+
+        binder.ToTable("binders");
+        binder.HasKey(record => record.Id).HasName("pk_binders");
+        binder.HasAlternateKey(record => new { record.TenantId, record.Id }).HasName("ak_binders_tenant_id_id");
+
+        binder.Property(record => record.Id)
+            .HasColumnName("id")
+            .ValueGeneratedNever();
+
+        binder.Property(record => record.TenantId)
+            .HasColumnName("tenant_id");
+
+        binder.Property(record => record.Name)
+            .HasColumnName("name")
+            .HasMaxLength(200)
+            .IsRequired();
+
+        binder.Property(record => record.CreatedAtUtc)
+            .HasColumnName("created_at_utc")
+            .HasColumnType("timestamp with time zone");
+
+        binder.HasIndex(record => new { record.TenantId, record.CreatedAtUtc, record.Id })
+            .HasDatabaseName("ix_binders_tenant_id_created_at_utc_id");
+
+        binder.HasOne<TenantStorageModel>()
+            .WithMany()
+            .HasForeignKey(record => record.TenantId)
+            .HasConstraintName("fk_binders_tenant_id")
+            .OnDelete(DeleteBehavior.Cascade);
+
+        binder.ToTable(tableBuilder =>
+            tableBuilder.HasCheckConstraint(
+                "ck_binders_name_not_blank",
+                "char_length(btrim(name)) > 0"));
+
+        var binderPolicy = modelBuilder.Entity<BinderPolicyStorageModel>();
+
+        binderPolicy.ToTable("binder_policies");
+        binderPolicy.HasKey(record => new { record.TenantId, record.BinderId }).HasName("pk_binder_policies");
+
+        binderPolicy.Property(record => record.TenantId)
+            .HasColumnName("tenant_id");
+
+        binderPolicy.Property(record => record.BinderId)
+            .HasColumnName("binder_id");
+
+        binderPolicy.Property(record => record.Mode)
+            .HasColumnName("mode")
+            .HasMaxLength(32)
+            .IsRequired();
+
+        binderPolicy.Property(record => record.AllowedRoles)
+            .HasColumnName("allowed_roles")
+            .HasColumnType("text[]")
+            .HasDefaultValueSql("'{}'::text[]");
+
+        binderPolicy.Property(record => record.CreatedAtUtc)
+            .HasColumnName("created_at_utc")
+            .HasColumnType("timestamp with time zone");
+
+        binderPolicy.Property(record => record.UpdatedAtUtc)
+            .HasColumnName("updated_at_utc")
+            .HasColumnType("timestamp with time zone");
+
+        binderPolicy.HasOne<BinderStorageModel>()
+            .WithMany()
+            .HasForeignKey(record => new { record.TenantId, record.BinderId })
+            .HasPrincipalKey(record => new { record.TenantId, record.Id })
+            .HasConstraintName("fk_binder_policies_tenant_id_binder_id")
+            .OnDelete(DeleteBehavior.Cascade);
+
+        binderPolicy.ToTable(tableBuilder =>
+        {
+            tableBuilder.HasCheckConstraint(
+                "ck_binder_policies_mode_valid",
+                "mode in ('inherit', 'restricted_roles')");
+            tableBuilder.HasCheckConstraint(
+                "ck_binder_policies_allowed_roles_valid",
+                "allowed_roles <@ ARRAY['TenantAdmin', 'BinderWrite', 'BinderRead']::text[]");
+            tableBuilder.HasCheckConstraint(
+                "ck_binder_policies_payload_valid",
+                "((mode = 'inherit' and cardinality(allowed_roles) = 0) or (mode = 'restricted_roles' and cardinality(allowed_roles) > 0))");
+        });
 
         var user = modelBuilder.Entity<UserStorageModel>();
 

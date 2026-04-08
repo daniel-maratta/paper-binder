@@ -26,8 +26,8 @@ Use this document to answer:
 ## Current Snapshot
 
 - Current checkpoint: `none active`
-- Last completed checkpoint: `CP8`
-- Next checkpoint: `CP9`
+- Last completed checkpoint: `CP9`
+- Next checkpoint: `CP10`
 - Open checkpoint blockers: none.
 - Open incidental follow-ups: none.
 
@@ -43,7 +43,7 @@ Use this document to answer:
 | `CP6` | done | Identity, cookie auth, CSRF, and tenant membership validation shipped via task [T-0019](../05-taskboard/tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md). PR artifact: [description.md](../95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md). |
 | `CP7` | done | Pre-auth abuse controls and root-host provisioning shipped via task [T-0020](../05-taskboard/tasks/T-0020-cp7-pre-auth-abuse-controls-and-provisioning-surface.md). PR artifact: [description.md](../95-delivery/pr/cp7-pre-auth-abuse-controls-and-provisioning-surface/description.md). |
 | `CP8` | done | Authorization policies, request-scoped membership context, tenant-host/system-host route gating, and tenant user administration shipped on the current branch via task [T-0022](../05-taskboard/tasks/T-0022-cp8-authorization-policies-and-tenant-user-administration.md). PR artifact: [description.md](../95-delivery/pr/cp8-authorization-policies-and-tenant-user-administration/description.md). Launch-profile validation, manual VS Code and Visual Studio verification, and the canonical restore/build path are all recorded as passing. |
-| `CP9` | queued | Binder domain and policy model not started. |
+| `CP9` | done | Binder domain and policy model shipped via task [T-0023](../05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md) and PR artifact [description.md](../95-delivery/pr/cp9-binder-domain-and-policy-model/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
 | `CP10` | queued | Document domain and immutable document rules not started. |
 | `CP11` | queued | Worker runtime and lease lifecycle not started. |
 | `CP12` | queued | Frontend foundation and shared UI system not started. |

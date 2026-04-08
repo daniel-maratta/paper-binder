@@ -47,10 +47,12 @@ As a tenant user with permission, I can create and view binders within my tenant
 
 ### Acceptance Criteria
 - `POST /api/binders` creates a binder scoped to current tenant.
-- `GET /api/binders` lists only binders for current tenant.
-- `GET /api/binders/{id}` returns binder only when it belongs to current tenant.
+- `POST /api/binders` defaults new binders to binder policy mode `inherit`.
+- `GET /api/binders` lists only binders for current tenant and omits restricted binders the caller cannot access.
+- `GET /api/binders/{id}` returns binder only when it belongs to current tenant and returns an explicit empty `documents` collection until CP10.
 - `GET /api/binders/{id}/policy` and `PUT /api/binders/{id}/policy` enforce tenant-admin policy management.
-- Unauthorized access returns `403`.
+- Binder policy payloads use `mode` plus exact-role `allowedRoles`.
+- Unauthorized access returns `403`, while wrong-tenant or unknown binders return `404`.
 
 ## Slice 5: Documents (Immutable)
 

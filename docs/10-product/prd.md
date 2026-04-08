@@ -142,8 +142,13 @@ All entities are tenant-scoped unless explicitly global.
 
 - A binder is a logical grouping of documents.
 - Binders are tenant-scoped.
-- Binders may define access constraints (role-based).
+- Binder names are not unique within a tenant in v1.
+- New binders default to binder policy mode `inherit`.
+- Binders may define binder-local access constraints (role-based).
 - Binder policy modes are `inherit` (default) and `restricted_roles`.
+- Binder policy `allowedRoles` values are exact v1 tenant role values.
+- Binder list responses omit restricted binders the caller cannot access.
+- Binder detail responses return `documents: []` until document persistence arrives in CP10.
 
 ### 6.5 Documents
 

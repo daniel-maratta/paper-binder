@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using PaperBinder.Api;
+using PaperBinder.Application.Binders;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Identity;
@@ -284,6 +285,63 @@ internal static class TenantResolutionIntegrationTestHost
             });
     }
 
+    public static async Task<SeededBinder> SeedBinderAsync(
+        PaperBinderApplicationHost host,
+        SeededTenant tenant,
+        string name,
+        BinderPolicyMode mode = BinderPolicyMode.Inherit,
+        IReadOnlyList<TenantRole>? allowedRoles = null,
+        DateTimeOffset? createdAtUtc = null)
+    {
+        var binder = new SeededBinder(
+            Guid.NewGuid(),
+            tenant.Id,
+            name,
+            createdAtUtc ?? DateTimeOffset.UtcNow);
+
+        var normalizedAllowedRoles = (allowedRoles ?? Array.Empty<TenantRole>())
+            .Distinct()
+            .OrderBy(role => role)
+            .Select(role => role.ToString())
+            .ToArray();
+
+        var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
+        await using var connection = await connectionFactory.OpenConnectionAsync();
+        await connection.ExecuteAsync(
+            """
+            insert into binders (id, tenant_id, name, created_at_utc)
+            values (@Id, @TenantId, @Name, @CreatedAtUtc);
+
+            insert into binder_policies (
+                tenant_id,
+                binder_id,
+                mode,
+                allowed_roles,
+                created_at_utc,
+                updated_at_utc)
+            values (
+                @TenantId,
+                @BinderId,
+                @Mode,
+                @AllowedRoles,
+                @CreatedAtUtc,
+                @UpdatedAtUtc);
+            """,
+            new
+            {
+                binder.Id,
+                binder.TenantId,
+                binder.Name,
+                binder.CreatedAtUtc,
+                BinderId = binder.Id,
+                Mode = BinderPolicyModeNames.ToContractValue(mode),
+                AllowedRoles = normalizedAllowedRoles,
+                UpdatedAtUtc = binder.CreatedAtUtc
+            });
+
+        return binder;
+    }
+
     public static async Task ExpireTenantAsync(PaperBinderApplicationHost host, SeededTenant tenant)
     {
         var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
@@ -356,6 +414,12 @@ internal sealed record SeededUser(
     Guid Id,
     string Email,
     string Password);
+
+internal sealed record SeededBinder(
+    Guid Id,
+    Guid TenantId,
+    string Name,
+    DateTimeOffset CreatedAtUtc);
 
 internal sealed record ProblemDetailsResponse(
     string? Type,

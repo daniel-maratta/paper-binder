@@ -35,7 +35,8 @@
   4. Allow only when all checks pass.
 - Binder policy modes:
   - `inherit` (default): endpoint policy is sufficient.
-  - `restricted_roles`: endpoint policy plus binder-level role allow-list.
+  - `restricted_roles`: endpoint policy plus binder-level exact-role allow-list.
+- Binder list endpoints omit binders the caller cannot satisfy under `restricted_roles`; they do not return denial markers.
 - Binder policy evaluation remains in application/domain authorization abstractions.
 
 ## System Execution Paths

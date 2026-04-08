@@ -17,6 +17,8 @@ Define PaperBinder runtime data-access rules for tenant isolation and auditabili
 
 - Every tenant-owned table includes `TenantId`.
 - Primary runtime queries for tenant-owned entities must include `TenantId` in predicates.
+- Binder list and detail queries must keep `binders` and `binder_policies` joined within the current tenant predicate set.
+- Binder list omission semantics for `restricted_roles` must be enforced in SQL, not by broad reads plus in-memory filtering.
 - Prefer composite indexes that include `TenantId` for primary access paths.
 - System-context queries are allowed only for explicit reviewed cases such as expiry cleanup.
 - Do not hide tenant scoping in ambient/static state.
@@ -25,6 +27,7 @@ Define PaperBinder runtime data-access rules for tenant isolation and auditabili
 
 - Document content is immutable after creation.
 - Archive/unarchive changes visibility metadata only.
+- Binder-policy relationships should preserve tenant scope with composite `(tenant_id, binder_id)` enforcement.
 - Tenant cleanup must be deterministic and idempotent.
 - Use explicit transactions for multi-step state changes such as provisioning and cleanup.
 

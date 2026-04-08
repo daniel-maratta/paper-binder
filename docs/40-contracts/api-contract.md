@@ -70,6 +70,10 @@ Notes:
 - Last-admin protection failures return `409` ProblemDetails with `errorCode` `LAST_TENANT_ADMIN_REQUIRED`.
 - Invalid tenant role values return `422` ProblemDetails with `errorCode` `TENANT_ROLE_INVALID`.
 - Invalid tenant-user passwords return `422` ProblemDetails with `errorCode` `TENANT_USER_PASSWORD_INVALID`.
+- Binder-name validation failures return `400` ProblemDetails with `errorCode` `BINDER_NAME_INVALID`.
+- Unknown tenant-scoped binders return `404` ProblemDetails with `errorCode` `BINDER_NOT_FOUND`.
+- Binder-local policy denial after endpoint authorization returns `403` ProblemDetails with `errorCode` `BINDER_POLICY_DENIED`.
+- Invalid binder-policy payloads return `422` ProblemDetails with `errorCode` `BINDER_POLICY_INVALID`.
 - Pre-auth throttling returns `429` ProblemDetails with `errorCode` `RATE_LIMITED` and includes `Retry-After` when available.
 - Unmatched `/api/*` routes return `404` ProblemDetails and still include `traceId`, `correlationId`, `X-Api-Version`, and `X-Correlation-Id`.
 
@@ -250,30 +254,111 @@ Notes:
 - `GET /api/binders`
   - Auth required: Y (`BinderRead`)
   - Tenant context source: subdomain plus cookie
+  - Response example (`200`):
+    ```json
+    {
+      "binders": [
+        {
+          "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+          "name": "Executive Policies",
+          "createdAt": "2026-04-07T15:30:00Z"
+        }
+      ]
+    }
+    ```
+  - Failure semantics:
+    - `403` when caller lacks the `BinderRead` endpoint policy.
+    - `404` when request host is not a tenant host.
+    - Binders hidden by binder-local `restricted_roles` are omitted from the list; the endpoint does not return denial markers.
   - Idempotency: idempotent.
 
 - `POST /api/binders`
   - Auth required: Y (`BinderWrite`)
   - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Request example:
+    ```json
+    { "name": "Executive Policies" }
+    ```
+  - Response example (`201`):
+    ```json
+    {
+      "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "name": "Executive Policies",
+      "createdAt": "2026-04-07T15:30:00Z"
+    }
+    ```
+  - Failure semantics:
+    - `400` when the binder name is empty, whitespace-only, or longer than 200 characters after trimming.
+    - `403` when the caller lacks the `BinderWrite` endpoint policy or the request omits a valid CSRF token.
+    - `404` when request host is not a tenant host.
+  - Notes:
+    - New binders default to binder policy mode `inherit`.
+    - Binder names are not unique within a tenant in CP9.
   - Idempotency: not idempotent.
 
 - `GET /api/binders/{binderId}`
   - Auth required: Y (`BinderRead`)
   - Tenant context source: subdomain plus cookie
-  - Returns binder metadata plus document summaries (archived excluded by default).
+  - Response example (`200`):
+    ```json
+    {
+      "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "name": "Executive Policies",
+      "createdAt": "2026-04-07T15:30:00Z",
+      "documents": []
+    }
+    ```
+  - Failure semantics:
+    - `403` when binder-local policy denies the caller after the `BinderRead` endpoint policy has already passed.
+    - `404` when the binder does not exist in the current tenant or the request host is not a tenant host.
+  - Notes:
+    - `documents` is present and empty in CP9. Document persistence lands in CP10.
   - Idempotency: idempotent.
 
 - `GET /api/binders/{binderId}/policy`
   - Auth required: Y (`TenantAdmin`)
   - Tenant context source: subdomain plus cookie
+  - Response example (`200`):
+    ```json
+    {
+      "mode": "inherit",
+      "allowedRoles": []
+    }
+    ```
+  - Failure semantics:
+    - `403` when caller lacks the `TenantAdmin` endpoint policy.
+    - `404` when the binder does not exist in the current tenant or the request host is not a tenant host.
   - Idempotency: idempotent.
 
 - `PUT /api/binders/{binderId}/policy`
   - Auth required: Y (`TenantAdmin`)
   - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
   - Policy modes:
     - `inherit`
     - `restricted_roles`
+  - Policy payload rules:
+    - `allowedRoles` must be empty when `mode=inherit`.
+    - `allowedRoles` must contain one or more exact v1 tenant role values when `mode=restricted_roles`.
+  - Request example:
+    ```json
+    {
+      "mode": "restricted_roles",
+      "allowedRoles": ["TenantAdmin", "BinderWrite"]
+    }
+    ```
+  - Response example (`200`):
+    ```json
+    {
+      "mode": "restricted_roles",
+      "allowedRoles": ["TenantAdmin", "BinderWrite"]
+    }
+    ```
+  - Failure semantics:
+    - `403` when caller lacks the `TenantAdmin` endpoint policy or the request omits a valid CSRF token.
+    - `404` when the binder does not exist in the current tenant or the request host is not a tenant host.
+    - `422` when `mode` is unsupported, `allowedRoles` contains invalid role values, or the `mode`/`allowedRoles` combination is structurally invalid.
   - Idempotency: idempotent for same payload.
 
 ### Documents

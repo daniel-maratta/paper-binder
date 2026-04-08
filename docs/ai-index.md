@@ -44,6 +44,8 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/55-execution/execution-plan.md](./55-execution/execution-plan.md)
 - [docs/55-execution/checkpoint-status.md](./55-execution/checkpoint-status.md)
 - [docs/55-execution/workflows/agent-operating-model.md](./55-execution/workflows/agent-operating-model.md)
+- [docs/05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md](./05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md)
+- [docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md](./95-delivery/pr/cp9-binder-domain-and-policy-model/description.md)
 
 ## Local-Only Overrides
 
