@@ -3,7 +3,8 @@
 ## TDD And Change Discipline
 
 - For non-trivial behavior changes, define/adjust tests with the change.
-- Prefer writing a failing test first when bug-fixing or implementing bounded behavior.
+- For bounded backend, API, domain, persistence, security-boundary, and bug-fix work, use vertical-slice TDD unless the task is purely documentation, configuration, or mechanical refactoring with no behavior change.
+- In PaperBinder checkpoint/task artifacts, capture this as planned `RED -> GREEN -> REFACTOR` behavior slices before broad implementation starts.
 - Keep tests deterministic and isolated from machine-local state.
 
 ## Quality Gates

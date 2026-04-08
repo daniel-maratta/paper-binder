@@ -61,12 +61,17 @@ Use this document when starting checkpoint work, defining tasks, reviewing chang
 ### 3. Lock Scope
 
 - The `Executor` records intended outcome, validation plan, and likely touch points in the task file.
+- For behavior-changing work, the `Executor` also records a vertical-slice TDD plan in the task file:
+  - public interfaces under test
+  - planned `RED -> GREEN -> REFACTOR` slices
+  - the highest-value failing test that starts each slice
 - The `Critic` performs scope-lock review before broad implementation begins.
 - If the review finds scope drift, missing acceptance criteria, or an ADR trigger, fix that before continuing.
 
 ### 4. Execute
 
 - Implement the smallest coherent change that advances the checkpoint outcome.
+- For relevant behavior changes, implement in vertical slices rather than horizontal batches: write one failing test, make it pass with minimal code, then move to the next slice.
 - Keep contract updates, tests, and documentation propagation in the same change set.
 - Preserve tenant isolation, authorization boundaries, and other checkpoint invariants.
 
@@ -103,6 +108,7 @@ Checks:
 - task scope matches checkpoint intent
 - acceptance criteria are concrete
 - validation plan exists
+- relevant behavior-changing work has an explicit vertical-slice TDD plan
 - ADR triggers are identified
 
 ### Pre-PR Critique
@@ -128,7 +134,7 @@ Checks:
 
 Minimum committed state for implementation work:
 
-- task file with scope, acceptance criteria, review gates, validation plan, validation evidence, and outcome
+- task file with scope, acceptance criteria, implementation plan, review gates, validation plan, validation evidence, and outcome
 - task file with a durable current-state note and next-action handoff
 - queue entry in `docs/05-taskboard/work-queue.md`
 - checkpoint entry in `docs/55-execution/checkpoint-status.md` when checkpoint status changes

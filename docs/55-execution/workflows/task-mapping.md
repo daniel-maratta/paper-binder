@@ -28,7 +28,8 @@ When starting a checkpoint:
 3. In the `Context` section, reference the checkpoint: e.g., "Part of CP5 - Tenancy Resolution And Immutable Tenant Context."
 4. In the `Acceptance Criteria` section, derive criteria from the checkpoint's merge gate conditions.
 5. In the `Touch Points` section, list the likely files/modules from the checkpoint's commit descriptions.
-6. In the `Validation Plan` and `Review Gates` sections, define how the work will be checked before merge.
+6. In the `Implementation Plan` section, define the planned vertical `RED -> GREEN -> REFACTOR` slices when the task changes behavior.
+7. In the `Validation Plan` and `Review Gates` sections, define how the work will be checked before merge.
 
 ### Task Naming Convention
 
