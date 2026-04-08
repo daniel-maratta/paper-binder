@@ -20,6 +20,7 @@ Related standards:
 
 - Tenant isolation: no cross-tenant reads or writes.
 - Authorization enforcement at API endpoints.
+- Binder allow/deny behavior, including list omission for `restricted_roles`, same-tenant policy denial, and wrong-tenant `404` behavior.
 - Provisioning transactionality (all-or-nothing seed behavior).
 - Tenant lease extension-window rules and cleanup hard-delete behavior.
 - Challenge + pre-auth rate-limit behavior on provisioning and root login.
@@ -31,6 +32,7 @@ Related standards:
 - Integration tests:
   - Multi-tenant query boundaries.
   - Authentication/authorization boundary behavior.
+  - Binder endpoint success/failure behavior, including CSRF enforcement on unsafe binder routes.
   - Provisioning and cleanup workflows.
   - Split repo execution into non-Docker and Docker-backed buckets when Docker is required for only part of the suite.
 - Unit tests:

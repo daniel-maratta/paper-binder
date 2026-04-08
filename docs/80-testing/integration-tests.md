@@ -35,6 +35,14 @@ Integration tests in v1 must cover:
 
 ## Golden Path Test List
 
+- `Should_CreateBinder_AndExposeDefaultInheritPolicy_When_RequestIsValid`.
+- `Should_ListOnlyCurrentTenantBinders_AndOmitRestrictedBinders_When_CallerLacksAllowedRole`.
+- `Should_ReturnForbidden_When_BinderPolicyDeniesSameTenantCaller`.
+- `Should_ReturnNotFound_When_BinderIdBelongsToAnotherTenant`.
+- `Should_RequireTenantAdmin_ForBinderPolicyEndpoints`.
+- `Should_ReturnUnprocessableEntity_When_BinderPolicyPayloadIsInvalid`.
+- `Should_RejectBinderCreate_When_CsrfTokenIsMissing`.
+- `Should_RejectBinderPolicyUpdate_When_CsrfTokenIsMissing`.
 - `Should_RejectCrossTenantBinderRead_When_UserFromDifferentTenant`.
 - `Should_RejectCrossTenantDocumentWrite_When_TenantIdTamperedInPayload`.
 - `Should_ReturnForbidden_When_RoleLacksBinderWritePolicy`.

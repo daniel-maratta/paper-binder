@@ -87,6 +87,7 @@ Rules:
 - No nesting in v1.
 - Can contain multiple documents.
 - Document belongs to exactly one binder in v1.
+- Binder names are not unique within a tenant in CP9.
 
 ---
 
@@ -96,16 +97,17 @@ Represents access control rules applied at binder level.
 
 Fields:
 - BinderId
-- PolicyName
-- RuleData (optional JSON for future expansion)
+- TenantId
+- Mode (`inherit` | `restricted_roles`)
+- AllowedRoles (role list; empty when `Mode=inherit`)
 - CreatedAt
+- UpdatedAt
 
 Rules:
-- Policies evaluated via application/domain authorization abstractions.
-- Authorization decision depends on:
-  - User
-  - Tenant
-  - Binder
+- Default mode is `inherit`.
+- `restricted_roles` stores exact v1 tenant role values and narrows access beyond the endpoint policy.
+- Policies are evaluated via application/domain authorization abstractions after the API endpoint policy succeeds.
+- Binder list responses omit binders the caller cannot satisfy under `restricted_roles`.
 
 ---
 

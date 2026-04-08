@@ -35,8 +35,12 @@
     { "id": "adr-0007", "type": "doc", "path": "docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md", "tags": ["adr", "persistence", "database"] },
     { "id": "adr-0008", "type": "doc", "path": "docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md", "tags": ["adr", "identity", "security"] },
     { "id": "task-t0019", "type": "doc", "path": "docs/05-taskboard/tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md", "tags": ["task", "checkpoint", "cp6"] },
+    { "id": "task-t0023", "type": "doc", "path": "docs/05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md", "tags": ["task", "checkpoint", "cp9"] },
     { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] },
-    { "id": "delivery-cp6", "type": "doc", "path": "docs/95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md", "tags": ["delivery", "pr", "cp6"] }
+    { "id": "delivery-cp6", "type": "doc", "path": "docs/95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md", "tags": ["delivery", "pr", "cp6"] },
+    { "id": "delivery-cp9-plan", "type": "doc", "path": "docs/95-delivery/pr/cp9-binder-domain-and-policy-model/implementation-plan.md", "tags": ["delivery", "pr", "cp9", "plan"] },
+    { "id": "delivery-cp9-review", "type": "doc", "path": "docs/95-delivery/pr/cp9-binder-domain-and-policy-model/critic-review.md", "tags": ["delivery", "pr", "cp9", "review"] },
+    { "id": "delivery-cp9", "type": "doc", "path": "docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md", "tags": ["delivery", "pr", "cp9"] }
   ],
   "edges": [
     { "from": "idx", "to": "intent", "rel": "lane-index" },
@@ -70,7 +74,11 @@
     { "from": "adr", "to": "adr-0007", "rel": "contains" },
     { "from": "adr", "to": "adr-0008", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0019", "rel": "contains" },
+    { "from": "taskboard", "to": "task-t0023", "rel": "contains" },
     { "from": "idx", "to": "delivery", "rel": "lane-index" },
-    { "from": "delivery", "to": "delivery-cp6", "rel": "contains" }
+    { "from": "delivery", "to": "delivery-cp6", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp9-plan", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp9-review", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp9", "rel": "contains" }
   ]
 }

@@ -18,4 +18,8 @@ internal static class PaperBinderErrorCodes
     public const string LastTenantAdminRequired = "LAST_TENANT_ADMIN_REQUIRED";
     public const string TenantRoleInvalid = "TENANT_ROLE_INVALID";
     public const string TenantUserPasswordInvalid = "TENANT_USER_PASSWORD_INVALID";
+    public const string BinderNameInvalid = "BINDER_NAME_INVALID";
+    public const string BinderNotFound = "BINDER_NOT_FOUND";
+    public const string BinderPolicyInvalid = "BINDER_POLICY_INVALID";
+    public const string BinderPolicyDenied = "BINDER_POLICY_DENIED";
 }

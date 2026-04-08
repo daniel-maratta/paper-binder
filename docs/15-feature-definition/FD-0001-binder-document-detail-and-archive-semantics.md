@@ -35,6 +35,7 @@ Documents remain immutable and archive is modeled as visibility state only.
 
 Rules:
 - `GET /api/binders/{binderId}` returns binder metadata and document summaries scoped to current tenant.
+- Until document persistence lands in CP10, binder detail still returns an explicit empty `documents` collection.
 - `GET /api/documents/{documentId}` returns full immutable content plus archive metadata.
 - Archived documents are excluded from default list responses.
 - List endpoints may include archived documents only when `includeArchived=true` is explicitly requested.

@@ -36,7 +36,7 @@ Binder policy is modeled as an optional binder-local role restriction layer.
 Rules:
 - Every binder has a policy mode: `inherit` (default) or `restricted_roles`.
 - `inherit` means tenant role policies (`BinderRead`, `BinderWrite`) are sufficient.
-- `restricted_roles` adds binder-specific allowed-role checks on top of tenant role policies.
+- `restricted_roles` adds binder-specific exact-role allow-list checks on top of tenant role policies.
 - Evaluation order for binder access:
   1. Resolve immutable tenant context.
   2. Enforce endpoint policy (`BinderRead` or `BinderWrite`).
@@ -46,6 +46,7 @@ Rules:
 ## User-visible behavior
 - Binder policies can be viewed and updated by tenant admins.
 - Restricted binders may deny access to users who otherwise have general binder permissions.
+- Binder list endpoints omit restricted binders the caller cannot access.
 - Denied access returns consistent authorization errors.
 
 ## API / contract impact
@@ -56,6 +57,7 @@ Contract additions:
 Policy shape (conceptual):
 - `mode`: `inherit` | `restricted_roles`
 - `allowedRoles`: role list (required when `mode=restricted_roles`)
+- `allowedRoles` values are exact v1 tenant role values, not a second hierarchy.
 
 ProblemDetails expectations:
 - `403` for unauthorized caller or restricted binder access.
@@ -70,7 +72,7 @@ ProblemDetails expectations:
 ## Security / ops impact
 - Binder policy is a security boundary control and must be covered by integration tests.
 - Tenant-scoped data access and policy reads/writes require mandatory tenant predicates.
-- Operational logs should include policy mode transitions and actor identity.
+- Operational logs should include `tenant_id`, `user_id`, `event_name`, policy mode transitions, and actor identity.
 
 ## Canonical updates required
 - `docs/10-product/prd.md` and `docs/10-product/domain-nouns.md` (binder policy representation)
