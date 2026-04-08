@@ -18,6 +18,7 @@ Do not use legacy `stage` terminology for current execution planning or PR artif
 - Checkpoint work may ship across 1-5 PRs.
 - PR descriptions should reference the checkpoint ID and related `T-####` task IDs.
 - Use checkpoint templates for implementation PRs.
+- If a checkpoint keeps a separate implementation-plan artifact, relevant behavior-changing work must describe its vertical-slice TDD flow there: public interfaces, planned `RED -> GREEN -> REFACTOR` slices, and the intended failing tests that start each slice.
 - Use the phase summary template only when a PR intentionally summarizes a completed phase or consolidates phase-level outcomes.
 - Use the release template for the final reviewer-facing release PR or equivalent delivery artifact.
 - For live PR artifacts, use `Status: Draft` while validation or review prep is still in progress.

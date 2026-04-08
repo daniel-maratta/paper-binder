@@ -18,6 +18,11 @@ This workflow is a checkpoint-specific companion to [agent-operating-model.md](.
 - Identify the commits listed for the checkpoint.
 - Check `docs/05-taskboard/work-queue.md` for related active or blocked tasks.
 - Record intended validation and review-gate expectations in the task file before broad implementation starts.
+- For behavior-changing work, record a vertical-slice TDD plan before broad implementation starts:
+  - identify the public interfaces that will change
+  - break the work into small observable behavior slices
+  - name the first failing test for each slice
+  - note the unit vs integration coverage expected for each slice
 
 ### 2. Create Tasks
 
@@ -33,6 +38,8 @@ This workflow is a checkpoint-specific companion to [agent-operating-model.md](.
 - Work through the checkpoint's commits in order.
 - Each commit should be cohesive and buildable.
 - Ship contract updates and tests in the same change set as the behavior they cover.
+- For behavior-changing work, execute in vertical slices: one failing test, one minimal implementation, then refactor once the slice is green.
+- Prefer tests that prove observable behavior through supported interfaces instead of mocking internals or verifying implementation details.
 - Update task status to `active` when work begins.
 - Keep unrelated discoveries out of the current checkpoint by creating a new task or Inbox entry.
 
@@ -56,6 +63,7 @@ This workflow is a checkpoint-specific companion to [agent-operating-model.md](.
 
 - A checkpoint is not done until its merge gate passes completely.
 - If a merge gate condition fails, fix the issue before merging. Do not defer.
+- If a task needed vertical-slice TDD, do not skip the planning step and do not treat a bulk test dump plus later implementation as equivalent.
 - If work reveals new scope, capture it in the `Inbox` of `docs/05-taskboard/taskboard-intake.md` and create a separate task. Do not expand the current checkpoint.
 - If work reveals a follow-up that affects checkpoint readiness, sequencing, or closure, record the detailed item in the taskboard and add a short checkpoint-level note to `docs/55-execution/checkpoint-status.md`.
 - Keep PRs small and reviewable. A checkpoint may be 1-5 PRs, not one giant PR.

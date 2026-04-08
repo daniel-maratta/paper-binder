@@ -36,6 +36,7 @@ Examples:
 - [ ] Verify tenant purge edge case around expired-but-not-purged state | type:risk | source:test findings
 
 - [x] Investigate opaque `dotnet restore` exit-1 behavior on the current Windows/.NET 10 SDK stack -> T-0021 | type:risk | source:T-0016 validation
+- [x] Close remaining test-coverage gaps around challenge-failure handling, worker behavior, and frontend placeholder coverage -> T-0024 | type:risk | source:test sufficiency review 2026-04-08
 
 ## Triage Rules
 
