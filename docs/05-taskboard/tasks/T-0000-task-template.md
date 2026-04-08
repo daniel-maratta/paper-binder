@@ -54,6 +54,11 @@ One paragraph describing the outcome.
 ## Touch Points
 - List likely files/modules that will change
 
+## Implementation Plan
+- For behavior-changing work, list the planned vertical slices as `RED -> GREEN -> REFACTOR`
+- Name the public interface and the first failing test for each slice
+- Note which slices require unit coverage vs integration coverage
+
 ## Next Action
 - The next concrete handoff step for the executor, critic, or owner
 

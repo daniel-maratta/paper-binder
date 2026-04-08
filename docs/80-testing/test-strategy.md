@@ -45,6 +45,13 @@ Related standards:
 - Local `Auto` mode may skip Docker-backed integration tests with a clear message when Docker is unavailable.
 - Checkpoint or CI merge-gate validation must require the Docker-backed bucket explicitly rather than assuming it ran.
 
+## Current Known Gaps
+
+- The current backend surface is covered credibly by unit tests plus non-Docker and Docker-backed integration tests, but a few narrower gaps remain open.
+- The `CHALLENGE_FAILED` API path does not yet have explicit end-to-end coverage for "challenge supplied but provider verification failed" behavior.
+- The worker host is only smoke-tested for host construction; the long-running heartbeat loop does not yet have behavior-focused tests.
+- The current frontend remains a placeholder surface and has no automated tests. Re-evaluate frontend test coverage when real root-host or tenant-host UI behavior lands.
+
 ## Environment-Gated Test Bypass Reminder
 
 - If `PB_ENV == "Test"`: accept fixed Turnstile token value for test-only execution.
