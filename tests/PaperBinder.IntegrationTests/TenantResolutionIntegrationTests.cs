@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using PaperBinder.Api;
 using PaperBinder.Application.Binders;
+using PaperBinder.Application.Documents;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Identity;
@@ -342,6 +343,57 @@ internal static class TenantResolutionIntegrationTestHost
         return binder;
     }
 
+    public static async Task<SeededDocument> SeedDocumentAsync(
+        PaperBinderApplicationHost host,
+        SeededTenant tenant,
+        SeededBinder binder,
+        string title,
+        string content,
+        Guid? supersedesDocumentId = null,
+        DateTimeOffset? createdAtUtc = null,
+        DateTimeOffset? archivedAtUtc = null)
+    {
+        var document = new SeededDocument(
+            Guid.NewGuid(),
+            tenant.Id,
+            binder.Id,
+            title,
+            DocumentRules.MarkdownContentType,
+            content,
+            supersedesDocumentId,
+            createdAtUtc ?? DateTimeOffset.UtcNow,
+            archivedAtUtc);
+
+        var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
+        await using var connection = await connectionFactory.OpenConnectionAsync();
+        await connection.ExecuteAsync(
+            """
+            insert into documents (
+                id,
+                tenant_id,
+                binder_id,
+                title,
+                content_type,
+                content,
+                supersedes_document_id,
+                created_at_utc,
+                archived_at_utc)
+            values (
+                @Id,
+                @TenantId,
+                @BinderId,
+                @Title,
+                @ContentType,
+                @Content,
+                @SupersedesDocumentId,
+                @CreatedAtUtc,
+                @ArchivedAtUtc);
+            """,
+            document);
+
+        return document;
+    }
+
     public static async Task ExpireTenantAsync(PaperBinderApplicationHost host, SeededTenant tenant)
     {
         var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
@@ -420,6 +472,17 @@ internal sealed record SeededBinder(
     Guid TenantId,
     string Name,
     DateTimeOffset CreatedAtUtc);
+
+internal sealed record SeededDocument(
+    Guid Id,
+    Guid TenantId,
+    Guid BinderId,
+    string Title,
+    string ContentType,
+    string Content,
+    Guid? SupersedesDocumentId,
+    DateTimeOffset CreatedAtUtc,
+    DateTimeOffset? ArchivedAtUtc);
 
 internal sealed record ProblemDetailsResponse(
     string? Type,

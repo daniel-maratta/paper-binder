@@ -62,9 +62,14 @@ Fields:
 Rules:
 - Immutable after creation.
 - Content cannot be updated in place.
+- Title is trimmed and must be 1-200 characters after trimming.
+- ContentType is the exact contract value `markdown`.
+- Content must be non-whitespace and at most 50,000 characters.
 - New document may supersede a prior document via metadata.
+- `SupersedesDocumentId` must reference another document in the same tenant and same binder.
 - Archive/soft-delete may hide a document without changing content.
 - Archived documents are hidden by default and included only through explicit archive filters.
+- Archived documents remain directly readable by document id.
 - No versioning in v1.
 - No external sharing.
 - Strict tenant ownership.
@@ -88,6 +93,7 @@ Rules:
 - Can contain multiple documents.
 - Document belongs to exactly one binder in v1.
 - Binder names are not unique within a tenant in CP9.
+- Binder detail returns visible document summaries in CP10; archived documents stay hidden by default there.
 
 ---
 

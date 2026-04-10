@@ -36,6 +36,13 @@ Integration tests in v1 must cover:
 ## Golden Path Test List
 
 - `Should_CreateBinder_AndExposeDefaultInheritPolicy_When_RequestIsValid`.
+- `Should_CreateDocument_AndReturnDetail_When_RequestIsValid`.
+- `Should_ListDocuments_AndPopulateBinderDetailSummaries_When_VisibleDocumentsExist`.
+- `Should_ValidateSameBinderSupersedesConstraint_When_CreateRequestSupersedesDocument`.
+- `Should_ArchiveAndUnarchiveDocument_WithoutMutatingContent`.
+- `Should_RejectUnsafeDocumentRoutes_When_CsrfTokenIsMissing`.
+- `Should_ReturnForbidden_When_BinderFilteredDocumentListTargetsRestrictedBinder`.
+- `Should_ReturnNotFound_When_DocumentIdBelongsToAnotherTenant`.
 - `Should_ListOnlyCurrentTenantBinders_AndOmitRestrictedBinders_When_CallerLacksAllowedRole`.
 - `Should_ReturnForbidden_When_BinderPolicyDeniesSameTenantCaller`.
 - `Should_ReturnNotFound_When_BinderIdBelongsToAnotherTenant`.
@@ -44,7 +51,6 @@ Integration tests in v1 must cover:
 - `Should_RejectBinderCreate_When_CsrfTokenIsMissing`.
 - `Should_RejectBinderPolicyUpdate_When_CsrfTokenIsMissing`.
 - `Should_RejectCrossTenantBinderRead_When_UserFromDifferentTenant`.
-- `Should_RejectCrossTenantDocumentWrite_When_TenantIdTamperedInPayload`.
 - `Should_ReturnForbidden_When_RoleLacksBinderWritePolicy`.
 - `Should_AllowBinderCreate_When_UserHasBinderWritePolicy`.
 - `Should_AllowTenantLeaseExtension_OnlyWithinAllowedWindow`.

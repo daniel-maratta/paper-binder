@@ -49,7 +49,7 @@ As a tenant user with permission, I can create and view binders within my tenant
 - `POST /api/binders` creates a binder scoped to current tenant.
 - `POST /api/binders` defaults new binders to binder policy mode `inherit`.
 - `GET /api/binders` lists only binders for current tenant and omits restricted binders the caller cannot access.
-- `GET /api/binders/{id}` returns binder only when it belongs to current tenant and returns an explicit empty `documents` collection until CP10.
+- `GET /api/binders/{id}` returns binder only when it belongs to current tenant and returns concrete visible document summaries in `documents`.
 - `GET /api/binders/{id}/policy` and `PUT /api/binders/{id}/policy` enforce tenant-admin policy management.
 - Binder policy payloads use `mode` plus exact-role `allowedRoles`.
 - Unauthorized access returns `403`, while wrong-tenant or unknown binders return `404`.
@@ -61,14 +61,15 @@ As a tenant user with permission, I can create and read immutable text documents
 
 ### Acceptance Criteria
 - `POST /api/documents` creates immutable text document in a tenant binder.
-- `GET /api/documents` lists documents scoped to current tenant.
-- `GET /api/documents/{id}` returns document only when tenant-scoped access is valid.
+- `POST /api/documents` trims title to 1-200 characters, requires exact `contentType=markdown`, requires non-whitespace content <= 50,000 characters, and accepts optional same-binder `SupersedesDocumentId`.
+- `GET /api/documents` lists documents scoped to current tenant, omits restricted binders on unfiltered requests, and returns `403` when an explicit binder filter targets a same-tenant binder denied by binder-local policy.
+- `GET /api/documents/{id}` returns document only when tenant-scoped access is valid and still allows direct-id reads of archived documents.
 - `POST /api/documents/{id}/archive` and `POST /api/documents/{id}/unarchive` toggle visibility state without mutating content.
 - Archived documents are excluded by default and included only via explicit `includeArchived=true`.
 - No `PUT` or `PATCH` endpoint exists for document content in v1.
 - Optional metadata may reference `SupersedesDocumentId` without mutating previous content.
 - Archive/soft-delete may hide documents without altering document content.
-- Unauthorized access returns `403`.
+- Unauthorized or binder-policy-denied access returns `403`; wrong-tenant or unknown binder/document ids return `404`.
 
 ## Slice 6: Lease Cleanup
 

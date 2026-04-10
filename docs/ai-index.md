@@ -45,7 +45,11 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/55-execution/checkpoint-status.md](./55-execution/checkpoint-status.md)
 - [docs/55-execution/workflows/agent-operating-model.md](./55-execution/workflows/agent-operating-model.md)
 - [docs/05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md](./05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md)
+- [docs/05-taskboard/tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md](./05-taskboard/tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md)
 - [docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md](./95-delivery/pr/cp9-binder-domain-and-policy-model/description.md)
+- [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md)
+- [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md)
+- [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/description.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/description.md)
 
 ## Local-Only Overrides
 

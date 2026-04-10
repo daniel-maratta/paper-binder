@@ -148,7 +148,7 @@ All entities are tenant-scoped unless explicitly global.
 - Binder policy modes are `inherit` (default) and `restricted_roles`.
 - Binder policy `allowedRoles` values are exact v1 tenant role values.
 - Binder list responses omit restricted binders the caller cannot access.
-- Binder detail responses return `documents: []` until document persistence arrives in CP10.
+- Binder detail responses return concrete `documents` summaries in CP10.
 
 ### 6.5 Documents
 
@@ -158,8 +158,13 @@ All entities are tenant-scoped unless explicitly global.
 - No external storage.
 - Documents are immutable after creation.
 - Changes require creating a new document (optional `SupersedesDocumentId` metadata).
+- Document titles are trimmed and must be 1-200 characters after trimming.
+- Document `contentType` must be the exact contract value `markdown`.
+- Document content must be non-whitespace and no longer than 50,000 characters.
+- `SupersedesDocumentId`, when supplied, must reference another document in the same tenant and same binder.
 - Archive/soft-delete visibility is allowed without changing content.
 - Archived documents are hidden by default in list views and can be included with explicit filter options.
+- Archived documents remain readable by direct document id.
 - No in-place content editing API.
 - No version history.
 
