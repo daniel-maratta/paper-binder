@@ -157,6 +157,91 @@ partial class PaperBinderDbContextModelSnapshot : ModelSnapshot
                 });
         });
 
+        modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.DocumentStorageModel", builder =>
+        {
+            builder.Property<Guid>("Id")
+                .ValueGeneratedNever()
+                .HasColumnType("uuid")
+                .HasColumnName("id");
+
+            builder.Property<DateTimeOffset?>("ArchivedAtUtc")
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("archived_at_utc");
+
+            builder.Property<Guid>("BinderId")
+                .HasColumnType("uuid")
+                .HasColumnName("binder_id");
+
+            builder.Property<string>("Content")
+                .IsRequired()
+                .HasColumnType("text")
+                .HasColumnName("content");
+
+            builder.Property<string>("ContentType")
+                .IsRequired()
+                .HasMaxLength(32)
+                .HasColumnType("character varying(32)")
+                .HasColumnName("content_type");
+
+            builder.Property<DateTimeOffset>("CreatedAtUtc")
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("created_at_utc");
+
+            builder.Property<Guid?>("SupersedesDocumentId")
+                .HasColumnType("uuid")
+                .HasColumnName("supersedes_document_id");
+
+            builder.Property<Guid>("TenantId")
+                .HasColumnType("uuid")
+                .HasColumnName("tenant_id");
+
+            builder.Property<string>("Title")
+                .IsRequired()
+                .HasMaxLength(200)
+                .HasColumnType("character varying(200)")
+                .HasColumnName("title");
+
+            builder.HasKey("Id")
+                .HasName("pk_documents");
+
+            builder.HasAlternateKey("TenantId", "Id")
+                .HasName("ak_documents_tenant_id_id");
+
+            builder.HasAlternateKey("TenantId", "BinderId", "Id")
+                .HasName("ak_documents_tenant_id_binder_id_id");
+
+            builder.HasIndex("TenantId", "CreatedAtUtc", "Id")
+                .HasDatabaseName("ix_documents_tenant_id_created_at_utc_id");
+
+            builder.HasIndex("TenantId", "BinderId", "ArchivedAtUtc", "CreatedAtUtc", "Id")
+                .HasDatabaseName("ix_documents_tenant_id_binder_id_archived_at_utc_created_at_utc_id");
+
+            builder.HasIndex("TenantId", "BinderId", "SupersedesDocumentId")
+                .HasDatabaseName("ix_documents_tenant_id_binder_id_supersedes_document_id");
+
+            builder.ToTable(
+                "documents",
+                null,
+                tableBuilder =>
+                {
+                    tableBuilder.HasCheckConstraint(
+                        "ck_documents_content_length_valid",
+                        "char_length(content) <= 50000");
+                    tableBuilder.HasCheckConstraint(
+                        "ck_documents_content_not_blank",
+                        "char_length(btrim(content)) > 0");
+                    tableBuilder.HasCheckConstraint(
+                        "ck_documents_content_type_markdown",
+                        "content_type = 'markdown'");
+                    tableBuilder.HasCheckConstraint(
+                        "ck_documents_supersedes_not_self",
+                        "supersedes_document_id is null or supersedes_document_id <> id");
+                    tableBuilder.HasCheckConstraint(
+                        "ck_documents_title_not_blank",
+                        "char_length(btrim(title)) > 0");
+                });
+        });
+
         modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.UserStorageModel", builder =>
         {
             builder.Property<Guid>("Id")
@@ -282,6 +367,24 @@ partial class PaperBinderDbContextModelSnapshot : ModelSnapshot
                 .IsRequired()
                 .HasPrincipalKey("TenantId", "Id")
                 .HasConstraintName("fk_binder_policies_tenant_id_binder_id");
+        });
+
+        modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.DocumentStorageModel", builder =>
+        {
+            builder.HasOne("PaperBinder.Infrastructure.Persistence.BinderStorageModel", null)
+                .WithMany()
+                .HasForeignKey("TenantId", "BinderId")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired()
+                .HasPrincipalKey("TenantId", "Id")
+                .HasConstraintName("fk_documents_tenant_id_binder_id");
+
+            builder.HasOne("PaperBinder.Infrastructure.Persistence.DocumentStorageModel", null)
+                .WithMany()
+                .HasForeignKey("TenantId", "BinderId", "SupersedesDocumentId")
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasPrincipalKey("TenantId", "BinderId", "Id")
+                .HasConstraintName("fk_documents_tenant_id_binder_id_supersedes_document_id");
         });
 
         modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.BinderStorageModel", builder =>

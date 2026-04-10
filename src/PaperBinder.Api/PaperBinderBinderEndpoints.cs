@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PaperBinder.Application.Binders;
+using PaperBinder.Application.Documents;
 using PaperBinder.Application.Tenancy;
 
 namespace PaperBinder.Api;
@@ -71,6 +72,7 @@ internal static class PaperBinderBinderEndpoints
         HttpContext context,
         Guid binderId,
         IBinderService binderService,
+        IDocumentService documentService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
         IProblemDetailsService problemDetailsService,
@@ -90,12 +92,20 @@ internal static class PaperBinderBinderEndpoints
             return;
         }
 
+        var documents = await documentService.ListForBinderAsync(
+            tenant,
+            binderId,
+            includeArchived: false,
+            cancellationToken);
+
         await context.Response.WriteAsJsonAsync(
             new BinderDetailResponse(
                 outcome.Binder!.BinderId,
                 outcome.Binder.Name,
                 outcome.Binder.CreatedAtUtc,
-                Array.Empty<object>()),
+                documents
+                    .Select(PaperBinderDocumentResponseMapping.MapSummary)
+                    .ToArray()),
             cancellationToken);
     }
 
@@ -199,7 +209,7 @@ internal static class PaperBinderBinderEndpoints
         Guid BinderId,
         string Name,
         DateTimeOffset CreatedAt,
-        IReadOnlyList<object> Documents);
+        IReadOnlyList<DocumentSummaryResponse> Documents);
 
     internal sealed record BinderPolicyResponse(
         string Mode,

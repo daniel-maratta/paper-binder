@@ -21,6 +21,7 @@ Related standards:
 - Tenant isolation: no cross-tenant reads or writes.
 - Authorization enforcement at API endpoints.
 - Binder allow/deny behavior, including list omission for `restricted_roles`, same-tenant policy denial, and wrong-tenant `404` behavior.
+- Document immutability, archive-transition rules, same-binder supersedes validation, and binder-policy behavior across document list/detail/write endpoints.
 - Provisioning transactionality (all-or-nothing seed behavior).
 - Tenant lease extension-window rules and cleanup hard-delete behavior.
 - Challenge + pre-auth rate-limit behavior on provisioning and root login.

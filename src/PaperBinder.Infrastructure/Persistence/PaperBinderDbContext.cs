@@ -7,6 +7,7 @@ public sealed class PaperBinderDbContext(DbContextOptions<PaperBinderDbContext> 
     internal DbSet<TenantStorageModel> Tenants => Set<TenantStorageModel>();
     internal DbSet<BinderStorageModel> Binders => Set<BinderStorageModel>();
     internal DbSet<BinderPolicyStorageModel> BinderPolicies => Set<BinderPolicyStorageModel>();
+    internal DbSet<DocumentStorageModel> Documents => Set<DocumentStorageModel>();
     internal DbSet<UserStorageModel> Users => Set<UserStorageModel>();
     internal DbSet<UserTenantMembershipStorageModel> UserTenants => Set<UserTenantMembershipStorageModel>();
 
@@ -138,6 +139,91 @@ public sealed class PaperBinderDbContext(DbContextOptions<PaperBinderDbContext> 
             tableBuilder.HasCheckConstraint(
                 "ck_binder_policies_payload_valid",
                 "((mode = 'inherit' and cardinality(allowed_roles) = 0) or (mode = 'restricted_roles' and cardinality(allowed_roles) > 0))");
+        });
+
+        var document = modelBuilder.Entity<DocumentStorageModel>();
+
+        document.ToTable("documents");
+        document.HasKey(record => record.Id).HasName("pk_documents");
+        document.HasAlternateKey(record => new { record.TenantId, record.Id }).HasName("ak_documents_tenant_id_id");
+        document.HasAlternateKey(record => new { record.TenantId, record.BinderId, record.Id }).HasName("ak_documents_tenant_id_binder_id_id");
+
+        document.Property(record => record.Id)
+            .HasColumnName("id")
+            .ValueGeneratedNever();
+
+        document.Property(record => record.TenantId)
+            .HasColumnName("tenant_id");
+
+        document.Property(record => record.BinderId)
+            .HasColumnName("binder_id");
+
+        document.Property(record => record.Title)
+            .HasColumnName("title")
+            .HasMaxLength(200)
+            .IsRequired();
+
+        document.Property(record => record.ContentType)
+            .HasColumnName("content_type")
+            .HasMaxLength(32)
+            .IsRequired();
+
+        document.Property(record => record.Content)
+            .HasColumnName("content")
+            .HasColumnType("text")
+            .IsRequired();
+
+        document.Property(record => record.SupersedesDocumentId)
+            .HasColumnName("supersedes_document_id");
+
+        document.Property(record => record.CreatedAtUtc)
+            .HasColumnName("created_at_utc")
+            .HasColumnType("timestamp with time zone");
+
+        document.Property(record => record.ArchivedAtUtc)
+            .HasColumnName("archived_at_utc")
+            .HasColumnType("timestamp with time zone");
+
+        document.HasIndex(record => new { record.TenantId, record.CreatedAtUtc, record.Id })
+            .HasDatabaseName("ix_documents_tenant_id_created_at_utc_id");
+
+        document.HasIndex(record => new { record.TenantId, record.BinderId, record.ArchivedAtUtc, record.CreatedAtUtc, record.Id })
+            .HasDatabaseName("ix_documents_tenant_id_binder_id_archived_at_utc_created_at_utc_id");
+
+        document.HasIndex(record => new { record.TenantId, record.BinderId, record.SupersedesDocumentId })
+            .HasDatabaseName("ix_documents_tenant_id_binder_id_supersedes_document_id");
+
+        document.HasOne<BinderStorageModel>()
+            .WithMany()
+            .HasForeignKey(record => new { record.TenantId, record.BinderId })
+            .HasPrincipalKey(record => new { record.TenantId, record.Id })
+            .HasConstraintName("fk_documents_tenant_id_binder_id")
+            .OnDelete(DeleteBehavior.Cascade);
+
+        document.HasOne<DocumentStorageModel>()
+            .WithMany()
+            .HasForeignKey(record => new { record.TenantId, record.BinderId, record.SupersedesDocumentId })
+            .HasPrincipalKey(record => new { record.TenantId, record.BinderId, record.Id })
+            .HasConstraintName("fk_documents_tenant_id_binder_id_supersedes_document_id")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        document.ToTable(tableBuilder =>
+        {
+            tableBuilder.HasCheckConstraint(
+                "ck_documents_title_not_blank",
+                "char_length(btrim(title)) > 0");
+            tableBuilder.HasCheckConstraint(
+                "ck_documents_content_type_markdown",
+                "content_type = 'markdown'");
+            tableBuilder.HasCheckConstraint(
+                "ck_documents_content_not_blank",
+                "char_length(btrim(content)) > 0");
+            tableBuilder.HasCheckConstraint(
+                "ck_documents_content_length_valid",
+                "char_length(content) <= 50000");
+            tableBuilder.HasCheckConstraint(
+                "ck_documents_supersedes_not_self",
+                "supersedes_document_id is null or supersedes_document_id <> id");
         });
 
         var user = modelBuilder.Entity<UserStorageModel>();
