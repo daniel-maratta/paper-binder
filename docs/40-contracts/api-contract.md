@@ -74,6 +74,14 @@ Notes:
 - Unknown tenant-scoped binders return `404` ProblemDetails with `errorCode` `BINDER_NOT_FOUND`.
 - Binder-local policy denial after endpoint authorization returns `403` ProblemDetails with `errorCode` `BINDER_POLICY_DENIED`.
 - Invalid binder-policy payloads return `422` ProblemDetails with `errorCode` `BINDER_POLICY_INVALID`.
+- Unknown tenant-scoped documents return `404` ProblemDetails with `errorCode` `DOCUMENT_NOT_FOUND`.
+- Document-title validation failures return `400` ProblemDetails with `errorCode` `DOCUMENT_TITLE_INVALID`.
+- Missing or whitespace-only document content returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_REQUIRED`.
+- Document content longer than 50,000 characters returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TOO_LARGE`.
+- Unsupported document `contentType` values return `422` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TYPE_INVALID`.
+- Missing document binder targets return `400` ProblemDetails with `errorCode` `DOCUMENT_BINDER_REQUIRED`.
+- Invalid document supersedes targets return `422` ProblemDetails with `errorCode` `DOCUMENT_SUPERSEDES_INVALID`.
+- Invalid archive transitions return `409` ProblemDetails with `errorCode` `DOCUMENT_ALREADY_ARCHIVED` or `DOCUMENT_NOT_ARCHIVED`.
 - Pre-auth throttling returns `429` ProblemDetails with `errorCode` `RATE_LIMITED` and includes `Retry-After` when available.
 - Unmatched `/api/*` routes return `404` ProblemDetails and still include `traceId`, `correlationId`, `X-Api-Version`, and `X-Correlation-Id`.
 
@@ -306,14 +314,25 @@ Notes:
       "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
       "name": "Executive Policies",
       "createdAt": "2026-04-07T15:30:00Z",
-      "documents": []
+      "documents": [
+        {
+          "documentId": "0d5a5380-c8ef-4c1c-86cf-2dd6cfcbfa85",
+          "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+          "title": "Security Handbook",
+          "contentType": "markdown",
+          "supersedesDocumentId": null,
+          "createdAt": "2026-04-09T15:30:00Z",
+          "archivedAt": null
+        }
+      ]
     }
     ```
   - Failure semantics:
     - `403` when binder-local policy denies the caller after the `BinderRead` endpoint policy has already passed.
     - `404` when the binder does not exist in the current tenant or the request host is not a tenant host.
   - Notes:
-    - `documents` is present and empty in CP9. Document persistence lands in CP10.
+    - `documents` reuses `DocumentSummary[]`.
+    - Archived documents are hidden by default in binder detail responses.
   - Idempotency: idempotent.
 
 - `GET /api/binders/{binderId}/policy`
@@ -369,27 +388,134 @@ Notes:
   - Query options:
     - `binderId` (optional)
     - `includeArchived` (optional, default `false`)
+  - Response example (`200`):
+    ```json
+    {
+      "documents": [
+        {
+          "documentId": "0d5a5380-c8ef-4c1c-86cf-2dd6cfcbfa85",
+          "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+          "title": "Security Handbook",
+          "contentType": "markdown",
+          "supersedesDocumentId": null,
+          "createdAt": "2026-04-09T15:30:00Z",
+          "archivedAt": null
+        }
+      ]
+    }
+    ```
+  - Failure semantics:
+    - `403` when an explicit `binderId` targets a current-tenant binder whose binder-local policy denies the caller after the `BinderRead` endpoint policy has already passed.
+    - `404` when an explicit `binderId` does not exist in the current tenant or the request host is not a tenant host.
+  - Notes:
+    - Unfiltered list requests omit documents from binders the caller cannot access.
+    - Archived documents are excluded by default and included only when `includeArchived=true`.
   - Idempotency: idempotent.
 
 - `GET /api/documents/{documentId}`
   - Auth required: Y (`BinderRead`)
   - Tenant context source: subdomain plus cookie
-  - Returns immutable content and archive metadata.
+  - Response example (`200`):
+    ```json
+    {
+      "documentId": "0d5a5380-c8ef-4c1c-86cf-2dd6cfcbfa85",
+      "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "title": "Security Handbook",
+      "contentType": "markdown",
+      "content": "# Security Handbook",
+      "supersedesDocumentId": null,
+      "createdAt": "2026-04-09T15:30:00Z",
+      "archivedAt": null
+    }
+    ```
+  - Failure semantics:
+    - `403` when binder-local policy denies the caller after the `BinderRead` endpoint policy has already passed.
+    - `404` when the document does not exist in the current tenant or the request host is not a tenant host.
+  - Notes:
+    - Archived documents remain readable by direct document id.
   - Idempotency: idempotent.
 
 - `POST /api/documents`
   - Auth required: Y (`BinderWrite`)
   - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Request example:
+    ```json
+    {
+      "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "title": "Security Handbook",
+      "contentType": "markdown",
+      "content": "# Security Handbook",
+      "supersedesDocumentId": null
+    }
+    ```
+  - Response example (`201`):
+    ```json
+    {
+      "documentId": "0d5a5380-c8ef-4c1c-86cf-2dd6cfcbfa85",
+      "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "title": "Security Handbook",
+      "contentType": "markdown",
+      "content": "# Security Handbook",
+      "supersedesDocumentId": null,
+      "createdAt": "2026-04-09T15:30:00Z",
+      "archivedAt": null
+    }
+    ```
+  - Failure semantics:
+    - `400` when `binderId` is missing, title is empty/whitespace/overlength after trimming, content is empty/whitespace, or content exceeds 50,000 characters.
+    - `403` when binder-local policy denies the target binder after the `BinderWrite` endpoint policy has already passed, or the request omits a valid CSRF token.
+    - `404` when the target binder does not exist in the current tenant or the request host is not a tenant host.
+    - `422` when `contentType` is not the exact value `markdown` or `supersedesDocumentId` does not reference an existing document in the same tenant and same binder.
+  - Notes:
+    - Titles are trimmed and must be 1-200 characters after trimming.
+    - Stored `content` remains raw markdown; rendered HTML is not stored in CP10.
   - Idempotency: not idempotent.
 
 - `POST /api/documents/{documentId}/archive`
   - Auth required: Y (`BinderWrite`)
   - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Response example (`200`):
+    ```json
+    {
+      "documentId": "0d5a5380-c8ef-4c1c-86cf-2dd6cfcbfa85",
+      "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "title": "Security Handbook",
+      "contentType": "markdown",
+      "content": "# Security Handbook",
+      "supersedesDocumentId": null,
+      "createdAt": "2026-04-09T15:30:00Z",
+      "archivedAt": "2026-04-09T16:00:00Z"
+    }
+    ```
+  - Failure semantics:
+    - `403` when binder-local policy denies the caller after the `BinderWrite` endpoint policy has already passed, or the request omits a valid CSRF token.
+    - `404` when the document does not exist in the current tenant or the request host is not a tenant host.
+    - `409` when the document is already archived.
   - Idempotency: conditionally idempotent.
 
 - `POST /api/documents/{documentId}/unarchive`
   - Auth required: Y (`BinderWrite`)
   - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Response example (`200`):
+    ```json
+    {
+      "documentId": "0d5a5380-c8ef-4c1c-86cf-2dd6cfcbfa85",
+      "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "title": "Security Handbook",
+      "contentType": "markdown",
+      "content": "# Security Handbook",
+      "supersedesDocumentId": null,
+      "createdAt": "2026-04-09T15:30:00Z",
+      "archivedAt": null
+    }
+    ```
+  - Failure semantics:
+    - `403` when binder-local policy denies the caller after the `BinderWrite` endpoint policy has already passed, or the request omits a valid CSRF token.
+    - `404` when the document does not exist in the current tenant or the request host is not a tenant host.
+    - `409` when the document is not archived.
   - Idempotency: conditionally idempotent.
 
 No `PUT`/`PATCH` document-content endpoint exists in v1.

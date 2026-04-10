@@ -49,6 +49,7 @@ Out of scope:
 - `POST`: create or action.
 - `DELETE`: delete where supported.
 - V1 document content is immutable (no content update endpoint).
+- Archive/unarchive action routes may update document visibility metadata only.
 
 ## API Versioning
 

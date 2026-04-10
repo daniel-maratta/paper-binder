@@ -22,4 +22,13 @@ internal static class PaperBinderErrorCodes
     public const string BinderNotFound = "BINDER_NOT_FOUND";
     public const string BinderPolicyInvalid = "BINDER_POLICY_INVALID";
     public const string BinderPolicyDenied = "BINDER_POLICY_DENIED";
+    public const string DocumentNotFound = "DOCUMENT_NOT_FOUND";
+    public const string DocumentTitleInvalid = "DOCUMENT_TITLE_INVALID";
+    public const string DocumentContentRequired = "DOCUMENT_CONTENT_REQUIRED";
+    public const string DocumentContentTooLarge = "DOCUMENT_CONTENT_TOO_LARGE";
+    public const string DocumentContentTypeInvalid = "DOCUMENT_CONTENT_TYPE_INVALID";
+    public const string DocumentBinderRequired = "DOCUMENT_BINDER_REQUIRED";
+    public const string DocumentSupersedesInvalid = "DOCUMENT_SUPERSEDES_INVALID";
+    public const string DocumentAlreadyArchived = "DOCUMENT_ALREADY_ARCHIVED";
+    public const string DocumentNotArchived = "DOCUMENT_NOT_ARCHIVED";
 }

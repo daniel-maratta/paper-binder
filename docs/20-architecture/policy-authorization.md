@@ -37,6 +37,9 @@
   - `inherit` (default): endpoint policy is sufficient.
   - `restricted_roles`: endpoint policy plus binder-level exact-role allow-list.
 - Binder list endpoints omit binders the caller cannot satisfy under `restricted_roles`; they do not return denial markers.
+- Unfiltered document list endpoints omit documents in binders the caller cannot satisfy under `restricted_roles`.
+- Explicit binder-targeted document list requests return `403 BINDER_POLICY_DENIED` when the binder exists in the current tenant but binder-local policy denies access.
+- Document detail and archive/unarchive endpoints apply the same binder-local policy after the endpoint policy succeeds.
 - Binder policy evaluation remains in application/domain authorization abstractions.
 
 ## System Execution Paths
