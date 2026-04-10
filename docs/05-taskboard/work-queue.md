@@ -27,6 +27,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0025: CP10 Document Domain And Immutable Document Rules](./tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md)
 - [T-0023: CP9 Binder Domain And Policy Model](./tasks/T-0023-cp9-binder-domain-and-policy-model.md)
 - [T-0022: CP8 Authorization Policies And Tenant User Administration](./tasks/T-0022-cp8-authorization-policies-and-tenant-user-administration.md)
 - [T-0021: Build And Restore Diagnostics Hardening](./tasks/T-0021-build-and-restore-diagnostics-hardening.md)

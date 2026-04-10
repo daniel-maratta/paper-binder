@@ -34,14 +34,16 @@ public sealed class MigrationWorkflowIntegrationTests(PostgresContainerFixture p
             from "__EFMigrationsHistory";
             """)).ToArray();
 
-        Assert.Equal(3, appliedMigrations.Count);
+        Assert.Equal(4, appliedMigrations.Count);
         Assert.Empty(secondRunMigrations);
         Assert.True(tenantsTableExists);
         Assert.Contains(appliedMigrations, migrationId => migrationId.Contains("InitialSchema", StringComparison.Ordinal));
         Assert.Contains(appliedMigrations, migrationId => migrationId.Contains("AddIdentityAndTenantMembership", StringComparison.Ordinal));
         Assert.Contains(appliedMigrations, migrationId => migrationId.Contains("AddBindersAndBinderPolicies", StringComparison.Ordinal));
+        Assert.Contains(appliedMigrations, migrationId => migrationId.Contains("AddDocumentsAndDocumentRules", StringComparison.Ordinal));
         Assert.Contains(migrationIds, migrationId => migrationId.Contains("InitialSchema", StringComparison.Ordinal));
         Assert.Contains(migrationIds, migrationId => migrationId.Contains("AddIdentityAndTenantMembership", StringComparison.Ordinal));
         Assert.Contains(migrationIds, migrationId => migrationId.Contains("AddBindersAndBinderPolicies", StringComparison.Ordinal));
+        Assert.Contains(migrationIds, migrationId => migrationId.Contains("AddDocumentsAndDocumentRules", StringComparison.Ordinal));
     }
 }
