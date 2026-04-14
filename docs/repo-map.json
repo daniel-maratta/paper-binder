@@ -37,6 +37,7 @@
     { "id": "task-t0019", "type": "doc", "path": "docs/05-taskboard/tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md", "tags": ["task", "checkpoint", "cp6"] },
     { "id": "task-t0023", "type": "doc", "path": "docs/05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md", "tags": ["task", "checkpoint", "cp9"] },
     { "id": "task-t0025", "type": "doc", "path": "docs/05-taskboard/tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md", "tags": ["task", "checkpoint", "cp10"] },
+    { "id": "task-t0026", "type": "doc", "path": "docs/05-taskboard/tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md", "tags": ["task", "checkpoint", "cp11"] },
     { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] },
     { "id": "delivery-cp6", "type": "doc", "path": "docs/95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md", "tags": ["delivery", "pr", "cp6"] },
     { "id": "delivery-cp9-plan", "type": "doc", "path": "docs/95-delivery/pr/cp9-binder-domain-and-policy-model/implementation-plan.md", "tags": ["delivery", "pr", "cp9", "plan"] },
@@ -44,7 +45,10 @@
     { "id": "delivery-cp9", "type": "doc", "path": "docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md", "tags": ["delivery", "pr", "cp9"] },
     { "id": "delivery-cp10-plan", "type": "doc", "path": "docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md", "tags": ["delivery", "pr", "cp10", "plan"] },
     { "id": "delivery-cp10-review", "type": "doc", "path": "docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md", "tags": ["delivery", "pr", "cp10", "review"] },
-    { "id": "delivery-cp10", "type": "doc", "path": "docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/description.md", "tags": ["delivery", "pr", "cp10"] }
+    { "id": "delivery-cp10", "type": "doc", "path": "docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/description.md", "tags": ["delivery", "pr", "cp10"] },
+    { "id": "delivery-cp11-plan", "type": "doc", "path": "docs/95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/implementation-plan.md", "tags": ["delivery", "pr", "cp11", "plan"] },
+    { "id": "delivery-cp11-review", "type": "doc", "path": "docs/95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/critic-review.md", "tags": ["delivery", "pr", "cp11", "review"] },
+    { "id": "delivery-cp11", "type": "doc", "path": "docs/95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/description.md", "tags": ["delivery", "pr", "cp11"] }
   ],
   "edges": [
     { "from": "idx", "to": "intent", "rel": "lane-index" },
@@ -80,6 +84,7 @@
     { "from": "taskboard", "to": "task-t0019", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0023", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0025", "rel": "contains" },
+    { "from": "taskboard", "to": "task-t0026", "rel": "contains" },
     { "from": "idx", "to": "delivery", "rel": "lane-index" },
     { "from": "delivery", "to": "delivery-cp6", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp9-plan", "rel": "contains" },
@@ -87,6 +92,9 @@
     { "from": "delivery", "to": "delivery-cp9", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp10-plan", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp10-review", "rel": "contains" },
-    { "from": "delivery", "to": "delivery-cp10", "rel": "contains" }
+    { "from": "delivery", "to": "delivery-cp10", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp11-plan", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp11-review", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp11", "rel": "contains" }
   ]
 }

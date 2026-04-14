@@ -7,7 +7,8 @@ public partial class Program
     public static WebApplication BuildApp(
         string[] args,
         string? environmentName = null,
-        IReadOnlyDictionary<string, string?>? configurationOverrides = null)
+        IReadOnlyDictionary<string, string?>? configurationOverrides = null,
+        Action<IServiceCollection>? configureServices = null)
     {
         LocalDotEnvBootstrapper.LoadMissingEnvironmentVariables(Directory.GetCurrentDirectory());
 
@@ -32,6 +33,7 @@ public partial class Program
         builder.Services.AddPaperBinderAuthentication(runtimeSettings);
         builder.Services.AddPaperBinderTenancy();
         builder.Services.AddSingleton<IDatabaseReadinessProbe, DatabaseReadinessProbe>();
+        configureServices?.Invoke(builder.Services);
 
         var app = builder.Build();
 
@@ -41,6 +43,7 @@ public partial class Program
         app.UsePaperBinderApiProtection();
         app.MapPaperBinderHealthEndpoints();
         app.MapPaperBinderAuthEndpoints();
+        app.MapPaperBinderTenantLeaseEndpoints();
         app.MapPaperBinderTenantUserEndpoints();
         app.MapPaperBinderBinderEndpoints();
         app.MapPaperBinderDocumentEndpoints();

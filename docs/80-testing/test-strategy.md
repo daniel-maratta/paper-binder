@@ -23,7 +23,7 @@ Related standards:
 - Binder allow/deny behavior, including list omission for `restricted_roles`, same-tenant policy denial, and wrong-tenant `404` behavior.
 - Document immutability, archive-transition rules, same-binder supersedes validation, and binder-policy behavior across document list/detail/write endpoints.
 - Provisioning transactionality (all-or-nothing seed behavior).
-- Tenant lease extension-window rules and cleanup hard-delete behavior.
+- Tenant lease projection math, extension-window/limit rules, extend-route auth/CSRF/rate-limit behavior, and cleanup hard-delete behavior.
 - Challenge + pre-auth rate-limit behavior on provisioning and root login.
 - Impersonation constraints (tenant-local only) and required audit events.
 - Startup configuration validation and health/readiness behavior for the local/prod runtime topology.
@@ -34,7 +34,7 @@ Related standards:
   - Multi-tenant query boundaries.
   - Authentication/authorization boundary behavior.
   - Binder endpoint success/failure behavior, including CSRF enforcement on unsafe binder routes.
-  - Provisioning and cleanup workflows.
+  - Provisioning and cleanup workflows, including expired-before-purge `410` versus post-purge `404`.
   - Split repo execution into non-Docker and Docker-backed buckets when Docker is required for only part of the suite.
 - Unit tests:
   - Domain invariants.
@@ -50,7 +50,6 @@ Related standards:
 
 - The current backend surface is covered credibly by unit tests plus non-Docker and Docker-backed integration tests, but a few narrower gaps remain open.
 - The `CHALLENGE_FAILED` API path does not yet have explicit end-to-end coverage for "challenge supplied but provider verification failed" behavior.
-- The worker host is only smoke-tested for host construction; the long-running heartbeat loop does not yet have behavior-focused tests.
 - The current frontend remains a placeholder surface and has no automated tests. Re-evaluate frontend test coverage when real root-host or tenant-host UI behavior lands.
 
 ## Environment-Gated Test Bypass Reminder

@@ -13,6 +13,8 @@ internal static class PaperBinderErrorCodes
     public const string TenantExpired = "TENANT_EXPIRED";
     public const string TenantHostInvalid = "TENANT_HOST_INVALID";
     public const string TenantNotFound = "TENANT_NOT_FOUND";
+    public const string TenantLeaseExtensionWindowNotOpen = "TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN";
+    public const string TenantLeaseExtensionLimitReached = "TENANT_LEASE_EXTENSION_LIMIT_REACHED";
     public const string TenantUserNotFound = "TENANT_USER_NOT_FOUND";
     public const string TenantUserEmailConflict = "TENANT_USER_EMAIL_CONFLICT";
     public const string LastTenantAdminRequired = "LAST_TENANT_ADMIN_REQUIRED";

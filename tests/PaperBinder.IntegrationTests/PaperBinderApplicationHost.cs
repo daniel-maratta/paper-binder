@@ -25,9 +25,14 @@ internal sealed class PaperBinderApplicationHost : IAsyncDisposable
 
     public static async Task<PaperBinderApplicationHost> StartAsync(
         IReadOnlyDictionary<string, string?> configuration,
-        Action<WebApplication>? configureBeforeStart = null)
+        Action<WebApplication>? configureBeforeStart = null,
+        Action<IServiceCollection>? configureServices = null)
     {
-        var app = Program.BuildApp(Array.Empty<string>(), Environments.Development, configuration);
+        var app = Program.BuildApp(
+            Array.Empty<string>(),
+            Environments.Development,
+            configuration,
+            configureServices);
         configureBeforeStart?.Invoke(app);
         app.Urls.Add("http://127.0.0.1:0");
 

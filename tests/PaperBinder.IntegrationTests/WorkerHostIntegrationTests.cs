@@ -2,7 +2,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PaperBinder.Infrastructure.Configuration;
-using PaperBinder.Infrastructure.Persistence;
+using PaperBinder.Application.Tenancy;
+using PaperBinder.Worker;
 
 namespace PaperBinder.IntegrationTests;
 
@@ -10,26 +11,19 @@ namespace PaperBinder.IntegrationTests;
 public sealed class WorkerHostIntegrationTests
 {
     [Fact]
-    public void Should_BuildWorkerHost_When_RuntimeConfigurationIsValid()
+    public void Should_BuildWorkerHost_AndResolveCleanupDependencies_When_RuntimeConfigurationIsValid()
     {
-        var settings = new HostApplicationBuilderSettings
-        {
-            EnvironmentName = Environments.Development
-        };
-
-        var builder = Host.CreateApplicationBuilder(settings);
         var configuration = TestRuntimeConfiguration.Create(
             "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password");
 
-        builder.Configuration.AddInMemoryCollection(configuration);
-
-        var runtimeSettings = PaperBinderRuntimeSettings.Load(key => builder.Configuration[key]);
-
-        builder.Services.AddSingleton(runtimeSettings);
-        builder.Services.AddPaperBinderPersistence(runtimeSettings);
-
-        using var host = builder.Build();
+        using var host = PaperBinderWorkerHostBuilder.BuildHost(
+            Array.Empty<string>(),
+            Environments.Development,
+            configuration);
+        using var scope = host.Services.CreateScope();
 
         Assert.NotNull(host.Services.GetService(typeof(IHostApplicationLifetime)));
+        Assert.NotNull(scope.ServiceProvider.GetRequiredService<ITenantLeaseCleanupService>());
+        Assert.Single(host.Services.GetServices<IHostedService>().OfType<PaperBinder.Worker.Worker>());
     }
 }

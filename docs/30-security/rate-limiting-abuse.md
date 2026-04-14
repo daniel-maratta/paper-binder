@@ -7,6 +7,8 @@ This file is the PaperBinder-specific abuse surface and policy binding.
 Current implementation note:
 - The current build adds server-side Turnstile verification for root-host `POST /api/provision` and `POST /api/auth/login`.
 - The current build applies a shared per-IP fixed-window rate limit across those two root-host pre-auth routes.
+- The current build applies a dedicated fixed-window rate limit to tenant-host `POST /api/tenant/lease/extend`.
+- Lease-extend partitions use tenant-plus-user identity when membership is established, fall back to tenant-plus-IP when only tenant host resolution is available, and otherwise fall back to IP.
 - `PB_ENV=Test` allows a fixed bypass token for automated tests only; production behavior always verifies with the configured secret key.
 
 ## Scope
@@ -39,9 +41,10 @@ Apply rate limiting in one canonical place:
 - Preferred: ASP.NET Core rate limiting middleware.
 - Alternative: reverse-proxy coarse limits.
 
-Current CP7 implementation:
+Current implementation:
 - ASP.NET Core rate limiting middleware is the canonical enforcement point.
 - Login and provision intentionally share one per-IP pre-auth budget in v1.
+- `POST /api/tenant/lease/extend` has its own route-scoped fixed-window budget and returns `429 RATE_LIMITED` with `Retry-After` on rejection.
 
 Suggested starting limits:
 - Pre-auth: strict per-IP limits.

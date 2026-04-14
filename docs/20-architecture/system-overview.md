@@ -92,15 +92,17 @@ On provisioning:
 - Authenticated session established for the new owner.
 
 Extension policy:
-- Extension allowed only when remaining lease is <= 10 minutes.
-- Each extension adds +10 minutes.
+- `GET /api/tenant/lease` requires authenticated tenant membership.
+- `POST /api/tenant/lease/extend` requires `TenantAdmin`, valid CSRF, and the dedicated lease-extend rate limiter.
+- Extension allowed only when remaining lease is greater than `0` and less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
+- Each extension adds `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
 - Maximum 3 extensions per tenant.
 - Canonical lease endpoints: `GET /api/tenant/lease` and `POST /api/tenant/lease/extend`.
 
 Worker:
-- Runs on a fixed cadence (target: every minute).
-- Deletes expired tenants and all related data.
-- Must be idempotent.
+- Runs on a fixed cadence from `PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS`.
+- Selects expired tenants in deterministic order and deletes the tenant row, user memberships, tenant-owned user records, binders, binder policies, and documents.
+- Must be idempotent and retry-safe.
 - SLA target: expired tenants are hard-deleted within 5 minutes (best effort).
 
 Operational probes:
