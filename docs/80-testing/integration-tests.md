@@ -19,7 +19,7 @@ Integration tests in v1 must cover:
 - Apply schema migrations through `PaperBinder.Migrations` or the shared migration runner before exercising runtime code.
 - Seed only the minimal rows required by the scenario under test.
 - Use the real API host or runtime persistence services instead of in-memory substitutes when validating data-access behavior.
-- Worker or cleanup job entrypoint remains invokable in test context once that behavior lands.
+- Worker host construction and the cleanup-cycle entrypoint must remain invokable in test context.
 
 ## Execution Buckets
 
@@ -53,9 +53,15 @@ Integration tests in v1 must cover:
 - `Should_RejectCrossTenantBinderRead_When_UserFromDifferentTenant`.
 - `Should_ReturnForbidden_When_RoleLacksBinderWritePolicy`.
 - `Should_AllowBinderCreate_When_UserHasBinderWritePolicy`.
-- `Should_AllowTenantLeaseExtension_OnlyWithinAllowedWindow`.
-- `Should_DeleteExpiredTenantData_When_CleanupJobRuns`.
-- `Should_NotDeleteActiveTenant_When_CleanupJobRuns`.
+- `Should_BuildWorkerHost_AndResolveCleanupDependencies_When_RuntimeConfigurationIsValid`.
+- `Should_ReturnLeaseState_When_AuthenticatedMemberTargetsActiveTenant`.
+- `Should_ExtendLease_When_TenantAdminCallsWithinAllowedWindow`.
+- `Should_ReturnConflict_When_LeaseExtensionWindowIsNotOpen_OrLimitIsReached`.
+- `Should_RejectLeaseExtend_When_CsrfTokenIsMissing_OrCallerLacksTenantAdmin`.
+- `Should_ReturnTooManyRequests_When_LeaseExtendRateLimitIsExceeded`.
+- `Should_DeleteExpiredTenantData_When_CleanupCycleRuns`.
+- `Should_NotDeleteActiveTenants_And_Should_BeIdempotent_When_CleanupCycleRunsRepeatedly`.
+- `Should_ReturnGone_BeforePurge_AndNotFound_AfterPurge`.
 - `Should_NotEstablishTenantContextForAnonymousTenantHostRequests`.
 - `Should_IgnoreSpoofedTenantHints_When_HostResolvesKnownTenant`.
 - `Should_ReturnNotFoundForUnknownTenantHost_EvenWhen_ClientSuppliesSpoofedHints`.

@@ -8,7 +8,7 @@
 - Responses must be non-sensitive and stable for automation.
 
 ## Status
-Resolved — integrated into canonical documentation
+Resolved - integrated into canonical documentation
 
 ## Canonical locations
 - docs/40-contracts/api-contract.md
@@ -61,7 +61,7 @@ Contract:
 - Health checks execute in explicit system context.
 - Readiness checks include at minimum database connectivity and required configuration presence.
 - Dependency-specific failure detail remains internal (logs/telemetry), not health-response payload.
-- Worker health is monitored via either dedicated health endpoint (if hosted) or structured heartbeat logs.
+- Worker health is monitored via either dedicated health endpoint (if hosted) or structured cleanup-cycle logs.
 
 ## Security / ops impact
 - Endpoints should be low-cost and resistant to abuse (coarse rate limiting at edge acceptable).

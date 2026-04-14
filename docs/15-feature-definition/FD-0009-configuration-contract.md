@@ -3,12 +3,12 @@
 ## AI Summary
 
 - Runtime behavior is controlled through typed environment-backed configuration.
-- Startup validates required configuration and fails fast on invalid/missing critical values.
+- Startup validates required configuration and fails fast on invalid or missing critical values.
 - Secrets and non-secret config are handled with distinct rules.
 - Config contract includes lease controls, auth cookie, challenge, rate-limit, and retention-mode settings.
 
 ## Status
-Resolved — integrated into canonical documentation
+Resolved - integrated into canonical documentation
 
 ## Canonical locations
 - docs/30-security/secrets-and-config.md
@@ -42,8 +42,8 @@ Rules:
 Required configuration groups:
 - Database connectivity.
 - Auth cookie settings and key-ring location.
-- Lease defaults, extension window, max extensions, cleanup cadence.
-- Challenge provider secrets/settings.
+- Lease defaults, extension amount and eligibility threshold, max extensions, cleanup cadence.
+- Challenge provider secrets and settings.
 - Rate-limit budgets for pre-auth and authenticated surfaces.
 - Audit retention mode for tenant purge behavior.
 
@@ -58,8 +58,8 @@ Required configuration groups:
 
 ## Domain / architecture impact
 - Typed options classes should map configuration into API and worker services.
-- Validation occurs at composition/startup boundary, not ad-hoc inside handlers.
-- System-context jobs (cleanup/provisioning) consume the same validated config source.
+- Validation occurs at composition and startup boundary, not ad hoc inside handlers.
+- System-context jobs (cleanup and provisioning) consume the same validated config source.
 
 ## Security / ops impact
 - Secret rotation procedures must be documented in operations runbooks.

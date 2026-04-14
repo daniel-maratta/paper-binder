@@ -31,6 +31,7 @@ Out of scope:
 4. Confirm DB connectivity.
 5. Check root-host login, tenant-host logout, and CSRF behavior.
 6. Confirm root-host provisioning/login require challenge proof and return `429` with `Retry-After` when the shared pre-auth budget is exhausted.
+7. Confirm tenant-host `GET /api/tenant/lease` and `POST /api/tenant/lease/extend` behavior matches the documented admin, CSRF, and rate-limit boundary.
 
 ## Common Incidents
 
@@ -52,7 +53,9 @@ Out of scope:
 
 ### Tenant Cleanup Not Running
 - Verify worker/in-process cleanup runtime.
-- Verify lease settings and cleanup logs.
+- Verify `PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS`, lease settings, and cleanup logs.
+- Look for `tenant_cleanup_cycle_started`, `tenant_cleanup_cycle_completed`, `tenant_cleanup_cycle_failed`, and `tenant_purge_failed`.
+- Confirm `PAPERBINDER_AUDIT_RETENTION_MODE` matches the expected purge-summary behavior.
 
 ### Cross-Subdomain Login Issues
 - Verify `PAPERBINDER_PUBLIC_ROOT_URL` matches the deployed root host.
@@ -62,6 +65,7 @@ Out of scope:
 ## Weekly Checks
 
 - Provision and validate a test tenant.
+- Confirm tenant lease read/extend behavior from a tenant-admin session.
 - Confirm lease-expiration cleanup behavior.
 - Confirm backup freshness.
 - Confirm disk headroom.

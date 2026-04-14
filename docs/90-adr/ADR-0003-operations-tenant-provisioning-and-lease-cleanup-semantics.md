@@ -24,12 +24,12 @@ Provisioning:
 Cleanup:
 
 - A BackgroundService performs scheduled lease-expiration checks.
-- Expired tenants are transitioned to an expired state.
-- All tenant-owned data is hard deleted.
-- A final audit event records the purge action.
+- Expired tenants remain blocked by the tenancy boundary until cleanup completes.
+- All tenant-owned data is hard deleted, including the tenant row, user memberships, tenant-owned user records, binders, binder policies, and documents.
+- Purge retention stays inside the structured-logging boundary; retain-summary mode emits only a minimal non-sensitive `tenant_purged` event.
 
 We will not implement soft deletes.
-Hard delete includes tenant-owned user records and documents.
+Hard delete includes the tenant row, user memberships, tenant-owned user records, binders, binder policies, and documents.
 Audit retention on purge follows one of two explicit modes:
 - Purge tenant-specific audit events, or
 - Retain only a minimal non-sensitive `TenantPurged` summary event.
