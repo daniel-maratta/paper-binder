@@ -73,7 +73,7 @@ Eliminate the opaque script-level build and restore failure paths by surfacing f
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` (passed: frontend Vite build completed first, then `dotnet build PaperBinder.sln -c Release --no-restore -p:SkipFrontendBuild=true` succeeded)
 - `powershell -ExecutionPolicy Bypass -File .\scripts\restore.ps1` inside the sandbox (still failed after `Determining projects to restore...`; the wrapper now reruns the command with richer verbosity and classifies that specific no-body path as likely restricted/offline-environment access rather than a broken project graph)
-- `powershell -ExecutionPolicy Bypass -File .\scripts\restore.ps1` outside the sandbox (confirmed the .NET restore graph is healthy: all restore projects completed; the remaining failure moved to `npm ci`, which surfaced an explicit Windows `EPERM`/`unlink` lock on `src/PaperBinder.Web\node_modules\lightningcss-win32-x64-msvc\lightningcss.win32-x64-msvc.node`)
+- `powershell -ExecutionPolicy Bypass -File .\scripts\restore.ps1` outside the sandbox (confirmed the .NET restore graph is healthy: all restore projects completed; the remaining failure moved to `npm ci`, which surfaced an explicit Windows `EPERM`/`unlink` lock under `src/PaperBinder.Web\node_modules` on a native Lightning CSS module)
 - `dotnet build src/PaperBinder.Api/PaperBinder.Api.csproj -c Release --no-restore -p:SkipFrontendBuild=true -v minimal` outside the sandbox (passed: no remaining opaque direct API-project build failure)
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` (passed)
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1` (passed)
@@ -96,7 +96,7 @@ Eliminate the opaque script-level build and restore failure paths by surfacing f
 - Moved the canonical frontend build step into `scripts/build.ps1`, then used `SkipFrontendBuild=true` for the solution build so frontend tool failures stay visible and the overall Release build succeeds in the current sandbox.
 - Hardened the API project's frontend `Exec` targets to preserve console output and emit explicit rerun guidance for direct MSBuild users.
 - Confirmed the previously opaque .NET restore path is healthy outside restricted execution, then updated the wrapper and taskboard/docs so future restricted-environment failures are identified as environment-access issues instead of a mysterious PaperBinder graph defect.
-- Added an `npm ci` retry/guidance path for transient Windows file locks under `src/PaperBinder.Web\node_modules`.
+- Added an `npm ci` retry/guidance path for transient Windows file locks under the frontend `node_modules` tree.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

@@ -86,6 +86,67 @@ function Assert-PathExists {
   }
 }
 
+function Test-IsInlineLocalPathLiteral {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Literal
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Literal) -or $Literal -match '\s') {
+    return $false
+  }
+
+  $normalized = $Literal.Replace('\', '/')
+
+  if ($normalized.Contains('*') -or $normalized.Contains('?')) {
+    return $false
+  }
+
+  if ($normalized -match '^[.]{1,2}/') {
+    return $true
+  }
+
+  if ($normalized -match '^(docs|review|scripts|src|tests|deploy|\.vscode)/') {
+    return $true
+  }
+
+  return $normalized -match '^(AGENTS\.md|README\.md|REVIEWERS\.md|CHANGELOG\.md|CLAUDE\.md|PaperBinder\.sln|PaperBinder\.slnLaunch|docker-compose\.yml|package\.json|global\.json|\.nvmrc|\.env|\.env\.example)$'
+}
+
+function Test-IsOptionalInlineLocalPathLiteral {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Literal
+  )
+
+  $normalized = $Literal.Replace('\', '/')
+
+  if ($normalized -match '^(\.env)$') {
+    return $true
+  }
+
+  return $normalized -match '(^|/)(node_modules|bin|obj|dist|wwwroot|logs)(/|$)'
+}
+
+function Resolve-InlineLocalTarget {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$CurrentFilePath,
+
+    [Parameter(Mandatory = $true)]
+    [string]$RawTarget
+  )
+
+  $normalized = $RawTarget.Replace('\', '/')
+
+  if ($normalized -match '^[.]{1,2}/') {
+    $baseDirectory = Split-Path -Parent $CurrentFilePath
+    return (Resolve-Path -LiteralPath (Join-Path $baseDirectory $RawTarget) -ErrorAction Stop).Path
+  }
+
+  return (Resolve-Path -LiteralPath (Join-Path $repoRoot $normalized) -ErrorAction Stop).Path
+}
+
 $repoMapPath = Join-Path $repoRoot "docs/repo-map.json"
 $repoMap = Get-Content -Path $repoMapPath -Raw | ConvertFrom-Json
 
@@ -106,6 +167,7 @@ $markdownFiles = @(
 ) + @(Get-ChildItem -Path (Join-Path $repoRoot "docs") -Recurse -File -Filter "*.md")
 
 $linkPattern = [regex]'\[[^\]]+\]\(([^)]+)\)'
+$inlineCodePattern = [regex]'`([^`\r\n]+)`'
 
 foreach ($file in $markdownFiles) {
   $content = Get-Content -Path $file.FullName -Raw
@@ -147,6 +209,25 @@ foreach ($file in $markdownFiles) {
       if (-not $anchors.Contains($resolved.Anchor)) {
         throw "Broken linked anchor in $($file.FullName): $target"
       }
+    }
+  }
+
+  foreach ($match in $inlineCodePattern.Matches($content)) {
+    $target = $match.Groups[1].Value.Trim()
+
+    if (-not (Test-IsInlineLocalPathLiteral -Literal $target)) {
+      continue
+    }
+
+    if ((Test-IsOptionalInlineLocalPathLiteral -Literal $target) -and -not (Test-Path -LiteralPath (Join-Path $repoRoot $target))) {
+      continue
+    }
+
+    try {
+      [void](Resolve-InlineLocalTarget -CurrentFilePath $file.FullName -RawTarget $target)
+    }
+    catch {
+      throw "Broken inline path reference in $($file.FullName): $target"
     }
   }
 }

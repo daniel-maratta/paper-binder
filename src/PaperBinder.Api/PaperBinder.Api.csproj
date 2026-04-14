@@ -69,6 +69,7 @@
       <FrontendBuildArtifacts Include="..\PaperBinder.Web\dist\**\*" />
     </ItemGroup>
 
+    <RemoveDir Directories="$(ProjectDir)wwwroot" Condition="Exists('$(ProjectDir)wwwroot')" />
     <MakeDir Directories="$(ProjectDir)wwwroot" />
     <Copy
       SourceFiles="@(FrontendBuildArtifacts)"

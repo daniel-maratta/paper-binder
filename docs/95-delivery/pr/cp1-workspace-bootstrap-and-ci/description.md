@@ -47,7 +47,7 @@ Status: Draft
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
 - Tests added/updated:
   - `tests/PaperBinder.UnitTests/AssemblyReferenceTests.cs`
-  - `tests/PaperBinder.UnitTests/SolutionBootstrapTests.cs`
+  - `tests/PaperBinder.IntegrationTests/SolutionBootstrapTests.cs`
   - `tests/PaperBinder.IntegrationTests/FrontendHostingPolicyTests.cs`
 - Manual verification:
   - Reviewed the local runbook, VS Code task/launch wiring, and CI workflow against the shipped script surface to confirm they point at the same commands.

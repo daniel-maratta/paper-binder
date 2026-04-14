@@ -29,5 +29,5 @@ Future additions in those areas require deliberate scope changes, not incidental
 
 - `docs/00-intent/project-scope.md`
 - `docs/00-intent/non-goals.md`
-- `docs/90-adr/AGENTS.md`
+- `docs/90-adr/README.md`
 - `docs/80-testing/README.md`
