@@ -121,7 +121,11 @@ function Test-IsOptionalInlineLocalPathLiteral {
 
   $normalized = $Literal.Replace('\', '/')
 
-  return $normalized -match '^(\.env)$'
+  if ($normalized -match '^(\.env)$') {
+    return $true
+  }
+
+  return $normalized -match '(^|/)(node_modules|bin|obj|dist|wwwroot|logs)(/|$)'
 }
 
 function Resolve-InlineLocalTarget {
