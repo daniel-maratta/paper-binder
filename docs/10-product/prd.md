@@ -117,9 +117,11 @@ All entities are tenant-scoped unless explicitly global.
 - Tenant expiration timestamp is stored.
 - Tenant expiration triggers automated cleanup.
 - Tenant lease status is exposed via `GET /api/tenant/lease`.
-- Tenant lease extension is allowed only when remaining lease is <= 10 minutes.
+- Tenant lease status returns `expiresAt`, `secondsRemaining`, `extensionCount`, `maxExtensions`, and `canExtend`.
+- Tenant lease extension is allowed only when remaining lease is greater than `0` and less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
 - Lease extension action uses `POST /api/tenant/lease/extend`.
-- Each extension adds +10 minutes.
+- Lease extension requires `TenantAdmin`, a valid CSRF token, and the route-scoped lease-extend rate limiter.
+- Each extension adds `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
 - Maximum 3 extensions per tenant.
 
 ### 6.2 Authentication
@@ -173,7 +175,8 @@ All entities are tenant-scoped unless explicitly global.
 - Each demo tenant has an expiration timestamp.
 - Background worker checks for expired tenants on a fixed cadence (target: every minute).
 - Expired tenants are hard-deleted.
-- All associated data is removed.
+- Cleanup removes the tenant row, user memberships, tenant-owned user records, binders, binder policies, documents, and other current tenant-owned rows.
+- Cleanup is deterministic and idempotent.
 - SLA target: expired tenants are deleted within 5 minutes (best effort).
 
 ---
@@ -194,6 +197,7 @@ All entities are tenant-scoped unless explicitly global.
 - Tenant ID must not be client-controlled.
 - All database access must include tenant scoping.
 - Challenge verification and rate limiting must protect provisioning and root login endpoints.
+- Lease extension must stay behind `TenantAdmin`, CSRF, and route-scoped rate limiting.
 - No secrets committed to repository.
 - No PII beyond demo credentials.
 

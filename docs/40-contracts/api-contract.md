@@ -68,6 +68,8 @@ Notes:
 - Unknown tenant-scoped role-assignment targets return `404` ProblemDetails with `errorCode` `TENANT_USER_NOT_FOUND`.
 - Tenant-user email conflicts return `409` ProblemDetails with `errorCode` `TENANT_USER_EMAIL_CONFLICT`.
 - Last-admin protection failures return `409` ProblemDetails with `errorCode` `LAST_TENANT_ADMIN_REQUIRED`.
+- Lease-extension window violations return `409` ProblemDetails with `errorCode` `TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN`.
+- Lease-extension limit violations return `409` ProblemDetails with `errorCode` `TENANT_LEASE_EXTENSION_LIMIT_REACHED`.
 - Invalid tenant role values return `422` ProblemDetails with `errorCode` `TENANT_ROLE_INVALID`.
 - Invalid tenant-user passwords return `422` ProblemDetails with `errorCode` `TENANT_USER_PASSWORD_INVALID`.
 - Binder-name validation failures return `400` ProblemDetails with `errorCode` `BINDER_NAME_INVALID`.
@@ -82,7 +84,7 @@ Notes:
 - Missing document binder targets return `400` ProblemDetails with `errorCode` `DOCUMENT_BINDER_REQUIRED`.
 - Invalid document supersedes targets return `422` ProblemDetails with `errorCode` `DOCUMENT_SUPERSEDES_INVALID`.
 - Invalid archive transitions return `409` ProblemDetails with `errorCode` `DOCUMENT_ALREADY_ARCHIVED` or `DOCUMENT_NOT_ARCHIVED`.
-- Pre-auth throttling returns `429` ProblemDetails with `errorCode` `RATE_LIMITED` and includes `Retry-After` when available.
+- Route-scoped throttling returns `429` ProblemDetails with `errorCode` `RATE_LIMITED` and includes `Retry-After` when available.
 - Unmatched `/api/*` routes return `404` ProblemDetails and still include `traceId`, `correlationId`, `X-Api-Version`, and `X-Correlation-Id`.
 
 ## API Surface
@@ -117,7 +119,7 @@ Notes:
   - Idempotency: not idempotent.
 
 - `GET /api/tenant/lease`
-  - Auth required: Y
+  - Auth required: Y (`AuthenticatedUser`)
   - Tenant context source: host/subdomain plus server-side membership validation
   - Response example (`200`):
     ```json
@@ -129,11 +131,19 @@ Notes:
       "canExtend": false
     }
     ```
+  - Failure semantics:
+    - `410` when tenant is expired but not yet purged.
+    - `404` after tenant purge or when the tenant host does not resolve to a current tenant.
+  - Notes:
+    - `secondsRemaining` is derived from server time and is never negative in a `200` response.
+    - `canExtend` is true only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`, and `extensionCount` is below `maxExtensions`.
   - Idempotency: idempotent.
 
 - `POST /api/tenant/lease/extend`
-  - Auth required: Y
+  - Auth required: Y (`TenantAdmin`)
   - Tenant context source: host/subdomain plus server-side membership validation
+  - CSRF required: Y
+  - Rate limited: Y
   - Request example:
     ```json
     {}
@@ -149,10 +159,15 @@ Notes:
     }
     ```
   - Failure semantics:
-    - `409` when extension window/count rules are not satisfied.
+    - `409` with `TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN` when remaining lease is still above the extension window or is already expired.
+    - `409` with `TENANT_LEASE_EXTENSION_LIMIT_REACHED` when the tenant has already used the configured maximum number of extensions.
+    - `429` with `RATE_LIMITED` and `Retry-After` when the lease-extend route budget is exhausted.
     - `410` when tenant is expired but not yet purged.
-    - `404` after tenant purge.
-  - Idempotency: conditionally idempotent within unchanged lease state; otherwise non-idempotent.
+    - `404` after tenant purge or when the tenant host does not resolve to a current tenant.
+  - Notes:
+    - The handler ignores client-supplied tenant identifiers, duration values, or other business inputs and operates only on the current host-resolved tenant.
+    - `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the extension eligibility threshold and the amount added on success.
+  - Idempotency: not idempotent.
 
 ### Authentication
 
