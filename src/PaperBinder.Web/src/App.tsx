@@ -33,11 +33,11 @@ function LandingPage() {
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-slate-700">PaperBinder</p>
             <h1 className="mt-2 font-serif text-3xl md:text-5xl">
-              Identity, cookie auth, and tenant membership validation now share the same host-derived request boundary.
+              Backend contracts through tenant lease cleanup are live; the checked-in browser UI is still intentionally skeletal.
             </h1>
           </div>
           <span className="rounded-full border border-slate-900/10 bg-white/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-slate-700">
-            CP6
+            CP11
           </span>
         </header>
 
@@ -45,8 +45,9 @@ function LandingPage() {
           <article className="rounded-[2rem] border border-slate-900/10 bg-white/85 p-8 shadow-[0_25px_70px_-40px_rgba(15,23,42,0.45)] backdrop-blur">
             <p className="max-w-2xl text-lg leading-8 text-slate-700">
               The frontend scaffold mirrors the PaperBinder constraints: a client-rendered React SPA, Vite
-              tooling, Tailwind styling, and a light Radix primitive baseline. Root-host and tenant-host flows
-              stay in one app, but feature routes remain intentionally minimal until later checkpoints.
+              tooling, Tailwind styling, and a light Radix primitive baseline. Root-host provisioning/login,
+              tenant-user, binder, document, and lease APIs are implemented behind the current backend boundary,
+              while browser-first flows remain deliberate later-checkpoint work.
             </p>
             <dl className="mt-8 grid gap-4 rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-5 text-sm text-slate-700 md:grid-cols-3">
               <div>
@@ -63,27 +64,26 @@ function LandingPage() {
               </div>
             </dl>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button>Provisioning Shell</Button>
-              <Button>Root Host Placeholder</Button>
-              <Button>Tenant Host Placeholder</Button>
+              <Button>Root Host APIs Live</Button>
+              <Button>Tenant APIs Live</Button>
+              <Button>Browser UI Later</Button>
             </div>
           </article>
 
           <aside className="rounded-[2rem] border border-slate-900/10 bg-slate-950 p-8 text-slate-50 shadow-[0_25px_70px_-40px_rgba(15,23,42,0.7)]">
             <p className="text-xs uppercase tracking-[0.28em] text-orange-200">Baseline</p>
             <ul className="mt-6 space-y-4 text-sm leading-6 text-slate-300">
-              <li>Build-time environment validation keeps the root host, API base URL, and tenant base domain explicit in the frontend contract.</li>
-              <li>Schema changes now run through a dedicated migrations executable and Docker Compose migration service.</li>
-              <li>Health readiness now depends on a real database query instead of a TCP-only socket probe.</li>
-              <li>Reviewer UI launches can serve this compiled SPA through the API host, while focused debugging still keeps the API and Vite surfaces separate.</li>
-              <li>Root-host login now issues a cross-subdomain auth cookie and a companion CSRF token for authenticated unsafe API routes.</li>
-              <li>Tenant hosts now require authenticated membership and active lease state before tenant context is materialized for feature handling.</li>
+              <li>Root-host provisioning and login contracts are live behind challenge, rate-limit, cookie-auth, and CSRF boundaries.</li>
+              <li>Tenant-host APIs for tenant users, binders, documents, and lease read/extend behavior are live.</li>
+              <li>Worker cleanup now enforces demo-tenant expiry and hard-delete behavior on the configured cadence.</li>
+              <li>Reviewer launches stay aligned across Docker-backed `Reviewer Full Stack` and the faster `App + Worker (Process)` path.</li>
+              <li>The checked-in SPA still avoids inventing browser flows before CP12-CP14 land the real frontend work.</li>
             </ul>
             <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4">
               <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Next up</p>
               <p className="mt-2 text-sm text-slate-200">
-                CP7 adds challenge verification, pre-auth rate limiting, and the first real provisioning surface on
-                the root host.
+                CP12 starts the real frontend foundation: app shell, API client layer, auth-aware routing, shared
+                primitives, and frontend test coverage.
               </p>
             </div>
           </aside>
@@ -100,8 +100,8 @@ function TenantWorkspace() {
         <p className="text-xs uppercase tracking-[0.3em] text-orange-200">Tenant Host</p>
         <h2 className="mt-4 font-serif text-3xl">Feature routes land in later checkpoints.</h2>
         <p className="mt-4 text-sm leading-7 text-slate-300">
-          This placeholder keeps the route map honest without inventing binder, document, or lease behavior
-          before the matching backend contracts exist.
+          Binder, document, and lease APIs already exist. This placeholder keeps the route map honest without
+          inventing browser behavior before the matching frontend checkpoints land.
         </p>
       </div>
     </main>

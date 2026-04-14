@@ -18,15 +18,15 @@ PaperBinder is a constrained multi-tenant SaaS demo with:
 ## Key Tradeoffs
 
 - No BFF in v1: fewer moving parts and clearer API boundary, at the cost of pushing some orchestration to the SPA.
-  - ADR: `docs/90-adr/ADR-0019-no-bff.md`
+  - Source: `docs/90-adr/ADR-0005-no-bff.md`
 - Client-rendered SPA only: simpler hosting/runtime model, at the cost of no SSR and no framework server loaders/actions.
-  - ADR: `docs/90-adr/ADR-0023-frontend-runtime-tooling-and-realtime-boundaries.md`
+  - Source: `docs/20-architecture/frontend-spa.md`
 - Shared-schema multi-tenancy (`tenant_id`): low operational overhead and explicit isolation mechanics, at the cost of strict query-discipline requirements.
-  - ADR: `docs/90-adr/ADR-0003-data-shared-schema-multi-tenancy-with-tenantid-discriminator.md`
+  - Source: `docs/20-architecture/tenancy-model.md`
 - Policy-based auth at API boundary: consistent authorization enforcement, at the cost of more upfront policy design.
-  - ADR: `docs/90-adr/ADR-0006-authz-policy-based-authorization-at-api-boundary.md`
+  - Source: `docs/20-architecture/policy-authorization.md`, `docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md`
 - Host-derived tenant resolution: stronger anti-spoofing posture versus client-provided tenant IDs, at the cost of stricter routing and environment setup.
-  - ADR: `docs/90-adr/ADR-0017-tenancy-derived-from-host.md`
+  - Source: `docs/20-architecture/tenancy-resolution.md`
 
 ## Combined Runtime View
 

@@ -39,4 +39,4 @@ Client request
 - `docs/20-architecture/tenancy-resolution.md`
 - `docs/20-architecture/policy-authorization.md`
 - `docs/40-contracts/api-contract.md`
-- `docs/90-adr/ADR-0021-api-versioning-and-correlation-id-contract.md`
+- `docs/40-contracts/api-versioning.md`

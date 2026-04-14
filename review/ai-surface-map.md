@@ -1,8 +1,8 @@
 ﻿# AI Surface Map (Reviewer)
 
-This summary shows where AI exists in v1 and where it is explicitly constrained.
+This summary shows the documented AI scope for v1 and where it is explicitly constrained.
 
-AI is optional. Core workflows must operate without AI.
+AI is optional and not part of the current reviewer-critical execution path. Core workflows must operate without AI.
 
 ## v1 AI Surface
 
@@ -33,7 +33,6 @@ AI is optional. Core workflows must operate without AI.
 ## Canonical References
 
 - `docs/60-ai/ai-subsystem-overview.md`
+- `docs/60-ai/ai-architecture.md`
 - `docs/60-ai/ai-features-v1.md`
-- `docs/90-adr/ADR-0014-ai-provider-abstraction-strategy.md`
-- `docs/90-adr/ADR-0015-ai-execution-boundary-application-layer-only.md`
 - `docs/00-intent/non-goals.md`

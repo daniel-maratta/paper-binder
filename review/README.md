@@ -33,9 +33,10 @@ Use these to validate reviewer-summary claims quickly:
 - Security isolation rules: `docs/30-security/tenant-isolation.md`
 - Scope and non-goal boundaries: `docs/00-intent/project-scope.md`, `docs/00-intent/non-goals.md`
 - Decision rationale and tradeoffs: `docs/90-adr/README.md`
-- Tenancy model decision: `docs/90-adr/ADR-0003-data-shared-schema-multi-tenancy-with-tenantid-discriminator.md`
-- Authorization boundary decision: `docs/90-adr/ADR-0006-authz-policy-based-authorization-at-api-boundary.md`
-- Frontend boundary decision (no BFF): `docs/90-adr/ADR-0019-no-bff.md`
+- Tenancy model and host-resolution sources: `docs/20-architecture/tenancy-model.md`, `docs/20-architecture/tenancy-resolution.md`
+- Authorization boundary decision: `docs/20-architecture/policy-authorization.md`, `docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md`
+- Frontend boundary decision (no BFF): `docs/90-adr/ADR-0005-no-bff.md`
+- Demo deployment and tenant-lifecycle decisions: `docs/90-adr/ADR-0004-public-demo-deployment-topology.md`, `docs/90-adr/ADR-0003-operations-tenant-provisioning-and-lease-cleanup-semantics.md`
 
 ## Drift Control
 
