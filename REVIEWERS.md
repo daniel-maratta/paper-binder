@@ -51,13 +51,16 @@ Then confirm constraints in canonical docs:
 4. Product and scope constraints:
    - `docs/00-intent/project-scope.md`
    - `docs/00-intent/non-goals.md`
-5. ADR rationale:
+5. Decision rationale:
    - `docs/90-adr/README.md`
-   - `docs/90-adr/ADR-0003-data-shared-schema-multi-tenancy-with-tenantid-discriminator.md`
-   - `docs/90-adr/ADR-0006-authz-policy-based-authorization-at-api-boundary.md`
-   - `docs/90-adr/ADR-0012-operations-tenant-provisioning-and-lease-cleanup-semantics.md`
-   - `docs/90-adr/ADR-0019-no-bff.md`
-   - `docs/90-adr/ADR-0023-frontend-runtime-tooling-and-realtime-boundaries.md`
+   - `docs/90-adr/ADR-0003-operations-tenant-provisioning-and-lease-cleanup-semantics.md`
+   - `docs/90-adr/ADR-0004-public-demo-deployment-topology.md`
+   - `docs/90-adr/ADR-0005-no-bff.md`
+   - `docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md`
+   - `docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md`
+   - `docs/20-architecture/tenancy-model.md`
+   - `docs/20-architecture/tenancy-resolution.md`
+   - `docs/20-architecture/policy-authorization.md`
 
 ## What To Evaluate
 
@@ -70,4 +73,4 @@ Then confirm constraints in canonical docs:
 ## Local Validation
 
 Use `docs/70-operations/runbook-local.md` for setup and run commands.
-For the fastest reviewer-facing process launch in Visual Studio, open `PaperBinder.sln` and use the shared `Reviewer UI` solution launch profile when available.
+For the fastest reviewer-facing process launch in Visual Studio, open `PaperBinder.sln` and use the shared `Reviewer Full Stack` solution launch profile when available.

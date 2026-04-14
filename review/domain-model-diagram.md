@@ -31,4 +31,4 @@ Canonical model rules live in `docs/20-architecture/data-model.md` and `docs/10-
 - `docs/20-architecture/policy-authorization.md`
 - `docs/00-intent/project-scope.md`
 - `docs/10-product/domain-nouns.md`
-- `docs/90-adr/ADR-0004-domain-immutable-documents-with-supersedes-chain.md`
+- `docs/90-adr/ADR-0001-domain-immutable-documents-with-supersedes-chain.md`
