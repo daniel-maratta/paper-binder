@@ -41,5 +41,5 @@ Scope note: this file is topology-focused. Security trust/failure semantics live
 - `docs/20-architecture/deployment-topology.md`
 - `docs/20-architecture/frontend-spa.md`
 - `docs/20-architecture/worker-jobs.md`
-- `docs/90-adr/ADR-0019-no-bff.md`
-- `docs/90-adr/ADR-0023-frontend-runtime-tooling-and-realtime-boundaries.md`
+- `docs/90-adr/ADR-0005-no-bff.md`
+- `docs/90-adr/ADR-0004-public-demo-deployment-topology.md`

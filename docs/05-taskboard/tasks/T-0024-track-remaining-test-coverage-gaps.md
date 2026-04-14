@@ -16,7 +16,7 @@ agent
 2026-04-08
 
 ## Updated
-2026-04-10
+2026-04-14
 
 ## Checkpoint
 Cross-checkpoint
@@ -28,7 +28,7 @@ Cross-phase
 Record and close the remaining narrow test-coverage gaps that remain after the current backend suite passed, so they are not lost between checkpoints or sessions.
 
 ## Context
-- A full test run on 2026-04-10 passed: 110 unit tests, 25 non-Docker integration tests, and 72 Docker-backed integration tests.
+- A full test run on 2026-04-14 passed: 111 unit tests, 25 non-Docker integration tests, and 72 Docker-backed integration tests.
 - That run gives the current backend surface credible coverage across tenancy, auth, provisioning, authorization, binder behavior, lease lifecycle, worker cleanup, persistence, and runtime health.
 - A few narrower gaps still remain and should stay visible in durable repo artifacts:
 - direct end-to-end coverage for the `CHALLENGE_FAILED` API path when a challenge token is present but provider verification fails
@@ -71,7 +71,7 @@ Record and close the remaining narrow test-coverage gaps that remain after the c
 - Pull this into active work when the next hardening pass, auth touch, or frontend checkpoint creates a natural place to close one or more of the gaps.
 
 ## Validation Evidence
-- `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release -DockerIntegrationMode Require` (passed on 2026-04-10: 110 unit, 25 non-Docker integration, 72 Docker-backed integration)
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release -DockerIntegrationMode Require` (passed on 2026-04-14: 111 unit, 25 non-Docker integration, 72 Docker-backed integration)
 
 ## Decision Notes
 - The current backend suite is strong enough to treat the remaining items as narrow follow-up gaps, not as evidence that the implemented backend surface is broadly untested.

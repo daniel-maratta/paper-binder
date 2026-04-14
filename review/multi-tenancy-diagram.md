@@ -37,5 +37,5 @@ Request Host
 - `docs/20-architecture/tenancy-model.md`
 - `docs/20-architecture/tenancy-resolution.md`
 - `docs/30-security/tenant-isolation.md`
-- `docs/90-adr/ADR-0003-data-shared-schema-multi-tenancy-with-tenantid-discriminator.md`
-- `docs/90-adr/ADR-0017-tenancy-derived-from-host.md`
+- `docs/20-architecture/system-overview.md`
+- `docs/50-engineering/data-access-standards.md`

@@ -32,4 +32,4 @@ This is not a roadmap; it is a constraint-aware list of likely scale paths if de
 - `docs/20-architecture/deployment-topology.md`
 - `docs/20-architecture/tenancy-model.md`
 - `docs/20-architecture/worker-jobs.md`
-- `docs/90-adr/ADR-0016-public-demo-deployment-topology.md`
+- `docs/90-adr/ADR-0004-public-demo-deployment-topology.md`
