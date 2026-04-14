@@ -113,6 +113,17 @@ function Test-IsInlineLocalPathLiteral {
   return $normalized -match '^(AGENTS\.md|README\.md|REVIEWERS\.md|CHANGELOG\.md|CLAUDE\.md|PaperBinder\.sln|PaperBinder\.slnLaunch|docker-compose\.yml|package\.json|global\.json|\.nvmrc|\.env|\.env\.example)$'
 }
 
+function Test-IsOptionalInlineLocalPathLiteral {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Literal
+  )
+
+  $normalized = $Literal.Replace('\', '/')
+
+  return $normalized -match '^(\.env)$'
+}
+
 function Resolve-InlineLocalTarget {
   param(
     [Parameter(Mandatory = $true)]
@@ -201,6 +212,10 @@ foreach ($file in $markdownFiles) {
     $target = $match.Groups[1].Value.Trim()
 
     if (-not (Test-IsInlineLocalPathLiteral -Literal $target)) {
+      continue
+    }
+
+    if ((Test-IsOptionalInlineLocalPathLiteral -Literal $target) -and -not (Test-Path -LiteralPath (Join-Path $repoRoot $target))) {
       continue
     }
 
