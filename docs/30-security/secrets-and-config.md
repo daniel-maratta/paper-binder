@@ -17,7 +17,7 @@
 ## Lease Configuration Naming
 
 - Tenant lease behavior is configured with environment variables that use `LEASE` in the key name.
-- In v1, `PAPERBINDER_LEASE_*` keys are the canonical config contract for lease duration, extension windows, and cleanup cadence.
+- In v1, `PAPERBINDER_LEASE_*` keys are the canonical config contract for lease duration, extension eligibility/amount, max extensions, and cleanup cadence.
 
 ## Required Environment Variables (Examples)
 
@@ -46,9 +46,14 @@ Keep the repo-root `.env.example` synchronized with these keys using fake values
 `PAPERBINDER_PUBLIC_ROOT_URL` must be an absolute root URL with the same host as `PAPERBINDER_AUTH_COOKIE_DOMAIN`.
 Redirect construction must use this trusted config value rather than the raw incoming request scheme/host.
 
+`PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the lease-extension eligibility threshold and the number of minutes added on success.
+No separate `PAPERBINDER_LEASE_EXTENSION_WINDOW_*` key exists in v1.
+
 `PAPERBINDER_AUDIT_RETENTION_MODE` must be exactly one supported mode:
 - `PurgeTenantAudit`
 - `RetainTenantPurgedSummary`
+- `PurgeTenantAudit` suppresses tenant-specific success summaries after purge.
+- `RetainTenantPurgedSummary` keeps only a minimal non-sensitive `tenant_purged` structured log event.
 
 ## Rotation Expectations
 

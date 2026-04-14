@@ -8,7 +8,7 @@
 - Purge execution is idempotent and safe to retry.
 
 ## Status
-Resolved — integrated into canonical documentation
+Resolved - integrated into canonical documentation
 
 ## Canonical locations
 - docs/20-architecture/worker-jobs.md
@@ -35,10 +35,10 @@ Tenant purge uses hard-delete semantics with mutually exclusive audit retention 
 
 Rules:
 - Worker selects tenants where `ExpiresAt <= now`.
-- Purge hard-deletes tenant-owned users, binders, documents, and related tenant-owned rows.
+- Purge hard-deletes the tenant row plus user memberships, current tenant-owned user records, binders, binder policies, documents, and related tenant-owned rows.
 - Exactly one mode is configured:
-  - `PurgeTenantAudit`: remove tenant-specific audit events.
-  - `RetainTenantPurgedSummary`: keep only minimal non-sensitive `TenantPurged` summary event.
+  - `PurgeTenantAudit`: remove tenant-specific audit events and do not keep a tenant-specific success summary after deletion.
+  - `RetainTenantPurgedSummary`: keep only a minimal non-sensitive `tenant_purged` structured log event.
 - Startup validation fails if no mode or multiple modes are configured.
 
 ## User-visible behavior
@@ -53,7 +53,7 @@ Rules:
 ## Domain / architecture impact
 - Purge runs in explicit system execution context and never impersonates end users.
 - Purge and retention mode logic must be deterministic and idempotent.
-- Purge completion emits audit output according to selected retention mode.
+- Purge completion emits structured logging output according to the selected retention mode; CP11 does not add durable audit persistence.
 
 ## Security / ops impact
 - Retained summary event must avoid sensitive fields (no credential values, no document content, no user emails).

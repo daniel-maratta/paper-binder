@@ -26,8 +26,8 @@ Use this document to answer:
 ## Current Snapshot
 
 - Current checkpoint: `none active`
-- Last completed checkpoint: `CP10`
-- Next checkpoint: `CP11`
+- Last completed checkpoint: `CP11`
+- Next checkpoint: `CP12`
 - Open checkpoint blockers: none.
 - Open incidental follow-ups: none.
 
@@ -45,7 +45,7 @@ Use this document to answer:
 | `CP8` | done | Authorization policies, request-scoped membership context, tenant-host/system-host route gating, and tenant user administration shipped on the current branch via task [T-0022](../05-taskboard/tasks/T-0022-cp8-authorization-policies-and-tenant-user-administration.md). PR artifact: [description.md](../95-delivery/pr/cp8-authorization-policies-and-tenant-user-administration/description.md). Launch-profile validation, manual VS Code and Visual Studio verification, and the canonical restore/build path are all recorded as passing. |
 | `CP9` | done | Binder domain and policy model shipped via task [T-0023](../05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md) and PR artifact [description.md](../95-delivery/pr/cp9-binder-domain-and-policy-model/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
 | `CP10` | done | Document domain and immutable document rules shipped via task [T-0025](../05-taskboard/tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md) and PR artifact [description.md](../95-delivery/pr/cp10-document-domain-and-immutable-document-rules/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
-| `CP11` | queued | Worker runtime and lease lifecycle not started. |
+| `CP11` | done | Worker runtime and lease lifecycle shipped via task [T-0026](../05-taskboard/tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md) and PR artifact [description.md](../95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
 | `CP12` | queued | Frontend foundation and shared UI system not started. |
 | `CP13` | queued | Root-host frontend flows not started. |
 | `CP14` | queued | Tenant-host frontend flows not started. |

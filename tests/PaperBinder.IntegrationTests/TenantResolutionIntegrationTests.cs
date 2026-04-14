@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using PaperBinder.Api;
 using PaperBinder.Application.Binders;
 using PaperBinder.Application.Documents;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Tenancy;
+using PaperBinder.Application.Time;
 using PaperBinder.Infrastructure.Identity;
 
 namespace PaperBinder.IntegrationTests;
@@ -156,7 +158,8 @@ public sealed class TenantResolutionDatabaseIntegrationTests(PostgresContainerFi
 internal static class TenantResolutionIntegrationTestHost
 {
     public static async Task<PaperBinderApplicationHost> StartNonDockerHostAsync(
-        Action<WebApplication>? additionalConfigureBeforeStart = null)
+        Action<WebApplication>? additionalConfigureBeforeStart = null,
+        Action<IServiceCollection>? configureServices = null)
     {
         var unavailablePort = GetUnusedPort();
         var configuration = TestRuntimeConfiguration.Create(
@@ -168,13 +171,15 @@ internal static class TenantResolutionIntegrationTestHost
             {
                 ConfigureTenantContextProbe(app);
                 additionalConfigureBeforeStart?.Invoke(app);
-            });
+            },
+            configureServices);
     }
 
     public static async Task<PaperBinderApplicationHost> StartDockerHostAsync(
         string databaseConnection,
         IReadOnlyDictionary<string, string?>? configurationOverrides = null,
-        Action<WebApplication>? additionalConfigureBeforeStart = null)
+        Action<WebApplication>? additionalConfigureBeforeStart = null,
+        Action<IServiceCollection>? configureServices = null)
     {
         var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(databaseConnection));
         if (configurationOverrides is not null)
@@ -191,24 +196,33 @@ internal static class TenantResolutionIntegrationTestHost
             {
                 ConfigureTenantContextProbe(app);
                 additionalConfigureBeforeStart?.Invoke(app);
-            });
+            },
+            configureServices);
     }
 
-    public static async Task<SeededTenant> SeedTenantAsync(PaperBinderApplicationHost host, string slug)
+    public static async Task<SeededTenant> SeedTenantAsync(
+        PaperBinderApplicationHost host,
+        string slug,
+        string name = "CP5 Seed Tenant",
+        DateTimeOffset? createdAtUtc = null,
+        DateTimeOffset? expiresAtUtc = null,
+        int leaseExtensionCount = 0)
     {
+        var effectiveCreatedAtUtc = createdAtUtc ?? DateTimeOffset.UtcNow;
         var tenant = new SeededTenant(
             Guid.NewGuid(),
             slug,
-            "CP5 Seed Tenant",
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddMinutes(60));
+            name,
+            effectiveCreatedAtUtc,
+            expiresAtUtc ?? effectiveCreatedAtUtc.AddMinutes(60),
+            leaseExtensionCount);
 
         var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
         await using var connection = await connectionFactory.OpenConnectionAsync();
         await connection.ExecuteAsync(
             """
             insert into tenants (id, slug, name, created_at_utc, expires_at_utc, lease_extension_count)
-            values (@Id, @Slug, @Name, @CreatedAtUtc, @ExpiresAtUtc, 0);
+            values (@Id, @Slug, @Name, @CreatedAtUtc, @ExpiresAtUtc, @LeaseExtensionCount);
             """,
             tenant);
 
@@ -394,7 +408,10 @@ internal static class TenantResolutionIntegrationTestHost
         return document;
     }
 
-    public static async Task ExpireTenantAsync(PaperBinderApplicationHost host, SeededTenant tenant)
+    public static async Task ExpireTenantAsync(
+        PaperBinderApplicationHost host,
+        SeededTenant tenant,
+        DateTimeOffset? expiresAtUtc = null)
     {
         var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
         await using var connection = await connectionFactory.OpenConnectionAsync();
@@ -406,9 +423,18 @@ internal static class TenantResolutionIntegrationTestHost
             """,
             new
             {
-                ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(-1),
+                ExpiresAtUtc = expiresAtUtc ?? DateTimeOffset.UtcNow.AddMinutes(-1),
                 TenantId = tenant.Id
             });
+    }
+
+    public static void ReplaceSystemClock(IServiceCollection services, ISystemClock clock)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(clock);
+
+        services.RemoveAll<ISystemClock>();
+        services.AddSingleton(clock);
     }
 
     public static string GetRequiredHeader(HttpResponseMessage response, string headerName)
@@ -460,7 +486,8 @@ internal sealed record SeededTenant(
     string Slug,
     string Name,
     DateTimeOffset CreatedAtUtc,
-    DateTimeOffset ExpiresAtUtc);
+    DateTimeOffset ExpiresAtUtc,
+    int LeaseExtensionCount);
 
 internal sealed record SeededUser(
     Guid Id,

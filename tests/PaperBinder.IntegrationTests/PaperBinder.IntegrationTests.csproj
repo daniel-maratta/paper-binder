@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\src\PaperBinder.Api\PaperBinder.Api.csproj" />
     <ProjectReference Include="..\..\src\PaperBinder.Infrastructure\PaperBinder.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\PaperBinder.Migrations\PaperBinder.Migrations.csproj" />
+    <ProjectReference Include="..\..\src\PaperBinder.Worker\PaperBinder.Worker.csproj" />
   </ItemGroup>
 
   <ItemGroup>

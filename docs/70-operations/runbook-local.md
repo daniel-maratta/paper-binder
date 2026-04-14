@@ -161,14 +161,16 @@ The checked-in `.env.example` values are fake/demo-safe and are intended to work
 - `Worker Only` loads missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
 - VS Code `Launch Frontend Dev Server` remains available when you specifically want the standalone Vite surface on `http://localhost:5173`.
 
-## Current CP8 Limits
+## Current CP11 Limits
 
 - Root-host login, tenant-host logout, cookie auth, CSRF enforcement, membership-based tenant validation, root-host provisioning, and pre-auth abuse controls are now live.
-- Named endpoint policies plus tenant-user list/create/role-management routes are now live at the API boundary.
+- Named endpoint policies plus tenant-user list/create/role-management, binder, document, and tenant-lease routes are now live at the API boundary.
 - Root-host provisioning creates the tenant, owner user, membership, lease state, and authenticated session only; binder/document seed data remains deferred.
 - The checked-in browser UI for provisioning/login remains later frontend-checkpoint work even though the backend contracts are live.
+- The tenant-host browser UI for binders, documents, and lease countdown/extend flows remains later frontend-checkpoint work even though the backend contracts are live.
 - Interactive API documentation remains intentionally deferred even though the first protected feature endpoints now exist.
-- Binder, document, lease, and impersonation feature flows remain later-checkpoint work.
+- Worker cleanup now runs on the configured cadence in the checked-in worker host and surfaces structured cleanup-cycle logs through `Reviewer Full Stack`, `App + Worker (Process)`, and `Worker Only`.
+- Impersonation remains later-checkpoint work.
 
 ## Running Tests Locally
 

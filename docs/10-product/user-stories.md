@@ -10,10 +10,12 @@ As a visitor, I can provision a demo tenant and receive generated credentials so
 ### Acceptance Criteria
 - Given a valid provisioning request, `POST /api/provision` returns `201` and includes generated credentials, tenant subdomain, and redirect URL.
 - Provision response includes `expiresAt` set to approximately 1 hour from provision time.
-- Given remaining lease > 10 minutes, `POST /api/tenant/lease/extend` returns `409`.
-- Given remaining lease <= 10 minutes and extension count < 3, `POST /api/tenant/lease/extend` returns `200` and extends expiry by +10 minutes.
-- Given extension count = 3, `POST /api/tenant/lease/extend` returns `409`.
-- `GET /api/tenant/lease` returns authoritative lease state including `canExtend`.
+- `GET /api/tenant/lease` returns authoritative lease state including `expiresAt`, `secondsRemaining`, `extensionCount`, `maxExtensions`, and `canExtend`.
+- `POST /api/tenant/lease/extend` requires the existing `TenantAdmin` policy, a valid CSRF token, and ignores client-supplied tenant or duration values.
+- Given remaining lease > 10 minutes, `POST /api/tenant/lease/extend` returns `409 TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN`.
+- Given remaining lease <= 10 minutes and extension count < 3, `POST /api/tenant/lease/extend` returns `200` and extends expiry by `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
+- Given extension count = 3, `POST /api/tenant/lease/extend` returns `409 TENANT_LEASE_EXTENSION_LIMIT_REACHED`.
+- Given the dedicated lease-extend budget is exhausted, `POST /api/tenant/lease/extend` returns `429 RATE_LIMITED` with `Retry-After`.
 - Provisioning and root login are challenge-protected and return `429` when pre-auth rate limits are exceeded.
 
 ## Slice 2: Authentication
@@ -79,8 +81,8 @@ As the platform, expired tenants are removed automatically so demo environments 
 ### Acceptance Criteria
 - Worker runs on fixed cadence (target: every minute).
 - Worker selects tenants where `ExpiresAt <= now`.
-- Worker hard-deletes expired tenants and tenant-owned data.
-- Cleanup is idempotent.
+- Worker hard-deletes expired tenants and tenant-owned data, including the tenant row, user memberships, tenant-owned users, binders, binder policies, and documents.
+- Cleanup is deterministic, idempotent, and leaves active tenants untouched.
 - Expired tenants are deleted within 5 minutes of lease expiry (best effort SLA).
 - Post-expiry API access before purge returns `410`.
 - Post-expiry API access after purge returns `404`.
