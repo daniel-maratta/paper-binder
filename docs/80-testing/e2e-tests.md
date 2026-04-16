@@ -2,6 +2,7 @@
 Status: V1 (Minimal)
 
 E2E tests validate high-value user-visible flows for the public demo.
+They start after the CP12 frontend foundation checkpoint; CP12 itself is limited to component and utility coverage.
 
 ## Scope
 
@@ -18,6 +19,7 @@ Out of scope:
 
 ## Tooling
 
+- Component and utility test baseline before E2E: Vitest + React Testing Library + jsdom.
 - Preferred: Playwright.
 - Alternative: Cypress.
 

@@ -326,6 +326,7 @@ Used for:
 - expiration warnings
 
 Banner is persistent at top of tenant shell.
+CP12 implements the structural shell slot and generic warning/notice presentation only; lease countdown and extend interaction remain later-checkpoint work.
 
 ## Table
 
@@ -349,6 +350,36 @@ Used for:
 - grouped content
 
 Minimal visual styling.
+
+## Dialog
+
+Used for:
+
+- confirmations
+- contextual explanation
+- non-destructive review affordances
+
+Requirements:
+
+- accessible title and description
+- keyboard-close support
+- restrained modal styling
+
+## Status Badge
+
+Used for:
+
+- lease state labels
+- policy or role state labels
+- route placeholder state markers
+
+Requirements:
+
+- neutral
+- success
+- warning
+- danger
+- meaning not conveyed by color alone
 
 ---
 

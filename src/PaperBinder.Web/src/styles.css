@@ -1,9 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  color: #0f172a;
-  background: #f8fafc;
-  font-family: "Georgia", "Times New Roman", serif;
+  color-scheme: light;
+  --pb-color-bg: #fafafa;
+  --pb-color-text: #102d45;
+  --pb-color-text-muted: #4c6175;
+  --pb-color-text-subtle: #6c7b88;
+  --pb-color-primary: #f67d28;
+  --pb-color-border: #dde3e8;
+  --pb-color-border-strong: #bcc8d0;
+  --pb-color-panel-muted: #f4f6f8;
+  --pb-color-success: #2e7d32;
+  --pb-color-success-soft: #e8f5ea;
+  --pb-color-warning: #d97706;
+  --pb-color-warning-text: #915106;
+  --pb-color-warning-soft: #fff4e5;
+  --pb-color-danger: #b3261e;
+  --pb-color-danger-soft: #fdecea;
+  --pb-color-info: #2a6cb0;
+  --pb-color-info-soft: #edf4fb;
+  --pb-radius-md: 6px;
+  --pb-radius-lg: 8px;
+  --pb-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --pb-surface-gradient:
+    radial-gradient(circle at top right, rgba(246, 125, 40, 0.15), transparent 32%),
+    linear-gradient(180deg, #fff8f1 0%, #fafafa 42%, #f3f6f8 100%);
+  color: var(--pb-color-text);
+  background: var(--pb-color-bg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -15,6 +39,7 @@
 body {
   margin: 0;
   min-width: 320px;
+  background: var(--pb-color-bg);
 }
 
 * {
@@ -22,6 +47,14 @@ body {
 }
 
 button,
-a {
+a,
+input,
+textarea,
+select {
   font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }

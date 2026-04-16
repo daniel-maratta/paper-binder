@@ -15,8 +15,16 @@ $ErrorActionPreference = "Stop"
 Set-PaperBinderDotNetEnvironment
 
 $repoRoot = Get-RepoRoot
+$frontendRoot = Join-Path $repoRoot "src/PaperBinder.Web"
 
 Assert-PaperBinderDotNetSdkAvailable
+Assert-PaperBinderFrontendToolchainAvailable
+
+Write-Host "Running frontend component tests..."
+Invoke-ExternalCommand `
+  -FilePath (Get-NpmCommand) `
+  -Arguments @("run", "test") `
+  -WorkingDirectory $frontendRoot
 
 Write-Host "Running unit tests..."
 Invoke-ExternalCommand `
