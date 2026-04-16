@@ -7,10 +7,16 @@ import { RootHostRoutes } from "./app/root-host";
 import { TenantHostRoutes } from "./app/tenant-host";
 import { frontendEnvironment } from "./environment";
 
-const browserHostContext = resolveHostContext(window.location, frontendEnvironment);
-const browserApiClient = createPaperBinderApiClient({
-  apiOrigin: browserHostContext.apiOrigin
-});
+function createBrowserAppDefaults() {
+  const hostContext = resolveHostContext(window.location, frontendEnvironment);
+
+  return {
+    hostContext,
+    apiClient: createPaperBinderApiClient({
+      apiOrigin: hostContext.apiOrigin
+    })
+  };
+}
 
 export function AppRouter({
   apiClient,
@@ -29,15 +35,19 @@ export function AppRouter({
 }
 
 export default function App({
-  apiClient = browserApiClient,
-  hostContext = browserHostContext
+  apiClient,
+  hostContext
 }: {
   apiClient?: PaperBinderApiClient;
   hostContext?: HostContext;
 }) {
+  const browserDefaults = apiClient === undefined || hostContext === undefined ? createBrowserAppDefaults() : null;
+  const resolvedApiClient = apiClient ?? browserDefaults!.apiClient;
+  const resolvedHostContext = hostContext ?? browserDefaults!.hostContext;
+
   return (
     <BrowserRouter>
-      <AppRouter apiClient={apiClient} hostContext={hostContext} />
+      <AppRouter apiClient={resolvedApiClient} hostContext={resolvedHostContext} />
     </BrowserRouter>
   );
 }

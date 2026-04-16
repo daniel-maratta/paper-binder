@@ -12,6 +12,8 @@ const frontendKeys = [
   "VITE_PAPERBINDER_API_BASE_URL",
   "VITE_PAPERBINDER_TENANT_BASE_DOMAIN"
 ] as const;
+type FrontendKey = (typeof frontendKeys)[number];
+type FrontendEnvValues = Record<FrontendKey, string>;
 
 function parseEnvFile(path: string): Record<string, string> {
   const env: Record<string, string> = {};
@@ -56,8 +58,9 @@ function loadPaperBinderEnv(mode: string) {
   };
 }
 
-function validateFrontendEnvironment(mode: string) {
+function resolveFrontendEnvironmentValues(mode: string): FrontendEnvValues {
   const env = loadPaperBinderEnv(mode);
+  const resolvedEnv = {} as FrontendEnvValues;
 
   for (const key of frontendKeys) {
     const value = env[key]?.trim();
@@ -67,6 +70,7 @@ function validateFrontendEnvironment(mode: string) {
 
     if (key !== "VITE_PAPERBINDER_TENANT_BASE_DOMAIN") {
       new URL(value);
+      resolvedEnv[key] = value;
       continue;
     }
 
@@ -75,14 +79,21 @@ function validateFrontendEnvironment(mode: string) {
         "VITE_PAPERBINDER_TENANT_BASE_DOMAIN must be a host or host:port value."
       );
     }
+
+    resolvedEnv[key] = value;
   }
+
+  return resolvedEnv;
 }
 
 export default defineConfig(({ mode }) => {
-  validateFrontendEnvironment(mode);
+  const frontendEnv = resolveFrontendEnvironmentValues(mode);
 
   return {
     envDir: "../..",
+    define: {
+      __PAPERBINDER_FRONTEND_ENV_FALLBACK__: JSON.stringify(frontendEnv)
+    },
     plugins: [react(), tailwindcss()],
     build: {
       outDir: "dist",
