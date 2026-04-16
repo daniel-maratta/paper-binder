@@ -17,7 +17,7 @@ Build the browser experience from foundation through complete product flows, inc
 ### CP12 - Frontend Foundation And Shared UI System
 
 - App shell, route skeleton, API client layer, and auth-aware routing.
-- Shared UI primitives for forms, tables, alerts, dialogs, and status badges.
+- Shared UI primitives for Button, Card, Banner, forms, tables, alerts, dialogs, and status badges.
 - Frontend build/test pipeline and route-map alignment.
 - Component-level tests for shared primitives and client error handling.
 

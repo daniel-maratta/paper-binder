@@ -21,6 +21,7 @@ This document removes route-level ambiguity for the React SPA described in:
 
 - Root host: `lab.danielmaratta.com`
 - Tenant host: `{tenant}.lab.danielmaratta.com`
+- Loopback debug aliases such as `localhost` are allowed only for compiled-SPA root-host debugging and never establish tenant context.
 
 Root-host flows are pre-auth provisioning/login flows. CP7 ships the backend contracts for provisioning plus shared challenge/rate-limit guards; browser UI wiring remains a later frontend checkpoint.
 Tenant-host flows are authenticated and tenant-scoped.
@@ -29,13 +30,14 @@ Tenant-host flows are authenticated and tenant-scoped.
 
 | Route | View Purpose | Primary API Calls | Auth Expectation | Notes |
 | --- | --- | --- | --- | --- |
-| `/` | Welcome/About + provision + login entry | `POST /api/provision`, `POST /api/auth/login` | Anonymous allowed | Provisioning and login both target live root-host API contracts; dedicated browser UI wiring lands in CP13. |
-| `/login` | Dedicated login view (if split from `/`) | `POST /api/auth/login` | Anonymous allowed | Same semantics as root login section; challenge and shared pre-auth throttling are enforced at the API boundary. |
+| `/` | Welcome/About + provision + login entry | `POST /api/provision`, `POST /api/auth/login` | Anonymous allowed | CP12 ships root-shell placeholder composition only. Provisioning and login both target live root-host API contracts, but browser submission wiring lands in CP13. |
+| `/login` | Dedicated login view (if split from `/`) | `POST /api/auth/login` | Anonymous allowed | CP12 ships the route and shell only. Same semantics as root login section; challenge and shared pre-auth throttling are enforced at the API boundary. |
 | `/about` | Static product/repo context | none | Anonymous allowed | May be a route or in-page section. |
 
 ## Tenant Host Route Map
 
 Tenant routes assume redirect entry from provisioning/login to `/app`.
+CP12 bootstraps the tenant shell through `GET /api/tenant/lease` before rendering placeholder route content; later checkpoints add per-view feature calls.
 
 | Route | View Purpose | Primary API Calls | Auth/Policy Expectation | Notes |
 | --- | --- | --- | --- | --- |
@@ -50,7 +52,7 @@ Tenant routes assume redirect entry from provisioning/login to `/app`.
 - Lease extension action (tenant shell/banner): `POST /api/tenant/lease/extend`
 - Logout action: `POST /api/auth/logout`
 
-These are action endpoints triggered from multiple views rather than dedicated pages.
+These are action endpoints triggered from multiple views rather than dedicated pages. CP12 reserves the banner and shell slots but does not yet ship lease-extend or logout interaction wiring.
 
 ## Redirect and Guard Rules
 
@@ -66,7 +68,9 @@ These are action endpoints triggered from multiple views rather than dedicated p
 
 - All `/api/*` requests send `X-Api-Version: 1`.
 - All responses must include `X-Correlation-Id` handling as documented in API contracts.
+- Unsafe authenticated requests send `X-CSRF-TOKEN` using the existing readable CSRF cookie contract.
 - Error rendering uses ProblemDetails and stable `errorCode` semantics.
+- Shared client error handling preserves `status`, `errorCode`, display-safe detail, correlation id, and `Retry-After` when present.
 
 ## Non-Goals
 

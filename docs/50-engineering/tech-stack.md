@@ -45,6 +45,7 @@ This document is implementation-governing and should be treated as required read
 - Tailwind CSS
 - Radix UI primitives
 - React Router for client-side SPA routing only
+- Vitest + React Testing Library + jsdom for frontend component and utility tests ([ADR-0009](../90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md))
 - No framework mode / no route-module server loaders/actions in V1
 - No BFF pattern in V1 (ADR-0005)
 - No SignalR/realtime push channels in V1
@@ -95,6 +96,7 @@ Frontend UI stack lock-in is defined by this stack baseline plus the PaperBinder
 
 - `dotnet test` for unit/integration test execution
 - PostgreSQL test container for integration tests
+- Vitest + React Testing Library + jsdom for SPA component and utility coverage
 - Playwright preferred for E2E (Cypress acceptable alternative)
 - Environment-gated test challenge bypass (`PB_ENV=Test`) only
 
@@ -139,4 +141,5 @@ Frontend UI stack lock-in is defined by this stack baseline plus the PaperBinder
 - `docs/60-ai/ai-subsystem-overview.md`
 - `docs/60-ai/ai-architecture.md`
 - `docs/90-adr/ADR-0005-no-bff.md`
+- `docs/90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md`
 - `docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md`

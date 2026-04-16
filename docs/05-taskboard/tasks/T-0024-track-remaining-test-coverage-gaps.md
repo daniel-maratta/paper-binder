@@ -16,7 +16,7 @@ agent
 2026-04-08
 
 ## Updated
-2026-04-14
+2026-04-16
 
 ## Checkpoint
 Cross-checkpoint
@@ -25,18 +25,18 @@ Cross-checkpoint
 Cross-phase
 
 ## Summary
-Record and close the remaining narrow test-coverage gaps that remain after the current backend suite passed, so they are not lost between checkpoints or sessions.
+Record and close the remaining narrow test-coverage gaps that remain after the current backend and CP12 frontend suites passed, so they are not lost between checkpoints or sessions.
 
 ## Context
 - A full test run on 2026-04-14 passed: 111 unit tests, 25 non-Docker integration tests, and 72 Docker-backed integration tests.
-- That run gives the current backend surface credible coverage across tenancy, auth, provisioning, authorization, binder behavior, lease lifecycle, worker cleanup, persistence, and runtime health.
-- A few narrower gaps still remain and should stay visible in durable repo artifacts:
+- CP12 added repo-native frontend component coverage on 2026-04-16: 5 test files and 8 tests across host-context resolution, route skeleton rendering, API-client behavior, primitive accessibility, tenant-shell safe states, and invalid-host fallback rendering.
+- The current suite gives the shipped backend and frontend surfaces credible coverage across tenancy, auth, provisioning, authorization, binder behavior, lease lifecycle, worker cleanup, runtime health, and SPA foundation behavior.
+- The remaining narrower gaps should stay visible in durable repo artifacts:
 - direct end-to-end coverage for the `CHALLENGE_FAILED` API path when a challenge token is present but provider verification fails
-- explicit frontend automated coverage once the placeholder UI starts carrying real product behavior
 
 ## Acceptance Criteria
 - [ ] The `CHALLENGE_FAILED` behavior has explicit automated coverage at the appropriate boundary.
-- [ ] Frontend automated coverage is added when the UI stops being placeholder-only, or the deferral rationale remains current and explicit.
+- [x] Frontend automated coverage is added once the UI stops being placeholder-only.
 - [ ] Testing docs and taskboard artifacts remain synchronized with the actual gap status.
 
 ## Dependencies
@@ -51,32 +51,32 @@ Record and close the remaining narrow test-coverage gaps that remain after the c
 - Escalation Notes: If frontend behavior remains placeholder-only, explicit deferral is acceptable; do not invent UI behavior just to justify tests.
 
 ## Current State
-- Queued. CP11 closed the worker-runtime and lease-lifecycle gap, and the remaining narrow gaps are documented here for later hardening work.
+- Queued. CP12 closed the previous frontend-coverage gap, so the remaining tracked gap is explicit `CHALLENGE_FAILED` automated coverage at the correct boundary.
 
 ## Touch Points
 - `tests/PaperBinder.UnitTests/`
 - `tests/PaperBinder.IntegrationTests/`
 - `src/PaperBinder.Api/`
 - `src/PaperBinder.Worker/`
-- `src/PaperBinder.Web/`
 - `docs/80-testing/test-strategy.md`
 - `docs/05-taskboard/work-queue.md`
 
 ## Implementation Plan
 - Future work should add one gap-closing slice at a time using `RED -> GREEN -> REFACTOR`.
 - Start with the highest-value missing behavior slice: explicit `CHALLENGE_FAILED` coverage.
-- Add frontend coverage only when the behavior under test is concrete enough to justify stable assertions.
 
 ## Next Action
 - Pull this into active work when the next hardening pass, auth touch, or frontend checkpoint creates a natural place to close one or more of the gaps.
 
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release -DockerIntegrationMode Require` (passed on 2026-04-14: 111 unit, 25 non-Docker integration, 72 Docker-backed integration)
+- `npm.cmd run test` from `src/PaperBinder.Web` (passed on 2026-04-16: 5 test files, 8 tests, 0 failures)
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release -DockerIntegrationMode Require` (passed on 2026-04-16: frontend 8 tests, 111 unit, 25 non-Docker integration, 72 Docker-backed integration)
 
 ## Decision Notes
 - The current backend suite is strong enough to treat the remaining items as narrow follow-up gaps, not as evidence that the implemented backend surface is broadly untested.
 - CP11 removed the previous worker-runtime coverage gap by adding worker-host dependency-resolution coverage plus deterministic cleanup-cycle and lease-lifecycle integration coverage.
-- Frontend coverage remains intentionally deferred while the UI is still placeholder-only.
+- CP12 removed the previous frontend-coverage gap by adding repo-native component and utility coverage once the SPA stopped being placeholder-only.
 
 ## Validation Plan
 - Re-run the canonical full test suite after any gap-closing change.

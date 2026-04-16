@@ -10,6 +10,8 @@ type FrontendEnvironment = {
   rootUrl: string;
   apiBaseUrl: string;
   tenantBaseDomain: string;
+  rootHost: string;
+  apiOrigin: string;
 };
 
 function getRequiredValue(env: ImportMetaEnv, key: FrontendKey): string {
@@ -43,16 +45,23 @@ function parseTenantBaseDomain(value: string): string {
 }
 
 export function readFrontendEnvironment(env: ImportMetaEnv): FrontendEnvironment {
+  const rootUrl = parseUrl(getRequiredValue(env, "VITE_PAPERBINDER_ROOT_URL"), "VITE_PAPERBINDER_ROOT_URL");
+  const apiBaseUrl = parseUrl(
+    getRequiredValue(env, "VITE_PAPERBINDER_API_BASE_URL"),
+    "VITE_PAPERBINDER_API_BASE_URL"
+  );
+
   return {
-    rootUrl: parseUrl(getRequiredValue(env, "VITE_PAPERBINDER_ROOT_URL"), "VITE_PAPERBINDER_ROOT_URL"),
-    apiBaseUrl: parseUrl(
-      getRequiredValue(env, "VITE_PAPERBINDER_API_BASE_URL"),
-      "VITE_PAPERBINDER_API_BASE_URL"
-    ),
+    rootUrl,
+    apiBaseUrl,
     tenantBaseDomain: parseTenantBaseDomain(
       getRequiredValue(env, "VITE_PAPERBINDER_TENANT_BASE_DOMAIN")
-    )
+    ),
+    rootHost: new URL(rootUrl).host.toLowerCase(),
+    apiOrigin: new URL(apiBaseUrl).origin
   };
 }
 
 export const frontendEnvironment = readFrontendEnvironment(import.meta.env);
+
+export type { FrontendEnvironment };
