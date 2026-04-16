@@ -13,7 +13,13 @@ function createRejectingApiClient(error: PaperBinderApiError): PaperBinderApiCli
     }) as PaperBinderApiClient["request"],
     getTenantLease: vi.fn(async () => {
       throw error;
-    }) as PaperBinderApiClient["getTenantLease"]
+    }) as PaperBinderApiClient["getTenantLease"],
+    provision: vi.fn(async () => {
+      throw error;
+    }) as PaperBinderApiClient["provision"],
+    login: vi.fn(async () => {
+      throw error;
+    }) as PaperBinderApiClient["login"]
   };
 }
 

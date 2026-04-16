@@ -1,7 +1,9 @@
 const requiredFrontendKeys = [
   "VITE_PAPERBINDER_ROOT_URL",
   "VITE_PAPERBINDER_API_BASE_URL",
-  "VITE_PAPERBINDER_TENANT_BASE_DOMAIN"
+  "VITE_PAPERBINDER_TENANT_BASE_DOMAIN",
+  "VITE_PAPERBINDER_CHALLENGE_SITE_KEY",
+  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
 ] as const;
 
 type FrontendKey = (typeof requiredFrontendKeys)[number];
@@ -13,6 +15,8 @@ type FrontendEnvironment = {
   tenantBaseDomain: string;
   rootHost: string;
   apiOrigin: string;
+  challengeSiteKey: string;
+  challengeScriptUrl: string;
 };
 
 declare const __PAPERBINDER_FRONTEND_ENV_FALLBACK__: Record<FrontendKey, string>;
@@ -71,7 +75,12 @@ export function readFrontendEnvironment(
       getRequiredValue(env, "VITE_PAPERBINDER_TENANT_BASE_DOMAIN", fallbackEnv)
     ),
     rootHost: new URL(rootUrl).host.toLowerCase(),
-    apiOrigin: new URL(apiBaseUrl).origin
+    apiOrigin: new URL(apiBaseUrl).origin,
+    challengeSiteKey: getRequiredValue(env, "VITE_PAPERBINDER_CHALLENGE_SITE_KEY", fallbackEnv),
+    challengeScriptUrl: parseUrl(
+      getRequiredValue(env, "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL", fallbackEnv),
+      "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
+    )
   };
 }
 

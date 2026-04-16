@@ -7,7 +7,9 @@ export const testEnvironment: FrontendEnvironment = {
   apiBaseUrl: "https://paperbinder.example.test",
   tenantBaseDomain: "paperbinder.example.test",
   rootHost: "paperbinder.example.test",
-  apiOrigin: "https://paperbinder.example.test"
+  apiOrigin: "https://paperbinder.example.test",
+  challengeSiteKey: "demo-site-key",
+  challengeScriptUrl: "https://challenge.example.test/api.js"
 };
 
 export function createLocationLike(

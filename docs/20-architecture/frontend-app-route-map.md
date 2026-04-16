@@ -23,15 +23,16 @@ This document removes route-level ambiguity for the React SPA described in:
 - Tenant host: `{tenant}.lab.danielmaratta.com`
 - Loopback debug aliases such as `localhost` are allowed only for compiled-SPA root-host debugging and never establish tenant context.
 
-Root-host flows are pre-auth provisioning/login flows. CP7 ships the backend contracts for provisioning plus shared challenge/rate-limit guards; browser UI wiring remains a later frontend checkpoint.
+Root-host flows are pre-auth provisioning/login flows. CP7 ships the backend contracts for provisioning plus shared challenge/rate-limit guards; CP13 adds the live browser wiring on the root host.
 Tenant-host flows are authenticated and tenant-scoped.
+Root-host flows are live in CP13 and stay bounded to onboarding only; tenant-host feature CRUD remains a later checkpoint.
 
 ## Root Host Route Map
 
 | Route | View Purpose | Primary API Calls | Auth Expectation | Notes |
 | --- | --- | --- | --- | --- |
-| `/` | Welcome/About + provision + login entry | `POST /api/provision`, `POST /api/auth/login` | Anonymous allowed | CP12 ships root-shell placeholder composition only. Provisioning and login both target live root-host API contracts, but browser submission wiring lands in CP13. |
-| `/login` | Dedicated login view (if split from `/`) | `POST /api/auth/login` | Anonymous allowed | CP12 ships the route and shell only. Same semantics as root login section; challenge and shared pre-auth throttling are enforced at the API boundary. |
+| `/` | Welcome/About + provision | `POST /api/provision` | Anonymous allowed | Live in CP13. Successful provision shows one-time generated credentials in a short-lived root-host handoff state, then navigates only after an explicit user action that uses the server-provided `redirectUrl`. |
+| `/login` | Dedicated login view | `POST /api/auth/login` | Anonymous allowed | Live in CP13. Login uses `email`, password, and challenge proof only; redirect uses the server-provided `redirectUrl`. |
 | `/about` | Static product/repo context | none | Anonymous allowed | May be a route or in-page section. |
 
 ## Tenant Host Route Map
@@ -57,7 +58,9 @@ These are action endpoints triggered from multiple views rather than dedicated p
 ## Redirect and Guard Rules
 
 - Successful provisioning/login must redirect to tenant host via server-provided `redirectUrl`.
+- Successful provisioning keeps the authenticated cookie flow, but generated credentials stay in transient in-memory root-host UI state only until the user explicitly continues to the tenant host.
 - Tenant context is server-resolved from host + membership; client tenant hints are ignored for authorization.
+- Root-host challenge wrapper markup is browser-owned and must provide label, helper/error association, keyboard reachability, and visible state messaging around the provider surface.
 - Tenant-host route access failure behavior:
   - `403`: tenant membership/policy failure
   - `404`: unknown or already-purged tenant/resource
@@ -71,6 +74,7 @@ These are action endpoints triggered from multiple views rather than dedicated p
 - Unsafe authenticated requests send `X-CSRF-TOKEN` using the existing readable CSRF cookie contract.
 - Error rendering uses ProblemDetails and stable `errorCode` semantics.
 - Shared client error handling preserves `status`, `errorCode`, display-safe detail, correlation id, and `Retry-After` when present.
+- Root-host error UX renders safe, actionable handling for `CHALLENGE_REQUIRED`, `CHALLENGE_FAILED`, `RATE_LIMITED`, `INVALID_CREDENTIALS`, `TENANT_EXPIRED`, `TENANT_NAME_INVALID`, and `TENANT_NAME_CONFLICT`.
 
 ## Non-Goals
 

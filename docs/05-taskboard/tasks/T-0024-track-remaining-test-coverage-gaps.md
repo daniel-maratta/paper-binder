@@ -1,7 +1,7 @@
 # T-0024: Track Remaining Test Coverage Gaps
 
 ## Status
-queued
+done
 
 ## Type
 risk
@@ -31,13 +31,12 @@ Record and close the remaining narrow test-coverage gaps that remain after the c
 - A full test run on 2026-04-14 passed: 111 unit tests, 25 non-Docker integration tests, and 72 Docker-backed integration tests.
 - CP12 added repo-native frontend component coverage on 2026-04-16: 5 test files and 8 tests across host-context resolution, route skeleton rendering, API-client behavior, primitive accessibility, tenant-shell safe states, and invalid-host fallback rendering.
 - The current suite gives the shipped backend and frontend surfaces credible coverage across tenancy, auth, provisioning, authorization, binder behavior, lease lifecycle, worker cleanup, runtime health, and SPA foundation behavior.
-- The remaining narrower gaps should stay visible in durable repo artifacts:
-- direct end-to-end coverage for the `CHALLENGE_FAILED` API path when a challenge token is present but provider verification fails
+- The last tracked narrow gap was direct end-to-end coverage for the `CHALLENGE_FAILED` API path when a challenge token is present but provider verification fails; CP13 closes that gap at the browser boundary.
 
 ## Acceptance Criteria
-- [ ] The `CHALLENGE_FAILED` behavior has explicit automated coverage at the appropriate boundary.
+- [x] The `CHALLENGE_FAILED` behavior has explicit automated coverage at the appropriate boundary.
 - [x] Frontend automated coverage is added once the UI stops being placeholder-only.
-- [ ] Testing docs and taskboard artifacts remain synchronized with the actual gap status.
+- [x] Testing docs and taskboard artifacts remain synchronized with the actual gap status.
 
 ## Dependencies
 - (none)
@@ -51,7 +50,7 @@ Record and close the remaining narrow test-coverage gaps that remain after the c
 - Escalation Notes: If frontend behavior remains placeholder-only, explicit deferral is acceptable; do not invent UI behavior just to justify tests.
 
 ## Current State
-- Queued. CP12 closed the previous frontend-coverage gap, so the remaining tracked gap is explicit `CHALLENGE_FAILED` automated coverage at the correct boundary.
+- Done. CP13 added explicit browser-level `CHALLENGE_FAILED` coverage through the isolated root-host Playwright suite, and the testing docs/taskboard artifacts now reflect that closure.
 
 ## Touch Points
 - `tests/PaperBinder.UnitTests/`
@@ -62,16 +61,17 @@ Record and close the remaining narrow test-coverage gaps that remain after the c
 - `docs/05-taskboard/work-queue.md`
 
 ## Implementation Plan
-- Future work should add one gap-closing slice at a time using `RED -> GREEN -> REFACTOR`.
-- Start with the highest-value missing behavior slice: explicit `CHALLENGE_FAILED` coverage.
+- No additional gap-closing slices remain in scope for this task.
 
 ## Next Action
-- Pull this into active work when the next hardening pass, auth touch, or frontend checkpoint creates a natural place to close one or more of the gaps.
+- None. Reopen only if a new durable gap needs explicit tracking.
 
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release -DockerIntegrationMode Require` (passed on 2026-04-14: 111 unit, 25 non-Docker integration, 72 Docker-backed integration)
 - `npm.cmd run test` from `src/PaperBinder.Web` (passed on 2026-04-16: 5 test files, 8 tests, 0 failures)
 - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release -DockerIntegrationMode Require` (passed on 2026-04-16: frontend 8 tests, 111 unit, 25 non-Docker integration, 72 Docker-backed integration)
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1` (passed on 2026-04-16: 3 Playwright tests covering provision success, login success, and `CHALLENGE_FAILED`/`INVALID_CREDENTIALS`/`RATE_LIMITED` deny behavior)
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` (passed on 2026-04-16 after the gap-closure doc/task updates)
 
 ## Decision Notes
 - The current backend suite is strong enough to treat the remaining items as narrow follow-up gaps, not as evidence that the implemented backend surface is broadly untested.
@@ -84,7 +84,7 @@ Record and close the remaining narrow test-coverage gaps that remain after the c
 - Keep reviewer-facing testing docs aligned with the current gap list.
 
 ## Outcome (Fill when done)
-- Gap closures completed and reflected in testing docs/taskboard state.
+- The remaining explicit `CHALLENGE_FAILED` coverage gap is closed at the browser boundary, and the canonical testing docs/taskboard artifacts now reflect that done-state.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.
