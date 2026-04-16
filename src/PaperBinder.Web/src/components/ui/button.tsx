@@ -30,18 +30,32 @@ export function Button({
 }: ButtonProps) {
   const Comp = asChild ? Slot : "button";
   const isDisabled = disabled || isLoading;
+  const baseClassName = cn(
+    "inline-flex items-center justify-center gap-2 rounded-[var(--pb-radius-md)] border px-4 py-2 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-color-primary)] disabled:cursor-not-allowed disabled:opacity-60",
+    buttonVariants[variant],
+    className
+  );
+
+  if (asChild) {
+    return (
+      <Comp
+        className={baseClassName}
+        aria-busy={isLoading || undefined}
+        aria-disabled={isDisabled ? true : undefined}
+        data-loading={isLoading || undefined}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  }
 
   return (
     <Comp
-      className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-[var(--pb-radius-md)] border px-4 py-2 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-color-primary)] disabled:cursor-not-allowed disabled:opacity-60",
-        buttonVariants[variant],
-        className
-      )}
+      className={baseClassName}
       aria-busy={isLoading || undefined}
-      aria-disabled={asChild && isDisabled ? true : undefined}
       data-loading={isLoading || undefined}
-      disabled={asChild ? undefined : isDisabled}
+      disabled={isDisabled}
       {...props}
     >
       {isLoading ? (

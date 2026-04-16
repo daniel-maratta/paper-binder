@@ -9,7 +9,8 @@ Primary views:
 - Welcome/About
 - Challenge widget
 - Login
-- Provision tenant (auto-login path)
+- Provision tenant
+- Provisioning handoff (one-time credentials + continue to tenant)
 
 Navigation:
 - About

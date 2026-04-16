@@ -1,0 +1,23 @@
+services:
+  app:
+    ports:
+      - "5081:8080"
+    build:
+      args:
+        VITE_PAPERBINDER_ROOT_URL: http://paperbinder.localhost:5081
+        VITE_PAPERBINDER_API_BASE_URL: http://paperbinder.localhost:5081
+        VITE_PAPERBINDER_TENANT_BASE_DOMAIN: paperbinder.localhost:5081
+        VITE_PAPERBINDER_CHALLENGE_SITE_KEY: paperbinder-e2e-site-key
+        VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: http://paperbinder.localhost:5081/e2e-turnstile.js
+    environment:
+      PAPERBINDER_PUBLIC_ROOT_URL: http://paperbinder.localhost:5081
+      PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE: 10
+      PB_ENV: Test
+
+  worker:
+    environment:
+      PAPERBINDER_PUBLIC_ROOT_URL: http://paperbinder.localhost:5081
+
+  db:
+    ports:
+      - "127.0.0.1:5433:5432"

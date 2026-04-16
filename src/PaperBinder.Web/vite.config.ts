@@ -7,10 +7,13 @@ import { loadEnv } from "vite";
 import { defineConfig } from "vitest/config";
 
 const envRoot = fileURLToPath(new URL("../..", import.meta.url));
+const defaultChallengeScriptUrl = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 const frontendKeys = [
   "VITE_PAPERBINDER_ROOT_URL",
   "VITE_PAPERBINDER_API_BASE_URL",
-  "VITE_PAPERBINDER_TENANT_BASE_DOMAIN"
+  "VITE_PAPERBINDER_TENANT_BASE_DOMAIN",
+  "VITE_PAPERBINDER_CHALLENGE_SITE_KEY",
+  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
 ] as const;
 type FrontendKey = (typeof frontendKeys)[number];
 type FrontendEnvValues = Record<FrontendKey, string>;
@@ -63,6 +66,23 @@ function resolveFrontendEnvironmentValues(mode: string): FrontendEnvValues {
   const resolvedEnv = {} as FrontendEnvValues;
 
   for (const key of frontendKeys) {
+    if (key === "VITE_PAPERBINDER_CHALLENGE_SITE_KEY") {
+      const value = env[key]?.trim() || env.PAPERBINDER_CHALLENGE_SITE_KEY?.trim();
+      if (!value) {
+        throw new Error("Missing required frontend environment variable VITE_PAPERBINDER_CHALLENGE_SITE_KEY.");
+      }
+
+      resolvedEnv[key] = value;
+      continue;
+    }
+
+    if (key === "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL") {
+      const value = env[key]?.trim() || defaultChallengeScriptUrl;
+      new URL(value);
+      resolvedEnv[key] = value;
+      continue;
+    }
+
     const value = env[key]?.trim();
     if (!value) {
       throw new Error(`Missing required frontend environment variable ${key}.`);
@@ -102,6 +122,7 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: "jsdom",
       setupFiles: "./src/test/setup.ts",
+      include: ["src/**/*.test.{ts,tsx}"],
       passWithNoTests: false
     }
   };

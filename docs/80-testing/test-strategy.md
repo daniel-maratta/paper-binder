@@ -48,10 +48,9 @@ Related standards:
 
 ## Current Known Gaps
 
-- The current backend surface is covered credibly by unit tests plus non-Docker and Docker-backed integration tests, but a few narrower gaps remain open.
-- The `CHALLENGE_FAILED` API path does not yet have explicit end-to-end coverage for "challenge supplied but provider verification failed" behavior.
-- CP12 adds frontend component and utility coverage through Vitest, React Testing Library, and jsdom for host-context resolution, route skeleton rendering, shared API-client behavior, tenant-shell safe states, and the shared primitive baseline.
-- Browser E2E coverage for provisioning, login, tenant navigation, and lease interaction remains a later-checkpoint gap until CP13 and CP14 ship real browser flows.
+- The current backend surface plus the CP13 root-host browser surface are covered credibly by unit tests, non-Docker and Docker-backed integration tests, frontend component tests, and the isolated Playwright root-host suite.
+- CP12 and CP13 now cover host-context resolution, route-safe rendering, shared API-client behavior, root-host provision/login flows, and explicit browser deny paths for `CHALLENGE_FAILED`, `INVALID_CREDENTIALS`, and `RATE_LIMITED`.
+- Browser E2E expansion for tenant-host navigation, document flows, logout/login cycle, and lease interaction remains a later-checkpoint gap until CP14 ships those browser flows.
 
 ## Environment-Gated Test Bypass Reminder
 

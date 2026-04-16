@@ -26,6 +26,7 @@
   - Validate docs: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
   - Validate launch profiles: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
   - Validate checkpoint: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
+  - Run root-host E2E: `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1`
   - Start local stack: `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
   - Preflight: `pwsh ./scripts/preflight.ps1 -Profile Full`
@@ -36,6 +37,7 @@
   - Validate docs: `pwsh ./scripts/validate-docs.ps1`
   - Validate launch profiles: `pwsh ./scripts/validate-launch-profiles.ps1`
   - Validate checkpoint: `pwsh ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
+  - Run root-host E2E: `pwsh ./scripts/run-root-host-e2e.ps1`
   - Start local stack: `pwsh ./scripts/start-local.ps1`
 
 ## VS Code Flow
@@ -108,6 +110,7 @@ Local Visual Studio process launches now load missing configuration keys from th
 
 - Before declaring any checkpoint done, run `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`.
 - Prefer `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` for the standard scripted checkpoint-validation bundle.
+- CP13 closeout also requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1`; this browser suite remains a separate required gate and is not bundled into `scripts/validate-checkpoint.ps1`.
 - Record manual launch verification for every checked-in launch surface in the checkpoint PR artifact's `Validation Evidence` section.
 - `scripts/validate-checkpoint.ps1` does not replace the required manual VS Code and Visual Studio verification evidence.
 - Manual VS Code verification must cover:
@@ -140,6 +143,12 @@ Local Visual Studio process launches now load missing configuration keys from th
 The local stack serves the compiled SPA and API from one ASP.NET host behind the reverse proxy, while the worker runs as a separate container so reviewers can see the same background-runtime shape the docs describe.
 Use `scripts/migrate.ps1` when you need to rerun migrations manually against the current local stack.
 
+## Root-Host E2E Runtime
+
+- `scripts/run-root-host-e2e.ps1` is the explicit repo-native browser E2E entrypoint for CP13 root-host flows.
+- The script is responsible for using the isolated E2E runtime path so `PB_ENV=Test` stays out of the default reviewer/local stack.
+- Do not add the E2E runtime path to `scripts/start-local.ps1`, `scripts/reviewer-full-stack.ps1`, or the base `docker-compose.yml` reviewer flow.
+
 ## First-Time Local Stack Setup
 
 1. Copy `.env.example` to `.env`.
@@ -161,12 +170,11 @@ The checked-in `.env.example` values are fake/demo-safe and are intended to work
 - `Worker Only` loads missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
 - VS Code `Launch Frontend Dev Server` remains available when you specifically want the standalone Vite surface on `http://localhost:5173`.
 
-## Current CP11 Limits
+## Current CP13 Limits
 
-- Root-host login, tenant-host logout, cookie auth, CSRF enforcement, membership-based tenant validation, root-host provisioning, and pre-auth abuse controls are now live.
+- Root-host provisioning and login browser flows are now live on `/` and `/login`, including challenge handling, one-time provisioning credential display, and redirect handoff through the server-provided `redirectUrl`.
 - Named endpoint policies plus tenant-user list/create/role-management, binder, document, and tenant-lease routes are now live at the API boundary.
 - Root-host provisioning creates the tenant, owner user, membership, lease state, and authenticated session only; binder/document seed data remains deferred.
-- The checked-in browser UI for provisioning/login remains later frontend-checkpoint work even though the backend contracts are live.
 - The tenant-host browser UI for binders, documents, and lease countdown/extend flows remains later frontend-checkpoint work even though the backend contracts are live.
 - Interactive API documentation remains intentionally deferred even though the first protected feature endpoints now exist.
 - Worker cleanup now runs on the configured cadence in the checked-in worker host and surfaces structured cleanup-cycle logs through `Reviewer Full Stack`, `App + Worker (Process)`, and `Worker Only`.

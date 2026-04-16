@@ -215,17 +215,23 @@ Purpose: explain the demo and allow provisioning.
 Sections:
 
     intro text
-    challenge widget
+    challenge widget container with helper/error state
     primary CTA
     login option
+
+On successful provisioning:
+
+    show generated email/password once
+    keep the signed-in session
+    require explicit continue action that uses the server-provided redirect URL
 
 ## Login Page
 
 Fields:
 
-    username
+    email
     password
-    challenge verification
+    challenge widget container with helper/error state
 
 On success:
 
@@ -402,6 +408,7 @@ Example:
 Error
 
 Display ProblemDetails message.
+Show retry guidance when `Retry-After` is available.
 
 Forbidden
 
@@ -474,6 +481,7 @@ Minimum accessibility targets:
 - semantic HTML
 - descriptive labels
 - ARIA where required
+- challenge wrapper label/helper/error association for browser-owned markup
 
 Color contrast must meet WCAG AA guidelines.
 

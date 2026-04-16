@@ -11,16 +11,18 @@ Status: V1
 
 - Primary CTA is `Provision new demo tenant and log in`.
 - User must complete challenge before provisioning request is submitted.
-- Credentials are shown once after provisioning.
-- User is immediately signed in and redirected to tenant host.
+- Credentials are shown once after provisioning in a short-lived root-host handoff state.
+- User is immediately signed in, then explicitly continues to the tenant host from that handoff state.
 - On failure, show actionable error with retry guidance.
 
 ## Login UX
 
 - Root login accepts existing demo credentials.
+- Root login lives on `/login` and uses `Email`, password, and challenge proof.
 - Root login requires challenge completion.
-- Successful login redirects to tenant subdomain.
+- Successful login redirects to the tenant subdomain using the server-provided `redirectUrl`.
 - Expired tenant shows clear expired message.
+- Invalid credentials, challenge failures, and rate limits show safe retry-oriented copy.
 
 ## Tenant Expiration UX
 
@@ -33,6 +35,7 @@ Status: V1
 - Keyboard navigation for primary flows.
 - Visible focus state.
 - Semantic form and navigation markup.
+- Browser-owned challenge wrapper markup provides label, helper/error association, keyboard reachability, and visible state messaging even though widget internals are third-party controlled.
 
 ## Alternatives Considered
 

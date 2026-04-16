@@ -39,6 +39,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md](./90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md)
 - [docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md](./90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md)
 - [docs/90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md](./90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md)
+- [docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md](./90-adr/ADR-0010-playwright-root-host-e2e-runtime.md)
 
 ## Execution References
 
@@ -49,6 +50,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/05-taskboard/tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md](./05-taskboard/tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md)
 - [docs/05-taskboard/tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md](./05-taskboard/tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md)
 - [docs/05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md](./05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md)
+- [docs/05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md](./05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md)
 - [docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md](./95-delivery/pr/cp9-binder-domain-and-policy-model/description.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md)
@@ -59,6 +61,9 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/implementation-plan.md](./95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/implementation-plan.md)
 - [docs/95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/critic-review.md](./95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/critic-review.md)
 - [docs/95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/description.md](./95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/description.md)
+- [docs/95-delivery/pr/cp13-root-host-frontend-flows/implementation-plan.md](./95-delivery/pr/cp13-root-host-frontend-flows/implementation-plan.md)
+- [docs/95-delivery/pr/cp13-root-host-frontend-flows/critic-review.md](./95-delivery/pr/cp13-root-host-frontend-flows/critic-review.md)
+- [docs/95-delivery/pr/cp13-root-host-frontend-flows/description.md](./95-delivery/pr/cp13-root-host-frontend-flows/description.md)
 
 ## Local-Only Overrides
 

@@ -28,6 +28,7 @@ Out of scope:
 - API calls are direct over HTTPS with `credentials: "include"`.
 - Browser `/api/*` calls flow through one shared client layer.
 - Tokens are not stored in local/session storage.
+- Generated provisioning credentials are never stored in browser storage, cookies, or query params; CP13 keeps them in transient in-memory UI state only until the user continues to the tenant host.
 - SPA sends `X-Api-Version` on all API requests (v1 value: `1`).
 - `X-Api-Version` negotiation is enforced server-side for `/api/*` routes.
 - Non-API SPA document/asset requests do not participate in API version negotiation.
@@ -38,7 +39,9 @@ Out of scope:
 ## Host Contexts
 
 - Root host (`lab.danielmaratta.com`):
-  - backend login/provision contracts plus challenge/rate-limit guards are live; browser UI wiring lands in later frontend checkpoints.
+  - `/` owns live provisioning plus the one-time credential handoff state.
+  - `/login` owns live login.
+  - challenge/rate-limit handling stays server-authoritative and routes through the shared browser client.
 - Tenant host (`{tenant}.lab.danielmaratta.com`):
   - binders/documents, lease status, tenant actions.
 
@@ -53,10 +56,13 @@ Out of scope:
 
 - API errors use ProblemDetails.
 - Shared client error handling preserves at least HTTP status, `errorCode`, user-displayable detail, `X-Correlation-Id`, and `Retry-After` when present.
+- Browser-owned challenge wrapper markup owns label, helper/error association, keyboard reachability, and visible state messaging; provider widget internals remain third-party controlled.
 - User-facing handling includes:
+  - missing challenge proof
   - invalid credentials
   - expired or unknown tenant
   - challenge failure
+  - tenant-name validation/conflict failures
   - rate limiting (`429`)
 
 ## Alternatives Considered
