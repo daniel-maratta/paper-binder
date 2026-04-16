@@ -23,12 +23,16 @@ Out of scope:
 
 - SPA is served by ASP.NET host.
 - Frontend build tooling uses Vite.
+- The SPA chooses root-host versus tenant-host behavior from the current browser host plus `VITE_PAPERBINDER_ROOT_URL` and `VITE_PAPERBINDER_TENANT_BASE_DOMAIN`.
+- Loopback process-debug hosts such as `localhost` remain root-host debug aliases only; they never establish tenant context.
 - API calls are direct over HTTPS with `credentials: "include"`.
+- Browser `/api/*` calls flow through one shared client layer.
 - Tokens are not stored in local/session storage.
 - SPA sends `X-Api-Version` on all API requests (v1 value: `1`).
 - `X-Api-Version` negotiation is enforced server-side for `/api/*` routes.
 - Non-API SPA document/asset requests do not participate in API version negotiation.
 - Routing and data orchestration execute in the client SPA and call the API directly.
+- Tenant-shell auth-aware bootstrap in CP12 uses only `GET /api/tenant/lease` before later checkpoints add feature-specific calls.
 - No route-module server logic executes in V1.
 
 ## Host Contexts
@@ -48,6 +52,7 @@ Out of scope:
 ## Error UX
 
 - API errors use ProblemDetails.
+- Shared client error handling preserves at least HTTP status, `errorCode`, user-displayable detail, `X-Correlation-Id`, and `Retry-After` when present.
 - User-facing handling includes:
   - invalid credentials
   - expired or unknown tenant
