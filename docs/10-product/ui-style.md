@@ -17,6 +17,7 @@ V1 styling prioritizes clarity, speed, and accessibility.
 - Form inputs with inline validation.
 - ProblemDetails-driven error alerts.
 - Lease status banner in tenant views.
+- Shared button, card, dialog, and status-badge primitives with restrained visual styling.
 
 ## Performance Guidelines
 

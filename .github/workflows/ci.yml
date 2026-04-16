@@ -34,7 +34,7 @@ jobs:
         shell: pwsh
         run: ./scripts/build.ps1 -Configuration Release
 
-      - name: Test
+      - name: Repo tests (frontend + backend)
         shell: pwsh
         run: ./scripts/test.ps1 -Configuration Release -DockerIntegrationMode Require
 

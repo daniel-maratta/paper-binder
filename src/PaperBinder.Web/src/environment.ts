@@ -5,15 +5,24 @@ const requiredFrontendKeys = [
 ] as const;
 
 type FrontendKey = (typeof requiredFrontendKeys)[number];
+type FrontendEnvironmentSource = Partial<Record<FrontendKey, string>>;
 
 type FrontendEnvironment = {
   rootUrl: string;
   apiBaseUrl: string;
   tenantBaseDomain: string;
+  rootHost: string;
+  apiOrigin: string;
 };
 
-function getRequiredValue(env: ImportMetaEnv, key: FrontendKey): string {
-  const value = env[key];
+declare const __PAPERBINDER_FRONTEND_ENV_FALLBACK__: Record<FrontendKey, string>;
+
+function getRequiredValue(
+  env: FrontendEnvironmentSource,
+  key: FrontendKey,
+  fallbackEnv: FrontendEnvironmentSource = {}
+): string {
+  const value = env[key] ?? fallbackEnv[key];
 
   if (typeof value === "string" && value.trim().length > 0) {
     return value.trim();
@@ -42,17 +51,30 @@ function parseTenantBaseDomain(value: string): string {
   return normalizedValue;
 }
 
-export function readFrontendEnvironment(env: ImportMetaEnv): FrontendEnvironment {
+export function readFrontendEnvironment(
+  env: FrontendEnvironmentSource,
+  fallbackEnv: FrontendEnvironmentSource = {}
+): FrontendEnvironment {
+  const rootUrl = parseUrl(
+    getRequiredValue(env, "VITE_PAPERBINDER_ROOT_URL", fallbackEnv),
+    "VITE_PAPERBINDER_ROOT_URL"
+  );
+  const apiBaseUrl = parseUrl(
+    getRequiredValue(env, "VITE_PAPERBINDER_API_BASE_URL", fallbackEnv),
+    "VITE_PAPERBINDER_API_BASE_URL"
+  );
+
   return {
-    rootUrl: parseUrl(getRequiredValue(env, "VITE_PAPERBINDER_ROOT_URL"), "VITE_PAPERBINDER_ROOT_URL"),
-    apiBaseUrl: parseUrl(
-      getRequiredValue(env, "VITE_PAPERBINDER_API_BASE_URL"),
-      "VITE_PAPERBINDER_API_BASE_URL"
-    ),
+    rootUrl,
+    apiBaseUrl,
     tenantBaseDomain: parseTenantBaseDomain(
-      getRequiredValue(env, "VITE_PAPERBINDER_TENANT_BASE_DOMAIN")
-    )
+      getRequiredValue(env, "VITE_PAPERBINDER_TENANT_BASE_DOMAIN", fallbackEnv)
+    ),
+    rootHost: new URL(rootUrl).host.toLowerCase(),
+    apiOrigin: new URL(apiBaseUrl).origin
   };
 }
 
-export const frontendEnvironment = readFrontendEnvironment(import.meta.env);
+export const frontendEnvironment = readFrontendEnvironment(import.meta.env, __PAPERBINDER_FRONTEND_ENV_FALLBACK__);
+
+export type { FrontendEnvironment };
