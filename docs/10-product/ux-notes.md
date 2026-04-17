@@ -27,8 +27,18 @@ Status: V1
 ## Tenant Expiration UX
 
 - Lease countdown is visible in tenant shell.
-- Extension action appears only when extension rules allow it.
+- Lease status reflects the latest authoritative `expiresAt`, extension count, and extend eligibility from the server.
+- Extension action may be shown from lease eligibility alone; API authorization remains authoritative and non-admin attempts fail safely with display-safe access-denied feedback.
+- Lease state refreshes on bootstrap, successful extend, route changes, focus or visibility regain, and a coarse periodic refresh rather than continuous polling.
+- Tenant-host logout returns the browser to the configured root-host `/login`.
 - Expired tenant host shows non-leaky error page.
+
+## Tenant Host Product UX
+
+- Tenant dashboard favors reviewer-useful summary content and quick links over a dashboard-specific aggregate API.
+- Binder creation lives on `/app/binders`; document creation and binder-policy management live on binder detail.
+- Document detail stays read-only in v1 and presents archived-state metadata without adding edit or replace affordances.
+- Tenant-admin user management lives on `/app/users`; non-admin callers receive safe forbidden behavior rather than silent client-side gating.
 
 ## Accessibility Baseline
 

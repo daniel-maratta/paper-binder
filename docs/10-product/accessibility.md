@@ -17,7 +17,10 @@ V1 targets baseline accessibility for primary demo flows.
   - challenge
   - provision + login
   - tenant navigation
+  - binder create + document create
   - document view
+  - tenant-admin user management + binder policy
+  - lease extend
   - logout
 - Quick screen-reader sanity check (best effort).
 

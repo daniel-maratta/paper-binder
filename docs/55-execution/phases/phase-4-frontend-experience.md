@@ -33,7 +33,7 @@ Build the browser experience from foundation through complete product flows, inc
 - Dashboard, binder list/detail, and document detail/create flows.
 - Tenant user management and binder policy UI for `TenantAdmin`.
 - Lease-status banner/countdown and extend interaction.
-- E2E coverage for normal user, admin, forbidden, expired, and logout flows.
+- E2E coverage for normal user, admin, forbidden, expired, and logout flows through the explicit frontend browser gate.
 
 ### CP15 - Tenant-Local Impersonation And Audit Safety
 
@@ -49,7 +49,7 @@ Build the browser experience from foundation through complete product flows, inc
 - The end-to-end reviewer workflow works in the browser.
 - UI permissions align with API policy behavior.
 - Cross-tenant impersonation is impossible and audit behavior matches expectations.
-- E2E tests cover major happy and deny paths.
+- E2E tests cover major happy and deny paths, with the CP14 frontend browser gate recorded explicitly in the runbook and PR artifact.
 
 ## Task Integration
 

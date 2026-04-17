@@ -13,7 +13,7 @@ Define repo-native frontend rules for the PaperBinder SPA.
 - The SPA must send `X-Api-Version` on `/api/*` calls.
 - Do not store auth tokens in localStorage or sessionStorage.
 - Root-host and tenant-host experiences remain in one SPA with host-aware routing/guards.
-- Root-host `/` owns provisioning and root-host `/login` owns login; tenant-host feature CRUD remains out of scope until later checkpoints.
+- Root-host `/` owns provisioning and root-host `/login` owns login; tenant-host `/app`, `/app/binders`, `/app/binders/:binderId`, `/app/documents/:documentId`, and `/app/users` own the live CP14 product flows.
 
 ## UI and Dependency Rules
 
@@ -37,7 +37,7 @@ Define repo-native frontend rules for the PaperBinder SPA.
 - Vitest with React Testing Library on jsdom is the baseline for frontend component and utility tests.
 - Component tests cover shared primitives, host-aware routing, and critical client error handling.
 - CP13 E2E covers root-host provisioning/login and major deny paths through the dedicated root-host browser suite.
-- Later checkpoints expand E2E to tenant navigation, lease flows, and logout.
+- The repo-native browser gate now covers root-host onboarding plus CP14 tenant-host navigation, lease, forbidden, expired, and logout/login-cycle flows.
 - Prefer Playwright for E2E coverage in V1.
 
 ## Related Documents

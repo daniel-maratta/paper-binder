@@ -11,12 +11,15 @@ services:
         VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: http://paperbinder.localhost:5081/e2e-turnstile.js
     environment:
       PAPERBINDER_PUBLIC_ROOT_URL: http://paperbinder.localhost:5081
+      PAPERBINDER_LEASE_DEFAULT_MINUTES: 10
+      PAPERBINDER_LEASE_EXTENSION_MINUTES: 10
       PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE: 10
       PB_ENV: Test
 
   worker:
     environment:
       PAPERBINDER_PUBLIC_ROOT_URL: http://paperbinder.localhost:5081
+      PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS: 3600
 
   db:
     ports:

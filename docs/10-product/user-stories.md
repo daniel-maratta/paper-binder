@@ -56,6 +56,7 @@ As a tenant user with permission, I can create and view binders within my tenant
 - `POST /api/binders` creates a binder scoped to current tenant.
 - `POST /api/binders` defaults new binders to binder policy mode `inherit`.
 - `GET /api/binders` lists only binders for current tenant and omits restricted binders the caller cannot access.
+- Tenant-host `/app/binders` lists visible binders and owns binder creation in the browser.
 - `GET /api/binders/{id}` returns binder only when it belongs to current tenant and returns concrete visible document summaries in `documents`.
 - `GET /api/binders/{id}/policy` and `PUT /api/binders/{id}/policy` enforce tenant-admin policy management.
 - Binder policy payloads use `mode` plus exact-role `allowedRoles`.
@@ -69,6 +70,7 @@ As a tenant user with permission, I can create and read immutable text documents
 ### Acceptance Criteria
 - `POST /api/documents` creates immutable text document in a tenant binder.
 - `POST /api/documents` trims title to 1-200 characters, requires exact `contentType=markdown`, requires non-whitespace content <= 50,000 characters, and accepts optional same-binder `SupersedesDocumentId`.
+- Tenant-host `/app/binders/{binderId}` owns document creation, and `/app/documents/{documentId}` owns read-only document detail in the browser.
 - `GET /api/documents` lists documents scoped to current tenant, omits restricted binders on unfiltered requests, and returns `403` when an explicit binder filter targets a same-tenant binder denied by binder-local policy.
 - `GET /api/documents/{id}` returns document only when tenant-scoped access is valid and still allows direct-id reads of archived documents.
 - `POST /api/documents/{id}/archive` and `POST /api/documents/{id}/unarchive` toggle visibility state without mutating content.
@@ -101,5 +103,6 @@ As a tenant admin, I can manage tenant users and assign roles without crossing t
 - `GET /api/tenant/users` returns only users for the current tenant.
 - `POST /api/tenant/users` creates a tenant-scoped user with an initial role.
 - `POST /api/tenant/users/{userId}/role` changes role only for tenant-scoped users.
+- Tenant-host `/app/users` exposes list, create, and role-change behavior only for `TenantAdmin`.
 - Attempting to demote the last remaining tenant admin returns `409`.
 - Non-admin callers receive `403` for tenant user-management routes.

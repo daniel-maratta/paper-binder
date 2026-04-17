@@ -27,6 +27,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0029: CP14 Tenant-Host Frontend Flows](./tasks/T-0029-cp14-tenant-host-frontend-flows.md)
 - [T-0028: CP13 Root-Host Frontend Flows](./tasks/T-0028-cp13-root-host-frontend-flows.md)
 - [T-0024: Track Remaining Test Coverage Gaps](./tasks/T-0024-track-remaining-test-coverage-gaps.md)
 - [T-0027: CP12 Frontend Foundation And Shared UI System](./tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md)

@@ -2,7 +2,7 @@
 
 ## v1 Identity Model
 
-- ASP.NET Core Identity handles username/password authentication.
+- ASP.NET Core Identity handles email/password authentication.
 - Identity managers are used with custom Dapper-backed runtime stores; EF Core is not used for runtime auth data access.
 - The built-in `PasswordHasher<TUser>` is the explicit v1 password hashing strategy.
 - User credentials live in `users`, and tenant linkage lives in `user_tenants`.
@@ -11,6 +11,7 @@
 - After login, user is redirected to the tenant subdomain.
 - Login runs only on the root host, logout runs only on tenant hosts, and both share one parent-domain auth cookie.
 - Authenticated unsafe `/api/*` routes require the paired CSRF cookie and `X-CSRF-TOKEN` header.
+- Root-host browser login submits only `email`, `password`, and `challengeToken`; tenant-host browser logout returns to the configured root-host `/login`.
 
 ## Boundary Rules
 

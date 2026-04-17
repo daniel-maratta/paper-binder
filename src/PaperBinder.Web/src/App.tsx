@@ -3,6 +3,7 @@ import { createPaperBinderApiClient, type PaperBinderApiClient } from "./api/cli
 import { InvalidHostRoutes } from "./app/invalid-host";
 import type { HostContext } from "./app/host-context";
 import type { RootHostNavigator } from "./app/root-host";
+import type { TenantHostNavigator } from "./app/tenant-host";
 import { resolveHostContext } from "./app/host-context";
 import { RootHostRoutes } from "./app/root-host";
 import { TenantHostRoutes } from "./app/tenant-host";
@@ -22,16 +23,20 @@ function createBrowserAppDefaults() {
 export function AppRouter({
   apiClient,
   hostContext,
-  rootHostNavigator
+  rootHostNavigator,
+  tenantHostNavigator
 }: {
   apiClient: PaperBinderApiClient;
   hostContext: HostContext;
   rootHostNavigator?: RootHostNavigator;
+  tenantHostNavigator?: TenantHostNavigator;
 }) {
   return (
     <Routes>
       {hostContext.kind === "root" ? RootHostRoutes({ apiClient, hostContext, navigator: rootHostNavigator }) : null}
-      {hostContext.kind === "tenant" ? TenantHostRoutes({ apiClient, hostContext }) : null}
+      {hostContext.kind === "tenant"
+        ? TenantHostRoutes({ apiClient, hostContext, navigator: tenantHostNavigator })
+        : null}
       {hostContext.kind === "invalid" ? InvalidHostRoutes({ hostContext }) : null}
     </Routes>
   );

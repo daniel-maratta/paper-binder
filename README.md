@@ -104,7 +104,7 @@ The primary reviewer launch now stays in parity across both editors as `Reviewer
 The authoritative launch-profile contract lives in `docs/70-operations/runbook-local.md`.
 Checkpoint-complete validation now also requires `scripts/validate-launch-profiles.ps1` plus recorded manual launch verification in both VS Code and Visual Studio before a checkpoint can be declared done.
 `scripts/validate-checkpoint.ps1` bundles the standard scripted closeout path (build, tests, docs validation, launch-profile validation), but it does not replace the required manual verification evidence.
-CP13 closeout also requires `scripts/run-root-host-e2e.ps1` as a separate browser gate; that suite is intentionally not bundled into `scripts/validate-checkpoint.ps1`.
+CP14 closeout also requires `scripts/run-root-host-e2e.ps1` as a separate browser gate; the broadened suite now covers both root-host and tenant-host Playwright flows and is intentionally not bundled into `scripts/validate-checkpoint.ps1`.
 The canonical `scripts/build.ps1` path now runs the frontend build explicitly before `dotnet build` and then passes `SkipFrontendBuild=true` into the solution build so Vite/npm failures surface with tool-native output instead of an opaque MSBuild exit.
 `scripts/restore.ps1` now reruns bodyless `dotnet restore` failures once with richer verbosity and treats persistent no-body restore failures as a likely restricted/offline-environment issue rather than silently implying a broken project graph. Its `npm ci` step also retries one transient Windows `EPERM`/`unlink` lock before failing with explicit close-the-locking-process guidance.
 

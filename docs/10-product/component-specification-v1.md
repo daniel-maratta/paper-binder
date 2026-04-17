@@ -154,7 +154,7 @@ Error state:
 
 Example message:
 
-`Username is required.`
+`Email is required.`
 
 ---
 
