@@ -93,7 +93,6 @@ Severity: Informational.
 | 8 | **E2E runtime default-stack isolation.** `scripts/start-local.ps1` has zero matches for `e2e` or `docker-compose.e2e`. `scripts/validate-checkpoint.ps1` has zero matches. `docker-compose.e2e.yml` uses a separate compose project name `paperbinder-e2e` and a dedicated port `5081`. | Pass |
 | 9 | **Checkpoint validation wiring.** `docs/70-operations/runbook-local.md` line 113 explicitly states: "CP13 closeout also requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1`; this browser suite remains a separate required gate and is not bundled into `scripts/validate-checkpoint.ps1`." This is unambiguous. | Pass |
 | 10 | **Acceptance criteria traceability.** All 24 acceptance criteria from the implementation plan map to at least one automated check. See traceability detail below. | Pass |
-***REMOVED***
 
 ---
 
