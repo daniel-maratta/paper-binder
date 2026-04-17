@@ -9,6 +9,9 @@ As a visitor, I can provision a demo tenant and receive generated credentials so
 
 ### Acceptance Criteria
 - Given a valid provisioning request, `POST /api/provision` returns `201` and includes generated credentials, tenant subdomain, and redirect URL.
+- Root-host `/` owns the provisioning form and submits only `tenantName` plus `challengeToken` through the shared SPA client.
+- After provisioning succeeds, generated credentials are shown exactly once in a root-host handoff state and remain transient in memory only.
+- The handoff state keeps the user signed in and continues to the tenant host only when the user activates the explicit continue action that uses the server-provided `redirectUrl`.
 - Provision response includes `expiresAt` set to approximately 1 hour from provision time.
 - `GET /api/tenant/lease` returns authoritative lease state including `expiresAt`, `secondsRemaining`, `extensionCount`, `maxExtensions`, and `canExtend`.
 - `POST /api/tenant/lease/extend` requires the existing `TenantAdmin` policy, a valid CSRF token, and ignores client-supplied tenant or duration values.
@@ -17,6 +20,7 @@ As a visitor, I can provision a demo tenant and receive generated credentials so
 - Given extension count = 3, `POST /api/tenant/lease/extend` returns `409 TENANT_LEASE_EXTENSION_LIMIT_REACHED`.
 - Given the dedicated lease-extend budget is exhausted, `POST /api/tenant/lease/extend` returns `429 RATE_LIMITED` with `Retry-After`.
 - Provisioning and root login are challenge-protected and return `429` when pre-auth rate limits are exceeded.
+- Root-host provisioning renders safe, actionable ProblemDetails handling for challenge-required, challenge-failed, tenant-name-invalid, tenant-name-conflict, rate-limited, and unexpected failure paths.
 
 ## Slice 2: Authentication
 
@@ -25,9 +29,10 @@ As a tenant user, I can log in from the landing page and be routed into my tenan
 
 ### Acceptance Criteria
 - Login succeeds with generated credentials from provisioning.
-- After login, user is redirected to the tenant subdomain.
+- Root-host `/login` owns the login form, labels the identity field as `Email`, and submits only `email`, `password`, and `challengeToken` through the shared SPA client.
+- After login, user is redirected to the tenant subdomain via the server-provided `redirectUrl`.
 - Authenticated identity maps to exactly one tenant in v1.
-- Root login requires challenge proof and returns clear challenge/rate-limit errors.
+- Root login requires challenge proof and returns clear safe handling for challenge, invalid-credentials, tenant-expired, and rate-limit failures.
 
 ## Slice 3: Tenant Resolution
 

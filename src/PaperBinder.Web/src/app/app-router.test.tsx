@@ -19,7 +19,20 @@ function createApiClientStub(): PaperBinderApiClient {
       extensionCount: 1,
       maxExtensions: 3,
       canExtend: false
-    })) as PaperBinderApiClient["getTenantLease"]
+    })) as PaperBinderApiClient["getTenantLease"],
+    provision: vi.fn(async () => ({
+      tenantId: "tenant-1",
+      tenantSlug: "acme-demo",
+      expiresAt: "2026-04-16T12:00:00Z",
+      redirectUrl: "https://acme-demo.paperbinder.example.test/app",
+      credentials: {
+        email: "owner@acme-demo.local",
+        password: "generated-password"
+      }
+    })) as PaperBinderApiClient["provision"],
+    login: vi.fn(async () => ({
+      redirectUrl: "https://acme-demo.paperbinder.example.test/app"
+    })) as PaperBinderApiClient["login"]
   };
 }
 
@@ -33,7 +46,7 @@ describe("app router", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("heading", { name: "Login route placeholder" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Log in to an existing tenant" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /About/ })).toBeInTheDocument();
 
     rootView.unmount();

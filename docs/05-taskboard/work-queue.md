@@ -15,7 +15,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Next
 
-- [T-0024: Track Remaining Test Coverage Gaps](./tasks/T-0024-track-remaining-test-coverage-gaps.md)
+- (empty)
 
 ## Later
 
@@ -27,6 +27,8 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0028: CP13 Root-Host Frontend Flows](./tasks/T-0028-cp13-root-host-frontend-flows.md)
+- [T-0024: Track Remaining Test Coverage Gaps](./tasks/T-0024-track-remaining-test-coverage-gaps.md)
 - [T-0027: CP12 Frontend Foundation And Shared UI System](./tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md)
 - [T-0026: CP11 Worker Runtime And Lease Lifecycle](./tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md)
 - [T-0025: CP10 Document Domain And Immutable Document Rules](./tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md)

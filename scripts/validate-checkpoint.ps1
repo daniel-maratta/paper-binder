@@ -81,4 +81,5 @@ else {
 
 Write-Host ""
 Write-Host "Checkpoint validation passed."
+Write-Host "Checkpoint-specific browser E2E suites are not bundled here; run the documented E2E command separately when the active checkpoint requires it."
 Write-Host "Manual VS Code and Visual Studio launch verification must still be recorded separately before checkpoint closeout."

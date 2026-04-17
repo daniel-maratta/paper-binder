@@ -28,6 +28,34 @@ export type TenantLeaseSummary = {
   canExtend: boolean;
 };
 
+export type ProvisionRequest = {
+  tenantName: string;
+  challengeToken: string;
+};
+
+export type ProvisionCredentials = {
+  email: string;
+  password: string;
+};
+
+export type ProvisionResponse = {
+  tenantId: string;
+  tenantSlug: string;
+  expiresAt: string;
+  redirectUrl: string;
+  credentials: ProvisionCredentials;
+};
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+  challengeToken: string;
+};
+
+export type LoginResponse = {
+  redirectUrl: string;
+};
+
 type ProblemDetailsLike = {
   title?: string;
   status?: number;
@@ -277,6 +305,26 @@ export function createPaperBinderApiClient({
     async getTenantLease(signal?: AbortSignal): Promise<TenantLeaseSummary> {
       const response = await request<TenantLeaseSummary>({
         path: "/api/tenant/lease",
+        signal
+      });
+
+      return response.data;
+    },
+    async provision(body: ProvisionRequest, signal?: AbortSignal): Promise<ProvisionResponse> {
+      const response = await request<ProvisionResponse>({
+        path: "/api/provision",
+        method: "POST",
+        body,
+        signal
+      });
+
+      return response.data;
+    },
+    async login(body: LoginRequest, signal?: AbortSignal): Promise<LoginResponse> {
+      const response = await request<LoginResponse>({
+        path: "/api/auth/login",
+        method: "POST",
+        body,
         signal
       });
 

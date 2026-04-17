@@ -1,15 +1,15 @@
 export const rootRouteDefinitions = [
   {
     path: "/" as const,
-    label: "Overview",
-    title: "Root-host foundation",
-    description: "Static shell and form placeholders for the later provisioning and login flows."
+    label: "Provision",
+    title: "Provision a demo tenant",
+    description: "Create a tenant, review one-time credentials, then continue to the tenant host."
   },
   {
     path: "/login" as const,
     label: "Login",
-    title: "Login route placeholder",
-    description: "Auth form composition is visible here, but submission wiring waits for CP13."
+    title: "Root-host login",
+    description: "Sign in with existing demo credentials and redirect with the server-provided URL."
   },
   {
     path: "/about" as const,

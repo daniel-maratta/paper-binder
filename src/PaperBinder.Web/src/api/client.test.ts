@@ -74,4 +74,68 @@ describe("api client", () => {
       retryAfterSeconds: 120
     });
   });
+
+  it("Should_CallTypedProvisionAndLoginMethods_ThroughSharedApiRequestPath", async () => {
+    const fetchMock = vi
+      .fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        if (url.endsWith("/api/provision")) {
+          return new Response(
+            JSON.stringify({
+              tenantId: "tenant-1",
+              tenantSlug: "acme-demo",
+              expiresAt: "2026-04-16T12:00:00Z",
+              redirectUrl: "https://acme-demo.paperbinder.example.test/app",
+              credentials: {
+                email: "owner@acme-demo.local",
+                password: "generated-password"
+              }
+            }),
+            {
+              status: 201,
+              headers: {
+                "Content-Type": "application/json",
+                "X-Correlation-Id": "corr-provision"
+              }
+            }
+          );
+        }
+
+        expect(url).toBe("https://paperbinder.example.test/api/auth/login");
+        expect(init?.method).toBe("POST");
+
+        return new Response(
+          JSON.stringify({
+            redirectUrl: "https://acme-demo.paperbinder.example.test/app"
+          }),
+          {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              "X-Correlation-Id": "corr-login"
+            }
+          }
+        );
+      });
+
+    const apiClient = createPaperBinderApiClient({
+      apiOrigin: "https://paperbinder.example.test",
+      fetchFn: fetchMock as typeof fetch,
+      cookieSource: () => "paperbinder.auth.csrf=test-token"
+    });
+
+    const provisionResponse = await apiClient.provision({
+      tenantName: "Acme Demo",
+      challengeToken: "challenge-token"
+    });
+    const loginResponse = await apiClient.login({
+      email: "owner@acme-demo.local",
+      password: "generated-password",
+      challengeToken: "challenge-token"
+    });
+
+    expect(provisionResponse.credentials.email).toBe("owner@acme-demo.local");
+    expect(loginResponse.redirectUrl).toBe("https://acme-demo.paperbinder.example.test/app");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 });
