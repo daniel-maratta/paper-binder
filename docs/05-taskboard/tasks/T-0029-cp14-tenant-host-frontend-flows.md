@@ -1,7 +1,7 @@
 # T-0029: CP14 Tenant-Host Frontend Flows
 
 ## Status
-active
+done
 
 ## Type
 feature
@@ -56,13 +56,14 @@ Implement CP14 so the CP12 tenant-host shell and CP13 onboarding handoff become 
 
 ## Review Gates
 - Scope Lock: Passed via [critic-review.md](../../95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md) on `2026-04-16`; implementation must honor the locked decisions and stay inside CP14.
-- Pre-PR Critique: Scope-lock critique completed. Post-implementation critic review is still pending.
-- Post-Implementation Critique: Pending author handoff and critic review on the implemented diff.
+- Pre-PR Critique: Scope-lock critique completed. Post-implementation critic review is now complete with a ship-ready verdict on the implemented diff.
+- Post-Implementation Critique: Completed via [critic-review.md](../../95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md) on `2026-04-17`; no blocking findings remain. The only required follow-up, `NB-POST-1`, is now closed in executor closeout; `NB-POST-2` remains deferred to a later hardening checkpoint.
 - Escalation Notes: Stop rather than widening scope if the tenant-host UI needs a new backend endpoint, a new sticky frontend dependency for markdown or state management, browser credential persistence, or any client-built tenant redirect or tenant-identity shortcut.
 
 ## Current State
-- Implementation and automated validation are complete on the current branch across tenant-host routes, shared client, browser/runtime wiring, tests, and the synchronized canonical docs.
-- The only remaining checkpoint-closeout work is the required manual VS Code plus Visual Studio launch verification evidence before CP14 can be marked `done`.
+- Done. CP14 implementation is in place across tenant-host routes, shared client, browser/runtime wiring, tests, and the synchronized canonical docs.
+- Post-implementation critic review is complete and ship-ready. The only required merge follow-up was the duplicate CP12 paragraph in `docs/20-architecture/frontend-app-route-map.md`; that documentation fix is closed and docs validation has been re-run.
+- Manual VS Code and Visual Studio launch verification completed and passed on `2026-04-17`, so CP14 closeout evidence is now complete.
 
 ## Touch Points
 - `src/PaperBinder.Web`
@@ -110,7 +111,7 @@ Implement CP14 so the CP12 tenant-host shell and CP13 onboarding handoff become 
   - Green target: add the smallest stable tenant-host Playwright coverage and broaden the existing frontend browser gate
 
 ## Next Action
-- Record manual VS Code plus Visual Studio launch verification in the CP14 PR artifact after a human operator performs those checks, then move `T-0029` to `done` and mark `CP14` complete.
+- None for `CP14`. Next planned checkpoint is `CP15`.
 
 ## Validation Evidence
 - `npm.cmd run build` from `src/PaperBinder.Web` passed on `2026-04-17`
@@ -126,6 +127,8 @@ Implement CP14 so the CP12 tenant-host shell and CP13 onboarding handoff become 
   - non-Docker integration suite: 25 passed, 0 failed
   - Docker-backed integration suite: 72 passed, 0 failed
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on `2026-04-17`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` re-ran on `2026-04-17` after the post-review route-map cleanup and closeout artifact updates and passed
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` re-ran on `2026-04-17` after the manual-verification closeout artifact updates and passed
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1` passed on `2026-04-17`
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` passed on `2026-04-17`
   - checkpoint output correctly preserves the browser suite as a separate required gate and reminds that manual VS Code plus Visual Studio verification is still required
@@ -136,8 +139,8 @@ Implement CP14 so the CP12 tenant-host shell and CP13 onboarding handoff become 
   - `rg -n "tenantSlug" src/PaperBinder.Web/src/app/tenant-host.tsx src/PaperBinder.Web/src/app/host-context.ts src/PaperBinder.Web/src/api/client.ts` found only host-context resolution, provision/login DTOs, and display-only shell metadata
   - `rg -n "PB_ENV: Test|PB_ENV=Test|run-root-host-e2e|docker-compose.e2e|paperbinder-e2e" docker-compose.yml docker-compose.e2e.yml scripts docs src/PaperBinder.Api` confirmed `PB_ENV=Test` remains isolated to the browser E2E runtime path
 - Manual verification:
-  - VS Code launch verification: pending
-  - Visual Studio launch verification: pending
+  - VS Code launch verification: passed on `2026-04-17`
+  - Visual Studio launch verification: passed on `2026-04-17`
 
 ## Decision Notes
 - The existing `scripts/run-root-host-e2e.ps1` entrypoint is broadened into the CP14 frontend browser gate instead of adding a second browser script.
@@ -157,7 +160,9 @@ Implement CP14 so the CP12 tenant-host shell and CP13 onboarding handoff become 
 - manual reviewer verification of tenant-host browser flows plus required VS Code and Visual Studio launch evidence recorded in the CP14 PR artifact before checkpoint closeout
 
 ## Outcome (Fill when done)
-- CP14 tenant-host flows are implemented and review-ready with synchronized docs and green automated validation, but the checkpoint is not fully closed until the required manual launch verification is completed and recorded.
+- CP14 tenant-host flows are live in the browser with shared-client transport, lease ownership, safe tenant-host error handling, broadened frontend browser E2E coverage, and synchronized docs/taskboard artifacts.
+- Post-implementation critic review is complete with a ship-ready verdict, the required documentation follow-up is closed, and `NB-POST-2` remains deferred to later hardening.
+- CP14 closeout is complete: automated validation, browser-gate coverage, launch-profile validation, manual VS Code plus Visual Studio verification, and synchronized delivery/taskboard artifacts are all recorded as passing.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

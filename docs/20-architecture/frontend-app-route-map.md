@@ -53,7 +53,6 @@ CP14 bootstraps the tenant shell through `GET /api/tenant/lease`, then layers pe
 - Lease extension action (tenant shell/banner): `POST /api/tenant/lease/extend`
 - Logout action: `POST /api/auth/logout`
 
-These are action endpoints triggered from multiple views rather than dedicated pages. CP12 reserves the banner and shell slots but does not yet ship lease-extend or logout interaction wiring.
 These are action endpoints triggered from multiple views rather than dedicated pages. CP14 wires both actions into the live tenant shell.
 
 ## Redirect and Guard Rules

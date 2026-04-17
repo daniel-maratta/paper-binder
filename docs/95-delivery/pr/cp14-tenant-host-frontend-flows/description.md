@@ -26,13 +26,16 @@ Status: Review Ready
 
 ## Critic Review
 - Scope-lock outcome: passed via [critic-review.md](./critic-review.md) on `2026-04-16`; no blocking findings remained before implementation.
-- Post-implementation outcome: pending critic review on the implemented diff.
+- Post-implementation outcome: completed via [critic-review.md](./critic-review.md) on `2026-04-17`; ship-ready verdict, no blocking findings, and the one required low-severity documentation follow-up (`NB-POST-1`) is now closed in executor closeout.
 - Scope-lock non-blocking findings addressed in this change set:
   - `NB-1`: tenant-host error handling and acceptance-criteria coverage now include the route-specific document and tenant-user validation and not-found codes required by CP14 flows.
   - `NB-2`: lease-extend UX is now documented as lease-eligibility-driven at the shell level, while API authorization remains authoritative and non-admin attempts fail safely.
   - `NB-3`: CP14-touched product docs now use `Email` terminology instead of residual `username` wording.
   - `NB-4`: the browser suite now uses tenant-per-spec ownership by default, with the same-tenant admin-to-restricted-user continuity covered deliberately inside one serial scenario.
   - `NB-5`: the inert mock challenge script remains deferred to a later hardening checkpoint and was not pulled into CP14.
+- Post-implementation non-blocking findings:
+  - `NB-POST-1` resolved in follow-up: removed the stale duplicate CP12 paragraph from `docs/20-architecture/frontend-app-route-map.md` and re-ran docs validation.
+  - `NB-POST-2` deferred: the inert mock challenge script remains a later hardening concern and was not pulled into CP14 closeout.
 
 ## Risks And Rollout Notes
 - Config or migration considerations:
@@ -46,7 +49,10 @@ Status: Review Ready
   - `PB_ENV=Test` remains isolated to the dedicated browser runtime path
 - Checkpoint closure considerations:
   - automated validation is complete and recorded below
-  - the required manual VS Code and Visual Studio launch verification is still pending in this environment and must be recorded before CP14 can be called done
+  - post-implementation critic review is complete
+  - the only required critic follow-up (`NB-POST-1`) is closed
+  - manual VS Code and Visual Studio launch verification completed and passed on `2026-04-17`
+  - CP14 closeout evidence is complete
 
 ## Validation Evidence
 - `npm.cmd run build` from `src/PaperBinder.Web`: passed on `2026-04-17`
@@ -62,6 +68,8 @@ Status: Review Ready
   - non-Docker integration suite: 25 passed, 0 failed
   - Docker-backed integration suite: 72 passed, 0 failed
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`: passed on `2026-04-17`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`: re-ran on `2026-04-17` after the post-review route-map cleanup and closeout artifact updates and passed
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`: re-ran on `2026-04-17` after the manual-verification closeout artifact updates and passed
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`: passed on `2026-04-17`
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`: passed on `2026-04-17`
   - checkpoint output still requires the separate browser gate and manual VS Code plus Visual Studio verification before closeout
@@ -72,8 +80,8 @@ Status: Review Ready
   - tenant slug usage is limited to host-context resolution and display-only metadata
   - `PB_ENV=Test` remains isolated to the explicit browser E2E runtime path
 - Manual verification:
-  - VS Code launch: pending
-  - Visual Studio launch: pending
+  - VS Code launch: passed on `2026-04-17`
+  - Visual Studio launch: passed on `2026-04-17`
 
 ## Author Notes For Critic
 - Changed files:
@@ -88,8 +96,8 @@ Status: Review Ready
 - Intentional deviations:
   - none from the locked CP14 design
 - Residual risks:
-  - manual VS Code and Visual Studio launch verification remains an external checkpoint-closeout gate
   - the inert mock challenge script carried forward from CP13 remains a deferred hardening item outside CP14 scope
 
 ## Follow-Ups
-- Record manual VS Code and Visual Studio launch verification in this artifact before marking `CP14` and `T-0029` done.
+- Deferred non-blocking critic item:
+  - `NB-POST-2`: move the inert mock challenge script out of the production image during a later hardening checkpoint.
