@@ -1,40 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { AppRouter } from "../App";
-import type { PaperBinderApiClient } from "../api/client";
 import { resolveHostContext } from "./host-context";
-import { createLocationLike, createRootHostContext, createTenantHostContext, testEnvironment } from "../test/test-helpers";
-
-function createApiClientStub(): PaperBinderApiClient {
-  return {
-    request: vi.fn(async () => ({
-      data: undefined,
-      correlationId: null,
-      response: new Response()
-    })) as PaperBinderApiClient["request"],
-    getTenantLease: vi.fn(async () => ({
-      expiresAt: "2026-04-15T12:00:00Z",
-      secondsRemaining: 1800,
-      extensionCount: 1,
-      maxExtensions: 3,
-      canExtend: false
-    })) as PaperBinderApiClient["getTenantLease"],
-    provision: vi.fn(async () => ({
-      tenantId: "tenant-1",
-      tenantSlug: "acme-demo",
-      expiresAt: "2026-04-16T12:00:00Z",
-      redirectUrl: "https://acme-demo.paperbinder.example.test/app",
-      credentials: {
-        email: "owner@acme-demo.local",
-        password: "generated-password"
-      }
-    })) as PaperBinderApiClient["provision"],
-    login: vi.fn(async () => ({
-      redirectUrl: "https://acme-demo.paperbinder.example.test/app"
-    })) as PaperBinderApiClient["login"]
-  };
-}
+import {
+  createApiClientStub,
+  createLocationLike,
+  createRootHostContext,
+  createTenantHostContext,
+  testEnvironment
+} from "../test/test-helpers";
 
 describe("app router", () => {
   it("Should_RenderCanonicalRouteSkeleton_ForCurrentHostContext", async () => {
@@ -57,7 +32,7 @@ describe("app router", () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByRole("heading", { name: "Binder detail placeholder" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Operations" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Binders/ })).toBeInTheDocument();
   });
 

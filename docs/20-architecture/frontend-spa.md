@@ -33,7 +33,7 @@ Out of scope:
 - `X-Api-Version` negotiation is enforced server-side for `/api/*` routes.
 - Non-API SPA document/asset requests do not participate in API version negotiation.
 - Routing and data orchestration execute in the client SPA and call the API directly.
-- Tenant-shell auth-aware bootstrap in CP12 uses only `GET /api/tenant/lease` before later checkpoints add feature-specific calls.
+- Tenant-shell auth-aware bootstrap uses `GET /api/tenant/lease` as the authoritative shell seam; CP14 layers feature-specific calls on top of that shell-owned lease state.
 - No route-module server logic executes in V1.
 
 ## Host Contexts
@@ -43,7 +43,10 @@ Out of scope:
   - `/login` owns live login.
   - challenge/rate-limit handling stays server-authoritative and routes through the shared browser client.
 - Tenant host (`{tenant}.lab.danielmaratta.com`):
-  - binders/documents, lease status, tenant actions.
+  - `/app` dashboard plus lease visibility
+  - `/app/binders` and `/app/binders/:binderId` for binder, document-create, and binder-policy flows
+  - `/app/documents/:documentId` for read-only document detail
+  - `/app/users` for tenant-admin user management
 
 ## Authentication in Browser
 
@@ -64,6 +67,14 @@ Out of scope:
   - challenge failure
   - tenant-name validation/conflict failures
   - rate limiting (`429`)
+  - tenant-host access denial, validation, and route-failure states
+
+## Tenant Shell State
+
+- Lease state is owned once at the tenant-shell level and is the only browser source for expiry, countdown, extension count, and extend affordance state.
+- Countdown is presentation only and is derived from the latest authoritative `expiresAt` value.
+- CP14 refreshes lease state on bootstrap, successful extend, route changes, focus/visibility return, and a coarse periodic refresh.
+- Tenant-host logout uses `POST /api/auth/logout` through the shared API client only and returns the browser to the configured root-host `/login`.
 
 ## Alternatives Considered
 

@@ -1,55 +1,30 @@
-import { expect, test, type Page } from "@playwright/test";
-
-const challengePassToken = "paperbinder-test-challenge-pass";
-const challengeFailToken = "paperbinder-test-challenge-fail";
+import { expect, test } from "@playwright/test";
+import {
+  challengeFailToken,
+  completeChallenge,
+  provisionTenantAndContinue,
+  submitLoginAndWaitForResponse,
+  tenantHostUrl
+} from "./helpers";
 
 let provisionedEmail: string | null = null;
 let provisionedPassword: string | null = null;
 let provisionedTenantSlug: string | null = null;
 
-async function completeChallenge(page: Page, token = challengePassToken) {
-  await page.evaluate((nextToken) => {
-    (window as Window & { __paperbinderTurnstileNextToken?: string | null }).__paperbinderTurnstileNextToken =
-      nextToken;
-  }, token);
-
-  await page.getByRole("button", { name: "Complete challenge" }).click();
-  await expect(page.getByText("Challenge complete.")).toBeVisible();
-}
-
-async function submitLoginAndWaitForResponse(page: Page) {
-  const loginResponse = page.waitForResponse((response) => response.url().endsWith("/api/auth/login"));
-  await page.getByRole("button", { name: "Log in" }).click();
-  return loginResponse;
-}
-
 test.describe.configure({ mode: "serial" });
 
 test("Should_ProvisionAndAutoLogin_FromRootHost_InBrowser_AgainstTheExplicitE2ERuntime", async ({ page }) => {
-  const tenantName = `Acme CP13 ${Date.now()}`;
-  const provisionRequest = page.waitForRequest((request) => request.url().endsWith("/api/provision"));
-  const provisionResponse = page.waitForResponse((response) => response.url().endsWith("/api/provision"));
+  const provisionedTenant = await provisionTenantAndContinue(page, `Acme CP13 ${Date.now()}`);
 
-  await page.goto("/");
-  await page.getByLabel("Tenant name").fill(tenantName);
-  await completeChallenge(page);
-  await page.getByRole("button", { name: "Provision new demo tenant and log in" }).click();
+  expect(provisionedTenant.request.headers()["x-api-version"]).toBe("1");
+  expect(provisionedTenant.response.headers()["x-correlation-id"]).toBeTruthy();
 
-  const request = await provisionRequest;
-  const response = await provisionResponse;
+  provisionedEmail = provisionedTenant.email;
+  provisionedPassword = provisionedTenant.password;
+  provisionedTenantSlug = provisionedTenant.tenantSlug;
 
-  expect(request.headers()["x-api-version"]).toBe("1");
-  expect(response.headers()["x-correlation-id"]).toBeTruthy();
-
-  await expect(page.getByRole("heading", { name: "Tenant provisioned." })).toBeVisible();
-
-  provisionedEmail = await page.getByLabel("Email").inputValue();
-  provisionedPassword = await page.getByLabel("Password").inputValue();
-  provisionedTenantSlug = provisionedEmail.split("@")[1].replace(".local", "");
-
-  await page.getByRole("button", { name: "Continue to tenant" }).click();
-  await expect(page).toHaveURL(`http://${provisionedTenantSlug}.paperbinder.localhost:5081/app`);
-  await expect(page.getByRole("heading", { name: "Tenant dashboard placeholder" })).toBeVisible();
+  await expect(page).toHaveURL(tenantHostUrl(provisionedTenant.tenantSlug));
+  await expect(page.getByRole("heading", { name: "Tenant dashboard" })).toBeVisible();
 });
 
 test("Should_SubmitLoginRequest_AndRedirectUsingServerProvidedUrl_When_RootHostLoginSucceeds", async ({
@@ -65,8 +40,8 @@ test("Should_SubmitLoginRequest_AndRedirectUsingServerProvidedUrl_When_RootHostL
   await completeChallenge(page);
   await page.getByRole("button", { name: "Log in" }).click();
 
-  await expect(page).toHaveURL(`http://${provisionedTenantSlug}.paperbinder.localhost:5081/app`);
-  await expect(page.getByRole("heading", { name: "Tenant dashboard placeholder" })).toBeVisible();
+  await expect(page).toHaveURL(tenantHostUrl(provisionedTenantSlug!));
+  await expect(page.getByRole("heading", { name: "Tenant dashboard" })).toBeVisible();
 });
 
 test("Should_SurfaceChallengeFailureInvalidCredentialsAndRateLimit_InBrowserWithoutLeakingInternals", async ({

@@ -21,6 +21,13 @@
 - Expired-but-not-yet-purged tenants return `410`.
 - Purged tenants return `404`.
 
+## Browser Presentation
+
+- The tenant shell always shows the current expiry timestamp, countdown, extension count, and extend affordance state from the latest authoritative lease snapshot.
+- Countdown is presentation only; the browser never derives extension eligibility from local timer math.
+- CP14 refreshes lease state on shell bootstrap, successful extend, route changes, focus/visibility return, and a coarse periodic refresh.
+- The extend affordance may be visible based on lease eligibility alone; non-admin attempts must fail safely through the existing API policy boundary.
+
 ## Security and Tenancy
 
 - `GET /api/tenant/lease` requires authenticated tenant membership.

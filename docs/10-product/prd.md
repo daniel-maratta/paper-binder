@@ -123,14 +123,16 @@ All entities are tenant-scoped unless explicitly global.
 - Lease extension requires `TenantAdmin`, a valid CSRF token, and the route-scoped lease-extend rate limiter.
 - Each extension adds `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
 - Maximum 3 extensions per tenant.
+- The tenant-host shell displays current lease expiry, countdown, extension usage, and the extend action using authoritative lease data from the existing lease endpoints.
 
 ### 6.2 Authentication
 
-- Username/password authentication.
+- Email/password authentication.
 - Authentication is tenant-aware.
 - Identity is isolated per tenant.
 - Cross-subdomain cookie authentication (parent-domain cookie) is the only supported auth mechanism in v1.
 - JWT authentication is out of scope for v1.
+- Tenant-host logout uses `POST /api/auth/logout` and returns the browser to the configured root-host login page.
 
 ### 6.3 Authorization
 
@@ -151,6 +153,8 @@ All entities are tenant-scoped unless explicitly global.
 - Binder policy `allowedRoles` values are exact v1 tenant role values.
 - Binder list responses omit restricted binders the caller cannot access.
 - Binder detail responses return concrete `documents` summaries in CP10.
+- The browser exposes binder list and inline binder creation on tenant-host `/app/binders`.
+- The browser exposes binder detail, document creation, and tenant-admin binder-policy management on tenant-host `/app/binders/{binderId}`.
 
 ### 6.5 Documents
 
@@ -169,8 +173,14 @@ All entities are tenant-scoped unless explicitly global.
 - Archived documents remain readable by direct document id.
 - No in-place content editing API.
 - No version history.
+- The browser exposes read-only document detail on tenant-host `/app/documents/{documentId}` and does not add edit or replace behavior in v1.
 
-### 6.6 Lease and Cleanup
+### 6.6 Tenant User Management
+
+- Tenant-admin browser flows expose tenant user list, create, and role-change behavior on tenant-host `/app/users`.
+- Non-admin callers must fail safely for tenant-admin-only user-management actions.
+
+### 6.7 Lease and Cleanup
 
 - Each demo tenant has an expiration timestamp.
 - Background worker checks for expired tenants on a fixed cadence (target: every minute).

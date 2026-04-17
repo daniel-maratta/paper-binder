@@ -51,6 +51,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/05-taskboard/tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md](./05-taskboard/tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md)
 - [docs/05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md](./05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md)
 - [docs/05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md](./05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md)
+- [docs/05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md](./05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md)
 - [docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md](./95-delivery/pr/cp9-binder-domain-and-policy-model/description.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md)
@@ -64,6 +65,9 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/95-delivery/pr/cp13-root-host-frontend-flows/implementation-plan.md](./95-delivery/pr/cp13-root-host-frontend-flows/implementation-plan.md)
 - [docs/95-delivery/pr/cp13-root-host-frontend-flows/critic-review.md](./95-delivery/pr/cp13-root-host-frontend-flows/critic-review.md)
 - [docs/95-delivery/pr/cp13-root-host-frontend-flows/description.md](./95-delivery/pr/cp13-root-host-frontend-flows/description.md)
+- [docs/95-delivery/pr/cp14-tenant-host-frontend-flows/implementation-plan.md](./95-delivery/pr/cp14-tenant-host-frontend-flows/implementation-plan.md)
+- [docs/95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md](./95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md)
+- [docs/95-delivery/pr/cp14-tenant-host-frontend-flows/description.md](./95-delivery/pr/cp14-tenant-host-frontend-flows/description.md)
 
 ## Local-Only Overrides
 

@@ -36,6 +36,42 @@ function Invoke-E2ECompose {
   Invoke-ExternalCommand -FilePath "docker" -Arguments ($composeBaseArguments + $Arguments) -WorkingDirectory $repoRoot
 }
 
+function Start-E2ERuntime {
+  Write-Host "Starting isolated frontend browser E2E runtime..."
+  Invoke-E2ECompose -Arguments @("up", "-d", "--build", "db", "migrations", "app", "worker")
+
+  Wait-ForUrl -Url "$e2eRootUrl/health/live" -AllowedStatusCodes @(200)
+  Wait-ForUrl -Url "$e2eRootUrl/health/ready" -AllowedStatusCodes @(200)
+}
+
+function Stop-E2ERuntime {
+  Write-Host "Stopping isolated frontend browser E2E runtime..."
+  Invoke-E2ECompose -Arguments @("down", "--volumes", "--remove-orphans")
+}
+
+function Invoke-PlaywrightSpec {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Label,
+
+    [Parameter(Mandatory = $true)]
+    [string]$SpecPath
+  )
+
+  Start-E2ERuntime
+
+  try {
+    Write-Host "Running $Label Playwright suite..."
+    Invoke-ExternalCommand `
+      -FilePath (Get-NpxCommand) `
+      -Arguments @("playwright", "test", $SpecPath) `
+      -WorkingDirectory $frontendRoot
+  }
+  finally {
+    Stop-E2ERuntime
+  }
+}
+
 function Wait-ForUrl {
   param(
     [Parameter(Mandatory = $true)]
@@ -92,22 +128,13 @@ try {
     -Arguments @("playwright", "install", "chromium") `
     -WorkingDirectory $frontendRoot
 
-  Write-Host "Starting isolated root-host E2E runtime..."
-  Invoke-E2ECompose -Arguments @("up", "-d", "--build", "db", "migrations", "app", "worker")
-
-  Wait-ForUrl -Url "$e2eRootUrl/health/live" -AllowedStatusCodes @(200)
-  Wait-ForUrl -Url "$e2eRootUrl/health/ready" -AllowedStatusCodes @(200)
-
   $env:PAPERBINDER_E2E_BASE_URL = $e2eRootUrl
 
-  Write-Host "Running root-host Playwright suite..."
-  Invoke-NpmCommand `
-    -Arguments @("run", "test:e2e") `
-    -WorkingDirectory $frontendRoot
+  Invoke-PlaywrightSpec -Label "root-host browser" -SpecPath "e2e/root-host.spec.ts"
+  Invoke-PlaywrightSpec -Label "tenant-host browser" -SpecPath "e2e/tenant-host.spec.ts"
 }
 finally {
-  Write-Host "Stopping isolated root-host E2E runtime..."
-  Invoke-E2ECompose -Arguments @("down", "--volumes", "--remove-orphans")
+  Stop-E2ERuntime
 
   if ($null -ne $originalPublicRootUrl) {
     $env:PAPERBINDER_PUBLIC_ROOT_URL = $originalPublicRootUrl

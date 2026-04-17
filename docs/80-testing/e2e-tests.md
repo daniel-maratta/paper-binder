@@ -8,7 +8,7 @@ They start after the CP12 frontend foundation checkpoint; CP12 itself is limited
 
 In scope:
 - CP13 root-host provisioning and login flows.
-- Tenant navigation, document view, logout/login cycle, and lease interaction once CP14 ships those browser features.
+- CP14 tenant-host dashboard, binder, document, user-management, lease, logout/login-cycle, forbidden, and expired flows.
 - Network-level verification of API version and correlation headers on representative requests.
 
 Out of scope:
@@ -38,9 +38,13 @@ Use one tool and keep suite small/stable.
    - log in on `/login` with existing credentials
    - cover deny paths for `CHALLENGE_FAILED`, `INVALID_CREDENTIALS`, and `RATE_LIMITED`
 2. CP14 tenant-host expansion:
-   - navigate binders/documents and render content
-   - logout and login again
-   - validate lease UI and extension flow behavior when eligible
+   - land on `/app`, render live dashboard content, and show lease banner state
+   - create a binder on `/app/binders`, create a document from binder detail, and view the document on `/app/documents/:documentId`
+   - create a tenant user and update binder policy as `TenantAdmin`
+   - log out to the root host and log back in as a lower-privilege user in the same tenant
+   - confirm safe forbidden behavior on an admin-only route
+   - validate lease UI and extension behavior when eligible
+   - validate expired-tenant behavior through deterministic isolated setup rather than waiting for wall-clock lease decay
 3. Intercept at least one `/api/*` call and assert request header `X-Api-Version` is present and response header `X-Correlation-Id` is present.
 
 ## Challenge Handling in Tests
@@ -52,7 +56,7 @@ Use one tool and keep suite small/stable.
 
 - Run E2E in CI when suite stability is acceptable.
 - At minimum, run E2E on main after merge.
-- CP13 closeout requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1` as a separate required gate; the browser suite is not bundled into `scripts/validate-checkpoint.ps1`.
+- CP14 closeout requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1` as a separate required gate; the browser suite now owns both root-host and tenant-host flows and is not bundled into `scripts/validate-checkpoint.ps1`.
 
 ## Alternatives Considered
 

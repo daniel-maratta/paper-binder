@@ -85,7 +85,7 @@ function RootShell({ hostContext }: { hostContext: RootHostContext }) {
             <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em]">Root-host onboarding</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--pb-color-text-muted)]">
               Provision a demo tenant or log in with existing credentials. Redirect routing stays
-              server-authoritative, and tenant-host feature work remains out of scope until CP14.
+              server-authoritative, and the tenant host continues on the live authenticated product routes.
             </p>
           </div>
           <div className="rounded-[var(--pb-radius-md)] bg-[var(--pb-color-panel-muted)] px-4 py-3 text-sm text-[var(--pb-color-text-muted)]">
@@ -271,8 +271,8 @@ function RootWelcomePage({
           <Alert variant="info">
             <AlertTitle>Checkpoint scope</AlertTitle>
             <AlertBody>
-              Root-host onboarding is live in CP13. Tenant-host binders, documents, users, and lease
-              interactions remain deferred to CP14.
+              Root-host onboarding hands off directly into the live tenant-host dashboard, binder, document,
+              user-management, lease, and logout flows.
             </AlertBody>
           </Alert>
         </CardContent>
@@ -538,21 +538,21 @@ function RootAboutPage() {
         <CardHeader>
           <CardTitle>About root-host onboarding</CardTitle>
           <CardDescription>
-            CP13 activates the browser entry flow while keeping tenant-host CRUD, lease interaction, and
-            logout polish deferred to later checkpoints.
+            Root-host onboarding establishes the reviewer path into the live tenant-host product surface
+            without introducing client-built tenant redirects.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
           <CardMeta label="Architecture" value="Single React SPA, direct API calls, no BFF" />
           <CardMeta label="Provisioning handoff" value="Show credentials once, then continue" />
-          <CardMeta label="Browser E2E" value="Dedicated root-host suite" />
+          <CardMeta label="Browser E2E" value="Shared frontend browser gate" />
         </CardContent>
         <CardFooter>
           <Alert variant="info">
             <AlertTitle>Still out of scope</AlertTitle>
             <AlertBody>
-              Tenant-host dashboard data, binders, documents, tenant users, lease extension, and logout UX stay
-              in the later CP14 scope boundary.
+              Impersonation, document editing, archive controls, password reset, and broader hardening remain
+              outside the current checkpoint boundary.
             </AlertBody>
           </Alert>
         </CardFooter>
@@ -576,7 +576,7 @@ function RootNotFoundPage() {
           <AlertTitle>Known root routes</AlertTitle>
           <AlertBody>
             <code>/</code>, <code>/login</code>, and <code>/about</code> are the canonical root-host routes
-            for CP13.
+            for CP14.
           </AlertBody>
         </Alert>
       </CardContent>

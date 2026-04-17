@@ -25,11 +25,11 @@ Use this document to answer:
 
 ## Current Snapshot
 
-- Current checkpoint: `none active`
+- Current checkpoint: `CP14`
 - Last completed checkpoint: `CP13`
-- Next checkpoint: `CP14`
+- Next checkpoint: `CP15`
 - Open checkpoint blockers: none.
-- Open incidental follow-ups: none.
+- Open incidental follow-ups: manual VS Code plus Visual Studio launch verification still required before CP14 can be marked done.
 
 ## Checkpoint Status
 
@@ -48,14 +48,14 @@ Use this document to answer:
 | `CP11` | done | Worker runtime and lease lifecycle shipped via task [T-0026](../05-taskboard/tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md) and PR artifact [description.md](../95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
 | `CP12` | done | Frontend foundation and shared UI system shipped via task [T-0027](../05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md) and PR artifact [description.md](../95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
 | `CP13` | done | Root-host frontend flows shipped via task [T-0028](../05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md) and PR artifact [description.md](../95-delivery/pr/cp13-root-host-frontend-flows/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
-| `CP14` | queued | Tenant-host frontend flows not started. |
+| `CP14` | active | Tenant-host frontend flows are implemented on the current branch via task [T-0029](../05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md). Final automated validation capture and the required manual VS Code plus Visual Studio launch verification still need to be recorded in the CP14 PR artifact before checkpoint closure. |
 | `CP15` | queued | Tenant-local impersonation and audit safety not started. |
 | `CP16` | queued | Hardening and consistency pass not started. |
 | `CP17` | queued | Release preparation and reviewer snapshot not started. |
 
 ## Open Incidentals And Follow-Ups
 
-- none.
+- `CP14`: manual VS Code plus Visual Studio launch verification is still required before checkpoint closeout.
 
 When incidental work is discovered:
 - put raw intake items in [docs/05-taskboard/taskboard-intake.md](../05-taskboard/taskboard-intake.md)

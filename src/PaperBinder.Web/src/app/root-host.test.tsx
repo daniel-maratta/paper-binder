@@ -2,8 +2,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppRouter } from "../App";
-import { PaperBinderApiError, type PaperBinderApiClient, type ProvisionResponse } from "../api/client";
-import { createRootHostContext } from "../test/test-helpers";
+import { PaperBinderApiError, type PaperBinderApiClient } from "../api/client";
+import {
+  createApiClientStub,
+  createProvisionResponse,
+  createRootHostContext
+} from "../test/test-helpers";
 
 type TurnstileRenderOptions = {
   callback?: (token: string) => void;
@@ -64,41 +68,6 @@ function installTurnstileStub(token = "paperbinder-test-challenge-pass") {
     renderMock,
     resetMock,
     removeMock
-  };
-}
-
-function createProvisionResponse(): ProvisionResponse {
-  return {
-    tenantId: "tenant-1",
-    tenantSlug: "acme-demo",
-    expiresAt: "2026-04-16T12:00:00Z",
-    redirectUrl: "https://acme-demo.paperbinder.example.test/app",
-    credentials: {
-      email: "owner@acme-demo.local",
-      password: "generated-password"
-    }
-  };
-}
-
-function createApiClientStub(overrides: Partial<PaperBinderApiClient> = {}): PaperBinderApiClient {
-  return {
-    request: vi.fn(async () => ({
-      data: undefined,
-      correlationId: null,
-      response: new Response()
-    })) as PaperBinderApiClient["request"],
-    getTenantLease: vi.fn(async () => ({
-      expiresAt: "2026-04-15T12:00:00Z",
-      secondsRemaining: 1800,
-      extensionCount: 1,
-      maxExtensions: 3,
-      canExtend: false
-    })) as PaperBinderApiClient["getTenantLease"],
-    provision: vi.fn(async () => createProvisionResponse()) as PaperBinderApiClient["provision"],
-    login: vi.fn(async () => ({
-      redirectUrl: "https://acme-demo.paperbinder.example.test/app"
-    })) as PaperBinderApiClient["login"],
-    ...overrides
   };
 }
 

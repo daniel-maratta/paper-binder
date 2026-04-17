@@ -244,12 +244,14 @@ Content:
     lease status
     quick links
     binder summary
+    recent or visible binder context derived from existing tenant-host APIs
 
 ## Binders List
 
 Displays:
 
     binder list table
+    inline binder create form
 
 Columns:
 
@@ -262,14 +264,18 @@ Columns:
 Displays:
 
     document list
+    inline document create form
+    binder policy management for `TenantAdmin`
 
 ## Document View
 
 Displays:
 
     read-only document
+    archived-state metadata
+    supersedes metadata when present
 
-Markdown rendering.
+Document rendering must remain read-only and must not rely on unreviewed raw HTML injection.
 
 ## Tenant Users
 
@@ -279,6 +285,7 @@ Displays:
 
     user list
     role assignment
+    create-user form
 
 ---
 
@@ -332,7 +339,7 @@ Used for:
 - expiration warnings
 
 Banner is persistent at top of tenant shell.
-CP12 implements the structural shell slot and generic warning/notice presentation only; lease countdown and extend interaction remain later-checkpoint work.
+Banner content includes expiry, countdown, extension usage, and extend action state derived from authoritative lease data.
 
 ## Table
 
@@ -377,7 +384,7 @@ Used for:
 
 - lease state labels
 - policy or role state labels
-- route placeholder state markers
+- archived or access state markers
 
 Requirements:
 

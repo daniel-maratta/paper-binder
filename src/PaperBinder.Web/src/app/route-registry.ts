@@ -23,16 +23,16 @@ export const tenantNavigationItems = [
   {
     path: "/app" as const,
     label: "Home",
-    description: "Tenant-shell dashboard placeholder and lease visibility."
+    description: "Live tenant dashboard, lease visibility, and reviewer quick actions."
   },
   {
     path: "/app/binders" as const,
     label: "Binders",
-    description: "Tenant-scoped binder list placeholder and table baseline."
+    description: "Visible binders, inline binder creation, and binder-detail entry."
   },
   {
     path: "/app/users" as const,
     label: "Users",
-    description: "Tenant-admin route placeholder and shared table state coverage."
+    description: "Tenant-admin user list, user creation, and role-change management."
   }
 ] as const;

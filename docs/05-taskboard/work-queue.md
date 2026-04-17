@@ -11,7 +11,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Now (WIP 1-3)
 
-- (empty)
+- [T-0029: CP14 Tenant-Host Frontend Flows](./tasks/T-0029-cp14-tenant-host-frontend-flows.md)
 
 ## Next
 

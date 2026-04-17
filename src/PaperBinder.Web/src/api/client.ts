@@ -56,6 +56,78 @@ export type LoginResponse = {
   redirectUrl: string;
 };
 
+export type TenantRole = "TenantAdmin" | "BinderWrite" | "BinderRead";
+
+export type BinderSummary = {
+  binderId: string;
+  name: string;
+  createdAt: string;
+};
+
+export type ListBindersResponse = {
+  binders: BinderSummary[];
+};
+
+export type CreateBinderRequest = {
+  name: string;
+};
+
+export type DocumentSummary = {
+  documentId: string;
+  binderId: string;
+  title: string;
+  contentType: string;
+  supersedesDocumentId: string | null;
+  createdAt: string;
+  archivedAt: string | null;
+};
+
+export type BinderDetail = BinderSummary & {
+  documents: DocumentSummary[];
+};
+
+export type BinderPolicyMode = "inherit" | "restricted_roles";
+
+export type BinderPolicy = {
+  mode: BinderPolicyMode;
+  allowedRoles: TenantRole[];
+};
+
+export type UpdateBinderPolicyRequest = BinderPolicy;
+
+export type DocumentDetail = DocumentSummary & {
+  content: string;
+};
+
+export type CreateDocumentRequest = {
+  binderId: string;
+  title: string;
+  contentType: "markdown";
+  content: string;
+  supersedesDocumentId?: string | null;
+};
+
+export type TenantUser = {
+  userId: string;
+  email: string;
+  role: TenantRole;
+  isOwner: boolean;
+};
+
+export type ListTenantUsersResponse = {
+  users: TenantUser[];
+};
+
+export type CreateTenantUserRequest = {
+  email: string;
+  password: string;
+  role: TenantRole;
+};
+
+export type UpdateTenantUserRoleRequest = {
+  role: TenantRole;
+};
+
 type ProblemDetailsLike = {
   title?: string;
   status?: number;
@@ -310,6 +382,16 @@ export function createPaperBinderApiClient({
 
       return response.data;
     },
+    async extendTenantLease(signal?: AbortSignal): Promise<TenantLeaseSummary> {
+      const response = await request<TenantLeaseSummary>({
+        path: "/api/tenant/lease/extend",
+        method: "POST",
+        body: {},
+        signal
+      });
+
+      return response.data;
+    },
     async provision(body: ProvisionRequest, signal?: AbortSignal): Promise<ProvisionResponse> {
       const response = await request<ProvisionResponse>({
         path: "/api/provision",
@@ -323,6 +405,113 @@ export function createPaperBinderApiClient({
     async login(body: LoginRequest, signal?: AbortSignal): Promise<LoginResponse> {
       const response = await request<LoginResponse>({
         path: "/api/auth/login",
+        method: "POST",
+        body,
+        signal
+      });
+
+      return response.data;
+    },
+    async logout(signal?: AbortSignal): Promise<void> {
+      await request<void>({
+        path: "/api/auth/logout",
+        method: "POST",
+        body: {},
+        signal,
+        expectJson: false
+      });
+    },
+    async listBinders(signal?: AbortSignal): Promise<BinderSummary[]> {
+      const response = await request<ListBindersResponse>({
+        path: "/api/binders",
+        signal
+      });
+
+      return response.data.binders;
+    },
+    async createBinder(body: CreateBinderRequest, signal?: AbortSignal): Promise<BinderSummary> {
+      const response = await request<BinderSummary>({
+        path: "/api/binders",
+        method: "POST",
+        body,
+        signal
+      });
+
+      return response.data;
+    },
+    async getBinderDetail(binderId: string, signal?: AbortSignal): Promise<BinderDetail> {
+      const response = await request<BinderDetail>({
+        path: `/api/binders/${encodeURIComponent(binderId)}`,
+        signal
+      });
+
+      return response.data;
+    },
+    async getBinderPolicy(binderId: string, signal?: AbortSignal): Promise<BinderPolicy> {
+      const response = await request<BinderPolicy>({
+        path: `/api/binders/${encodeURIComponent(binderId)}/policy`,
+        signal
+      });
+
+      return response.data;
+    },
+    async updateBinderPolicy(
+      binderId: string,
+      body: UpdateBinderPolicyRequest,
+      signal?: AbortSignal
+    ): Promise<BinderPolicy> {
+      const response = await request<BinderPolicy>({
+        path: `/api/binders/${encodeURIComponent(binderId)}/policy`,
+        method: "PUT",
+        body,
+        signal
+      });
+
+      return response.data;
+    },
+    async getDocumentDetail(documentId: string, signal?: AbortSignal): Promise<DocumentDetail> {
+      const response = await request<DocumentDetail>({
+        path: `/api/documents/${encodeURIComponent(documentId)}`,
+        signal
+      });
+
+      return response.data;
+    },
+    async createDocument(body: CreateDocumentRequest, signal?: AbortSignal): Promise<DocumentDetail> {
+      const response = await request<DocumentDetail>({
+        path: "/api/documents",
+        method: "POST",
+        body,
+        signal
+      });
+
+      return response.data;
+    },
+    async listTenantUsers(signal?: AbortSignal): Promise<TenantUser[]> {
+      const response = await request<ListTenantUsersResponse>({
+        path: "/api/tenant/users",
+        signal
+      });
+
+      return response.data.users;
+    },
+    async createTenantUser(body: CreateTenantUserRequest, signal?: AbortSignal): Promise<TenantUser> {
+      const response = await request<TenantUser>({
+        path: "/api/tenant/users",
+        method: "POST",
+        body,
+        signal
+      });
+
+      return response.data;
+    },
+    async updateTenantUserRole(
+      userId: string,
+      body: UpdateTenantUserRoleRequest,
+      signal?: AbortSignal
+    ): Promise<TenantUser> {
+      const response = await request<TenantUser>({
+        path: `/api/tenant/users/${encodeURIComponent(userId)}/role`,
         method: "POST",
         body,
         signal
