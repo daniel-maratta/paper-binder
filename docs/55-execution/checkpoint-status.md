@@ -25,10 +25,10 @@ Use this document to answer:
 
 ## Current Snapshot
 
-- Current checkpoint: `none active`
+- Current checkpoint: `CP15`
 - Last completed checkpoint: `CP14`
-- Next checkpoint: `CP15`
-- Open checkpoint blockers: none.
+- Next checkpoint: `CP16`
+- Open checkpoint blockers: manual VS Code and Visual Studio launch verification plus post-implementation critic review are still required before CP15 can be declared done.
 - Open incidental follow-ups: none.
 
 ## Checkpoint Status
@@ -49,7 +49,7 @@ Use this document to answer:
 | `CP12` | done | Frontend foundation and shared UI system shipped via task [T-0027](../05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md) and PR artifact [description.md](../95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
 | `CP13` | done | Root-host frontend flows shipped via task [T-0028](../05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md) and PR artifact [description.md](../95-delivery/pr/cp13-root-host-frontend-flows/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
 | `CP14` | done | Tenant-host frontend flows shipped via task [T-0029](../05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md) and PR artifact [description.md](../95-delivery/pr/cp14-tenant-host-frontend-flows/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
-| `CP15` | queued | Tenant-local impersonation and audit safety not started. |
+| `CP15` | active | Implementation and automated validation are complete on the current branch via task [T-0030](../05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md) and PR artifact [description.md](../95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md). Manual editor-launch verification and post-implementation critic closeout are still pending before the checkpoint can move to `done`. |
 | `CP16` | queued | Hardening and consistency pass not started. |
 | `CP17` | queued | Release preparation and reviewer snapshot not started. |
 

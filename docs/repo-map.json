@@ -43,6 +43,7 @@
     { "id": "task-t0027", "type": "doc", "path": "docs/05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md", "tags": ["task", "checkpoint", "cp12"] },
     { "id": "task-t0028", "type": "doc", "path": "docs/05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md", "tags": ["task", "checkpoint", "cp13"] },
     { "id": "task-t0029", "type": "doc", "path": "docs/05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md", "tags": ["task", "checkpoint", "cp14"] },
+    { "id": "task-t0030", "type": "doc", "path": "docs/05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md", "tags": ["task", "checkpoint", "cp15"] },
     { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] },
     { "id": "delivery-cp6", "type": "doc", "path": "docs/95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md", "tags": ["delivery", "pr", "cp6"] },
     { "id": "delivery-cp9-plan", "type": "doc", "path": "docs/95-delivery/pr/cp9-binder-domain-and-policy-model/implementation-plan.md", "tags": ["delivery", "pr", "cp9", "plan"] },
@@ -62,7 +63,10 @@
     { "id": "delivery-cp13", "type": "doc", "path": "docs/95-delivery/pr/cp13-root-host-frontend-flows/description.md", "tags": ["delivery", "pr", "cp13"] },
     { "id": "delivery-cp14-plan", "type": "doc", "path": "docs/95-delivery/pr/cp14-tenant-host-frontend-flows/implementation-plan.md", "tags": ["delivery", "pr", "cp14", "plan"] },
     { "id": "delivery-cp14-review", "type": "doc", "path": "docs/95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md", "tags": ["delivery", "pr", "cp14", "review"] },
-    { "id": "delivery-cp14", "type": "doc", "path": "docs/95-delivery/pr/cp14-tenant-host-frontend-flows/description.md", "tags": ["delivery", "pr", "cp14"] }
+    { "id": "delivery-cp14", "type": "doc", "path": "docs/95-delivery/pr/cp14-tenant-host-frontend-flows/description.md", "tags": ["delivery", "pr", "cp14"] },
+    { "id": "delivery-cp15-plan", "type": "doc", "path": "docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md", "tags": ["delivery", "pr", "cp15", "plan"] },
+    { "id": "delivery-cp15-review", "type": "doc", "path": "docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md", "tags": ["delivery", "pr", "cp15", "review"] },
+    { "id": "delivery-cp15", "type": "doc", "path": "docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md", "tags": ["delivery", "pr", "cp15"] }
   ],
   "edges": [
     { "from": "idx", "to": "intent", "rel": "lane-index" },
@@ -106,6 +110,7 @@
     { "from": "taskboard", "to": "task-t0027", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0028", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0029", "rel": "contains" },
+    { "from": "taskboard", "to": "task-t0030", "rel": "contains" },
     { "from": "idx", "to": "delivery", "rel": "lane-index" },
     { "from": "delivery", "to": "delivery-cp6", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp9-plan", "rel": "contains" },
@@ -125,6 +130,9 @@
     { "from": "delivery", "to": "delivery-cp13", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp14-plan", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp14-review", "rel": "contains" },
-    { "from": "delivery", "to": "delivery-cp14", "rel": "contains" }
+    { "from": "delivery", "to": "delivery-cp14", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp15-plan", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp15-review", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp15", "rel": "contains" }
   ]
 }

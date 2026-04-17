@@ -52,6 +52,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md](./05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md)
 - [docs/05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md](./05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md)
 - [docs/05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md](./05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md)
+- [docs/05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md](./05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md)
 - [docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md](./95-delivery/pr/cp9-binder-domain-and-policy-model/description.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md)
@@ -68,6 +69,9 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/95-delivery/pr/cp14-tenant-host-frontend-flows/implementation-plan.md](./95-delivery/pr/cp14-tenant-host-frontend-flows/implementation-plan.md)
 - [docs/95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md](./95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md)
 - [docs/95-delivery/pr/cp14-tenant-host-frontend-flows/description.md](./95-delivery/pr/cp14-tenant-host-frontend-flows/description.md)
+- [docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md](./95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md)
+- [docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md](./95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md)
+- [docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md](./95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md)
 
 ## Local-Only Overrides
 

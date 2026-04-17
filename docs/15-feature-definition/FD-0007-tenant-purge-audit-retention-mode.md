@@ -53,7 +53,7 @@ Rules:
 ## Domain / architecture impact
 - Purge runs in explicit system execution context and never impersonates end users.
 - Purge and retention mode logic must be deterministic and idempotent.
-- Purge completion emits structured logging output according to the selected retention mode; CP11 does not add durable audit persistence.
+- Purge completion emits structured logging output according to the selected retention mode; CP15 additionally requires tenant-local impersonation audit rows to be deleted during purge under both supported modes.
 
 ## Security / ops impact
 - Retained summary event must avoid sensitive fields (no credential values, no document content, no user emails).
@@ -66,6 +66,7 @@ Rules:
 - `docs/30-security/tenant-isolation.md` (post-expiry isolation guarantees as needed)
 - `docs/40-contracts/api-contract.md` (error semantics references for post-purge access)
 - `docs/80-testing/integration-tests.md` (mode-specific purge assertions)
+- `docs/90-adr/ADR-0002-security-tenant-local-impersonation-for-demo-view-as.md` (durable impersonation audit-row retention alignment)
 
 ## Open questions
 None.

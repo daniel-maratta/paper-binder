@@ -225,6 +225,62 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
         correlationId: error.correlationId,
         retryAfterLabel
       };
+    case "TENANT_IMPERSONATION_NOT_ALLOWED":
+      return {
+        title: "View-as is not allowed.",
+        detail: error.detail ?? "Only tenant admins can start tenant-local impersonation.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "TENANT_IMPERSONATION_TARGET_INVALID":
+      return {
+        title: "View-as target is invalid.",
+        detail: error.detail ?? "Choose a valid tenant user before retrying view-as.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "TENANT_IMPERSONATION_TARGET_NOT_FOUND":
+      return {
+        title: "View-as target not found.",
+        detail: error.detail ?? "The selected tenant user is not available for this tenant.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "TENANT_IMPERSONATION_SELF_TARGET_REJECTED":
+      return {
+        title: "View-as target is not eligible.",
+        detail: error.detail ?? "Choose another tenant-local user to start view-as.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "TENANT_IMPERSONATION_ALREADY_ACTIVE":
+      return {
+        title: "View-as is already active.",
+        detail: error.detail ?? "Stop the current view-as session before starting another one.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "TENANT_IMPERSONATION_NOT_ACTIVE":
+      return {
+        title: "No active view-as session.",
+        detail: error.detail ?? "Start view-as before trying to stop it.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "TENANT_IMPERSONATION_SESSION_CONFLICT":
+      return {
+        title: "Session changed.",
+        detail: error.detail ?? "Refresh the tenant workspace and retry the view-as action.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
     case "CSRF_TOKEN_INVALID":
       return {
         title: "Request could not be verified.",

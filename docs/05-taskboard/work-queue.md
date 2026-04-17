@@ -11,7 +11,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Now (WIP 1-3)
 
-- (empty)
+- [T-0030: CP15 Tenant-Local Impersonation And Audit Safety](./tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md)
 
 ## Next
 

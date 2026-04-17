@@ -106,3 +106,19 @@ As a tenant admin, I can manage tenant users and assign roles without crossing t
 - Tenant-host `/app/users` exposes list, create, and role-change behavior only for `TenantAdmin`.
 - Attempting to demote the last remaining tenant admin returns `409`.
 - Non-admin callers receive `403` for tenant user-management routes.
+
+## Slice 8: Tenant-Local Impersonation
+
+### User Story
+As a tenant admin, I can safely view the tenant experience as another same-tenant user without weakening tenant isolation or losing original actor attribution.
+
+### Acceptance Criteria
+- `GET /api/tenant/impersonation` returns actor and effective identity for the current tenant-host session.
+- `POST /api/tenant/impersonation` accepts only `userId`, requires a valid CSRF token, and resolves the target only inside the current tenant.
+- Cross-tenant or missing targets return the same safe `404 TENANT_IMPERSONATION_TARGET_NOT_FOUND` behavior.
+- Self-target requests return `409 TENANT_IMPERSONATION_SELF_TARGET_REJECTED` and do not record `ImpersonationStarted`.
+- Nested or replace-in-place impersonation returns `409 TENANT_IMPERSONATION_ALREADY_ACTIVE`.
+- While impersonation is active, authorization evaluates the effective user's role rather than the actor's original `TenantAdmin` role.
+- `DELETE /api/tenant/impersonation` requires a valid CSRF token and restores the original actor session even when the effective user is not a tenant admin.
+- Tenant-host `/app/users` owns the view-as start affordance, and the tenant shell owns the active banner plus stop action.
+- `ImpersonationStarted` and `ImpersonationEnded` are recorded durably with tenant-scoped actor/effective attribution and are removed during tenant purge.

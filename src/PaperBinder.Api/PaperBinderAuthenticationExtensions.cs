@@ -75,6 +75,7 @@ internal static class PaperBinderAuthenticationExtensions
             .AddSignInManager();
 
         services.AddScoped<PaperBinderCsrfCookieService>();
+        services.AddScoped<IPaperBinderImpersonationService, PaperBinderImpersonationService>();
         services.AddScoped<ITenantProvisioningService, DapperTenantProvisioningService>();
         services.AddScoped<ITenantUserAdministrationService, DapperTenantUserAdministrationService>();
 

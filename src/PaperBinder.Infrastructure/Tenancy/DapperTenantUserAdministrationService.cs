@@ -47,9 +47,11 @@ public sealed class DapperTenantUserAdministrationService(
         if (!TenantRoleParser.TryParse(command.Role, out var role))
         {
             logger.LogWarning(
-                "Tenant user creation rejected an invalid role. TenantId={TenantId} ActorUserId={ActorUserId} RequestedRole={RequestedRole}",
+                "Tenant user creation rejected an invalid role. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} RequestedRole={RequestedRole}",
                 command.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.Role);
 
             return TenantUserCreateOutcome.Failed(
@@ -64,9 +66,11 @@ public sealed class DapperTenantUserAdministrationService(
         if (passwordValidationMessages.Count > 0)
         {
             logger.LogWarning(
-                "Tenant user creation rejected an invalid password. TenantId={TenantId} ActorUserId={ActorUserId} Email={Email} ValidationMessageCount={ValidationMessageCount}",
+                "Tenant user creation rejected an invalid password. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email} ValidationMessageCount={ValidationMessageCount}",
                 command.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 normalizedEmailInput,
                 passwordValidationMessages.Count);
 
@@ -139,9 +143,11 @@ public sealed class DapperTenantUserAdministrationService(
                 cancellationToken: cancellationToken);
 
             logger.LogInformation(
-                "Tenant user created. TenantId={TenantId} ActorUserId={ActorUserId} TargetUserId={TargetUserId} Role={Role}",
+                "Tenant user created. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} TargetUserId={TargetUserId} Role={Role}",
                 command.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 createdUser.UserId,
                 createdUser.Role);
 
@@ -151,9 +157,11 @@ public sealed class DapperTenantUserAdministrationService(
         {
             logger.LogWarning(
                 ex,
-                "Tenant user creation detected an email conflict. TenantId={TenantId} ActorUserId={ActorUserId} Email={Email}",
+                "Tenant user creation detected an email conflict. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email}",
                 command.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 normalizedEmailInput);
 
             return TenantUserCreateOutcome.Failed(
@@ -170,9 +178,11 @@ public sealed class DapperTenantUserAdministrationService(
         if (!TenantRoleParser.TryParse(command.Role, out var requestedRole))
         {
             logger.LogWarning(
-                "Tenant user role change rejected an invalid role. TenantId={TenantId} ActorUserId={ActorUserId} TargetUserId={TargetUserId} RequestedRole={RequestedRole}",
+                "Tenant user role change rejected an invalid role. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} TargetUserId={TargetUserId} RequestedRole={RequestedRole}",
                 command.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.TargetUserId,
                 command.Role);
 
@@ -280,18 +290,22 @@ public sealed class DapperTenantUserAdministrationService(
         if (outcome.Succeeded)
         {
             logger.LogInformation(
-                "Tenant user role changed. TenantId={TenantId} ActorUserId={ActorUserId} TargetUserId={TargetUserId} Role={Role}",
+                "Tenant user role changed. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} TargetUserId={TargetUserId} Role={Role}",
                 command.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.TargetUserId,
                 outcome.User!.Role);
         }
         else
         {
             logger.LogWarning(
-                "Tenant user role change rejected. TenantId={TenantId} ActorUserId={ActorUserId} TargetUserId={TargetUserId} FailureKind={FailureKind}",
+                "Tenant user role change rejected. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} TargetUserId={TargetUserId} FailureKind={FailureKind}",
                 command.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.TargetUserId,
                 outcome.Failure!.Kind);
         }

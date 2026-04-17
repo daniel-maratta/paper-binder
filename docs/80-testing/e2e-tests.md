@@ -9,6 +9,7 @@ They start after the CP12 frontend foundation checkpoint; CP12 itself is limited
 In scope:
 - CP13 root-host provisioning and login flows.
 - CP14 tenant-host dashboard, binder, document, user-management, lease, logout/login-cycle, forbidden, and expired flows.
+- CP15 tenant-local impersonation start, downgraded effective experience, banner signaling, and stop-return behavior.
 - Network-level verification of API version and correlation headers on representative requests.
 
 Out of scope:
@@ -45,7 +46,12 @@ Use one tool and keep suite small/stable.
    - confirm safe forbidden behavior on an admin-only route
    - validate lease UI and extension behavior when eligible
    - validate expired-tenant behavior through deterministic isolated setup rather than waiting for wall-clock lease decay
-3. Intercept at least one `/api/*` call and assert request header `X-Api-Version` is present and response header `X-Correlation-Id` is present.
+3. CP15 impersonation expansion:
+   - create a same-tenant non-admin user from `/app/users`
+   - start view-as from `/app/users`
+   - prove the shell banner is visible and the effective user sees the restricted experience
+   - stop impersonation from the tenant shell and verify the admin route recovers without a root-host login round-trip
+4. Intercept at least one `/api/*` call and assert request header `X-Api-Version` is present and response header `X-Correlation-Id` is present.
 
 ## Challenge Handling in Tests
 
@@ -56,7 +62,7 @@ Use one tool and keep suite small/stable.
 
 - Run E2E in CI when suite stability is acceptable.
 - At minimum, run E2E on main after merge.
-- CP14 closeout requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1` as a separate required gate; the browser suite now owns both root-host and tenant-host flows and is not bundled into `scripts/validate-checkpoint.ps1`.
+- CP14 and CP15 closeout require `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1` as a separate required gate; the browser suite now owns root-host, tenant-host, and impersonation flows and is not bundled into `scripts/validate-checkpoint.ps1`.
 
 ## Alternatives Considered
 

@@ -19,11 +19,15 @@ public sealed record BinderPolicy(
 public sealed record BinderCreateCommand(
     TenantContext Tenant,
     Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
     string? Name);
 
 public sealed record BinderPolicyUpdateCommand(
     TenantContext Tenant,
     Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
     Guid BinderId,
     string? Mode,
     IReadOnlyList<string>? AllowedRoles);

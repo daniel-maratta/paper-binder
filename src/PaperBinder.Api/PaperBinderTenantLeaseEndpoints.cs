@@ -42,13 +42,18 @@ internal static class PaperBinderTenantLeaseEndpoints
         ITenantLeaseService tenantLeaseService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         IProblemDetailsService problemDetailsService,
         CancellationToken cancellationToken)
     {
         var tenant = GetRequiredTenant(tenantContext);
-        var membership = GetRequiredMembership(membershipContext);
+        GetRequiredMembership(membershipContext);
         var outcome = await tenantLeaseService.ExtendAsync(
-            new TenantLeaseExtendCommand(tenant, membership.UserId),
+            new TenantLeaseExtendCommand(
+                tenant,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated),
             cancellationToken);
 
         if (!outcome.Succeeded)

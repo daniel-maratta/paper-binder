@@ -166,8 +166,13 @@ internal static class PaperBinderAuthEndpoints
     private static async Task LogoutAsync(
         HttpContext context,
         SignInManager<PaperBinderUser> signInManager,
+        IPaperBinderImpersonationService impersonationService,
+        IRequestTenantContext tenantContext,
+        IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         PaperBinderCsrfCookieService csrfCookieService,
-        IProblemDetailsService problemDetailsService)
+        IProblemDetailsService problemDetailsService,
+        CancellationToken cancellationToken)
     {
         if (context.User.Identity?.IsAuthenticated != true)
         {
@@ -187,6 +192,34 @@ internal static class PaperBinderAuthEndpoints
                 "The request is missing a valid CSRF token.",
                 PaperBinderErrorCodes.CsrfTokenInvalid);
             return;
+        }
+
+        if (executionUserContext.IsImpersonated)
+        {
+            var tenant = tenantContext.Tenant
+                ?? throw new InvalidOperationException("Tenant-host logout requires an established tenant context.");
+            var membership = membershipContext.Membership
+                ?? throw new InvalidOperationException("Tenant-host logout requires an established tenant membership context.");
+
+            var outcome = await impersonationService.StopAsync(
+                context,
+                tenant,
+                membership,
+                executionUserContext,
+                cancellationToken);
+
+            if (!outcome.Succeeded)
+            {
+                var problem = PaperBinderImpersonationProblemMapping.Map(outcome.Failure!);
+                await PaperBinderProblemDetails.WriteApiProblemAsync(
+                    context,
+                    problemDetailsService,
+                    problem.StatusCode,
+                    problem.Title,
+                    problem.Detail,
+                    problem.ErrorCode);
+                return;
+            }
         }
 
         await signInManager.SignOutAsync();

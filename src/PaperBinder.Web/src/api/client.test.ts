@@ -143,6 +143,81 @@ describe("api client", () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
 
+      if (url.endsWith("/api/tenant/impersonation") && init?.method === "GET") {
+        return new Response(
+          JSON.stringify({
+            isImpersonating: false,
+            actor: {
+              userId: "user-1",
+              email: "owner@acme-demo.local",
+              role: "TenantAdmin"
+            },
+            effective: {
+              userId: "user-1",
+              email: "owner@acme-demo.local",
+              role: "TenantAdmin"
+            }
+          }),
+          {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              "X-Correlation-Id": "corr-impersonation-status"
+            }
+          }
+        );
+      }
+
+      if (url.endsWith("/api/tenant/impersonation") && init?.method === "POST") {
+        return new Response(
+          JSON.stringify({
+            isImpersonating: true,
+            actor: {
+              userId: "user-1",
+              email: "owner@acme-demo.local",
+              role: "TenantAdmin"
+            },
+            effective: {
+              userId: "user-2",
+              email: "reader@acme-demo.local",
+              role: "BinderRead"
+            }
+          }),
+          {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              "X-Correlation-Id": "corr-impersonation-start"
+            }
+          }
+        );
+      }
+
+      if (url.endsWith("/api/tenant/impersonation") && init?.method === "DELETE") {
+        return new Response(
+          JSON.stringify({
+            isImpersonating: false,
+            actor: {
+              userId: "user-1",
+              email: "owner@acme-demo.local",
+              role: "TenantAdmin"
+            },
+            effective: {
+              userId: "user-1",
+              email: "owner@acme-demo.local",
+              role: "TenantAdmin"
+            }
+          }),
+          {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              "X-Correlation-Id": "corr-impersonation-stop"
+            }
+          }
+        );
+      }
+
       if (url.endsWith("/api/tenant/lease/extend")) {
         expect(init?.method).toBe("POST");
         return new Response(
@@ -381,6 +456,9 @@ describe("api client", () => {
       cookieSource: () => "paperbinder.auth.csrf=test-token"
     });
 
+    const impersonationStatus = await apiClient.getImpersonationStatus();
+    const impersonationStarted = await apiClient.startImpersonation("user-2");
+    const impersonationStopped = await apiClient.stopImpersonation();
     const extendedLease = await apiClient.extendTenantLease();
     await apiClient.logout();
     const binders = await apiClient.listBinders();
@@ -408,6 +486,10 @@ describe("api client", () => {
       role: "BinderRead"
     });
 
+    expect(impersonationStatus.isImpersonating).toBe(false);
+    expect(impersonationStarted.isImpersonating).toBe(true);
+    expect(impersonationStarted.effective.userId).toBe("user-2");
+    expect(impersonationStopped.isImpersonating).toBe(false);
     expect(extendedLease.extensionCount).toBe(1);
     expect(binders).toHaveLength(1);
     expect(createdBinder.binderId).toBe("binder-2");
@@ -419,6 +501,6 @@ describe("api client", () => {
     expect(tenantUsers).toHaveLength(1);
     expect(createdTenantUser.role).toBe("BinderWrite");
     expect(updatedTenantUser.role).toBe("BinderRead");
-    expect(fetchMock).toHaveBeenCalledTimes(12);
+    expect(fetchMock).toHaveBeenCalledTimes(15);
   });
 });

@@ -28,12 +28,14 @@ Out of scope:
 - API calls are direct over HTTPS with `credentials: "include"`.
 - Browser `/api/*` calls flow through one shared client layer.
 - Tokens are not stored in local/session storage.
+- Impersonation state is not stored in local/session storage, query params, or custom headers; the shell reads it only from `GET /api/tenant/impersonation`.
 - Generated provisioning credentials are never stored in browser storage, cookies, or query params; CP13 keeps them in transient in-memory UI state only until the user continues to the tenant host.
 - SPA sends `X-Api-Version` on all API requests (v1 value: `1`).
 - `X-Api-Version` negotiation is enforced server-side for `/api/*` routes.
 - Non-API SPA document/asset requests do not participate in API version negotiation.
 - Routing and data orchestration execute in the client SPA and call the API directly.
 - Tenant-shell auth-aware bootstrap uses `GET /api/tenant/lease` as the authoritative shell seam; CP14 layers feature-specific calls on top of that shell-owned lease state.
+- CP15 adds `GET /api/tenant/impersonation` to that shell bootstrap so impersonation banner ownership stays centralized.
 - No route-module server logic executes in V1.
 
 ## Host Contexts
@@ -46,7 +48,7 @@ Out of scope:
   - `/app` dashboard plus lease visibility
   - `/app/binders` and `/app/binders/:binderId` for binder, document-create, and binder-policy flows
   - `/app/documents/:documentId` for read-only document detail
-  - `/app/users` for tenant-admin user management
+  - `/app/users` for tenant-admin user management and tenant-local view-as start
 
 ## Authentication in Browser
 
@@ -67,13 +69,15 @@ Out of scope:
   - challenge failure
   - tenant-name validation/conflict failures
   - rate limiting (`429`)
-  - tenant-host access denial, validation, and route-failure states
+  - tenant-host access denial, validation, impersonation, and route-failure states
 
 ## Tenant Shell State
 
 - Lease state is owned once at the tenant-shell level and is the only browser source for expiry, countdown, extension count, and extend affordance state.
+- Impersonation status is also owned once at the tenant-shell level and is the only browser source for actor/effective labels plus stop availability.
 - Countdown is presentation only and is derived from the latest authoritative `expiresAt` value.
 - CP14 refreshes lease state on bootstrap, successful extend, route changes, focus/visibility return, and a coarse periodic refresh.
+- CP15 refreshes route data when the effective user changes so stop behavior restores the actor's allowed view without a root-host round-trip.
 - Tenant-host logout uses `POST /api/auth/logout` through the shared API client only and returns the browser to the configured root-host `/login`.
 
 ## Alternatives Considered

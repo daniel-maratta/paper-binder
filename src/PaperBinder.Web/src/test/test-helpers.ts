@@ -1,5 +1,10 @@
 import { vi } from "vitest";
-import type { PaperBinderApiClient, ProvisionResponse, TenantLeaseSummary } from "../api/client";
+import type {
+  PaperBinderApiClient,
+  ProvisionResponse,
+  TenantImpersonationStatus,
+  TenantLeaseSummary
+} from "../api/client";
 import type { BrowserLocationLike } from "../app/host-context";
 import { resolveHostContext, type HostContext } from "../app/host-context";
 import type { FrontendEnvironment } from "../environment";
@@ -69,6 +74,25 @@ export function createProvisionResponse(overrides: Partial<ProvisionResponse> = 
   };
 }
 
+export function createTenantImpersonationStatus(
+  overrides: Partial<TenantImpersonationStatus> = {}
+): TenantImpersonationStatus {
+  return {
+    isImpersonating: false,
+    actor: {
+      userId: "user-1",
+      email: "owner@acme-demo.local",
+      role: "TenantAdmin"
+    },
+    effective: {
+      userId: "user-1",
+      email: "owner@acme-demo.local",
+      role: "TenantAdmin"
+    },
+    ...overrides
+  };
+}
+
 export function createApiClientStub(overrides: Partial<PaperBinderApiClient> = {}): PaperBinderApiClient {
   return {
     request: vi.fn(async () => ({
@@ -83,6 +107,12 @@ export function createApiClientStub(overrides: Partial<PaperBinderApiClient> = {
       redirectUrl: "https://acme-demo.paperbinder.example.test/app"
     })) as PaperBinderApiClient["login"],
     logout: vi.fn(async () => {}) as PaperBinderApiClient["logout"],
+    getImpersonationStatus:
+      vi.fn(async () => createTenantImpersonationStatus()) as PaperBinderApiClient["getImpersonationStatus"],
+    startImpersonation:
+      vi.fn(async () => createTenantImpersonationStatus()) as PaperBinderApiClient["startImpersonation"],
+    stopImpersonation:
+      vi.fn(async () => createTenantImpersonationStatus()) as PaperBinderApiClient["stopImpersonation"],
     listBinders: vi.fn(async () => []) as PaperBinderApiClient["listBinders"],
     createBinder: vi.fn(async () => ({
       binderId: "binder-1",

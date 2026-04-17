@@ -13,6 +13,7 @@
 - `BinderRead`: requires tenant membership with effective role `BinderRead` or higher.
 - `BinderWrite`: requires tenant membership with effective role `BinderWrite` or higher.
 - `TenantAdmin`: requires tenant membership with effective role `TenantAdmin`.
+- CP15 keeps impersonation start and stop on `AuthenticatedUser` routes so nested-session conflict and downgraded-role stop behavior can be enforced from trusted actor/impersonation context inside the handler path.
 
 ## Host Gating
 
@@ -23,6 +24,7 @@
 ## Role Model (v1)
 
 - v1 RBAC uses one effective role per user per tenant.
+- When impersonation is active, "effective role" means the impersonated tenant-local membership, while the original actor remains available separately for audit-safe behavior.
 - This is a v1 simplification, not a permanent architecture constraint.
 - Future versions may support multi-role additive aggregation while preserving API-boundary enforcement and tenant isolation rules.
 
@@ -41,6 +43,12 @@
 - Explicit binder-targeted document list requests return `403 BINDER_POLICY_DENIED` when the binder exists in the current tenant but binder-local policy denies access.
 - Document detail and archive/unarchive endpoints apply the same binder-local policy after the endpoint policy succeeds.
 - Binder policy evaluation remains in application/domain authorization abstractions.
+
+## Impersonation-Specific Rules
+
+- `POST /api/tenant/impersonation` resolves the target only inside the current tenant and rejects self-target or already-active sessions with conflict semantics.
+- `DELETE /api/tenant/impersonation` succeeds while the effective user lacks `TenantAdmin`; the allowance comes from trusted actor/impersonation context, not residual admin authorization.
+- Existing mutation seams that stamp actor identity now preserve `ActorUserId`, `EffectiveUserId`, and `IsImpersonated` explicitly so structured logs are not misleading during impersonation.
 
 ## System Execution Paths
 

@@ -14,6 +14,7 @@
 - Frontend component and utility tests use the checked-in Vitest command and must run explicitly in repo-native validation and CI.
 - API protocol changes require explicit integration coverage, including scope boundaries (`X-Api-Version` on `/api/*`, `X-Correlation-Id` on all routes).
 - Binder endpoint changes require explicit integration coverage for wrong-host `404`, wrong-tenant `404`, binder-policy denial, and CSRF rejection on unsafe routes.
+- Impersonation-boundary changes require explicit integration coverage for same-tenant start, effective authorization, stop under downgraded role, CSRF on `POST` plus `DELETE`, and logout/session-expiry teardown.
 - Security-boundary changes require explicit regression tests.
 - Docs and lint checks must pass before merge-ready status.
 - Environment-gated integration coverage must either run or be skipped with an explicit, visible reason; silent omission is not acceptable.

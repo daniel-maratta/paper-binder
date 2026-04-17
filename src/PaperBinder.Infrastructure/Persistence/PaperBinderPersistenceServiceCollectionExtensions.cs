@@ -35,6 +35,7 @@ public static class PaperBinderPersistenceServiceCollectionExtensions
         services.AddSingleton<IMarkdownDocumentRenderer, HtmlEncodingMarkdownDocumentRenderer>();
         services.AddScoped<ITenantLookupService, DapperTenantLookupService>();
         services.AddScoped<ITenantMembershipLookupService, DapperTenantMembershipLookupService>();
+        services.AddScoped<ITenantImpersonationAuditService, DapperTenantImpersonationAuditService>();
         services.AddScoped<ITenantLeaseService, DapperTenantLeaseService>();
         services.AddScoped<ITenantLeaseCleanupService, DapperTenantLeaseCleanupService>();
         services.AddScoped<IBinderService, DapperBinderService>();

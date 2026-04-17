@@ -20,6 +20,13 @@ internal static class PaperBinderErrorCodes
     public const string LastTenantAdminRequired = "LAST_TENANT_ADMIN_REQUIRED";
     public const string TenantRoleInvalid = "TENANT_ROLE_INVALID";
     public const string TenantUserPasswordInvalid = "TENANT_USER_PASSWORD_INVALID";
+    public const string TenantImpersonationNotAllowed = "TENANT_IMPERSONATION_NOT_ALLOWED";
+    public const string TenantImpersonationTargetInvalid = "TENANT_IMPERSONATION_TARGET_INVALID";
+    public const string TenantImpersonationTargetNotFound = "TENANT_IMPERSONATION_TARGET_NOT_FOUND";
+    public const string TenantImpersonationSelfTargetRejected = "TENANT_IMPERSONATION_SELF_TARGET_REJECTED";
+    public const string TenantImpersonationAlreadyActive = "TENANT_IMPERSONATION_ALREADY_ACTIVE";
+    public const string TenantImpersonationNotActive = "TENANT_IMPERSONATION_NOT_ACTIVE";
+    public const string TenantImpersonationSessionConflict = "TENANT_IMPERSONATION_SESSION_CONFLICT";
     public const string BinderNameInvalid = "BINDER_NAME_INVALID";
     public const string BinderNotFound = "BINDER_NOT_FOUND";
     public const string BinderPolicyInvalid = "BINDER_POLICY_INVALID";

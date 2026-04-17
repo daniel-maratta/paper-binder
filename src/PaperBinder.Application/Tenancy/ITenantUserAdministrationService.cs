@@ -24,6 +24,8 @@ public sealed record TenantUserSummary(
 public sealed record TenantUserCreateCommand(
     Guid TenantId,
     Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
     string Email,
     string Password,
     string Role);
@@ -31,6 +33,8 @@ public sealed record TenantUserCreateCommand(
 public sealed record TenantUserRoleChangeCommand(
     Guid TenantId,
     Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
     Guid TargetUserId,
     string Role);
 

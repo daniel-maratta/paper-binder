@@ -118,6 +118,16 @@ public sealed class DapperTenantLeaseCleanupService(
                         cancellationToken: innerCancellationToken)))
                     .ToArray();
 
+                var deletedImpersonationAuditEvents = await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        """
+                        delete from tenant_impersonation_audit_events
+                        where tenant_id = @TenantId;
+                        """,
+                        new { TenantId = tenantId },
+                        transaction,
+                        cancellationToken: innerCancellationToken));
+
                 var deletedDocuments = await connection.ExecuteAsync(
                     new CommandDefinition(
                         """
@@ -184,6 +194,7 @@ public sealed class DapperTenantLeaseCleanupService(
                     new TenantPurgeSummary(
                         tenantId,
                         deletedTenants,
+                        deletedImpersonationAuditEvents,
                         deletedMemberships,
                         deletedUsers,
                         deletedBinders,
@@ -201,10 +212,11 @@ public sealed class DapperTenantLeaseCleanupService(
         }
 
         logger.LogInformation(
-            "Expired tenant purged. event_name={event_name} tenant_id={tenant_id} deleted_tenant_rows={deleted_tenant_rows} deleted_memberships={deleted_memberships} deleted_users={deleted_users} deleted_binders={deleted_binders} deleted_binder_policies={deleted_binder_policies} deleted_documents={deleted_documents}",
+            "Expired tenant purged. event_name={event_name} tenant_id={tenant_id} deleted_tenant_rows={deleted_tenant_rows} deleted_impersonation_audit_events={deleted_impersonation_audit_events} deleted_memberships={deleted_memberships} deleted_users={deleted_users} deleted_binders={deleted_binders} deleted_binder_policies={deleted_binder_policies} deleted_documents={deleted_documents}",
             "tenant_purged",
             summary.TenantId,
             summary.DeletedTenantRows,
+            summary.DeletedImpersonationAuditEvents,
             summary.DeletedMemberships,
             summary.DeletedUsers,
             summary.DeletedBinders,
@@ -217,6 +229,7 @@ public sealed class DapperTenantLeaseCleanupService(
     private sealed record TenantPurgeSummary(
         Guid TenantId,
         int DeletedTenantRows,
+        int DeletedImpersonationAuditEvents,
         int DeletedMemberships,
         int DeletedUsers,
         int DeletedBinders,
