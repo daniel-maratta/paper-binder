@@ -33,7 +33,10 @@ Status: Review Ready
   - retrofit scope is deterministic across binders, documents, lease extension, and tenant-user administration with explicit `ActorUserId`, `EffectiveUserId`, and `IsImpersonated` fields
   - logout, cookie-expiry teardown, self-target rejection, DELETE CSRF enforcement, and purge-retention behavior are implemented and covered by focused tests
   - `/app/users` safe eligibility copy, concurrent-start serialization, and first-start effective authorization behavior follow the locked plan
-- Post-implementation outcome: pending. This artifact includes software author notes and validation evidence for critic handoff; manual VS Code and Visual Studio launch verification are also still pending before checkpoint closeout.
+- Post-implementation outcome: completed via [critic-review.md](./critic-review.md) on `2026-04-17`; ship-ready verdict, no blocking findings, and no required code changes before merge.
+- Post-implementation non-blocking carry-forwards:
+  - cookie-expiry audit closure remains best-effort on the first tenant-host request that observes the expired impersonated ticket, which the critic accepted as a documented residual risk rather than a blocker
+  - `scripts/run-root-host-e2e.ps1` naming cleanup and any `tenant-host.tsx` extraction remain deferred beyond `CP15`
 
 ## Risks And Rollout Notes
 - Config or migration considerations:
@@ -47,8 +50,10 @@ Status: Review Ready
   - cookie-expiry closure is best-effort on the first tenant-host request that detects the expired impersonated ticket, which matches the observable server boundary of cookie expiry
 - Checkpoint closure considerations:
   - automated validation is complete and recorded in this artifact
-  - post-implementation critic review is not yet complete
-  - manual VS Code and Visual Studio launch verification are not yet recorded, so `CP15` remains `active` in `docs/55-execution/checkpoint-status.md`
+  - post-implementation critic review is complete with no required fixes before merge
+  - manual VS Code and Visual Studio launch verification completed and passed on `2026-04-18`
+  - because the challenge flow is not yet implemented, manual editor verification was limited to successful startup and the initial public pages rather than authenticated or impersonation flows
+  - `CP15` is now recorded as `done` in `docs/55-execution/checkpoint-status.md`
 
 ## Validation Evidence
 - `npm.cmd run build` from `src/PaperBinder.Web`: passed on `2026-04-17`
@@ -65,6 +70,8 @@ Status: Review Ready
   - Docker-backed integration suite: 81 passed, 0 failed
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`: passed on `2026-04-17`
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`: re-ran on `2026-04-17` after the final CP15 closeout-artifact updates and passed
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`: re-ran on `2026-04-18` after the critic-closeout status reconciliation and passed
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`: re-ran on `2026-04-18` after recording the manual launch-verification closeout and passed
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`: passed on `2026-04-17`
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`: passed on `2026-04-17`
   - checkpoint output still preserves the separate browser gate and manual VS Code plus Visual Studio verification requirement
@@ -74,6 +81,10 @@ Status: Review Ready
   - no client-controlled `X-Impersonate*` header or `impersonate=` query handling found; `paperbinder.impersonation.*` matches are only the server-issued claim constants in `src/PaperBinder.Api/PaperBinderImpersonationClaims.cs`
   - the locked `ActorUserId`, `EffectiveUserId`, and `IsImpersonated` fields are present in the four retrofitted mutation seams
   - the tenant-scoped audit table, append seam, cleanup delete, and migration wiring are present across API, infrastructure, and migration code
+- Manual verification:
+  - VS Code launch: passed on `2026-04-18`
+  - Visual Studio launch: passed on `2026-04-18`
+  - Scope note: because the challenge flow is not yet implemented, manual editor verification was limited to successful startup and the initial public pages; authenticated and impersonation flows remain covered by the automated validation evidence above
 
 ## Author Notes For Critic
 - Changed files:
@@ -90,15 +101,10 @@ Status: Review Ready
 - Intentional deviations:
   - none from the locked CP15 design
 - Residual risks:
-  - manual VS Code and Visual Studio launch verification are still outstanding
-  - post-implementation critic review is still pending
   - cookie-expiry audit closure depends on the first tenant-host request that observes the expired impersonated ticket; there is no out-of-band session-expiry writer, by design
   - `scripts/run-root-host-e2e.ps1` remains the browser gate name even though it now covers impersonation flows; that naming cleanup remains deferred beyond CP15
 
 ## Follow-Ups
-- Required before checkpoint closeout:
-  - complete the post-implementation critic review for CP15
-  - record manual VS Code and Visual Studio launch verification
 - Deferred non-blocking items:
   - keep the browser-gate script rename or broader delivery cleanup deferred beyond CP15
   - consider `tenant-host.tsx` extraction in CP16 if the post-implementation review judges the file too large for comfortable maintenance

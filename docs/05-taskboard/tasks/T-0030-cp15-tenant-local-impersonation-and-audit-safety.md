@@ -1,7 +1,7 @@
 # T-0030: CP15 Tenant-Local Impersonation And Audit Safety
 
 ## Status
-active
+done
 
 ## Type
 feature
@@ -16,7 +16,7 @@ agent
 2026-04-17
 
 ## Updated
-2026-04-17
+2026-04-18
 
 ## Checkpoint
 CP15
@@ -31,7 +31,7 @@ Implement CP15 so a `TenantAdmin` can safely view as a same-tenant user from the
 - CP15 scope is locked by `docs/55-execution/execution-plan.md`, `docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md`, and `docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md`.
 - CP14 shipped the authenticated tenant-host SPA and `/app/users` administration surface, so CP15 can add a bounded tenant-local impersonation flow on top of the existing shared client and cookie-auth baseline.
 - The locked design requires tenant-host-only impersonation, server-issued impersonation state, effective-role authorization during impersonation, durable append-only tenant-scoped audit evidence, and explicit actor-vs-effective identity preservation across the retrofitted mutation seams.
-- Checkpoint closeout still requires post-implementation critic review plus manual VS Code and Visual Studio launch verification before CP15 can move from `active` to `done`.
+- Checkpoint closeout is complete: the post-implementation critic review is ship-ready, and manual VS Code plus Visual Studio launch verification is now recorded with the challenge-limited scope noted explicitly.
 
 ## Acceptance Criteria
 - [x] Canonical product, architecture, security, testing, operations, execution, taskboard, repo-navigation, ADR, and delivery docs agree on CP15 endpoint ownership, actor-vs-effective identity semantics, durable audit expectations, purge-retention behavior, tenant-shell banner ownership, and `/app/users` start-affordance ownership
@@ -43,7 +43,8 @@ Implement CP15 so a `TenantAdmin` can safely view as a same-tenant user from the
 - [x] Existing tenant-host mutation seams for binders, documents, lease extension, and tenant-user administration preserve `ActorUserId`, `EffectiveUserId`, and `IsImpersonated` explicitly in their structured log or audit output
 - [x] `/app/users` exposes the safe start affordance, the tenant shell owns active impersonation signaling plus stop behavior, and stopping impersonation restores the actor's same-route experience without a root-host login round-trip
 - [x] Backend integration tests, frontend tests, browser E2E coverage, and checkpoint validation evidence cover same-tenant success, safe denial paths, stop behavior, logout or expiry teardown, purge-retention behavior, and browser banner behavior
-- [ ] Post-implementation critic review and manual VS Code plus Visual Studio launch verification are recorded before checkpoint closeout
+- [x] Post-implementation critic review is recorded with a ship-ready verdict and no remaining blocking findings
+- [x] Manual VS Code plus Visual Studio launch verification is recorded before checkpoint closeout
 
 ## Dependencies
 - [T-0029](./T-0029-cp14-tenant-host-frontend-flows.md)
@@ -54,13 +55,13 @@ Implement CP15 so a `TenantAdmin` can safely view as a same-tenant user from the
 ## Review Gates
 - Scope Lock: Passed via [critic-review.md](../../95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md) on `2026-04-17`; implementation must honor the locked decisions and stay inside CP15.
 - Pre-PR Critique: Scope-lock critique completed. The blocking findings were resolved in the implementation plan before code changes broadened.
-- Post-Implementation Critique: Pending. Software author notes and validation evidence are prepared in [description.md](../../95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md) for critic handoff.
+- Post-Implementation Critique: Completed via [critic-review.md](../../95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md) on `2026-04-17`; ship-ready verdict and no blocking findings remain.
 - Escalation Notes: Stop rather than widening scope if CP15 appears to need root-host or cross-tenant impersonation, a server-side session store, token auth or JWTs, generic audit browsing or export, or broader CP16 hardening and refactoring work.
 
 ## Current State
 - CP15 implementation is in place across API, infrastructure, migrations, frontend runtime, browser coverage, and the synchronized canonical docs.
-- Automated validation is complete and the critic handoff materials are recorded in the CP15 PR artifact.
-- Manual VS Code and Visual Studio launch verification, plus the post-implementation critic review itself, remain outstanding before the checkpoint can be marked `done`.
+- Automated validation is complete and the post-implementation critic review is recorded in the CP15 PR artifact.
+- Manual VS Code and Visual Studio launch verification completed and passed on `2026-04-18`. Because the challenge flow is not yet implemented, manual editor verification was limited to successful startup and the initial public pages rather than authenticated or impersonation flows.
 
 ## Touch Points
 - `src/PaperBinder.Api`
@@ -107,7 +108,7 @@ Implement CP15 so a `TenantAdmin` can safely view as a same-tenant user from the
   - Green target: add focused integration probes, client or shell tests, and the smallest stable Playwright flow for CP15 reviewer evidence
 
 ## Next Action
-- Run post-implementation critic review and record manual VS Code plus Visual Studio launch verification before moving `CP15` and `T-0030` to `done`.
+- None for `CP15`. Next planned checkpoint is `CP16`.
 
 ## Validation Evidence
 - `npm.cmd run build` from `src/PaperBinder.Web` passed on `2026-04-17`
@@ -124,9 +125,14 @@ Implement CP15 so a `TenantAdmin` can safely view as a same-tenant user from the
   - Docker-backed integration suite: 81 passed, 0 failed
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on `2026-04-17`
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` re-ran on `2026-04-17` after the final CP15 closeout-artifact updates and passed
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` re-ran on `2026-04-18` after the critic-closeout status reconciliation and passed
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1` passed on `2026-04-17`
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` passed on `2026-04-17`
   - checkpoint output still requires the separate browser gate and manual VS Code plus Visual Studio verification before closeout
+- Manual verification:
+  - VS Code launch verification: passed on `2026-04-18`
+  - Visual Studio launch verification: passed on `2026-04-18`
+  - Scope note: because the challenge flow is not yet implemented, manual editor verification was limited to successful startup and the initial public pages; deeper interactive browser coverage remains the responsibility of the automated validation already recorded above
 - Static invariant checks passed on `2026-04-17`
   - `rg -n "fetch\\(" src/PaperBinder.Web/src/app src/PaperBinder.Web/src/test src/PaperBinder.Web/e2e` returned no matches
   - `rg -n "localStorage|sessionStorage" src/PaperBinder.Web/src src/PaperBinder.Web/e2e` returned no matches
@@ -155,7 +161,7 @@ Implement CP15 so a `TenantAdmin` can safely view as a same-tenant user from the
 ## Outcome (Fill when done)
 - CP15 tenant-local impersonation is implemented across the API, audit substrate, tenant-host runtime, and synchronized docs with focused integration, frontend, and browser coverage.
 - Automated validation is complete and recorded in this task plus the CP15 PR artifact, including the separate browser gate and the scripted checkpoint closeout path.
-- The remaining closeout work is external to the implementation diff: post-implementation critic review plus manual VS Code and Visual Studio launch verification.
+- CP15 closeout is complete: automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio launch verification are all recorded, with the manual verification scope limited to successful startup and the initial public pages because the challenge flow is not yet implemented.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.
