@@ -44,6 +44,7 @@ public partial class Program
         app.MapPaperBinderHealthEndpoints();
         app.MapPaperBinderAuthEndpoints();
         app.MapPaperBinderTenantLeaseEndpoints();
+        app.MapPaperBinderImpersonationEndpoints();
         app.MapPaperBinderTenantUserEndpoints();
         app.MapPaperBinderBinderEndpoints();
         app.MapPaperBinderDocumentEndpoints();

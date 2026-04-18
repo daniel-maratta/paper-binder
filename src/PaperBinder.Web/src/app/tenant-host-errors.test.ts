@@ -32,6 +32,22 @@ describe("tenant-host error mapping", () => {
       field: "tenantUserEmail"
     });
 
+    expect(
+      mapTenantHostError(
+        createApiError("TENANT_IMPERSONATION_ALREADY_ACTIVE", 409, "Already impersonating.")
+      )
+    ).toMatchObject({
+      title: "View-as is already active."
+    });
+
+    expect(
+      mapTenantHostError(
+        createApiError("TENANT_IMPERSONATION_SELF_TARGET_REJECTED", 409, "Self target rejected.")
+      )
+    ).toMatchObject({
+      title: "View-as target is not eligible."
+    });
+
     expect(mapTenantHostError(createApiError("TENANT_LEASE_EXTENSION_LIMIT_REACHED", 409, "Limit reached."))).toMatchObject({
       title: "Lease extension limit reached."
     });

@@ -6,6 +6,7 @@ import { PaperBinderApiError, type PaperBinderApiClient } from "../api/client";
 import {
   createApiClientStub,
   createTenantHostContext,
+  createTenantImpersonationStatus,
   createTenantLeaseSummary
 } from "../test/test-helpers";
 
@@ -139,6 +140,36 @@ describe("tenant shell", () => {
     expect(await screen.findByRole("heading", { name: "Tenant dashboard" })).toBeInTheDocument();
     expect(await screen.findByText("Operations")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Review binders" })).toBeInTheDocument();
+  });
+
+  it("Should_RenderActiveImpersonationBanner_AndStopFromTenantShell_When_ImpersonationIsActive", async () => {
+    const stopImpersonation = vi.fn(async () => createTenantImpersonationStatus());
+
+    renderTenantRoute({
+      apiClient: createApiClientStub({
+        getImpersonationStatus: vi.fn(async () =>
+          createTenantImpersonationStatus({
+            isImpersonating: true,
+            effective: {
+              userId: "user-2",
+              email: "reader@acme-demo.local",
+              role: "BinderRead"
+            }
+          })
+        ) as PaperBinderApiClient["getImpersonationStatus"],
+        stopImpersonation: stopImpersonation as PaperBinderApiClient["stopImpersonation"]
+      })
+    });
+
+    expect(await screen.findByText("Impersonation active.")).toBeInTheDocument();
+    expect(screen.getByText(/authorizing as reader@acme-demo.local/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Stop impersonation" }));
+
+    await waitFor(() => expect(stopImpersonation).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(screen.queryByText("Impersonation active.")).not.toBeInTheDocument()
+    );
   });
 
   it("Should_ListVisibleBinders_AndCreateBinder_When_BinderRouteActionsSucceed", async () => {
@@ -343,6 +374,54 @@ describe("tenant shell", () => {
         role: "BinderWrite"
       })
     );
+  });
+
+  it("Should_StartViewAsFromUsersRoute_AndReturnToDashboard_When_TenantAdminTargetsEligibleUser", async () => {
+    const activeImpersonation = createTenantImpersonationStatus({
+      isImpersonating: true,
+      effective: {
+        userId: "user-2",
+        email: "member@acme-demo.local",
+        role: "BinderRead"
+      }
+    });
+    let currentImpersonation = createTenantImpersonationStatus();
+    const getImpersonationStatus = vi.fn(async () => currentImpersonation);
+    const startImpersonation = vi.fn(async () => {
+      currentImpersonation = activeImpersonation;
+      return activeImpersonation;
+    });
+
+    renderTenantRoute({
+      route: "/app/users",
+      apiClient: createApiClientStub({
+        getImpersonationStatus: getImpersonationStatus as PaperBinderApiClient["getImpersonationStatus"],
+        listTenantUsers: vi.fn(async () => [
+          {
+            userId: "user-1",
+            email: "owner@acme-demo.local",
+            role: "TenantAdmin",
+            isOwner: true
+          },
+          {
+            userId: "user-2",
+            email: "member@acme-demo.local",
+            role: "BinderRead",
+            isOwner: false
+          }
+        ]) as PaperBinderApiClient["listTenantUsers"],
+        startImpersonation: startImpersonation as PaperBinderApiClient["startImpersonation"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Tenant users" })).toBeInTheDocument();
+    expect(await screen.findByText("Not eligible")).toBeInTheDocument();
+
+    fireEvent.click(await screen.findByRole("button", { name: "View as" }));
+
+    await waitFor(() => expect(startImpersonation).toHaveBeenCalledWith("user-2"));
+    expect(await screen.findByRole("heading", { name: "Tenant dashboard" })).toBeInTheDocument();
+    expect(await screen.findByText("Impersonation active.")).toBeInTheDocument();
   });
 
   it("Should_ExtendLeaseAndLogout_FromTenantShell_When_ActionsSucceed", async () => {

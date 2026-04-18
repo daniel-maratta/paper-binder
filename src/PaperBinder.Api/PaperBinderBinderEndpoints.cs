@@ -45,16 +45,19 @@ internal static class PaperBinderBinderEndpoints
         IBinderService binderService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         IProblemDetailsService problemDetailsService,
         CreateBinderRequest request,
         CancellationToken cancellationToken)
     {
         var tenant = GetRequiredTenant(tenantContext);
-        var membership = GetRequiredMembership(membershipContext);
+        GetRequiredMembership(membershipContext);
         var outcome = await binderService.CreateAsync(
             new BinderCreateCommand(
                 tenant,
-                membership.UserId,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated,
                 request.Name),
             cancellationToken);
 
@@ -135,16 +138,19 @@ internal static class PaperBinderBinderEndpoints
         IBinderService binderService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         IProblemDetailsService problemDetailsService,
         UpdateBinderPolicyRequest request,
         CancellationToken cancellationToken)
     {
         var tenant = GetRequiredTenant(tenantContext);
-        var membership = GetRequiredMembership(membershipContext);
+        GetRequiredMembership(membershipContext);
         var outcome = await binderService.UpdatePolicyAsync(
             new BinderPolicyUpdateCommand(
                 tenant,
-                membership.UserId,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated,
                 binderId,
                 request.Mode,
                 request.AllowedRoles),

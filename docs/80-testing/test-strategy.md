@@ -48,9 +48,9 @@ Related standards:
 
 ## Current Known Gaps
 
-- The current backend surface plus the CP13 and CP14 browser surfaces are covered credibly by unit tests, non-Docker and Docker-backed integration tests, frontend component tests, and the isolated Playwright browser suite.
-- CP12 through CP14 now cover host-context resolution, route-safe rendering, shared API-client behavior, root-host provision/login flows, tenant-host dashboard and CRUD paths, lease interaction, and representative browser deny paths.
-- Remaining browser gaps are outside CP14 scope: impersonation UX, broader hardening passes, and any post-V1 smoke coverage.
+- The current backend surface plus the CP13 through CP15 browser surfaces are covered credibly by unit tests, non-Docker and Docker-backed integration tests, frontend component tests, and the isolated Playwright browser suite.
+- CP15 adds impersonation endpoint, teardown, audit-retention, shell-banner, and view-as browser coverage on top of the CP14 tenant-host baseline.
+- Remaining browser gaps are broader hardening passes and any post-V1 smoke coverage.
 
 ## Environment-Gated Test Bypass Reminder
 

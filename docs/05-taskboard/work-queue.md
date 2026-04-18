@@ -27,6 +27,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0030: CP15 Tenant-Local Impersonation And Audit Safety](./tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md)
 - [T-0029: CP14 Tenant-Host Frontend Flows](./tasks/T-0029-cp14-tenant-host-frontend-flows.md)
 - [T-0028: CP13 Root-Host Frontend Flows](./tasks/T-0028-cp13-root-host-frontend-flows.md)
 - [T-0024: Track Remaining Test Coverage Gaps](./tasks/T-0024-track-remaining-test-coverage-gaps.md)

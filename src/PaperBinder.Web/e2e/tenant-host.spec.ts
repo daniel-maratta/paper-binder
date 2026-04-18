@@ -92,3 +92,47 @@ test("Should_RenderExpiredTenantState_InBrowser_When_TenantLeaseHasExpired", asy
   await expect(page.getByRole("heading", { level: 2, name: "Tenant expired", exact: true })).toBeVisible();
   await expect(page.getByText(/safe fallback only/i)).toBeVisible();
 });
+
+test("Should_StartViewAsFromUsersRoute_AndReturnToAdminSession_InBrowser", async ({ page }) => {
+  const provisionedTenant = await provisionTenantAndContinue(page, `Acme CP15 ${Date.now()}`);
+  const readerEmail = `reader.${Date.now()}@${provisionedTenant.tenantSlug}.local`;
+  const readerPassword = "Checkpoint15-reader!1";
+
+  await page.getByRole("link", { name: /Users/ }).click();
+  await expect(page.getByRole("heading", { level: 2, name: "Tenant users", exact: true })).toBeVisible();
+
+  await page.getByLabel("Email", { exact: true }).fill(readerEmail);
+  await page.getByLabel("Temporary password", { exact: true }).fill(readerPassword);
+  await page.getByLabel("Role", { exact: true }).selectOption("BinderRead");
+  await page.getByRole("button", { name: "Create tenant user" }).click();
+  await expect(page.getByText("Tenant user created.")).toBeVisible();
+
+  const impersonationStartResponse = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/tenant/impersonation") &&
+      response.request().method() === "POST"
+  );
+
+  await page.getByRole("button", { name: "View as" }).click();
+
+  expect((await impersonationStartResponse).status()).toBe(200);
+  await expect(page).toHaveURL(tenantHostUrl(provisionedTenant.tenantSlug));
+  await expect(page.getByText("Impersonation active.")).toBeVisible();
+  await expect(page.getByText(new RegExp(`Authorizing as ${readerEmail}`, "i"))).toBeVisible();
+
+  await page.getByRole("link", { name: /Users/ }).click();
+  await expect(page.getByRole("heading", { level: 2, name: "Access is not allowed.", exact: true })).toBeVisible();
+
+  const impersonationStopResponse = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/tenant/impersonation") &&
+      response.request().method() === "DELETE"
+  );
+
+  await page.getByRole("button", { name: "Stop impersonation" }).click();
+
+  expect((await impersonationStopResponse).status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 2, name: "Tenant users", exact: true })).toBeVisible();
+  await expect(page.getByText("Impersonation active.")).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "View as" })).toBeVisible();
+});

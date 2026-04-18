@@ -90,6 +90,7 @@ internal static class PaperBinderDocumentEndpoints
         IDocumentService documentService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         IProblemDetailsService problemDetailsService,
         CreateDocumentRequest request,
         CancellationToken cancellationToken)
@@ -99,7 +100,9 @@ internal static class PaperBinderDocumentEndpoints
         var outcome = await documentService.CreateAsync(
             new DocumentCreateCommand(
                 tenant,
-                membership.UserId,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated,
                 membership.Role,
                 request.BinderId,
                 request.Title,
@@ -126,6 +129,7 @@ internal static class PaperBinderDocumentEndpoints
         IDocumentService documentService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         IProblemDetailsService problemDetailsService,
         CancellationToken cancellationToken)
     {
@@ -135,8 +139,9 @@ internal static class PaperBinderDocumentEndpoints
             documentService,
             tenantContext,
             membershipContext,
+            executionUserContext,
             problemDetailsService,
-            archiveRequested: true,
+            true,
             cancellationToken);
     }
 
@@ -146,6 +151,7 @@ internal static class PaperBinderDocumentEndpoints
         IDocumentService documentService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         IProblemDetailsService problemDetailsService,
         CancellationToken cancellationToken)
     {
@@ -155,8 +161,9 @@ internal static class PaperBinderDocumentEndpoints
             documentService,
             tenantContext,
             membershipContext,
+            executionUserContext,
             problemDetailsService,
-            archiveRequested: false,
+            false,
             cancellationToken);
     }
 
@@ -166,6 +173,7 @@ internal static class PaperBinderDocumentEndpoints
         IDocumentService documentService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         IProblemDetailsService problemDetailsService,
         bool archiveRequested,
         CancellationToken cancellationToken)
@@ -174,7 +182,9 @@ internal static class PaperBinderDocumentEndpoints
         var membership = GetRequiredMembership(membershipContext);
         var command = new DocumentArchiveCommand(
             tenant,
-            membership.UserId,
+            executionUserContext.ActorUserId,
+            executionUserContext.EffectiveUserId,
+            executionUserContext.IsImpersonated,
             membership.Role,
             documentId);
 

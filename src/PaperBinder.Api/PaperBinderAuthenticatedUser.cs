@@ -13,4 +13,16 @@ internal static class PaperBinderAuthenticatedUser
 
         return Guid.TryParse(rawUserId, out userId);
     }
+
+    public static bool TryGetSecurityStamp(
+        ClaimsPrincipal principal,
+        string claimType,
+        out string securityStamp)
+    {
+        ArgumentNullException.ThrowIfNull(principal);
+        ArgumentException.ThrowIfNullOrWhiteSpace(claimType);
+
+        securityStamp = principal.FindFirstValue(claimType) ?? string.Empty;
+        return !string.IsNullOrWhiteSpace(securityStamp);
+    }
 }

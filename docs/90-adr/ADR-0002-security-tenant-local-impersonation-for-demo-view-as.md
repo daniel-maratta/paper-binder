@@ -17,9 +17,13 @@ We will implement Tenant-Local Impersonation with the following constraints:
 - No cross-tenant impersonation is allowed.
 - Impersonation state is:
   - Server-controlled, and
-  - Logged via AuditEvents (ImpersonationStarted, ImpersonationEnded).
+  - carried only by the existing signed auth cookie / trusted server-issued context, and
+  - logged durably in a tenant-scoped append-only audit table (`tenant_impersonation_audit_events`) with `ImpersonationStarted` and `ImpersonationEnded`.
 - The effective user context is derived from trusted claims or signed server-issued context.
+- Original actor identity remains available separately from the effective impersonated identity for stop behavior, audit-safe logging, and teardown.
 - Arbitrary headers or client-controlled claims are never trusted.
+- Audit rows must include `tenant_id`, actor user id, effective user id, timestamp, and correlation id, and tenant-scoped reads/writes must be constructed by `tenant_id`.
+- Tenant purge must delete impersonation audit rows under `PurgeTenantAudit` and must not leave per-user impersonation rows behind under `RetainTenantPurgedSummary`.
 
 Impersonation will not mint arbitrary authentication cookies from client input.
 
@@ -35,8 +39,9 @@ Impersonation will not mint arbitrary authentication cookies from client input.
 
 - Additional authorization checks required on impersonation endpoints.
 - Slight increase in authentication complexity.
-- All impersonation actions must emit audit events.
+- All impersonation actions must emit durable audit events.
 - Requires clear UI signaling when impersonation is active.
+- Existing tenant-host mutation seams that log actor identity must preserve actor vs. effective attribution once impersonation exists.
 
 ## Alternatives considered
 - No impersonation capability: strongest simplicity, weaker demo ergonomics.

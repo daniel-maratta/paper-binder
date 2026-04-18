@@ -127,20 +127,24 @@ public sealed class DapperTenantLeaseService(
         if (!outcome.Succeeded)
         {
             logger.LogWarning(
-                "Tenant lease extension rejected. event_name={event_name} tenant_id={tenant_id} user_id={user_id} failure_kind={failure_kind}",
+                "Tenant lease extension rejected. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} failure_kind={failure_kind}",
                 "tenant_lease_extend_rejected",
                 command.Tenant.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 outcome.Failure!.Kind);
 
             return outcome;
         }
 
         logger.LogInformation(
-            "Tenant lease extended. event_name={event_name} tenant_id={tenant_id} user_id={user_id} expires_at_utc={expires_at_utc} extension_count={extension_count}",
+            "Tenant lease extended. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} expires_at_utc={expires_at_utc} extension_count={extension_count}",
             "tenant_lease_extended",
             command.Tenant.TenantId,
             command.ActorUserId,
+            command.EffectiveUserId,
+            command.IsImpersonated,
             outcome.Lease!.ExpiresAtUtc,
             outcome.Lease.ExtensionCount);
 

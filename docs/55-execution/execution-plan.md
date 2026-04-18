@@ -230,17 +230,18 @@ Merge gate:
 
 ### CP15 - Tenant-Local Impersonation And Audit Safety
 
-Outcome: tenant-local impersonation is implemented without weakening the tenant boundary.
+Outcome: tenant-local impersonation is implemented without weakening the tenant boundary or obscuring original actor identity.
 
 Commits:
-1. Add start/stop impersonation application flow and API endpoints.
-2. Add tenant-local validation so impersonation never crosses tenant boundaries.
-3. Add required audit events and session-state handling.
-4. Add integration tests for same-tenant success, cross-tenant denial, and audit behavior.
+1. Add tenant-host impersonation status/start/stop flow and API endpoints on top of the existing cookie-auth model.
+2. Add tenant-local validation and request-context handling so effective user context never crosses tenant boundaries and original actor identity remains available while impersonation is active.
+3. Add required audit-event recording and clear browser signaling for active impersonation.
+4. Add unit, integration, and browser coverage for same-tenant success, cross-tenant denial, stop behavior, and audit behavior.
 
 Merge gate:
 - Cross-tenant impersonation is impossible.
-- Audit behavior matches the ADR and testing expectations.
+- Effective authorization reflects the impersonated user while original actor identity remains available for audit-safe behavior.
+- Audit behavior and UI signaling match the ADR and testing expectations.
 
 ### CP16 - Hardening And Consistency Pass
 

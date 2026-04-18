@@ -30,6 +30,8 @@ public sealed record DocumentListQuery(
 public sealed record DocumentCreateCommand(
     TenantContext Tenant,
     Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
     TenantRole CallerRole,
     Guid? BinderId,
     string? Title,
@@ -40,6 +42,8 @@ public sealed record DocumentCreateCommand(
 public sealed record DocumentArchiveCommand(
     TenantContext Tenant,
     Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
     TenantRole CallerRole,
     Guid DocumentId);
 

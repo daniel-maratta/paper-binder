@@ -18,6 +18,7 @@ Tenant isolation is a security boundary in PaperBinder.
 - Tenant context is resolved early and is immutable per request.
 - Known tenant hosts are resolved early, but request tenant context is established only after authenticated membership and tenant-expiry validation succeed.
 - Authenticated tenant membership is stored in a request-scoped context only after the same validation succeeds.
+- Tenant-local impersonation never changes tenant identity; it only swaps the effective user id inside the already-resolved tenant boundary.
 - Tenant-host-only and system-host-only endpoints are enforced from the resolved-host request context before CSRF and authorization middleware runs.
 - Request hosts outside the configured root/tenant pattern are rejected before tenant-scoped handling runs.
 - No cross-tenant joins are allowed except explicit, reviewed system-context queries.
@@ -29,6 +30,8 @@ Tenant isolation is a security boundary in PaperBinder.
 - System-level cleanup jobs may access multiple tenants only for expiry deletion logic.
 - Any data access that depends on tenant scope must take tenant context as an explicit input parameter.
 - Client tenant hints in headers, query-string values, or payloads must not override host-derived tenant context.
+- Impersonation target lookup must query by current `tenant_id` plus target `user_id`; cross-tenant existence must not be discoverable.
+- Durable impersonation audit rows are tenant-scoped by construction in `tenant_impersonation_audit_events` and participate in tenant purge.
 - Ambient/static tenant state is prohibited for scoping decisions.
 
 ## Validation Expectations

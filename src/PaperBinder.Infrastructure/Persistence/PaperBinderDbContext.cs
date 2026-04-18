@@ -10,6 +10,8 @@ public sealed class PaperBinderDbContext(DbContextOptions<PaperBinderDbContext> 
     internal DbSet<DocumentStorageModel> Documents => Set<DocumentStorageModel>();
     internal DbSet<UserStorageModel> Users => Set<UserStorageModel>();
     internal DbSet<UserTenantMembershipStorageModel> UserTenants => Set<UserTenantMembershipStorageModel>();
+    internal DbSet<TenantImpersonationAuditEventStorageModel> TenantImpersonationAuditEvents =>
+        Set<TenantImpersonationAuditEventStorageModel>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -318,5 +320,63 @@ public sealed class PaperBinderDbContext(DbContextOptions<PaperBinderDbContext> 
             tableBuilder.HasCheckConstraint(
                 "ck_user_tenants_role_valid",
                 "role in ('TenantAdmin', 'BinderWrite', 'BinderRead')"));
+
+        var tenantImpersonationAuditEvent = modelBuilder.Entity<TenantImpersonationAuditEventStorageModel>();
+
+        tenantImpersonationAuditEvent.ToTable("tenant_impersonation_audit_events");
+        tenantImpersonationAuditEvent.HasKey(record => record.Id).HasName("pk_tenant_impersonation_audit_events");
+
+        tenantImpersonationAuditEvent.Property(record => record.Id)
+            .HasColumnName("id")
+            .ValueGeneratedNever();
+
+        tenantImpersonationAuditEvent.Property(record => record.SessionId)
+            .HasColumnName("session_id");
+
+        tenantImpersonationAuditEvent.Property(record => record.EventName)
+            .HasColumnName("event_name")
+            .HasMaxLength(64)
+            .IsRequired();
+
+        tenantImpersonationAuditEvent.Property(record => record.TenantId)
+            .HasColumnName("tenant_id");
+
+        tenantImpersonationAuditEvent.Property(record => record.ActorUserId)
+            .HasColumnName("actor_user_id");
+
+        tenantImpersonationAuditEvent.Property(record => record.EffectiveUserId)
+            .HasColumnName("effective_user_id");
+
+        tenantImpersonationAuditEvent.Property(record => record.OccurredAtUtc)
+            .HasColumnName("occurred_at_utc")
+            .HasColumnType("timestamp with time zone");
+
+        tenantImpersonationAuditEvent.Property(record => record.CorrelationId)
+            .HasColumnName("correlation_id")
+            .HasMaxLength(64)
+            .IsRequired();
+
+        tenantImpersonationAuditEvent.HasIndex(record => new { record.TenantId, record.OccurredAtUtc, record.Id })
+            .HasDatabaseName("ix_tenant_impersonation_audit_events_tenant_id_occurred_at_utc_id");
+
+        tenantImpersonationAuditEvent.HasIndex(record => new { record.SessionId, record.EventName })
+            .HasDatabaseName("ux_tenant_impersonation_audit_events_session_id_event_name")
+            .IsUnique();
+
+        tenantImpersonationAuditEvent.HasOne<TenantStorageModel>()
+            .WithMany()
+            .HasForeignKey(record => record.TenantId)
+            .HasConstraintName("fk_tenant_impersonation_audit_events_tenant_id")
+            .OnDelete(DeleteBehavior.Cascade);
+
+        tenantImpersonationAuditEvent.ToTable(tableBuilder =>
+        {
+            tableBuilder.HasCheckConstraint(
+                "ck_tenant_impersonation_audit_events_event_name_valid",
+                "event_name in ('ImpersonationStarted', 'ImpersonationEnded')");
+            tableBuilder.HasCheckConstraint(
+                "ck_tenant_impersonation_audit_events_correlation_id_not_blank",
+                "char_length(btrim(correlation_id)) > 0");
+        });
     }
 }

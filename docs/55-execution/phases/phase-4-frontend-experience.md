@@ -37,10 +37,10 @@ Build the browser experience from foundation through complete product flows, inc
 
 ### CP15 - Tenant-Local Impersonation And Audit Safety
 
-- Start/stop impersonation application flow and API endpoints.
-- Tenant-local validation preventing cross-tenant impersonation.
-- Audit events and session-state handling.
-- Integration tests for same-tenant success, cross-tenant denial, and audit behavior.
+- Tenant-host impersonation status/start/stop flow and API endpoints on the existing cookie-auth model.
+- Tenant-local validation plus actor/effective session handling preventing cross-tenant impersonation.
+- Audit-event recording and clear active-impersonation browser signaling.
+- Unit, integration, and browser coverage for same-tenant success, cross-tenant denial, stop behavior, and audit behavior.
 
 ## Exit Criteria
 
@@ -48,7 +48,7 @@ Build the browser experience from foundation through complete product flows, inc
 - A user can provision a tenant and log in through the browser.
 - The end-to-end reviewer workflow works in the browser.
 - UI permissions align with API policy behavior.
-- Cross-tenant impersonation is impossible and audit behavior matches expectations.
+- Cross-tenant impersonation is impossible, effective authorization reflects the impersonated user, and audit behavior matches expectations.
 - E2E tests cover major happy and deny paths, with the CP14 frontend browser gate recorded explicitly in the runbook and PR artifact.
 
 ## Task Integration

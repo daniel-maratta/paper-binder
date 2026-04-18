@@ -11,6 +11,7 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 - v1 auth is cookie-based only; `/api/*` version defaults to `1` with response header echo.
 - Root-host provisioning and login now enforce server-side challenge verification plus shared pre-auth rate limiting.
 - Tenant lease uses canonical routes `/api/tenant/lease` and `/api/tenant/lease/extend`.
+- Tenant-local impersonation uses `GET|POST|DELETE /api/tenant/impersonation` with server-issued cookie state only.
 - Documents remain immutable; archive state is visibility metadata only.
 - Health endpoints are non-API routes, anonymous, minimal, and non-versioned.
 
@@ -72,6 +73,12 @@ Notes:
 - Lease-extension limit violations return `409` ProblemDetails with `errorCode` `TENANT_LEASE_EXTENSION_LIMIT_REACHED`.
 - Invalid tenant role values return `422` ProblemDetails with `errorCode` `TENANT_ROLE_INVALID`.
 - Invalid tenant-user passwords return `422` ProblemDetails with `errorCode` `TENANT_USER_PASSWORD_INVALID`.
+- Tenant-local impersonation denial returns `403` with `TENANT_IMPERSONATION_NOT_ALLOWED`.
+- Invalid impersonation payloads return `400` with `TENANT_IMPERSONATION_TARGET_INVALID`.
+- Unknown or cross-tenant impersonation targets return `404` with `TENANT_IMPERSONATION_TARGET_NOT_FOUND`.
+- Self-target impersonation returns `409` with `TENANT_IMPERSONATION_SELF_TARGET_REJECTED`.
+- Nested or replace-in-place impersonation returns `409` with `TENANT_IMPERSONATION_ALREADY_ACTIVE`.
+- Stop-without-active-session or serialized session-stamp conflicts return `409` with `TENANT_IMPERSONATION_NOT_ACTIVE` or `TENANT_IMPERSONATION_SESSION_CONFLICT`.
 - Binder-name validation failures return `400` ProblemDetails with `errorCode` `BINDER_NAME_INVALID`.
 - Unknown tenant-scoped binders return `404` ProblemDetails with `errorCode` `BINDER_NOT_FOUND`.
 - Binder-local policy denial after endpoint authorization returns `403` ProblemDetails with `errorCode` `BINDER_POLICY_DENIED`.
@@ -201,7 +208,71 @@ Notes:
     {}
     ```
   - Response example (`204`): empty body.
+  - Notes:
+    - When logout is called during active impersonation, the server emits `ImpersonationEnded` first and then clears the full actor session.
   - Idempotency: idempotent.
+
+### Tenant-Local Impersonation
+
+- `GET /api/tenant/impersonation`
+  - Auth required: Y (`AuthenticatedUser`)
+  - Tenant context source: subdomain plus cookie
+  - Response example (`200`):
+    ```json
+    {
+      "isImpersonating": true,
+      "actor": {
+        "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+        "email": "owner@acme-demo.local",
+        "role": "TenantAdmin"
+      },
+      "effective": {
+        "userId": "0d5a5380-c8ef-4c1c-86cf-2dd6cfcbfa85",
+        "email": "reader@acme-demo.local",
+        "role": "BinderRead"
+      }
+    }
+    ```
+  - Notes:
+    - `actor` is the original authenticated tenant member.
+    - `effective` is the tenant-local user currently driving authorization.
+  - Idempotency: idempotent.
+
+- `POST /api/tenant/impersonation`
+  - Auth required: Y (`AuthenticatedUser`, with actor-side tenant-admin enforcement)
+  - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Request example:
+    ```json
+    { "userId": "0d5a5380-c8ef-4c1c-86cf-2dd6cfcbfa85" }
+    ```
+  - Response example (`200`): same payload shape as `GET /api/tenant/impersonation` with `isImpersonating=true`.
+  - Failure semantics:
+    - `403` when the actor is not a tenant admin.
+    - `400` when `userId` is missing or empty.
+    - `404` when the target does not exist in the current tenant. Cross-tenant targets are intentionally indistinguishable from missing targets.
+    - `409` when the target matches the actor or when the current session is already impersonating.
+  - Notes:
+    - Tenant identity remains host-derived; client payload tenant hints are ignored.
+    - The browser never sends impersonation claims, custom headers, or storage-backed identity state.
+  - Idempotency: not idempotent.
+
+- `DELETE /api/tenant/impersonation`
+  - Auth required: Y (`AuthenticatedUser`)
+  - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Request example:
+    ```json
+    {}
+    ```
+  - Response example (`200`): same payload shape as `GET /api/tenant/impersonation` with `isImpersonating=false`.
+  - Failure semantics:
+    - `403` when the request omits a valid CSRF token.
+    - `409` when no impersonation session is active or when the actor session has changed underneath the current cookie.
+  - Notes:
+    - Stop remains available while the effective impersonated role is downgraded; the allowance comes from trusted server-issued actor/impersonation context rather than residual admin authorization.
+    - Expired impersonation cookies are closed on the next tenant-host request so audit evidence is not left open-ended.
+  - Idempotency: conditionally idempotent.
 
 ### Tenant Users and Roles
 
@@ -562,6 +633,9 @@ Health payloads must not include dependency internals or version metadata.
 - `GET /api/tenant/lease` -> `AuthenticatedUser`.
 - `POST /api/tenant/lease/extend` -> `TenantAdmin`.
 - `POST /api/auth/logout` -> `AuthenticatedUser`.
+- `GET /api/tenant/impersonation` -> `AuthenticatedUser`.
+- `POST /api/tenant/impersonation` -> `AuthenticatedUser` plus actor-side `TenantAdmin` enforcement in the impersonation service.
+- `DELETE /api/tenant/impersonation` -> `AuthenticatedUser` with trusted actor/impersonation stop allowance.
 - `GET /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users/{userId}/role` -> `TenantAdmin`.

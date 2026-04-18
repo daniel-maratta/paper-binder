@@ -12,6 +12,7 @@ import {
   Outlet,
   Route,
   useLocation,
+  useNavigate,
   useOutletContext,
   useParams
 } from "react-router-dom";
@@ -24,6 +25,7 @@ import {
   type DocumentSummary,
   type PaperBinderApiClient,
   PaperBinderApiError,
+  type TenantImpersonationStatus,
   type TenantLeaseSummary,
   type TenantRole,
   type TenantUser
@@ -55,6 +57,9 @@ type TenantShellOutletContext = {
   hostContext: TenantHostContext;
   lease: TenantLeaseSummary;
   countdownSeconds: number;
+  impersonation: TenantImpersonationStatus;
+  startImpersonation: (userId: string) => Promise<TenantImpersonationStatus>;
+  stopImpersonation: () => Promise<TenantImpersonationStatus>;
 };
 
 type TenantBootstrapViewModel = {
@@ -341,6 +346,53 @@ function TenantLeaseBanner({
   );
 }
 
+function TenantImpersonationBanner({
+  impersonation,
+  isStopping,
+  onStop
+}: {
+  impersonation: TenantImpersonationStatus;
+  isStopping: boolean;
+  onStop: () => Promise<TenantImpersonationStatus>;
+}) {
+  if (!impersonation.isImpersonating) {
+    return null;
+  }
+
+  return (
+    <Alert className="overflow-hidden" variant="warning">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="max-w-2xl">
+          <AlertTitle>Impersonation active.</AlertTitle>
+          <AlertBody>
+            Authorizing as {impersonation.effective.email} ({formatRole(impersonation.effective.role)}).
+          </AlertBody>
+          <AlertBody>
+            Original actor {impersonation.actor.email} ({formatRole(impersonation.actor.role)}) stays available for
+            stop behavior and audit-safe signaling.
+          </AlertBody>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[28rem]">
+          <CardMeta label="Actor" value={impersonation.actor.email} />
+          <CardMeta label="Effective" value={impersonation.effective.email} />
+        </div>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Button
+          isLoading={isStopping}
+          onClick={() => {
+            void onStop();
+          }}
+          type="button"
+          variant="secondary"
+        >
+          Stop impersonation
+        </Button>
+      </div>
+    </Alert>
+  );
+}
+
 function TenantShell({
   apiClient,
   hostContext,
@@ -351,25 +403,31 @@ function TenantShell({
   navigator: TenantHostNavigator;
 }) {
   const [lease, setLease] = useState<TenantLeaseSummary | null>(null);
+  const [impersonation, setImpersonation] = useState<TenantImpersonationStatus | null>(null);
   const [countdownSeconds, setCountdownSeconds] = useState(0);
   const [bootstrapError, setBootstrapError] = useState<TenantBootstrapViewModel | null>(null);
   const [shellError, setShellError] = useState<TenantHostErrorViewModel | null>(null);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [isExtending, setIsExtending] = useState(false);
+  const [isStoppingImpersonation, setIsStoppingImpersonation] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const location = useLocation();
   const previousPathRef = useRef(location.pathname);
   const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl);
 
-  const refreshLease = useEffectEvent(
+  const refreshShellState = useEffectEvent(
     async ({ bootstrap = false, signal }: { bootstrap?: boolean; signal?: AbortSignal } = {}) => {
       try {
-        const nextLease = await apiClient.getTenantLease(signal);
+        const [nextLease, nextImpersonation] = await Promise.all([
+          apiClient.getTenantLease(signal),
+          apiClient.getImpersonationStatus(signal)
+        ]);
         if (signal?.aborted) {
           return;
         }
 
         setLease(nextLease);
+        setImpersonation(nextImpersonation);
         setCountdownSeconds(calculateCountdownSeconds(nextLease.expiresAt));
         setBootstrapError(null);
       } catch (error) {
@@ -377,7 +435,7 @@ function TenantShell({
           return;
         }
 
-        if (bootstrap || lease === null) {
+        if (bootstrap || lease === null || impersonation === null) {
           setBootstrapError(createBootstrapViewModel(error));
           return;
         }
@@ -396,7 +454,7 @@ function TenantShell({
     setIsBootstrapping(true);
     setShellError(null);
     setBootstrapError(null);
-    void refreshLease({ bootstrap: true, signal: abortController.signal });
+    void refreshShellState({ bootstrap: true, signal: abortController.signal });
 
     return () => {
       abortController.abort();
@@ -419,7 +477,7 @@ function TenantShell({
   }, [lease]);
 
   useEffect(() => {
-    if (lease === null || isBootstrapping) {
+    if (lease === null || impersonation === null || isBootstrapping) {
       previousPathRef.current = location.pathname;
       return;
     }
@@ -429,23 +487,23 @@ function TenantShell({
     }
 
     previousPathRef.current = location.pathname;
-    void refreshLease();
-  }, [isBootstrapping, lease, location.pathname]);
+    void refreshShellState();
+  }, [impersonation, isBootstrapping, lease, location.pathname]);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       if (document.visibilityState === "visible") {
-        void refreshLease();
+        void refreshShellState();
       }
     }, 60000);
 
     const handleFocus = () => {
-      void refreshLease();
+      void refreshShellState();
     };
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        void refreshLease();
+        void refreshShellState();
       }
     };
 
@@ -474,6 +532,28 @@ function TenantShell({
     }
   }
 
+  async function handleStopImpersonation(): Promise<TenantImpersonationStatus> {
+    setShellError(null);
+    setIsStoppingImpersonation(true);
+
+    try {
+      const nextImpersonation = await apiClient.stopImpersonation();
+      setImpersonation(nextImpersonation);
+      return nextImpersonation;
+    } catch (error) {
+      setShellError(mapTenantHostError(error));
+      throw error;
+    } finally {
+      setIsStoppingImpersonation(false);
+    }
+  }
+
+  async function handleStartImpersonation(userId: string) {
+    const nextImpersonation = await apiClient.startImpersonation(userId);
+    setImpersonation(nextImpersonation);
+    return nextImpersonation;
+  }
+
   async function handleLogout() {
     setShellError(null);
     setIsLoggingOut(true);
@@ -494,7 +574,7 @@ function TenantShell({
     return <TenantShellLoadingPage />;
   }
 
-  if (bootstrapError !== null || lease === null) {
+  if (bootstrapError !== null || lease === null || impersonation === null) {
     return (
       <TenantBootstrapFailurePage
         error={bootstrapError ?? createBootstrapViewModel(null)}
@@ -565,6 +645,11 @@ function TenantShell({
           </aside>
 
           <main className="space-y-6 pb-10">
+            <TenantImpersonationBanner
+              impersonation={impersonation}
+              isStopping={isStoppingImpersonation}
+              onStop={handleStopImpersonation}
+            />
             <TenantLeaseBanner
               countdownSeconds={countdownSeconds}
               isExtending={isExtending}
@@ -578,7 +663,10 @@ function TenantShell({
                   apiClient,
                   hostContext,
                   lease,
-                  countdownSeconds
+                  countdownSeconds,
+                  impersonation,
+                  startImpersonation: handleStartImpersonation,
+                  stopImpersonation: handleStopImpersonation
                 } satisfies TenantShellOutletContext
               }
             />
@@ -590,7 +678,7 @@ function TenantShell({
 }
 
 function DashboardPage() {
-  const { apiClient, hostContext, lease, countdownSeconds } = useTenantShellContext();
+  const { apiClient, hostContext, lease, countdownSeconds, impersonation } = useTenantShellContext();
   const [binders, setBinders] = useState<BinderSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [summaryError, setSummaryError] = useState<TenantHostErrorViewModel | null>(null);
@@ -627,7 +715,7 @@ function DashboardPage() {
     return () => {
       abortController.abort();
     };
-  }, [apiClient]);
+  }, [apiClient, impersonation.effective.userId]);
 
   const visibleBinderRows = binders.slice(0, 5).map((binder) => (
     <li
@@ -712,7 +800,7 @@ function DashboardPage() {
 }
 
 function BindersPage() {
-  const { apiClient } = useTenantShellContext();
+  const { apiClient, impersonation } = useTenantShellContext();
   const [binders, setBinders] = useState<BinderSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
@@ -754,7 +842,7 @@ function BindersPage() {
     return () => {
       abortController.abort();
     };
-  }, [apiClient]);
+  }, [apiClient, impersonation.effective.userId]);
 
   async function handleCreateBinder(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -895,7 +983,7 @@ function BinderPolicyCard({
 }: {
   binderId: string;
 }) {
-  const { apiClient } = useTenantShellContext();
+  const { apiClient, impersonation } = useTenantShellContext();
   const [policy, setPolicy] = useState<BinderPolicy | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<TenantHostErrorViewModel | null>(null);
@@ -940,7 +1028,7 @@ function BinderPolicyCard({
     return () => {
       abortController.abort();
     };
-  }, [apiClient, binderId]);
+  }, [apiClient, binderId, impersonation.effective.userId]);
 
   function toggleRole(role: TenantRole, checked: boolean) {
     setAllowedRoles((currentRoles) => {
@@ -1060,7 +1148,7 @@ function BinderPolicyCard({
 
 function BinderDetailPage() {
   const { binderId = "" } = useParams();
-  const { apiClient } = useTenantShellContext();
+  const { apiClient, impersonation } = useTenantShellContext();
   const [binder, setBinder] = useState<BinderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
@@ -1104,7 +1192,7 @@ function BinderDetailPage() {
     return () => {
       abortController.abort();
     };
-  }, [apiClient, binderId]);
+  }, [apiClient, binderId, impersonation.effective.userId]);
 
   async function handleCreateDocument(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -1365,7 +1453,7 @@ function BinderDetailPage() {
 
 function DocumentDetailPage() {
   const { documentId = "" } = useParams();
-  const { apiClient } = useTenantShellContext();
+  const { apiClient, impersonation } = useTenantShellContext();
   const [documentDetail, setDocumentDetail] = useState<DocumentDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
@@ -1402,7 +1490,7 @@ function DocumentDetailPage() {
     return () => {
       abortController.abort();
     };
-  }, [apiClient, documentId]);
+  }, [apiClient, documentId, impersonation.effective.userId]);
 
   if (pageError !== null) {
     return <TenantRouteFailureCard error={pageError} />;
@@ -1486,7 +1574,8 @@ function DocumentDetailPage() {
 }
 
 function UsersPage() {
-  const { apiClient } = useTenantShellContext();
+  const { apiClient, impersonation, startImpersonation } = useTenantShellContext();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<TenantUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
@@ -1500,6 +1589,8 @@ function UsersPage() {
   const [roleDrafts, setRoleDrafts] = useState<Record<string, TenantRole>>({});
   const [roleUpdateError, setRoleUpdateError] = useState<TenantHostErrorViewModel | null>(null);
   const [isRoleUpdatingForUserId, setIsRoleUpdatingForUserId] = useState<string | null>(null);
+  const [impersonationError, setImpersonationError] = useState<TenantHostErrorViewModel | null>(null);
+  const [isStartingImpersonationForUserId, setIsStartingImpersonationForUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -1534,7 +1625,7 @@ function UsersPage() {
     return () => {
       abortController.abort();
     };
-  }, [apiClient]);
+  }, [apiClient, impersonation.effective.userId]);
 
   async function handleCreateUser(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -1620,6 +1711,20 @@ function UsersPage() {
     }
   }
 
+  async function handleStartImpersonation(userId: string) {
+    setImpersonationError(null);
+    setIsStartingImpersonationForUserId(userId);
+
+    try {
+      await startImpersonation(userId);
+      navigate("/app");
+    } catch (error) {
+      setImpersonationError(mapTenantHostError(error));
+    } finally {
+      setIsStartingImpersonationForUserId(null);
+    }
+  }
+
   if (pageError !== null) {
     return <TenantRouteFailureCard error={pageError} />;
   }
@@ -1628,7 +1733,8 @@ function UsersPage() {
     { key: "email", header: "Email" },
     { key: "role", header: "Role" },
     { key: "ownership", header: "Ownership" },
-    { key: "actions", header: "Actions" }
+    { key: "actions", header: "Actions" },
+    { key: "impersonation", header: "View as" }
   ];
   const rows: DataTableRow[] = users.map((user) => ({
     key: user.userId,
@@ -1667,7 +1773,25 @@ function UsersPage() {
         variant="secondary"
       >
         Save role
-      </Button>
+      </Button>,
+      impersonation.isImpersonating || user.userId === impersonation.effective.userId ? (
+        <span
+          className="text-sm text-[var(--pb-color-text-muted)]"
+          key={`${user.userId}-impersonation-disabled`}
+        >
+          Not eligible
+        </span>
+      ) : (
+        <Button
+          isLoading={isStartingImpersonationForUserId === user.userId}
+          key={`${user.userId}-impersonation`}
+          onClick={() => void handleStartImpersonation(user.userId)}
+          type="button"
+          variant="secondary"
+        >
+          View as
+        </Button>
+      )
     ]
   }));
 
@@ -1774,11 +1898,13 @@ function UsersPage() {
           <CardHeader>
             <CardTitle>Current tenant users</CardTitle>
             <CardDescription>
-              Role changes remain subject to the server-side last-admin guard and tenant boundary checks.
+              Role changes remain subject to the server-side last-admin guard, and view-as start only exposes a safe
+              eligible or not-eligible affordance.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <TenantHostErrorNotice error={roleUpdateError} />
+            <TenantHostErrorNotice error={impersonationError} />
             <DataTable
               caption="Tenant users"
               columns={columns}

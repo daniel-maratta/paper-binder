@@ -183,10 +183,12 @@ public sealed class DapperDocumentService(
         if (outcome.Succeeded)
         {
             logger.LogInformation(
-                "Document created. event_name={event_name} tenant_id={tenant_id} user_id={user_id} binder_id={binder_id} document_id={document_id} supersedes_document_id={supersedes_document_id}",
+                "Document created. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id} document_id={document_id} supersedes_document_id={supersedes_document_id}",
                 "document_created",
                 command.Tenant.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.BinderId,
                 documentId,
                 command.SupersedesDocumentId);
@@ -194,10 +196,12 @@ public sealed class DapperDocumentService(
         else
         {
             logger.LogWarning(
-                "Document create rejected. event_name={event_name} tenant_id={tenant_id} user_id={user_id} binder_id={binder_id} failure_kind={failure_kind}",
+                "Document create rejected. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id} failure_kind={failure_kind}",
                 "document_create_rejected",
                 command.Tenant.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.BinderId,
                 outcome.Failure!.Kind);
         }
@@ -454,20 +458,24 @@ public sealed class DapperDocumentService(
         if (outcome.Succeeded)
         {
             logger.LogInformation(
-                "Document archive state changed. event_name={event_name} tenant_id={tenant_id} user_id={user_id} document_id={document_id} archived_at_utc={archived_at_utc}",
+                "Document archive state changed. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} document_id={document_id} archived_at_utc={archived_at_utc}",
                 archiveRequested ? "document_archived" : "document_unarchived",
                 command.Tenant.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.DocumentId,
                 outcome.Document!.ArchivedAtUtc);
         }
         else
         {
             logger.LogWarning(
-                "Document archive transition rejected. event_name={event_name} tenant_id={tenant_id} user_id={user_id} document_id={document_id} failure_kind={failure_kind}",
+                "Document archive transition rejected. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} document_id={document_id} failure_kind={failure_kind}",
                 archiveRequested ? "document_archive_rejected" : "document_unarchive_rejected",
                 command.Tenant.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.DocumentId,
                 outcome.Failure!.Kind);
         }

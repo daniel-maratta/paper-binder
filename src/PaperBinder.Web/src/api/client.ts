@@ -114,6 +114,18 @@ export type TenantUser = {
   isOwner: boolean;
 };
 
+export type TenantImpersonationUser = {
+  userId: string;
+  email: string;
+  role: TenantRole;
+};
+
+export type TenantImpersonationStatus = {
+  isImpersonating: boolean;
+  actor: TenantImpersonationUser;
+  effective: TenantImpersonationUser;
+};
+
 export type ListTenantUsersResponse = {
   users: TenantUser[];
 };
@@ -420,6 +432,37 @@ export function createPaperBinderApiClient({
         signal,
         expectJson: false
       });
+    },
+    async getImpersonationStatus(signal?: AbortSignal): Promise<TenantImpersonationStatus> {
+      const response = await request<TenantImpersonationStatus>({
+        path: "/api/tenant/impersonation",
+        signal
+      });
+
+      return response.data;
+    },
+    async startImpersonation(
+      userId: string,
+      signal?: AbortSignal
+    ): Promise<TenantImpersonationStatus> {
+      const response = await request<TenantImpersonationStatus>({
+        path: "/api/tenant/impersonation",
+        method: "POST",
+        body: { userId },
+        signal
+      });
+
+      return response.data;
+    },
+    async stopImpersonation(signal?: AbortSignal): Promise<TenantImpersonationStatus> {
+      const response = await request<TenantImpersonationStatus>({
+        path: "/api/tenant/impersonation",
+        method: "DELETE",
+        body: {},
+        signal
+      });
+
+      return response.data;
     },
     async listBinders(signal?: AbortSignal): Promise<BinderSummary[]> {
       const response = await request<ListBindersResponse>({

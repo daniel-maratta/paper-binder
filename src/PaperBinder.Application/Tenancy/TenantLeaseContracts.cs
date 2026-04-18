@@ -19,7 +19,9 @@ public sealed record TenantLeasePolicy(
 
 public sealed record TenantLeaseExtendCommand(
     TenantContext Tenant,
-    Guid ActorUserId);
+    Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated);
 
 public enum TenantLeaseFailureKind
 {

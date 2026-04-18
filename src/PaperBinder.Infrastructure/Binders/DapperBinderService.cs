@@ -135,10 +135,12 @@ public sealed class DapperBinderService(
             cancellationToken: cancellationToken);
 
         logger.LogInformation(
-            "Binder created. event_name={event_name} tenant_id={tenant_id} user_id={user_id} binder_id={binder_id}",
+            "Binder created. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id}",
             "binder_created",
             command.Tenant.TenantId,
             command.ActorUserId,
+            command.EffectiveUserId,
+            command.IsImpersonated,
             binderId);
 
         return BinderCreateOutcome.Success(new BinderSummary(binderId, normalizedName, createdAtUtc));
@@ -241,10 +243,12 @@ public sealed class DapperBinderService(
         if (!validation.Succeeded)
         {
             logger.LogWarning(
-                "Binder policy update rejected. event_name={event_name} tenant_id={tenant_id} user_id={user_id} binder_id={binder_id} reason={reason}",
+                "Binder policy update rejected. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id} reason={reason}",
                 "binder_policy_update_rejected",
                 command.Tenant.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.BinderId,
                 validation.Detail);
 
@@ -330,10 +334,12 @@ public sealed class DapperBinderService(
         if (!outcome.Succeeded)
         {
             logger.LogWarning(
-                "Binder policy update failed. event_name={event_name} tenant_id={tenant_id} user_id={user_id} binder_id={binder_id} failure_kind={failure_kind}",
+                "Binder policy update failed. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id} failure_kind={failure_kind}",
                 "binder_policy_update_failed",
                 command.Tenant.TenantId,
                 command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
                 command.BinderId,
                 outcome.Failure!.Kind);
 
@@ -341,10 +347,12 @@ public sealed class DapperBinderService(
         }
 
         logger.LogInformation(
-            "Binder policy updated. event_name={event_name} tenant_id={tenant_id} user_id={user_id} binder_id={binder_id} mode={mode} allowed_roles={allowed_roles}",
+            "Binder policy updated. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id} mode={mode} allowed_roles={allowed_roles}",
             executionResult.WasUpdated ? "binder_policy_updated" : "binder_policy_update_noop",
             command.Tenant.TenantId,
             command.ActorUserId,
+            command.EffectiveUserId,
+            command.IsImpersonated,
             command.BinderId,
             BinderPolicyModeNames.ToContractValue(outcome.Policy!.Mode),
             outcome.Policy.AllowedRoles.Select(role => role.ToString()).ToArray());

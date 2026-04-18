@@ -32,6 +32,7 @@ internal static class PaperBinderTenantUserEndpoints
         ITenantUserAdministrationService tenantUserAdministrationService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         IProblemDetailsService problemDetailsService,
         CreateTenantUserRequest request,
         CancellationToken cancellationToken)
@@ -48,11 +49,13 @@ internal static class PaperBinderTenantUserEndpoints
         }
 
         var tenant = GetRequiredTenant(tenantContext);
-        var membership = GetRequiredMembership(membershipContext);
+        GetRequiredMembership(membershipContext);
         var outcome = await tenantUserAdministrationService.CreateUserAsync(
             new TenantUserCreateCommand(
                 tenant.TenantId,
-                membership.UserId,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated,
                 email,
                 request.Password ?? string.Empty,
                 request.Role ?? string.Empty),
@@ -74,16 +77,19 @@ internal static class PaperBinderTenantUserEndpoints
         ITenantUserAdministrationService tenantUserAdministrationService,
         IRequestTenantContext tenantContext,
         IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
         IProblemDetailsService problemDetailsService,
         ChangeTenantUserRoleRequest request,
         CancellationToken cancellationToken)
     {
         var tenant = GetRequiredTenant(tenantContext);
-        var membership = GetRequiredMembership(membershipContext);
+        GetRequiredMembership(membershipContext);
         var outcome = await tenantUserAdministrationService.ChangeRoleAsync(
             new TenantUserRoleChangeCommand(
                 tenant.TenantId,
-                membership.UserId,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated,
                 userId,
                 request.Role ?? string.Empty),
             cancellationToken);

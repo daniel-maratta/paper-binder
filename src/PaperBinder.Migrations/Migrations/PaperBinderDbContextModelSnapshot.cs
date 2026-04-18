@@ -341,6 +341,69 @@ partial class PaperBinderDbContextModelSnapshot : ModelSnapshot
                     "role in ('TenantAdmin', 'BinderWrite', 'BinderRead')"));
         });
 
+        modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.TenantImpersonationAuditEventStorageModel", builder =>
+        {
+            builder.Property<Guid>("Id")
+                .ValueGeneratedNever()
+                .HasColumnType("uuid")
+                .HasColumnName("id");
+
+            builder.Property<Guid>("ActorUserId")
+                .HasColumnType("uuid")
+                .HasColumnName("actor_user_id");
+
+            builder.Property<string>("CorrelationId")
+                .IsRequired()
+                .HasMaxLength(64)
+                .HasColumnType("character varying(64)")
+                .HasColumnName("correlation_id");
+
+            builder.Property<string>("EventName")
+                .IsRequired()
+                .HasMaxLength(64)
+                .HasColumnType("character varying(64)")
+                .HasColumnName("event_name");
+
+            builder.Property<Guid>("EffectiveUserId")
+                .HasColumnType("uuid")
+                .HasColumnName("effective_user_id");
+
+            builder.Property<DateTimeOffset>("OccurredAtUtc")
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("occurred_at_utc");
+
+            builder.Property<Guid>("SessionId")
+                .HasColumnType("uuid")
+                .HasColumnName("session_id");
+
+            builder.Property<Guid>("TenantId")
+                .HasColumnType("uuid")
+                .HasColumnName("tenant_id");
+
+            builder.HasKey("Id")
+                .HasName("pk_tenant_impersonation_audit_events");
+
+            builder.HasIndex("SessionId", "EventName")
+                .IsUnique()
+                .HasDatabaseName("ux_tenant_impersonation_audit_events_session_id_event_name");
+
+            builder.HasIndex("TenantId", "OccurredAtUtc", "Id")
+                .HasDatabaseName("ix_tenant_impersonation_audit_events_tenant_id_occurred_at_utc_id");
+
+            builder.ToTable(
+                "tenant_impersonation_audit_events",
+                null,
+                tableBuilder =>
+                {
+                    tableBuilder.HasCheckConstraint(
+                        "ck_tenant_impersonation_audit_events_correlation_id_not_blank",
+                        "char_length(btrim(correlation_id)) > 0");
+                    tableBuilder.HasCheckConstraint(
+                        "ck_tenant_impersonation_audit_events_event_name_valid",
+                        "event_name in ('ImpersonationStarted', 'ImpersonationEnded')");
+                });
+        });
+
         modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.UserTenantMembershipStorageModel", builder =>
         {
             builder.HasOne("PaperBinder.Infrastructure.Persistence.TenantStorageModel", null)
@@ -395,6 +458,16 @@ partial class PaperBinderDbContextModelSnapshot : ModelSnapshot
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired()
                 .HasConstraintName("fk_binders_tenant_id");
+        });
+
+        modelBuilder.Entity("PaperBinder.Infrastructure.Persistence.TenantImpersonationAuditEventStorageModel", builder =>
+        {
+            builder.HasOne("PaperBinder.Infrastructure.Persistence.TenantStorageModel", null)
+                .WithMany()
+                .HasForeignKey("TenantId")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired()
+                .HasConstraintName("fk_tenant_impersonation_audit_events_tenant_id");
         });
 #pragma warning restore 612, 618
     }
