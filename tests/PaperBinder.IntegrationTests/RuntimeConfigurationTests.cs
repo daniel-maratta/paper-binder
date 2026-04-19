@@ -11,7 +11,8 @@ public sealed class RuntimeConfigurationTests
         var configuration = TestRuntimeConfiguration.Create(
             "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password");
 
-        var settings = PaperBinderRuntimeSettings.Load(key => configuration[key]);
+        var settings = PaperBinderRuntimeSettings.Load(
+            key => configuration.TryGetValue(key, out var value) ? value : null);
 
         Assert.Equal("localhost", settings.Database.Host);
         Assert.Equal(5432, settings.Database.Port);
@@ -32,7 +33,8 @@ public sealed class RuntimeConfigurationTests
         };
 
         var exception = Assert.Throws<InvalidOperationException>(
-            () => PaperBinderRuntimeSettings.Load(key => configuration[key]));
+            () => PaperBinderRuntimeSettings.Load(
+                key => configuration.TryGetValue(key, out var value) ? value : null));
 
         Assert.Contains(PaperBinderConfigurationKeys.AuditRetentionMode, exception.Message);
     }
@@ -61,8 +63,40 @@ public sealed class RuntimeConfigurationTests
         };
 
         var exception = Assert.Throws<InvalidOperationException>(
-            () => PaperBinderRuntimeSettings.Load(key => configuration[key]));
+            () => PaperBinderRuntimeSettings.Load(
+                key => configuration.TryGetValue(key, out var value) ? value : null));
 
         Assert.Contains(PaperBinderConfigurationKeys.PublicRootUrl, exception.Message);
+    }
+
+    [Fact]
+    public void Should_LoadObservabilityEndpoint_When_Configured()
+    {
+        var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
+            "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password"))
+        {
+            [PaperBinderConfigurationKeys.ObservabilityOtlpEndpoint] = "http://localhost:4317"
+        };
+
+        var settings = PaperBinderRuntimeSettings.Load(
+            key => configuration.TryGetValue(key, out var value) ? value : null);
+
+        Assert.Equal("http://localhost:4317/", settings.Observability.OtlpEndpoint?.ToString());
+    }
+
+    [Fact]
+    public void Should_RejectInvalidObservabilityEndpoint_When_Configured()
+    {
+        var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
+            "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password"))
+        {
+            [PaperBinderConfigurationKeys.ObservabilityOtlpEndpoint] = "not-a-url"
+        };
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => PaperBinderRuntimeSettings.Load(
+                key => configuration.TryGetValue(key, out var value) ? value : null));
+
+        Assert.Contains(PaperBinderConfigurationKeys.ObservabilityOtlpEndpoint, exception.Message);
     }
 }

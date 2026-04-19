@@ -1,9 +1,11 @@
 using Dapper;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Application.Time;
 using PaperBinder.Infrastructure.Configuration;
+using PaperBinder.Infrastructure.Diagnostics;
 
 namespace PaperBinder.Infrastructure.Tenancy;
 
@@ -18,61 +20,78 @@ public sealed class DapperTenantLeaseCleanupService(
         CancellationToken cancellationToken = default)
     {
         var now = clock.UtcNow;
-
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-        var candidates = (await connection.QueryAsync<TenantCleanupCandidate>(
-            new CommandDefinition(
-                """
-                select
-                    id as TenantId
-                from tenants
-                where expires_at_utc <= @Now
-                order by expires_at_utc, id;
-                """,
-                new { Now = now },
-                cancellationToken: cancellationToken)))
-            .ToArray();
-
-        var purgedTenantCount = 0;
-        var skippedTenantCount = 0;
-        var failedTenantCount = 0;
-
-        foreach (var candidate in candidates)
+        try
         {
-            try
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var candidates = (await connection.QueryAsync<TenantCleanupCandidate>(
+                new CommandDefinition(
+                    """
+                    select
+                        id as TenantId
+                    from tenants
+                    where expires_at_utc <= @Now
+                    order by expires_at_utc, id;
+                    """,
+                    new { Now = now },
+                    cancellationToken: cancellationToken)))
+                .ToArray();
+
+            var purgedTenantCount = 0;
+            var skippedTenantCount = 0;
+            var failedTenantCount = 0;
+
+            foreach (var candidate in candidates)
             {
-                var outcome = await PurgeTenantIfExpiredAsync(candidate.TenantId, now, cancellationToken);
-                switch (outcome.Kind)
+                try
                 {
-                    case TenantCleanupOutcomeKind.Purged:
-                        purgedTenantCount++;
-                        LogSuccessfulPurge(outcome.Summary!);
-                        break;
+                    var outcome = await PurgeTenantIfExpiredAsync(candidate.TenantId, now, cancellationToken);
+                    switch (outcome.Kind)
+                    {
+                        case TenantCleanupOutcomeKind.Purged:
+                            purgedTenantCount++;
+                            LogSuccessfulPurge(outcome.Summary!);
+                            break;
 
-                    case TenantCleanupOutcomeKind.Skipped:
-                        skippedTenantCount++;
-                        break;
+                        case TenantCleanupOutcomeKind.Skipped:
+                            skippedTenantCount++;
+                            break;
 
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(outcome.Kind), outcome.Kind, "Unknown cleanup outcome.");
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(outcome.Kind), outcome.Kind, "Unknown cleanup outcome.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    failedTenantCount++;
+                    logger.LogError(
+                        ex,
+                        "Expired tenant cleanup failed. event_name={event_name} tenant_id={tenant_id}",
+                        "tenant_purge_failed",
+                        candidate.TenantId);
                 }
             }
-            catch (Exception ex)
-            {
-                failedTenantCount++;
-                logger.LogError(
-                    ex,
-                    "Expired tenant cleanup failed. event_name={event_name} tenant_id={tenant_id}",
-                    "tenant_purge_failed",
-                    candidate.TenantId);
-            }
-        }
 
-        return new TenantLeaseCleanupCycleResult(
-            candidates.Length,
-            purgedTenantCount,
-            skippedTenantCount,
-            failedTenantCount);
+            PaperBinderTelemetry.RecordCleanupCycle(PaperBinderTelemetry.CleanupResults.Completed);
+            PaperBinderTelemetry.RecordCleanupTenants(PaperBinderTelemetry.CleanupResults.Purged, purgedTenantCount);
+            PaperBinderTelemetry.RecordCleanupTenants(PaperBinderTelemetry.CleanupResults.Skipped, skippedTenantCount);
+            PaperBinderTelemetry.RecordCleanupTenants(PaperBinderTelemetry.CleanupResults.Failed, failedTenantCount);
+
+            Activity.Current?.SetTag(PaperBinderTelemetry.ActivityTags.CleanupSelectedTenantCount, candidates.Length);
+            Activity.Current?.SetTag(PaperBinderTelemetry.ActivityTags.CleanupPurgedTenantCount, purgedTenantCount);
+            Activity.Current?.SetTag(PaperBinderTelemetry.ActivityTags.CleanupSkippedTenantCount, skippedTenantCount);
+            Activity.Current?.SetTag(PaperBinderTelemetry.ActivityTags.CleanupFailedTenantCount, failedTenantCount);
+
+            return new TenantLeaseCleanupCycleResult(
+                candidates.Length,
+                purgedTenantCount,
+                skippedTenantCount,
+                failedTenantCount);
+        }
+        catch
+        {
+            PaperBinderTelemetry.RecordCleanupCycle(PaperBinderTelemetry.CleanupResults.Failed);
+            throw;
+        }
     }
 
     private async Task<TenantCleanupOutcome> PurgeTenantIfExpiredAsync(

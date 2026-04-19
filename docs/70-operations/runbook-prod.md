@@ -29,7 +29,7 @@ Out of scope:
    - probe payloads remain minimal (no dependency internals or version metadata)
 3. Confirm root and tenant host routing.
 4. Confirm DB connectivity.
-5. Check root-host login, tenant-host logout, and CSRF behavior.
+5. Check root-host login, tenant-host logout, the configured root-host logout redirect, and CSRF behavior.
 6. Confirm root-host provisioning/login require challenge proof and return `429` with `Retry-After` when the shared pre-auth budget is exhausted.
 7. Confirm tenant-host `GET /api/tenant/lease` and `POST /api/tenant/lease/extend` behavior matches the documented admin, CSRF, and rate-limit boundary.
 

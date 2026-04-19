@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using PaperBinder.Infrastructure.Diagnostics;
 
 namespace PaperBinder.Api;
 
 internal sealed class PaperBinderCsrfMiddleware(
     RequestDelegate next,
-    IProblemDetailsService problemDetailsService)
+    IProblemDetailsService problemDetailsService,
+    ILogger<PaperBinderCsrfMiddleware> logger)
 {
     public async Task InvokeAsync(
         HttpContext context,
@@ -24,6 +27,18 @@ internal sealed class PaperBinderCsrfMiddleware(
             await next(context);
             return;
         }
+
+        PaperBinderTelemetry.RecordSecurityDenial(
+            PaperBinderTelemetry.SecurityDenialReasons.CsrfTokenInvalid,
+            PaperBinderTelemetry.SecurityDenialSurfaces.Csrf);
+        logger.LogWarning(
+            "CSRF protection rejected request. event_name={event_name} reason={reason} surface={surface} path={path} host={host} correlation_id={correlation_id}",
+            "security_denial",
+            PaperBinderTelemetry.SecurityDenialReasons.CsrfTokenInvalid,
+            PaperBinderTelemetry.SecurityDenialSurfaces.Csrf,
+            context.Request.Path.Value ?? string.Empty,
+            context.Request.Host.Host,
+            PaperBinderRequestCorrelation.Get(context) ?? string.Empty);
 
         await PaperBinderProblemDetails.WriteApiProblemAsync(
             context,

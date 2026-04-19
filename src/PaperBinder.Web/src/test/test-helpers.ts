@@ -106,7 +106,9 @@ export function createApiClientStub(overrides: Partial<PaperBinderApiClient> = {
     login: vi.fn(async () => ({
       redirectUrl: "https://acme-demo.paperbinder.example.test/app"
     })) as PaperBinderApiClient["login"],
-    logout: vi.fn(async () => {}) as PaperBinderApiClient["logout"],
+    logout: vi.fn(async () => ({
+      redirectUrl: "https://paperbinder.example.test/login"
+    })) as PaperBinderApiClient["logout"],
     getImpersonationStatus:
       vi.fn(async () => createTenantImpersonationStatus()) as PaperBinderApiClient["getImpersonationStatus"],
     startImpersonation:

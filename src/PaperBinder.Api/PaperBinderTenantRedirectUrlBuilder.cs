@@ -17,4 +17,10 @@ internal static class PaperBinderTenantRedirectUrlBuilder
 
         return builder.Uri;
     }
+
+    public static Uri BuildRootLogin(Uri publicRootUrl)
+    {
+        ArgumentNullException.ThrowIfNull(publicRootUrl);
+        return new Uri(publicRootUrl, "/login");
+    }
 }

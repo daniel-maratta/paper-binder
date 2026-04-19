@@ -36,6 +36,7 @@
     { "id": "adr-0008", "type": "doc", "path": "docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md", "tags": ["adr", "identity", "security"] },
     { "id": "adr-0009", "type": "doc", "path": "docs/90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md", "tags": ["adr", "frontend", "testing", "cp12"] },
     { "id": "adr-0010", "type": "doc", "path": "docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md", "tags": ["adr", "frontend", "testing", "cp13"] },
+    { "id": "adr-0011", "type": "doc", "path": "docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md", "tags": ["adr", "observability", "operations", "cp16"] },
     { "id": "task-t0019", "type": "doc", "path": "docs/05-taskboard/tasks/T-0019-cp6-identity-cookie-auth-and-tenant-membership-validation.md", "tags": ["task", "checkpoint", "cp6"] },
     { "id": "task-t0023", "type": "doc", "path": "docs/05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md", "tags": ["task", "checkpoint", "cp9"] },
     { "id": "task-t0025", "type": "doc", "path": "docs/05-taskboard/tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md", "tags": ["task", "checkpoint", "cp10"] },
@@ -44,6 +45,7 @@
     { "id": "task-t0028", "type": "doc", "path": "docs/05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md", "tags": ["task", "checkpoint", "cp13"] },
     { "id": "task-t0029", "type": "doc", "path": "docs/05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md", "tags": ["task", "checkpoint", "cp14"] },
     { "id": "task-t0030", "type": "doc", "path": "docs/05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md", "tags": ["task", "checkpoint", "cp15"] },
+    { "id": "task-t0031", "type": "doc", "path": "docs/05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md", "tags": ["task", "checkpoint", "cp16"] },
     { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] },
     { "id": "delivery-cp6", "type": "doc", "path": "docs/95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md", "tags": ["delivery", "pr", "cp6"] },
     { "id": "delivery-cp9-plan", "type": "doc", "path": "docs/95-delivery/pr/cp9-binder-domain-and-policy-model/implementation-plan.md", "tags": ["delivery", "pr", "cp9", "plan"] },
@@ -66,7 +68,10 @@
     { "id": "delivery-cp14", "type": "doc", "path": "docs/95-delivery/pr/cp14-tenant-host-frontend-flows/description.md", "tags": ["delivery", "pr", "cp14"] },
     { "id": "delivery-cp15-plan", "type": "doc", "path": "docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md", "tags": ["delivery", "pr", "cp15", "plan"] },
     { "id": "delivery-cp15-review", "type": "doc", "path": "docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md", "tags": ["delivery", "pr", "cp15", "review"] },
-    { "id": "delivery-cp15", "type": "doc", "path": "docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md", "tags": ["delivery", "pr", "cp15"] }
+    { "id": "delivery-cp15", "type": "doc", "path": "docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md", "tags": ["delivery", "pr", "cp15"] },
+    { "id": "delivery-cp16-plan", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md", "tags": ["delivery", "pr", "cp16", "plan"] },
+    { "id": "delivery-cp16-review", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md", "tags": ["delivery", "pr", "cp16", "review"] },
+    { "id": "delivery-cp16", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/description.md", "tags": ["delivery", "pr", "cp16"] }
   ],
   "edges": [
     { "from": "idx", "to": "intent", "rel": "lane-index" },
@@ -99,10 +104,12 @@
     { "from": "idx", "to": "adr-0008", "rel": "key-decision" },
     { "from": "idx", "to": "adr-0009", "rel": "key-decision" },
     { "from": "idx", "to": "adr-0010", "rel": "key-decision" },
+    { "from": "idx", "to": "adr-0011", "rel": "key-decision" },
     { "from": "adr", "to": "adr-0007", "rel": "contains" },
     { "from": "adr", "to": "adr-0008", "rel": "contains" },
     { "from": "adr", "to": "adr-0009", "rel": "contains" },
     { "from": "adr", "to": "adr-0010", "rel": "contains" },
+    { "from": "adr", "to": "adr-0011", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0019", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0023", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0025", "rel": "contains" },
@@ -111,6 +118,7 @@
     { "from": "taskboard", "to": "task-t0028", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0029", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0030", "rel": "contains" },
+    { "from": "taskboard", "to": "task-t0031", "rel": "contains" },
     { "from": "idx", "to": "delivery", "rel": "lane-index" },
     { "from": "delivery", "to": "delivery-cp6", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp9-plan", "rel": "contains" },
@@ -133,6 +141,9 @@
     { "from": "delivery", "to": "delivery-cp14", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp15-plan", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp15-review", "rel": "contains" },
-    { "from": "delivery", "to": "delivery-cp15", "rel": "contains" }
+    { "from": "delivery", "to": "delivery-cp15", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp16-plan", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp16-review", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp16", "rel": "contains" }
   ]
 }

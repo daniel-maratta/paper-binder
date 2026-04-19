@@ -72,7 +72,7 @@ Severity: Low (documentation integrity).
 
 ### NB-POST-2: Mock challenge script still ships in the production image
 
-Carried forward from CP13 (NB-POST-1) and CP14 scope-lock (NB-5). The `e2e-turnstile.js` stub in `src/PaperBinder.Web/public/` is bundled into the production container image by Vite. It is inert under default configuration but physically accessible. CP14 correctly deferred this; CP16 hardening remains the natural home.
+Carried forward from CP13 (NB-POST-1) and CP14 scope-lock (NB-5). The `e2e-turnstile.js` stub in the frontend public tree is bundled into the production container image by Vite. It is inert under default configuration but physically accessible. CP14 correctly deferred this; CP16 hardening remains the natural home.
 
 Severity: Informational (carried forward).
 
@@ -136,7 +136,7 @@ All locked decisions from the implementation plan hold in the implemented code.
 ## Residual Risks
 
 - **Manual VS Code and Visual Studio launch verification is still pending.** The PR artifact and checkpoint-status doc correctly call this out. CP14 cannot be marked `done` until this evidence is recorded. This is an external gate, not a code defect.
-- **Mock challenge script still ships in the production image.** Carried forward from CP13. `e2e-turnstile.js` in `src/PaperBinder.Web/public/` is bundled by Vite and physically accessible in the container image, though inert under default configuration. CP16 hardening is the natural cleanup point.
+- **Mock challenge script still ships in the production image.** Carried forward from CP13. `e2e-turnstile.js` in the frontend public tree is bundled by Vite and physically accessible in the container image, though inert under default configuration. CP16 hardening is the natural cleanup point.
 - **E2E browser suite is now 5 specs across 2 files.** The suite exercises provisioning, login, binder/document CRUD, user management, binder policy, lease extension, logout/login cycle, forbidden path, and expired-tenant behavior. Environmental sensitivity (Docker, network, Playwright) creates a larger flakiness surface than the CP13 3-spec suite. The fresh-runtime-per-file strategy mitigates shared-state risk but increases total execution time.
 - **`tenant-host.tsx` is 1841 lines.** The file is internally well-structured with clear component boundaries and the route tree at the bottom, but it is large for a single module. If CP15 or CP16 adds significant tenant-host complexity, extraction into per-route modules would reduce cognitive load. This is a natural refactoring opportunity, not a defect.
 

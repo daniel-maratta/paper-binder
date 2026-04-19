@@ -9,7 +9,8 @@ public sealed record PaperBinderRuntimeSettings(
     ChallengeSettings Challenge,
     LeaseSettings Lease,
     RateLimitSettings RateLimits,
-    AuditSettings Audit)
+    AuditSettings Audit,
+    ObservabilitySettings Observability)
 {
     public static PaperBinderRuntimeSettings Load(Func<string, string?> getValue)
     {
@@ -25,6 +26,7 @@ public sealed record PaperBinderRuntimeSettings(
         var challengeSiteKey = GetRequiredValue(getValue, PaperBinderConfigurationKeys.ChallengeSiteKey, errors);
         var challengeSecretKey = GetRequiredValue(getValue, PaperBinderConfigurationKeys.ChallengeSecretKey, errors);
         var auditRetentionModeValue = GetRequiredValue(getValue, PaperBinderConfigurationKeys.AuditRetentionMode, errors);
+        var otlpEndpointValue = getValue(PaperBinderConfigurationKeys.ObservabilityOtlpEndpoint);
 
         var defaultMinutes = GetPositiveInt(getValue, PaperBinderConfigurationKeys.LeaseDefaultMinutes, errors);
         var extensionMinutes = GetPositiveInt(getValue, PaperBinderConfigurationKeys.LeaseExtensionMinutes, errors);
@@ -58,6 +60,15 @@ public sealed record PaperBinderRuntimeSettings(
             };
         }
 
+        Uri? otlpEndpoint = null;
+        if (!string.IsNullOrWhiteSpace(otlpEndpointValue))
+        {
+            otlpEndpoint = TryParseAbsoluteUri(
+                otlpEndpointValue!,
+                PaperBinderConfigurationKeys.ObservabilityOtlpEndpoint,
+                errors);
+        }
+
         if (errors.Count > 0)
         {
             throw new InvalidOperationException(
@@ -71,7 +82,8 @@ public sealed record PaperBinderRuntimeSettings(
             new ChallengeSettings(challengeSiteKey!, challengeSecretKey!),
             new LeaseSettings(defaultMinutes, extensionMinutes, maxExtensions, cleanupIntervalSeconds),
             new RateLimitSettings(preAuthPerMinute, authenticatedPerMinute, leaseExtendPerMinute),
-            new AuditSettings(auditRetentionMode!.Value));
+            new AuditSettings(auditRetentionMode!.Value),
+            new ObservabilitySettings(otlpEndpoint));
     }
 
     private static string? GetRequiredValue(
@@ -187,6 +199,22 @@ public sealed record PaperBinderRuntimeSettings(
         return new PublicUrlSettings(uri);
     }
 
+    private static Uri? TryParseAbsoluteUri(
+        string value,
+        string key,
+        ICollection<string> errors)
+    {
+        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) ||
+            string.IsNullOrWhiteSpace(uri.Scheme) ||
+            string.IsNullOrWhiteSpace(uri.Host))
+        {
+            errors.Add($"Configuration key `{key}` must be a valid absolute URL when provided.");
+            return null;
+        }
+
+        return uri;
+    }
+
     private static AuditRetentionMode AddAuditModeError(
         string invalidValue,
         ICollection<string> errors)
@@ -228,6 +256,9 @@ public sealed record RateLimitSettings(
 public sealed record AuditSettings(
     AuditRetentionMode RetentionMode);
 
+public sealed record ObservabilitySettings(
+    Uri? OtlpEndpoint);
+
 public enum AuditRetentionMode
 {
     PurgeTenantAudit,
@@ -251,4 +282,5 @@ public static class PaperBinderConfigurationKeys
     public const string RateLimitAuthenticatedPerMinute = "PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE";
     public const string RateLimitLeaseExtendPerMinute = "PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE";
     public const string AuditRetentionMode = "PAPERBINDER_AUDIT_RETENTION_MODE";
+    public const string ObservabilityOtlpEndpoint = "PAPERBINDER_OTEL_OTLP_ENDPOINT";
 }

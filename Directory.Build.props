@@ -9,6 +9,7 @@
     <PaperBinderMicrosoftNetTestSdkVersion>17.14.1</PaperBinderMicrosoftNetTestSdkVersion>
     <PaperBinderNpgsqlVersion>10.0.2</PaperBinderNpgsqlVersion>
     <PaperBinderNpgsqlEntityFrameworkCorePostgreSqlVersion>10.0.1</PaperBinderNpgsqlEntityFrameworkCorePostgreSqlVersion>
+    <PaperBinderOpenTelemetryVersion>1.12.0</PaperBinderOpenTelemetryVersion>
     <PaperBinderTestcontainersPostgreSqlVersion>4.11.0</PaperBinderTestcontainersPostgreSqlVersion>
     <PaperBinderXunitVersion>2.9.3</PaperBinderXunitVersion>
     <PaperBinderXunitRunnerVisualStudioVersion>3.1.4</PaperBinderXunitRunnerVisualStudioVersion>

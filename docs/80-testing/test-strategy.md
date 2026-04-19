@@ -23,9 +23,11 @@ Related standards:
 - Binder allow/deny behavior, including list omission for `restricted_roles`, same-tenant policy denial, and wrong-tenant `404` behavior.
 - Document immutability, archive-transition rules, same-binder supersedes validation, and binder-policy behavior across document list/detail/write endpoints.
 - Provisioning transactionality (all-or-nothing seed behavior).
+- Authenticated tenant-host mutation rate limiting, CSRF-before-rate-limit precedence, and redirect construction from `PAPERBINDER_PUBLIC_ROOT_URL`.
 - Tenant lease projection math, extension-window/limit rules, extend-route auth/CSRF/rate-limit behavior, and cleanup hard-delete behavior.
 - Challenge + pre-auth rate-limit behavior on provisioning and root login.
 - Impersonation constraints (tenant-local only) and required audit events.
+- Observability configuration validation plus representative trace/metric coverage on API, database, and worker paths.
 - Startup configuration validation and health/readiness behavior for the local/prod runtime topology.
 
 ## Test Layer Guidance

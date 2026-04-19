@@ -31,6 +31,7 @@ public static class PaperBinderWorkerHostBuilder
 
         builder.Services.AddSingleton(runtimeSettings);
         builder.Services.AddPaperBinderPersistence(runtimeSettings);
+        builder.Services.AddPaperBinderWorkerObservability(runtimeSettings, builder.Environment);
         builder.Services.AddPaperBinderWorkerRuntime();
         configureServices?.Invoke(builder.Services);
 

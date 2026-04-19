@@ -1,4 +1,4 @@
-# ADR-0010: Playwright Root-Host E2E Runtime
+# ADR-0010: Playwright Browser E2E Runtime
 
 ## Status
 Accepted
@@ -13,6 +13,7 @@ The repo already ships Vitest + React Testing Library component coverage from CP
 - end-to-end ProblemDetails handling for challenge, credential, and rate-limit failures
 
 The checkpoint also requires the test-only challenge bypass contract under `PB_ENV=Test` to stay out of the default local/demo reviewer stack.
+CP14 and CP15 broaden that same isolated runtime to tenant-host and impersonation flows, and CP16 renames the canonical entrypoint so the command matches the browser suite it now owns.
 
 ## Decision
 
@@ -21,8 +22,9 @@ Use Playwright for CP13 browser E2E coverage and run it through a dedicated repo
 - frontend dependency: `@playwright/test`
 - checked-in config: `src/PaperBinder.Web/playwright.config.ts`
 - checked-in suite: `src/PaperBinder.Web/e2e/`
-- explicit runtime command: `scripts/run-root-host-e2e.ps1`
+- explicit runtime command: `scripts/run-browser-e2e.ps1`
 - isolated runtime shape: `docker-compose.yml` plus `docker-compose.e2e.yml`, separate compose project name, direct app-host port `5081`, and `PB_ENV=Test` only inside that E2E runtime
+- the mock challenge fixture is mounted only into the isolated E2E runtime and is not published into the default frontend build output or committed app `wwwroot`
 
 ## Why
 

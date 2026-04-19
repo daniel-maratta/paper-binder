@@ -313,8 +313,11 @@ public sealed class TenantImpersonationIntegrationTests(PostgresContainerFixture
             csrfToken: impersonatedSession.CsrfCookieValue);
 
         var logoutResponse = await host.Client.SendAsync(logoutRequest);
+        var payload = await logoutResponse.Content.ReadFromJsonAsync<LogoutResponsePayload>();
 
-        Assert.Equal(HttpStatusCode.NoContent, logoutResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, logoutResponse.StatusCode);
+        Assert.NotNull(payload);
+        Assert.Equal("http://paperbinder.localhost:8080/login", payload!.RedirectUrl);
 
         var auditEvents = await GetAuditEventsAsync(host, tenant.Id);
         Assert.Collection(

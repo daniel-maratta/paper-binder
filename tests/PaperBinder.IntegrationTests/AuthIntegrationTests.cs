@@ -125,8 +125,11 @@ public sealed class AuthIntegrationTests(PostgresContainerFixture postgres)
         request.Headers.Add(CsrfHeaderName, session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
+        var payload = await response.Content.ReadFromJsonAsync<LogoutResponsePayload>();
 
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(payload);
+        Assert.Equal("http://paperbinder.localhost:8080/login", payload!.RedirectUrl);
         Assert.True(response.Headers.TryGetValues("Set-Cookie", out var setCookieValues));
         Assert.Contains(setCookieValues, value => value.StartsWith($"{AuthIntegrationTestClient.AuthCookieName}=", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(setCookieValues, value => value.StartsWith($"{AuthIntegrationTestClient.CsrfCookieName}=", StringComparison.OrdinalIgnoreCase));
@@ -254,6 +257,60 @@ public sealed class AuthIntegrationTests(PostgresContainerFixture postgres)
         Assert.NotNull(problem);
         Assert.Equal(TenantExpiredErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
     }
+
+    [Fact]
+    public async Task Should_ConstructProvisionLoginAndLogoutRedirects_FromConfiguredPublicRootUrl_When_RequestCarriesSpoofedHostHeaders()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp16-redirects");
+        var user = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp16-redirects.local", "checkpoint-16-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, user, tenant);
+
+        var loginRequest = AuthIntegrationTestClient.CreateLoginRequest(user.Email, user.Password);
+        loginRequest.Headers.Host = "paperbinder.localhost:65000";
+        loginRequest.Headers.Add("X-Forwarded-Host", "attacker.example.test");
+
+        var loginResponse = await host.Client.SendAsync(loginRequest);
+        var loginPayload = await loginResponse.Content.ReadFromJsonAsync<LoginResponsePayload>();
+        var loginCookies = AuthIntegrationTestClient.ParseCookieValues(loginResponse);
+
+        Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
+        Assert.NotNull(loginPayload);
+        Assert.Equal($"http://{tenant.Slug}.paperbinder.localhost:8080/app", loginPayload!.RedirectUrl);
+        Assert.True(loginCookies.TryGetValue(AuthIntegrationTestClient.AuthCookieName, out var authCookieValue));
+        Assert.True(loginCookies.TryGetValue(AuthIntegrationTestClient.CsrfCookieName, out var csrfCookieValue));
+
+        using var provisionRequest = ProvisioningIntegrationTestClient.CreateProvisionRequest("Spoofed Host Provision");
+        provisionRequest.Headers.Host = "paperbinder.localhost:65000";
+        provisionRequest.Headers.Add("X-Forwarded-Host", "attacker.example.test");
+
+        var provisionResponse = await host.Client.SendAsync(provisionRequest);
+        var provisionPayload = await provisionResponse.Content.ReadFromJsonAsync<ProvisionResponsePayload>();
+
+        Assert.Equal(HttpStatusCode.Created, provisionResponse.StatusCode);
+        Assert.NotNull(provisionPayload);
+        Assert.Equal("http://spoofed-host-provision.paperbinder.localhost:8080/app", provisionPayload!.RedirectUrl);
+
+        using var logoutRequest = new HttpRequestMessage(HttpMethod.Post, "/api/auth/logout")
+        {
+            Content = JsonContent.Create(new { })
+        };
+        logoutRequest.Headers.Host = $"{tenant.Slug}.paperbinder.localhost:65000";
+        logoutRequest.Headers.Add("X-Forwarded-Host", "attacker.example.test");
+        logoutRequest.Headers.Add(
+            "Cookie",
+            $"{AuthIntegrationTestClient.AuthCookieName}={authCookieValue}; {AuthIntegrationTestClient.CsrfCookieName}={csrfCookieValue}");
+        logoutRequest.Headers.Add(CsrfHeaderName, csrfCookieValue);
+
+        var logoutResponse = await host.Client.SendAsync(logoutRequest);
+        var logoutPayload = await logoutResponse.Content.ReadFromJsonAsync<LogoutResponsePayload>();
+
+        Assert.Equal(HttpStatusCode.OK, logoutResponse.StatusCode);
+        Assert.NotNull(logoutPayload);
+        Assert.Equal("http://paperbinder.localhost:8080/login", logoutPayload!.RedirectUrl);
+    }
 }
 
 internal static class AuthIntegrationTestClient
@@ -332,4 +389,7 @@ internal sealed record AuthenticatedSession(
 }
 
 internal sealed record LoginResponsePayload(
+    [property: JsonPropertyName("redirectUrl")] string RedirectUrl);
+
+internal sealed record LogoutResponsePayload(
     [property: JsonPropertyName("redirectUrl")] string RedirectUrl);

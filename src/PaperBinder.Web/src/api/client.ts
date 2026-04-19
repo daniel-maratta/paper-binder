@@ -56,6 +56,10 @@ export type LoginResponse = {
   redirectUrl: string;
 };
 
+export type LogoutResponse = {
+  redirectUrl: string;
+};
+
 export type TenantRole = "TenantAdmin" | "BinderWrite" | "BinderRead";
 
 export type BinderSummary = {
@@ -424,14 +428,15 @@ export function createPaperBinderApiClient({
 
       return response.data;
     },
-    async logout(signal?: AbortSignal): Promise<void> {
-      await request<void>({
+    async logout(signal?: AbortSignal): Promise<LogoutResponse> {
+      const response = await request<LogoutResponse>({
         path: "/api/auth/logout",
         method: "POST",
         body: {},
-        signal,
-        expectJson: false
+        signal
       });
+
+      return response.data;
     },
     async getImpersonationStatus(signal?: AbortSignal): Promise<TenantImpersonationStatus> {
       const response = await request<TenantImpersonationStatus>({

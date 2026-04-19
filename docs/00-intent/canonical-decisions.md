@@ -52,7 +52,8 @@ Documents:
 - No history tracking
 - Markdown only
 - No raw HTML support
-- Markdown rendering must sanitize output
+- Document rendering presents HTML-encoded safe source only
+- No markdown parser or sanitizer pipeline in v1
 - No embedded script execution
 
 Authorization model:

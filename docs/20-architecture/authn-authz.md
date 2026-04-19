@@ -10,6 +10,8 @@
 - Authenticated unsafe `/api/*` routes require a readable CSRF cookie paired with `X-CSRF-TOKEN`.
 - Post-auth tenant context is derived server-side from membership and routing context and is materialized only after membership and tenant-expiry validation succeed.
 - Root-host provisioning and login now require server-side challenge verification plus shared per-IP pre-auth rate limiting before expensive auth/provision work runs.
+- Authenticated unsafe tenant-host `/api/*` mutations now also use a fixed-window limiter keyed by `(tenant_id, effective_user_id)` after membership is established.
+- `POST /api/auth/logout` and `DELETE /api/tenant/impersonation` stay exempt from that authenticated mutation limiter so session teardown remains available under downgraded effective roles.
 
 ## Trust Model
 

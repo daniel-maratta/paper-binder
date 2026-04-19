@@ -2,6 +2,8 @@ services:
   app:
     ports:
       - "5081:8080"
+    volumes:
+      - ./src/PaperBinder.Web/e2e/e2e-turnstile.js:/paperbinder-e2e/e2e-turnstile.js:ro
     build:
       args:
         VITE_PAPERBINDER_ROOT_URL: http://paperbinder.localhost:5081
@@ -14,13 +16,10 @@ services:
       PAPERBINDER_LEASE_DEFAULT_MINUTES: 10
       PAPERBINDER_LEASE_EXTENSION_MINUTES: 10
       PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE: 10
+      PAPERBINDER_E2E_TURNSTILE_SCRIPT_PATH: /paperbinder-e2e/e2e-turnstile.js
       PB_ENV: Test
 
   worker:
     environment:
       PAPERBINDER_PUBLIC_ROOT_URL: http://paperbinder.localhost:5081
       PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS: 3600
-
-  db:
-    ports:
-      - "127.0.0.1:5433:5432"

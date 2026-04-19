@@ -16,7 +16,7 @@ Close security, operability, and documentation gaps, then package V1 as a review
 
 ### CP16 - Hardening And Consistency Pass
 
-- Reconcile threat model, cookie/CSRF/host validation, secrets posture, and markdown sanitization with actual implementation.
+- Reconcile threat model, cookie/CSRF/host validation, secrets posture, and document-rendering/XSS posture with actual implementation.
 - Add or finish OpenTelemetry, structured logging, and minimum operational metrics.
 - Run defect remediation across backend, frontend, worker, and tests.
 - Reconcile architecture, security, testing, runbook, and reviewer docs with shipped behavior.

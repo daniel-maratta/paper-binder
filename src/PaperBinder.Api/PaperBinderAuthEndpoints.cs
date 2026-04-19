@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using PaperBinder.Application.Provisioning;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Configuration;
+using PaperBinder.Infrastructure.Diagnostics;
 using PaperBinder.Infrastructure.Identity;
 
 namespace PaperBinder.Api;
@@ -171,26 +172,13 @@ internal static class PaperBinderAuthEndpoints
         IRequestTenantMembershipContext membershipContext,
         IRequestExecutionUserContext executionUserContext,
         PaperBinderCsrfCookieService csrfCookieService,
+        PaperBinderRuntimeSettings runtimeSettings,
         IProblemDetailsService problemDetailsService,
         CancellationToken cancellationToken)
     {
         if (context.User.Identity?.IsAuthenticated != true)
         {
             await context.ChallengeAsync(IdentityConstants.ApplicationScheme);
-            return;
-        }
-
-        if (!PaperBinderCsrfProtection.IsValid(
-            context.Request.Cookies[csrfCookieService.CookieName],
-            context.Request.Headers[PaperBinderCsrfProtection.HeaderName]))
-        {
-            await PaperBinderProblemDetails.WriteApiProblemAsync(
-                context,
-                problemDetailsService,
-                StatusCodes.Status403Forbidden,
-                "CSRF token invalid.",
-                "The request is missing a valid CSRF token.",
-                PaperBinderErrorCodes.CsrfTokenInvalid);
             return;
         }
 
@@ -224,7 +212,11 @@ internal static class PaperBinderAuthEndpoints
 
         await signInManager.SignOutAsync();
         csrfCookieService.ClearToken(context);
-        context.Response.StatusCode = StatusCodes.Status204NoContent;
+        context.Response.StatusCode = StatusCodes.Status200OK;
+        await context.Response.WriteAsJsonAsync(
+            new LogoutResponse(
+                PaperBinderTenantRedirectUrlBuilder.BuildRootLogin(runtimeSettings.PublicUrl.RootUrl).ToString()),
+            cancellationToken);
     }
 
     private static async Task<bool> RequireValidChallengeAsync(
@@ -236,14 +228,22 @@ internal static class PaperBinderAuthEndpoints
     {
         if (string.IsNullOrWhiteSpace(challengeToken))
         {
-            context.RequestServices
+            var logger = context.RequestServices
                 .GetRequiredService<ILoggerFactory>()
-                .CreateLogger(typeof(PaperBinderAuthEndpoints).FullName!)
-                .LogWarning(
-                    "Pre-auth request was rejected because the challenge token was missing. Path={Path} Host={Host} RemoteIp={RemoteIp}",
-                    context.Request.Path.Value ?? string.Empty,
-                    context.Request.Host.Host,
-                    context.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                .CreateLogger(typeof(PaperBinderAuthEndpoints).FullName!);
+
+            PaperBinderTelemetry.RecordSecurityDenial(
+                PaperBinderTelemetry.SecurityDenialReasons.ChallengeRequired,
+                PaperBinderTelemetry.SecurityDenialSurfaces.Challenge);
+            logger.LogWarning(
+                "Challenge verification rejected request because the challenge token was missing. event_name={event_name} reason={reason} surface={surface} path={path} host={host} remote_ip={remote_ip} correlation_id={correlation_id}",
+                "security_denial",
+                PaperBinderTelemetry.SecurityDenialReasons.ChallengeRequired,
+                PaperBinderTelemetry.SecurityDenialSurfaces.Challenge,
+                context.Request.Path.Value ?? string.Empty,
+                context.Request.Host.Host,
+                context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                PaperBinderRequestCorrelation.Get(context) ?? string.Empty);
 
             await PaperBinderProblemDetails.WriteApiProblemAsync(
                 context,
@@ -264,6 +264,10 @@ internal static class PaperBinderAuthEndpoints
         {
             return true;
         }
+
+        PaperBinderTelemetry.RecordSecurityDenial(
+            PaperBinderTelemetry.SecurityDenialReasons.ChallengeFailed,
+            PaperBinderTelemetry.SecurityDenialSurfaces.Challenge);
 
         await PaperBinderProblemDetails.WriteApiProblemAsync(
             context,
@@ -321,6 +325,9 @@ internal static class PaperBinderAuthEndpoints
         string? ChallengeToken = null);
 
     internal sealed record LoginResponse(
+        string RedirectUrl);
+
+    internal sealed record LogoutResponse(
         string RedirectUrl);
 
     internal sealed record ProvisionResponse(

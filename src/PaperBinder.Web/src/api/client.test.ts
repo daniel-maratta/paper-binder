@@ -240,9 +240,10 @@ describe("api client", () => {
 
       if (url.endsWith("/api/auth/logout")) {
         expect(init?.method).toBe("POST");
-        return new Response(null, {
-          status: 204,
+        return new Response(JSON.stringify({ redirectUrl: "https://paperbinder.example.test/login" }), {
+          status: 200,
           headers: {
+            "Content-Type": "application/json",
             "X-Correlation-Id": "corr-logout"
           }
         });
@@ -460,7 +461,7 @@ describe("api client", () => {
     const impersonationStarted = await apiClient.startImpersonation("user-2");
     const impersonationStopped = await apiClient.stopImpersonation();
     const extendedLease = await apiClient.extendTenantLease();
-    await apiClient.logout();
+    const logoutResponse = await apiClient.logout();
     const binders = await apiClient.listBinders();
     const createdBinder = await apiClient.createBinder({ name: "Operations" });
     const binderDetail = await apiClient.getBinderDetail("binder-2");
@@ -491,6 +492,7 @@ describe("api client", () => {
     expect(impersonationStarted.effective.userId).toBe("user-2");
     expect(impersonationStopped.isImpersonating).toBe(false);
     expect(extendedLease.extensionCount).toBe(1);
+    expect(logoutResponse.redirectUrl).toBe("https://paperbinder.example.test/login");
     expect(binders).toHaveLength(1);
     expect(createdBinder.binderId).toBe("binder-2");
     expect(binderDetail.documents).toHaveLength(1);

@@ -15,6 +15,7 @@
 - `docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md`
 - `docs/90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md`
 - `docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md`
+- `docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md`
 
 ## Key Decision Clusters
 
@@ -22,5 +23,6 @@
 - Security/authz behavior: `ADR-0002`, `ADR-0008`
 - Operations/lifecycle behavior: `ADR-0003`, `ADR-0004`, `ADR-0006`
 - Persistence/runtime behavior: `ADR-0007`
+- Observability baseline: `ADR-0011`
 - Architecture scope constraints: `ADR-0005`
 - Frontend/testing foundation: `ADR-0009`, `ADR-0010`

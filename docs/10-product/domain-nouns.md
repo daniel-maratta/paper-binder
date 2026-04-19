@@ -73,7 +73,8 @@ Rules:
 - No versioning in v1.
 - No external sharing.
 - Strict tenant ownership.
-- Markdown rendering must sanitize output.
+- Document rendering HTML-encodes markdown source for safe display only.
+- No markdown parser or sanitizer pipeline exists in v1.
 - No raw HTML content support.
 
 ---

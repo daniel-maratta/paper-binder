@@ -436,7 +436,9 @@ describe("tenant shell", () => {
         canExtend: false
       })
     );
-    const logout = vi.fn(async () => {});
+    const logout = vi.fn(async () => ({
+      redirectUrl: "https://paperbinder.example.test/login"
+    }));
     const navigator = vi.fn();
 
     renderTenantRoute({

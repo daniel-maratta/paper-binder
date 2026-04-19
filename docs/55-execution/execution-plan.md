@@ -165,7 +165,7 @@ Outcome: the core product workflow is implemented within V1 scope.
 Commits:
 1. Add document schema, repositories, and create/read/list endpoints.
 2. Add immutable document rules, supersedes metadata, and archive/unarchive behavior.
-3. Add markdown sanitization/rendering strategy.
+3. Add safe-source document rendering strategy.
 4. Add unit/integration tests for immutability, archive filtering, and tenant isolation.
 
 Merge gate:
@@ -248,7 +248,7 @@ Merge gate:
 Outcome: security, operability, and documentation drift are closed before release.
 
 Commits:
-1. Reconcile threat model, cookie/CSRF/host validation, secrets posture, and markdown sanitization with actual implementation.
+1. Reconcile threat model, cookie/CSRF/host validation, secrets posture, and document-rendering/XSS posture with actual implementation.
 2. Add or finish OpenTelemetry, structured logging, and minimum operational metrics.
 3. Run defect remediation across backend, frontend, worker, and tests.
 4. Reconcile architecture, security, testing, runbook, and reviewer docs with shipped behavior.

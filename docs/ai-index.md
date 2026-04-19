@@ -40,6 +40,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md](./90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md)
 - [docs/90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md](./90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md)
 - [docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md](./90-adr/ADR-0010-playwright-root-host-e2e-runtime.md)
+- [docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md](./90-adr/ADR-0011-observability-opentelemetry-baseline.md)
 
 ## Execution References
 
@@ -53,6 +54,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md](./05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md)
 - [docs/05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md](./05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md)
 - [docs/05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md](./05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md)
+- [docs/05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md](./05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md)
 - [docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md](./95-delivery/pr/cp9-binder-domain-and-policy-model/description.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md)
@@ -72,6 +74,9 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md](./95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md)
 - [docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md](./95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md)
 - [docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md](./95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md)
+- [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md)
+- [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md)
+- [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/description.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/description.md)
 
 ## Local-Only Overrides
 
