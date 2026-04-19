@@ -71,7 +71,8 @@
     { "id": "delivery-cp15", "type": "doc", "path": "docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md", "tags": ["delivery", "pr", "cp15"] },
     { "id": "delivery-cp16-plan", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md", "tags": ["delivery", "pr", "cp16", "plan"] },
     { "id": "delivery-cp16-review", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md", "tags": ["delivery", "pr", "cp16", "review"] },
-    { "id": "delivery-cp16", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/description.md", "tags": ["delivery", "pr", "cp16"] }
+    { "id": "delivery-cp16", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/description.md", "tags": ["delivery", "pr", "cp16"] },
+    { "id": "delivery-cp17-plan", "type": "doc", "path": "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md", "tags": ["delivery", "pr", "cp17", "plan"] }
   ],
   "edges": [
     { "from": "idx", "to": "intent", "rel": "lane-index" },
@@ -144,6 +145,7 @@
     { "from": "delivery", "to": "delivery-cp15", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp16-plan", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp16-review", "rel": "contains" },
-    { "from": "delivery", "to": "delivery-cp16", "rel": "contains" }
+    { "from": "delivery", "to": "delivery-cp16", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp17-plan", "rel": "contains" }
   ]
 }

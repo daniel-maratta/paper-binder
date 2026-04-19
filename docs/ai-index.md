@@ -77,6 +77,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md)
 - [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md)
 - [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/description.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/description.md)
+- [docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md](./95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md)
 
 ## Local-Only Overrides
 
