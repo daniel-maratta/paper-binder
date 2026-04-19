@@ -10,6 +10,7 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 - Tenant scope is server-resolved from host plus membership; client tenant IDs are ignored.
 - v1 auth is cookie-based only; `/api/*` version defaults to `1` with response header echo.
 - Root-host provisioning and login now enforce server-side challenge verification plus shared pre-auth rate limiting.
+- Authenticated unsafe tenant-host `/api/*` mutations now share one fixed-window limiter keyed by `(tenant_id, effective_user_id)` after membership is established; `POST /api/auth/logout` and `DELETE /api/tenant/impersonation` stay exempt.
 - Tenant lease uses canonical routes `/api/tenant/lease` and `/api/tenant/lease/extend`.
 - Tenant-local impersonation uses `GET|POST|DELETE /api/tenant/impersonation` with server-issued cookie state only.
 - Documents remain immutable; archive state is visibility metadata only.
@@ -20,6 +21,7 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 - Tenant context source: request host/subdomain resolved server-side plus authenticated membership validation.
 - Auth mechanism: cross-subdomain cookie only in v1 (no JWT).
 - Authenticated unsafe `/api/*` requests require a CSRF cookie/header pair.
+- Authenticated unsafe tenant-host `/api/*` requests are also subject to the canonical `PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE` fixed-window limiter once tenant membership is established.
 - Tenant scope is resolved server-side. Client-provided tenant identifiers are ignored.
 - Request hosts must be either the configured root host or a single-label tenant subdomain beneath it; other hosts are rejected before route handlers execute.
 - API versioning contract: `docs/40-contracts/api-versioning.md`.
@@ -203,13 +205,18 @@ Notes:
   - Auth required: Y
   - Tenant context source: subdomain plus cookie
   - CSRF required: Y
+  - Rate limited: exempt from the canonical authenticated tenant-host mutation limiter
   - Request example:
     ```json
     {}
     ```
-  - Response example (`204`): empty body.
+  - Response example (`200`):
+    ```json
+    { "redirectUrl": "https://paperbinder.local/login" }
+    ```
   - Notes:
     - When logout is called during active impersonation, the server emits `ImpersonationEnded` first and then clears the full actor session.
+    - `redirectUrl` is constructed from trusted `PAPERBINDER_PUBLIC_ROOT_URL`, not the raw request host or forwarded-host headers.
   - Idempotency: idempotent.
 
 ### Tenant-Local Impersonation
@@ -556,6 +563,7 @@ Notes:
   - Notes:
     - Titles are trimmed and must be 1-200 characters after trimming.
     - Stored `content` remains raw markdown; rendered HTML is not stored in CP10.
+    - The browser renders document content as HTML-encoded safe source only; v1 does not parse markdown or allow raw HTML.
   - Idempotency: not idempotent.
 
 - `POST /api/documents/{documentId}/archive`

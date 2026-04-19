@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Extensions.Logging;
 using PaperBinder.Application.Persistence;
+using PaperBinder.Infrastructure.Diagnostics;
 
 namespace PaperBinder.Infrastructure.Persistence;
 
@@ -28,6 +30,11 @@ public sealed class NpgsqlTransactionScopeRunner(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(operation);
+        using var activity = PaperBinderTelemetry.StartActivity(
+            PaperBinderTelemetry.ActivityNames.DatabaseTransaction,
+            ActivityKind.Client);
+        activity?.SetTag("db.system", "postgresql");
+        activity?.SetTag("db.operation", "transaction");
 
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(isolationLevel, cancellationToken);
@@ -36,11 +43,13 @@ public sealed class NpgsqlTransactionScopeRunner(
         {
             var result = await operation(connection, transaction, cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            activity?.SetStatus(ActivityStatusCode.Ok);
             return result;
         }
-        catch
+        catch (Exception ex)
         {
             await RollbackAsync(transaction);
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             throw;
         }
     }

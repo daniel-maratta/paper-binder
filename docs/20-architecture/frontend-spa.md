@@ -78,7 +78,7 @@ Out of scope:
 - Countdown is presentation only and is derived from the latest authoritative `expiresAt` value.
 - CP14 refreshes lease state on bootstrap, successful extend, route changes, focus/visibility return, and a coarse periodic refresh.
 - CP15 refreshes route data when the effective user changes so stop behavior restores the actor's allowed view without a root-host round-trip.
-- Tenant-host logout uses `POST /api/auth/logout` through the shared API client only and returns the browser to the configured root-host `/login`.
+- Tenant-host logout uses `POST /api/auth/logout` through the shared API client only, consumes the server-provided `redirectUrl`, and returns the browser to the configured root-host `/login`.
 
 ## Alternatives Considered
 

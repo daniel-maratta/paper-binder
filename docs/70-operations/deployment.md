@@ -58,6 +58,7 @@ DNS:
 - `PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE=120`
 - `PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE=10`
 - `PAPERBINDER_AUDIT_RETENTION_MODE=RetainTenantPurgedSummary`
+- `PAPERBINDER_OTEL_OTLP_ENDPOINT=https://otel.example.com:4317` (optional)
 - `VITE_PAPERBINDER_ROOT_URL=https://lab.danielmaratta.com`
 - `VITE_PAPERBINDER_API_BASE_URL=https://lab.danielmaratta.com`
 - `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=lab.danielmaratta.com`
@@ -84,8 +85,9 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
    - root host loads
    - root-host provisioning requires challenge proof, returns one-time credentials, and redirects to the server-resolved tenant host
    - root-host login works and redirects to the server-resolved tenant host
-   - tenant-host logout requires CSRF and clears both auth and CSRF cookies
+   - tenant-host logout requires CSRF, clears both auth and CSRF cookies, and returns a root-host `redirectUrl` anchored to `PAPERBINDER_PUBLIC_ROOT_URL`
    - root-host provisioning/login return `429` with `Retry-After` when the shared pre-auth rate-limit budget is exhausted
+   - authenticated unsafe tenant-host `/api/*` mutations reject with `429` and `Retry-After` when the canonical tenant-scoped budget is exhausted
    - `GET /api/tenant/lease` and `POST /api/tenant/lease/extend` behavior matches lease rules
    - tenant subdomain routing works
    - auth persists across subdomains
@@ -102,11 +104,10 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
 - Daily `pg_dump` backup with retention (>= 7 days).
 - Prefer off-host backup storage.
 - Track at minimum:
-  - app 5xx rate
-  - invalid credential volume
-  - CSRF validation failures
-  - provisioning volume
-  - tenant cleanup activity
+  - `paperbinder_security_denials_total`
+  - `paperbinder_rate_limit_rejections_total`
+  - `paperbinder_cleanup_cycles_total`
+  - `paperbinder_cleanup_tenants_total`
 
 ## Security Controls
 

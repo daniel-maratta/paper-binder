@@ -45,7 +45,7 @@ CP14 bootstraps the tenant shell through `GET /api/tenant/lease`, then layers pe
 | `/app` | Tenant home dashboard + lease visibility | `GET /api/tenant/lease`, `GET /api/tenant/impersonation`, `GET /api/binders` | Authenticated tenant member | Lease banner and active-impersonation banner are both shell-owned; dashboard shows reviewer-useful recent binders without a new backend aggregator endpoint. |
 | `/app/binders` | Binders list + inline create | `GET /api/binders`, `POST /api/binders` | `BinderRead` for reads, `BinderWrite` for create | List is tenant-scoped only and omits restricted binders the caller cannot access. Binder creation lives on this route rather than on a separate create page. |
 | `/app/binders/:binderId` | Binder detail + document summaries + document create + binder policy | `GET /api/binders/{binderId}`, `POST /api/documents`, `GET /api/binders/{binderId}/policy`, `PUT /api/binders/{binderId}/policy` | `BinderRead` for reads, `TenantAdmin` for binder-policy management | Returns binder metadata plus visible `DocumentSummary[]`; archived documents stay hidden by default; document creation stays within the binder route. |
-| `/app/documents/:documentId` | Read-only document view | `GET /api/documents/{documentId}` | `BinderRead` | No in-place editing route in V1; archived documents remain directly readable by id; CP14 renders safe markdown source rather than raw HTML. |
+| `/app/documents/:documentId` | Read-only document view | `GET /api/documents/{documentId}` | `BinderRead` | No in-place editing route in V1; archived documents remain directly readable by id; CP14 renders HTML-encoded safe markdown source rather than parsed or raw HTML. |
 | `/app/users` | Tenant user management + view-as start | `GET /api/tenant/users`, `POST /api/tenant/users`, `POST /api/tenant/users/{userId}/role`, `POST /api/tenant/impersonation` | `TenantAdmin` for user management, actor-side `TenantAdmin` for view-as start | Start affordance uses safe eligible/not-eligible copy only; non-admin effective sessions must receive safe forbidden behavior inside the current tenant shell. |
 
 ## Route-Linked Actions (Non-Route Endpoints)
@@ -59,6 +59,7 @@ These are action endpoints triggered from multiple views rather than dedicated p
 ## Redirect and Guard Rules
 
 - Successful provisioning/login must redirect to tenant host via server-provided `redirectUrl`.
+- Successful logout must redirect to the root host via the server-provided `redirectUrl` anchored to `PAPERBINDER_PUBLIC_ROOT_URL`.
 - Successful provisioning keeps the authenticated cookie flow, but generated credentials stay in transient in-memory root-host UI state only until the user explicitly continues to the tenant host.
 - Tenant context is server-resolved from host + membership; client tenant hints are ignored for authorization.
 - Root-host challenge wrapper markup is browser-owned and must provide label, helper/error association, keyboard reachability, and visible state messaging around the provider surface.

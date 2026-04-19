@@ -26,8 +26,8 @@ Use this document to answer:
 ## Current Snapshot
 
 - Current checkpoint: `none active`
-- Last completed checkpoint: `CP15`
-- Next checkpoint: `CP16`
+- Last completed checkpoint: `CP16`
+- Next checkpoint: `CP17`
 - Open checkpoint blockers: none.
 - Open incidental follow-ups: none.
 
@@ -50,7 +50,7 @@ Use this document to answer:
 | `CP13` | done | Root-host frontend flows shipped via task [T-0028](../05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md) and PR artifact [description.md](../95-delivery/pr/cp13-root-host-frontend-flows/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
 | `CP14` | done | Tenant-host frontend flows shipped via task [T-0029](../05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md) and PR artifact [description.md](../95-delivery/pr/cp14-tenant-host-frontend-flows/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing. |
 | `CP15` | done | Tenant-local impersonation and audit safety shipped via task [T-0030](../05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md) and PR artifact [description.md](../95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md). Automated validation, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing; the manual verification scope is explicitly limited to startup and the initial public pages because the challenge flow is not yet implemented. |
-| `CP16` | queued | Hardening and consistency pass not started. |
+| `CP16` | done | Hardening and consistency pass shipped via task [T-0031](../05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md) and PR artifact [description.md](../95-delivery/pr/cp16-hardening-and-consistency-pass/description.md). Automated validation, the separate browser gate, post-implementation critic review, launch-profile validation, and manual VS Code plus Visual Studio verification are all recorded as passing; the manual verification completed on `2026-04-19`. |
 | `CP17` | queued | Release preparation and reviewer snapshot not started. |
 
 ## Open Incidentals And Follow-Ups

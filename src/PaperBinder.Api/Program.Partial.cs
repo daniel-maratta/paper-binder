@@ -4,6 +4,8 @@ using PaperBinder.Infrastructure.Persistence;
 
 public partial class Program
 {
+    private const string E2ETurnstileScriptPathConfigurationKey = "PAPERBINDER_E2E_TURNSTILE_SCRIPT_PATH";
+
     public static WebApplication BuildApp(
         string[] args,
         string? environmentName = null,
@@ -29,6 +31,7 @@ public partial class Program
 
         builder.Services.AddSingleton(runtimeSettings);
         builder.Services.AddPaperBinderPersistence(runtimeSettings);
+        builder.Services.AddPaperBinderObservability(runtimeSettings, builder.Environment);
         builder.Services.AddPaperBinderHttpContract();
         builder.Services.AddPaperBinderAuthentication(runtimeSettings);
         builder.Services.AddPaperBinderTenancy();
@@ -76,6 +79,7 @@ public partial class Program
 
         if (shouldServeCompiledFrontend)
         {
+            MapE2ETurnstileFixture(app);
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.MapFallbackToFile("index.html");
@@ -85,5 +89,26 @@ public partial class Program
         app.MapGet("/", () => Results.Content(
             BackendLandingPage.Render(app.Environment.EnvironmentName),
             "text/html"));
+    }
+
+    private static void MapE2ETurnstileFixture(WebApplication app)
+    {
+        if (!string.Equals(
+                app.Configuration[PaperBinderChallengeVerification.TestEnvironmentVariableName],
+                PaperBinderChallengeVerification.TestEnvironmentValue,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var scriptPath = app.Configuration[E2ETurnstileScriptPathConfigurationKey];
+        if (string.IsNullOrWhiteSpace(scriptPath) || !File.Exists(scriptPath))
+        {
+            return;
+        }
+
+        app.MapGet(
+            "/e2e-turnstile.js",
+            () => Results.File(scriptPath, "text/javascript; charset=utf-8"));
     }
 }

@@ -78,9 +78,9 @@ Frontend UI stack lock-in is defined by this stack baseline plus the PaperBinder
 
 ### Observability
 
-- OpenTelemetry for tracing/telemetry
-- Console exporter in development
-- Optional OTLP exporter when configured
+- OpenTelemetry for API, worker, and representative database tracing/telemetry ([ADR-0011](../90-adr/ADR-0011-observability-opentelemetry-baseline.md))
+- Console exporter in Development and Test
+- Optional OTLP exporter when `PAPERBINDER_OTEL_OTLP_ENDPOINT` is configured
 - Correlation fields in logs/traces: tenant/user/trace/correlation identifiers
 
 ### Operations and Deployment
@@ -143,3 +143,4 @@ Frontend UI stack lock-in is defined by this stack baseline plus the PaperBinder
 - `docs/90-adr/ADR-0005-no-bff.md`
 - `docs/90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md`
 - `docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md`
+- `docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md`

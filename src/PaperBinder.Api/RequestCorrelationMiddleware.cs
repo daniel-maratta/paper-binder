@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using PaperBinder.Infrastructure.Diagnostics;
 
 namespace PaperBinder.Api;
 
@@ -9,6 +11,9 @@ internal sealed class RequestCorrelationMiddleware(
     public async Task InvokeAsync(HttpContext context)
     {
         var correlationId = PaperBinderRequestCorrelation.Resolve(context);
+        var traceId = Activity.Current?.TraceId.ToString();
+
+        Activity.Current?.SetTag(PaperBinderTelemetry.ActivityTags.CorrelationId, correlationId);
 
         context.Response.OnStarting(static state =>
         {
@@ -19,7 +24,8 @@ internal sealed class RequestCorrelationMiddleware(
 
         using var scope = logger.BeginScope(new Dictionary<string, object?>
         {
-            ["correlation_id"] = correlationId
+            ["correlation_id"] = correlationId,
+            ["trace_id"] = traceId
         });
 
         await next(context);

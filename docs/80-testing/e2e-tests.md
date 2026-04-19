@@ -27,7 +27,9 @@ Use one tool and keep suite small/stable.
 ## Test Environments
 
 - Required: isolated local E2E runtime invoked through a dedicated repo-native entrypoint.
+- Canonical entrypoint: `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1`.
 - The E2E runtime must keep `PB_ENV=Test` out of `scripts/start-local.ps1`, `scripts/reviewer-full-stack.ps1`, and the default `docker-compose.yml` reviewer path.
+- The test-only challenge fixture must remain owned by that isolated runtime and must not appear in the default frontend build output or committed app `wwwroot`.
 - Optional: public demo smoke checks (throttled, limited).
 - Do not depend on public demo for routine E2E coverage.
 
@@ -62,7 +64,7 @@ Use one tool and keep suite small/stable.
 
 - Run E2E in CI when suite stability is acceptable.
 - At minimum, run E2E on main after merge.
-- CP14 and CP15 closeout require `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1` as a separate required gate; the browser suite now owns root-host, tenant-host, and impersonation flows and is not bundled into `scripts/validate-checkpoint.ps1`.
+- Browser-surface checkpoint closeout requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1` as a separate required gate; the browser suite now owns root-host, tenant-host, and impersonation flows and is not bundled into `scripts/validate-checkpoint.ps1`.
 
 ## Alternatives Considered
 

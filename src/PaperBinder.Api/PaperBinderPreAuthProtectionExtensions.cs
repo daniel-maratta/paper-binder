@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
 using PaperBinder.Infrastructure.Configuration;
+using PaperBinder.Infrastructure.Diagnostics;
 
 namespace PaperBinder.Api;
 
@@ -116,10 +117,20 @@ internal static class PaperBinderPreAuthProtectionExtensions
         }
 
         var isTenantLeaseExtend = IsTenantLeaseExtendRequest(context.HttpContext);
+        var policy = isTenantLeaseExtend
+            ? PaperBinderTelemetry.RateLimitPolicies.TenantLeaseExtend
+            : PaperBinderTelemetry.RateLimitPolicies.RootHostPreAuth;
+        var surface = isTenantLeaseExtend
+            ? PaperBinderTelemetry.RateLimitSurfaces.TenantHost
+            : PaperBinderTelemetry.RateLimitSurfaces.RootHost;
+
+        PaperBinderTelemetry.RecordRateLimitRejection(policy, surface);
 
         logger.LogWarning(
-            "{RateLimitKind} rate limit rejected request. Path={Path} Host={Host} RemoteIp={RemoteIp} RetryAfterSeconds={RetryAfterSeconds} CorrelationId={CorrelationId}",
-            isTenantLeaseExtend ? "Tenant lease extend" : "Pre-auth",
+            "Rate limit rejected request. event_name={event_name} policy={policy} surface={surface} path={path} host={host} remote_ip={remote_ip} retry_after_seconds={retry_after_seconds} correlation_id={correlation_id}",
+            "rate_limit_rejected",
+            policy,
+            surface,
             context.HttpContext.Request.Path.Value ?? string.Empty,
             context.HttpContext.Request.Host.Host,
             context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",

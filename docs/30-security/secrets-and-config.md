@@ -36,6 +36,7 @@
 - `PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE=120`
 - `PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE=10`
 - `PAPERBINDER_AUDIT_RETENTION_MODE=RetainTenantPurgedSummary`
+- `PAPERBINDER_OTEL_OTLP_ENDPOINT=https://otel.example.com:4317` (optional)
 - `VITE_PAPERBINDER_ROOT_URL=https://lab.danielmaratta.com`
 - `VITE_PAPERBINDER_API_BASE_URL=https://lab.danielmaratta.com`
 - `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=lab.danielmaratta.com`
@@ -44,7 +45,7 @@ Do not commit real values.
 Keep the repo-root `.env.example` synchronized with these keys using fake values only.
 
 `PAPERBINDER_PUBLIC_ROOT_URL` must be an absolute root URL with the same host as `PAPERBINDER_AUTH_COOKIE_DOMAIN`.
-Redirect construction must use this trusted config value rather than the raw incoming request scheme/host.
+Provision, login, and logout redirect construction must use this trusted config value rather than the raw incoming request scheme/host.
 
 `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the lease-extension eligibility threshold and the number of minutes added on success.
 No separate `PAPERBINDER_LEASE_EXTENSION_WINDOW_*` key exists in v1.

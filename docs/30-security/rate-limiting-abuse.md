@@ -7,6 +7,10 @@ This file is the PaperBinder-specific abuse surface and policy binding.
 Current implementation note:
 - The current build adds server-side Turnstile verification for root-host `POST /api/provision` and `POST /api/auth/login`.
 - The current build applies a shared per-IP fixed-window rate limit across those two root-host pre-auth routes.
+- The current build applies a canonical fixed-window authenticated limiter across unsafe tenant-host `/api/*` mutations after tenant membership is established.
+- Authenticated tenant-host mutation partitions use `(tenant_id, effective_user_id)`.
+- `POST /api/auth/logout` and `DELETE /api/tenant/impersonation` are exempt from the authenticated mutation limiter so teardown stays reachable under downgraded effective roles.
+- Missing-CSRF tenant-host mutations are rejected before authenticated rate-limit accounting.
 - The current build applies a dedicated fixed-window rate limit to tenant-host `POST /api/tenant/lease/extend`.
 - Lease-extend partitions use tenant-plus-user identity when membership is established, fall back to tenant-plus-IP when only tenant host resolution is available, and otherwise fall back to IP.
 - `PB_ENV=Test` allows a fixed bypass token for automated tests only; production behavior always verifies with the configured secret key.
@@ -31,6 +35,7 @@ Pre-auth:
 - `POST /api/auth/login`.
 
 Tenant-scoped:
+- Unsafe tenant-host `/api/*` mutations after membership validation.
 - `POST /api/tenant/lease/extend`.
 - Document read endpoints.
 - Binder creation endpoints.
@@ -44,6 +49,7 @@ Apply rate limiting in one canonical place:
 Current implementation:
 - ASP.NET Core rate limiting middleware is the canonical enforcement point.
 - Login and provision intentionally share one per-IP pre-auth budget in v1.
+- Authenticated unsafe tenant-host mutations share one fixed-window budget sourced from `PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE`.
 - `POST /api/tenant/lease/extend` has its own route-scoped fixed-window budget and returns `429 RATE_LIMITED` with `Retry-After` on rejection.
 
 Suggested starting limits:

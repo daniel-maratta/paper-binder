@@ -1,5 +1,7 @@
 # CP16 Critic Review: Hardening And Consistency Pass
-Status: Scope-Lock Review (Pre-Implementation)
+Status: Scope-Lock Review (Pre-Implementation) — Re-Review Complete
+
+Historical note: This artifact begins with the `2026-04-18` first-pass scope-lock review, which returned seven blocking findings (`B1`-`B7`) and eight non-blocking findings (`NB-1`-`NB-8`). The plan was revised the same day to resolve all blockers and every non-blocker. The Re-Review section at the bottom of this file records the `2026-04-18` re-review outcome: scope-locked.
 
 Reviewer: PaperBinder Critic
 Date: 2026-04-18
@@ -19,7 +21,7 @@ Inputs reviewed:
   - `src/PaperBinder.Api/PaperBinderChallengeVerification.cs` (only consumer of `PB_ENV`)
   - `src/PaperBinder.Infrastructure/Documents/HtmlEncodingMarkdownDocumentRenderer.cs` (current safe-rendering posture)
   - `src/PaperBinder.Web/src/app/tenant-host.tsx` (1966 lines; +125 since CP14 critic note)
-  - `src/PaperBinder.Web/public/e2e-turnstile.js` (fixture still in default public tree)
+  - the historical mock challenge fixture in the frontend public tree (still present there before CP16 implementation)
   - `src/PaperBinder.Api/wwwroot/assets/` (compiled SPA artifacts in repo)
 
 ---
@@ -160,7 +162,7 @@ AC and Validation Plan call for a static review that `PB_ENV=Test` remains isola
 
 ### NB-4: Browser-gate script rename should be locked by name in the plan
 
-The plan says `scripts/run-root-host-e2e.ps1` will be replaced with a name that matches current suite ownership but does not commit to a name. The rename cascades into `scripts/validate-checkpoint.ps1`, `docs/70-operations/runbook-local.md`, `docs/80-testing/e2e-tests.md`, `docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md`, task files, CP13/CP14/CP15 delivery artifacts, and at least one README. Locking the name in the plan (candidate: `scripts/run-browser-e2e.ps1` or `scripts/run-spa-e2e.ps1`) prevents divergent doc/script updates during the multi-file propagation step.
+The plan says `scripts/run-root-host-e2e.ps1` will be replaced with a name that matches current suite ownership but does not commit to a name. The rename cascades into `scripts/validate-checkpoint.ps1`, `docs/70-operations/runbook-local.md`, `docs/80-testing/e2e-tests.md`, `docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md`, task files, CP13/CP14/CP15 delivery artifacts, and at least one README. Locking the name in the plan (candidate: `run-browser-e2e.ps1` or `run-spa-e2e.ps1` under `scripts/`) prevents divergent doc/script updates during the multi-file propagation step.
 
 ### NB-5: Observability metric set should enumerate labels, not just names
 
@@ -251,3 +253,138 @@ Record these as the CP16 post-implementation check table. Each must pass before 
 ## Summary
 
 The plan is close to scope-lock but not yet there. Its structure, locked decisions, risk framing, TDD shape, validation plan, and touch points are substantively correct. The blockers are concentrated in three unresolved Open Decisions (auth-rate-limit contract, CSP/security-header posture, observability ADR), a short set of missing acceptance criteria around middleware ordering and redirect construction, a loose markdown/XSS claim, an under-specified `tenant-host.tsx` extraction contract, and a missing sub-PR boundary between runtime-behavior slices and the large refactor. Apply the Required Plan Edits above and the plan will be scope-locked.
+
+---
+
+## Re-Review (Post-Revision)
+
+Reviewer: PaperBinder Critic
+Date: 2026-04-18
+
+Inputs re-reviewed:
+- Revised `docs/95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md`
+- The `Critic Review Resolution Log` section in the revised plan
+- Unchanged canonical docs checked for continued alignment: `docs/55-execution/execution-plan.md`, `docs/55-execution/phases/phase-5-hardening-release.md`, `docs/30-security/threat-model-lite.md`, `docs/30-security/secrets-and-config.md`, `docs/30-security/rate-limiting-abuse.md`, `docs/40-contracts/api-contract.md`, `docs/70-operations/observability.md`
+- Runtime-surface observations unchanged from the first pass
+
+### Verdict
+
+**The plan is scope-locked. No blocking findings remain.**
+
+All seven blockers (`B1` auth-rate-limit lock, `B2` CSP/header posture, `B3` observability ADR, `B4` middleware/redirect/CSRF-precedence AC, `B5` `tenant-host.tsx` extraction contract, `B6` markdown/XSS AC, `B7` slice ordering) and all eight non-blocking findings (`NB-1` through `NB-8`) are resolved in the revised plan. The `Critic Review Resolution Log` records each disposition, and spot-checks against the Locked Design Decisions, Acceptance Criteria, TDD slices, Validation Plan, and Touch Points confirm the resolutions landed consistently rather than being documented in only one section.
+
+Broad implementation may begin. Planned Work step 1 (canonical-doc reconciliation, including `ADR-0011-observability-opentelemetry-baseline.md`) should land as a first sub-PR before the runtime slices, matching the plan's own gating language and the CP15 precedent.
+
+### Blocker Resolution Verification
+
+| # | Blocker | Resolution In Revised Plan | Verified |
+| --- | --- | --- | --- |
+| B1 | Authenticated unsafe-mutation rate-limit contract unresolved | Scope commits to one canonical fixed-window limiter; Locked Design Decisions lock the source key, partition `(tenant_id, effective_user_id)`, and exempt routes (`POST /api/auth/logout`, `DELETE /api/tenant/impersonation`); TDD slice 1 no longer hedges; AC names the limiter and `429` + `Retry-After` contract; Validation Plan adds targeted integration coverage. | Pass |
+| B2 | CSP / browser-security-header posture unresolved | Scope's Not-Included list rules out new CSP or browser-security-header middleware in CP16; Locked Design Decisions commit to docs-only narrowing; AC forbids CSP or sanitizer language in any canonical doc; XSS posture locked to output encoding plus the existing conservative renderer. | Pass |
+| B3 | Observability ADR falsely conditional | Locked Design Decisions commit to landing `ADR-0011-observability-opentelemetry-baseline.md` in the same change set; the ADR filename is listed in Planned Work step 1 reconciliation, Validation scope-lock check, Touch Points, and AC; ADR Triggers section now records it as a requirement rather than a conditional trigger. | Pass |
+| B4 | Middleware ordering, redirect construction, and CSRF/rate-limit precedence AC missing | AC enumerates the pipeline-order invariants, the spoofed-host redirect-construction regression, and the CSRF-before-rate-limit-accounting precedence; TDD slices 4 and 5 are dedicated RED slices; Validation Plan adds targeted coverage for each. | Pass |
+| B5 | `tenant-host.tsx` extraction contract under-specified | Locked Design Decisions enumerate the exact eight target modules beneath `src/PaperBinder.Web/src/app/`, lock a 400-line ceiling for post-refactor `tenant-host.tsx`, require coverage parity on `tenant-shell.test.tsx` and `e2e/tenant-host.spec.ts`, forbid existing-test deletion, and require the static grep against `fetch(`, browser storage, custom impersonation headers, and tenant-identifier headers; Validation Plan adds the grep explicitly. | Pass |
+| B6 | Markdown/XSS AC too loose | AC names the shipped v1 behavior (HTML-encode raw markdown, present as safe source, no parser/sanitizer/raw-HTML/stored-rendered-HTML) and explicitly forbids sanitizer- and CSP-implying language in canonical docs; Locked Design Decisions restate the same posture. | Pass |
+| B7 | Slice ordering lets large refactor land with behavior changes | Slice 8 (tenant-host extraction) is explicitly scheduled as a dedicated follow-on sub-PR after slices 1-3 merge; Locked Design Decisions restate the sequencing requirement. | Pass |
+
+### Non-Blocking Resolution Verification
+
+| # | Non-Blocker | Resolution In Revised Plan | Verified |
+| --- | --- | --- | --- |
+| NB-1 | Auth-rate-limit partition key under impersonation unspecified | Locked Design Decisions commit to `(tenant_id, effective_user_id)`; `actor_user_id` retained only in logs and traces, explicitly excluded from metric labels. | Pass |
+| NB-2 | No automated regression for `PB_ENV=Test` non-leakage | Validation Plan adds the `rg`-based non-leakage guard that allows hits only in `docker-compose.e2e.yml` and `run-browser-e2e.ps1`. | Pass |
+| NB-3 | Fixture-absence check misses committed wwwroot | Validation Plan adds the automated scan against `src/PaperBinder.Web/dist/` (built output) and `src/PaperBinder.Api/wwwroot/` (committed tree). | Pass |
+| NB-4 | Browser-gate script rename not named in plan | Rename is locked to `scripts/run-browser-e2e.ps1` across Scope, Locked Design Decisions, TDD slice 7, AC, Validation Plan, and Touch Points. | Pass |
+| NB-5 | Metric labels not enumerated | Locked Design Decisions enumerate the four metric names (`paperbinder_security_denials_total`, `paperbinder_rate_limit_rejections_total`, `paperbinder_cleanup_cycles_total`, `paperbinder_cleanup_tenants_total`) with their locked label sets and an explicit forbidden-labels list. | Pass |
+| NB-6 | Redirect-construction runtime test not called out | AC and TDD slice 4 require proving redirect construction stays anchored to `PAPERBINDER_PUBLIC_ROOT_URL` under spoofed `Host` / `X-Forwarded-Host` input. | Pass |
+| NB-7 | Audit-substrate no-generalization not restated | Locked Design Decisions now explicitly restate that `tenant_impersonation_audit_events` is not generalized, expanded, read by UI, or exported during CP16. | Pass |
+| NB-8 | Cookie-expiry impersonation audit closure not protected by AC | AC preserves the cookie-expiry audit-closure behavior through middleware/observability changes; Validation Plan adds targeted integration coverage. | Pass |
+
+### Residual Risks (Carry Into Post-Implementation Review)
+
+- **CSP claim removal must reach every cross-linked mention.** The docs-only narrowing path is correct, but `docs/30-security/threat-model-lite.md` today lists "baseline Content Security Policy" as a named XSS mitigation and other docs may echo it. Post-implementation review should grep `docs/` for `Content Security Policy`, `CSP`, and `Content-Security-Policy` and confirm every remaining occurrence is either history/ADR context or part of an explicit "v1 does not ship" statement.
+- **Coverage parity is a qualitative AC.** "Pre-extraction coverage parity" for `tenant-shell.test.tsx` and `e2e/tenant-host.spec.ts` is defensible but subjective. Recommend the CP16 PR artifact record the pre-extraction and post-extraction test lists (and assertion counts) side-by-side so the reviewer sees the parity evidence rather than having to diff it.
+- **`PB_ENV` non-leakage grep scope.** The Validation Plan scan covers `docker-compose.yml`, `docker-compose.e2e.yml`, `scripts/`, `src/PaperBinder.Api`, and `src/PaperBinder.Worker`. `src/PaperBinder.Infrastructure` is not named. Infrastructure is unlikely to read `PB_ENV` today, but expanding the scan to the full `src/` tree minus `src/PaperBinder.Web/e2e` is low-cost and closes the gap; recommend the executor broaden the scan during implementation.
+- **Authenticated-rate-limit partition-key behavior before tenant membership is established.** The Locked Design Decision partitions `(tenant_id, effective_user_id)` "once tenant membership is established." Tenant-host unsafe mutations cannot reach the limiter without established membership in the current pipeline, so this is correct by construction; post-implementation review should confirm no seam reaches the limiter before the tenant-resolution and membership checks complete.
+- **Slice 8 sub-PR separation depends on merge discipline.** The plan commits to landing the `tenant-host.tsx` extraction as a dedicated follow-on sub-PR after slices 1-3. If branch-local reviewer pressure is high, there is a latent risk of collapsing slice 8 back into the same PR. Post-implementation review should verify the extraction landed on its own review boundary with independent green validation.
+- **ADR-0011 naming and index hygiene.** The plan names the new ADR as `ADR-0011-observability-opentelemetry-baseline.md`. Post-implementation review should confirm (a) the next available ADR number is still 11 at merge time, (b) `docs/90-adr/README.md` indexes it with a one-line description, and (c) `docs/ai-index.md` and `docs/repo-map.json` include it.
+- **Historical delivery evidence for `run-root-host-e2e.ps1`.** The plan correctly allows CP13/CP14/CP15 delivery history to retain the old script name. Post-implementation review should confirm only active docs, scripts, and ADRs use `run-browser-e2e.ps1`, while historical PR artifacts keep the old name verbatim (so the history stays readable).
+
+### Follow-ups For Executor Before Broad Implementation
+
+1. Land Planned Work step 1 as a separate first sub-PR (canonical-doc reconciliation, `ADR-0011-observability-opentelemetry-baseline.md`, the taskboard entry, and the CSP/sanitizer-language narrowing) before starting the vertical-slice sequence. This matches the plan's own gating language and the CP15 precedent.
+2. Land slices 1-3 (authenticated rate limiter with the locked partition/exempt-routes, observability instrumentation, locked metric set) as the second sub-PR, so the runtime-behavior and telemetry contract is green before any script rename, fixture relocation, or UI refactor touches the branch.
+3. Land slices 4-7 (redirect-construction regression, CSRF-before-limiter precedence, fixture relocation, browser-gate rename with non-leakage guard) as the third sub-PR, so the remaining hygiene work is visibly scoped to scripts, docs, and hardening regressions rather than mixed into the refactor.
+4. Land slice 8 (`tenant-host.tsx` extraction) as a dedicated final sub-PR against the already-stabilized branch state, with the grep guards in CI and the pre/post test-list artifact called out in residual risks.
+5. Confirm the authenticated-mutation limiter exempt-routes list at implementation time: `POST /api/auth/logout` and `DELETE /api/tenant/impersonation` are correct; spot-check whether any additional non-mutation-looking but cookie-state-changing endpoint deserves the same exempt treatment, or explicitly record that no others exist.
+6. When narrowing the CSP claim in `docs/30-security/threat-model-lite.md`, keep the XSS mitigation list honest: output encoding plus the conservative document renderer are the real defenses, and that should be stated without implying a sanitizer or parser is present.
+
+---
+
+## Post-Implementation Review
+
+Reviewer: PaperBinder Critic
+Date: 2026-04-18
+
+Inputs reviewed:
+- Full working-tree diff against `main` on branch `checkpoint-16-hardening-and-consistency-pass`
+- `docs/95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md` (scope-locked plan)
+- `docs/95-delivery/pr/cp16-hardening-and-consistency-pass/description.md` (author notes and validation evidence)
+- `docs/05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md`
+- Runtime surface: `PaperBinderAuthenticatedMutationRateLimitMiddleware.cs`, `PaperBinderAuthenticationExtensions.cs`, `PaperBinderTenantRedirectUrlBuilder.cs`, `PaperBinderAuthEndpoints.cs`, `PaperBinderImpersonationRoutes.cs`, `PaperBinderCsrfMiddleware.cs`, `PaperBinderObservabilityExtensions.cs`, `PaperBinderWorkerObservabilityExtensions.cs`, `src/PaperBinder.Infrastructure/Diagnostics/PaperBinderTelemetry.cs`
+- Frontend surface: `src/PaperBinder.Web/src/app/tenant-host.tsx` and the seven extracted modules, `src/PaperBinder.Web/e2e/e2e-turnstile.js`, and the confirmed removal of the former frontend-public E2E fixture
+- Tests: `tests/PaperBinder.IntegrationTests/HardeningConsistencyIntegrationTests.cs`, added spoofed-host coverage in `AuthIntegrationTests.cs`
+- Scripts and compose: `scripts/run-browser-e2e.ps1`, `scripts/run-root-host-e2e.ps1` (shim), `scripts/validate-checkpoint.ps1`, `docker-compose.yml`, `docker-compose.e2e.yml`
+- Canonical doc reconciliation set: `docs/30-security/threat-model-lite.md`, `docs/30-security/rate-limiting-abuse.md`, `docs/30-security/secrets-and-config.md`, `docs/40-contracts/api-contract.md`, `docs/70-operations/observability.md`, `docs/50-engineering/tech-stack.md`, `docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md`, `docs/90-adr/README.md`, `docs/ai-index.md`, `docs/repo-map.json`
+
+### Verdict
+
+**The checkpoint is ship-ready. No blocking findings remain.**
+
+Every scope-locked decision from the pre-implementation review landed as specified. The canonical authenticated tenant-host mutation limiter partitions by `(tenant_id, effective_user_id)`, sources its budget from `PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE`, exempts `POST /api/auth/logout` and `DELETE /api/tenant/impersonation`, and sits after CSRF in the pipeline so missing-CSRF traffic is never charged to a rate-limit bucket. The redirect trust boundary is anchored to `PAPERBINDER_PUBLIC_ROOT_URL` and is proven by a regression test that spoofs both `Host` and `X-Forwarded-Host`. `ADR-0011-observability-opentelemetry-baseline.md` landed with the instrumentation rather than after it; the minimum metric vocabulary is enforced in code by the `PaperBinderTelemetry` constants and by an integration assertion that refuses unapproved tag keys. The E2E challenge fixture has left the default build, the browser gate is canonical as `scripts/run-browser-e2e.ps1`, and the isolation guards run as part of `validate-checkpoint.ps1`. `tenant-host.tsx` reduces to 57 lines of shell/route wiring (well under the 400-line ceiling), and the seven extracted modules match the locked list while the static-grep invariants for `fetch(`, browser storage, and custom tenant/impersonation headers all come back clean.
+
+The two open items called out in the task file (this post-implementation critic review; manual VS Code and Visual Studio launch verification) are closeout activities rather than merge blockers. This review closes the first.
+
+### Blocking Findings
+
+None.
+
+### Non-Blocking Findings
+
+#### NBI-1: Sub-PR sequencing was collapsed into one local change set
+
+The scope-locked plan recommended landing reconciliation-first, then slices 1-3, then slices 4-7, and finally the `tenant-host.tsx` extraction as a dedicated follow-on sub-PR. The author notes in `description.md` acknowledge this was not reproduced as separate review boundaries and that all slices landed together on the branch. The residual risk the plan was guarding against (large UI refactor landing next to runtime-behavior changes) is mitigated here by the fact that each slice was validated independently and the extraction is mechanically safe (the static-grep invariants plus the 57-line shell size make the behavior-preservation claim inspectable). Still worth naming so the pattern does not repeat on CP17 where release-packaging concerns will genuinely benefit from serialized review boundaries.
+
+#### NBI-2: `tenant-shell.tsx` absorbed most of the extracted surface
+
+`tenant-host.tsx` is now 57 lines (excellent), but `tenant-shell.tsx` picked up roughly 540 lines of the routing, banner wiring, and host-context responsibilities. The scope-locked plan set the 400-line ceiling on `tenant-host.tsx` specifically, not on the shell module, so this does not violate any AC. The implementation still dramatically improves readability over the prior 1966-line single file. Naming it because a future hardening pass may want to set a similar ceiling on `tenant-shell.tsx` (or split lease/impersonation/routing wiring out of it) if it keeps growing.
+
+#### NBI-3: Compatibility-shim risk for `scripts/run-root-host-e2e.ps1`
+
+The shim is correct per the scope-locked plan ("historical delivery evidence may retain the old script name"). The residual risk is operational rather than technical: a future contributor doing a cleanup pass might delete the shim without first auditing archived CP13-CP15 PR artifacts, breaking `validate-docs.ps1` on files no one actively reads. The author notes already call this out as an intentional deviation and flag the historical-path dependency. No action required at CP16 merge.
+
+#### NBI-4: Coverage-parity evidence is qualitative
+
+The Re-Review's residual risks asked for a pre-extraction/post-extraction test-list artifact for `tenant-shell.test.tsx` and `e2e/tenant-host.spec.ts` to make parity auditable. The PR artifact records only aggregate counts (32 frontend tests, 6 Playwright tests, all passing). Count equality plus the behavior-preserving extraction is a defensible signal — the suites pass on the new structure — but a side-by-side test-list diff would be stronger evidence. Not a merge blocker because the AC requires parity, not parity-reporting, and the automated suites enforce the actual contract.
+
+### Residual Risks
+
+- **Manual VS Code and Visual Studio launch verification still pending.** Both the task file and the PR description flag this as a required closeout activity before `CP16` moves to `done`. It is not a merge blocker for the PR artifact itself but is load-bearing for checkpoint closure.
+- **OpenTelemetry dependency drift.** `ADR-0011` locks the package set, the console/OTLP exporter model, the correlation contract, and the non-goals, but the runtime now carries new third-party packages on the API and worker. Future dependency updates must respect the ADR or trigger an amendment.
+- **Metric-label discipline enforced by construction in tests, not at build time.** `HardeningConsistencyIntegrationTests.AssertAllowedMetricTags` catches unapproved tag keys at test time, which is correct. If a future change adds a new instrument without routing through `PaperBinderTelemetry`, the discipline holds only if that test keeps running against the new instrument. Worth re-auditing on any future observability expansion (CP17 or beyond).
+- **Authenticated limiter depends on established tenant membership.** The partition-key construction relies on tenant resolution and user-context middleware having already populated the request. This is correct by construction in the current pipeline order, but any future reordering of auth/tenant-resolution middleware must preserve the invariant.
+- **Compatibility shim longevity.** `scripts/run-root-host-e2e.ps1` is retained purely for historical doc path validation. Once CP17 release packaging archives CP13-CP15 delivery artifacts in a way that no longer depends on live path resolution, the shim should be removed in a follow-on cleanup checkpoint.
+- **`tenant-shell.tsx` size (≈540 lines).** The extraction moved responsibilities out of `tenant-host.tsx` but concentrated them in the shell. No AC violation, but a candidate target for a future extraction pass if the shell keeps accreting routing and banner wiring.
+
+### Required Fixes Before Merge
+
+None. The PR artifact is cleared to merge on the evidence reviewed.
+
+Closeout remaining after merge (tracked on the task file, not merge-blocking):
+
+1. Record this post-implementation review outcome in the PR artifact. **Done by this section.**
+2. Record manual VS Code and Visual Studio launch verification before moving `CP16` to `done` per the task file acceptance criteria.
+
+### Summary
+
+CP16 lands the hardening-and-consistency pass cleanly against every scope-locked decision. The authenticated tenant-host mutation limiter, redirect trust boundary, observability baseline with `ADR-0011`, E2E fixture relocation, browser-gate rename, and the `tenant-host.tsx` extraction are all in place; docs are reconciled; the full scripted validation bundle (build, unit, integration, Docker-backed integration, frontend, Playwright, docs validation, launch-profile validation, checkpoint validation, and static invariant greps) passed on 2026-04-18. No blocking findings. Non-blockers are small quality-of-refactor observations rather than correctness or boundary issues. Ship-ready, subject to the two non-blocking closeout items the task file already tracks.

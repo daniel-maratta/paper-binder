@@ -26,7 +26,7 @@ Implement the core product domain (binders, documents, lease lifecycle) within t
 
 - Document schema, repositories, and create/read/list endpoints.
 - Immutable document rules, supersedes metadata, and archive/unarchive behavior.
-- Markdown sanitization/rendering strategy.
+- Safe-source document rendering strategy.
 - Unit/integration tests for immutability, archive filtering, and tenant isolation.
 
 ### CP11 - Worker Runtime And Lease Lifecycle

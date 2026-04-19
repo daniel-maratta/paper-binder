@@ -79,7 +79,7 @@ Canonical workspace commands live in `scripts/`:
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
-  - `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
   - `pwsh ./scripts/preflight.ps1 -Profile Full`
@@ -90,7 +90,7 @@ Canonical workspace commands live in `scripts/`:
   - `pwsh ./scripts/validate-docs.ps1`
   - `pwsh ./scripts/validate-launch-profiles.ps1`
   - `pwsh ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
-  - `pwsh ./scripts/run-root-host-e2e.ps1`
+  - `pwsh ./scripts/run-browser-e2e.ps1`
   - `pwsh ./scripts/start-local.ps1`
 - Visual Studio:
   - Open `PaperBinder.sln`.
@@ -104,7 +104,7 @@ The primary reviewer launch now stays in parity across both editors as `Reviewer
 The authoritative launch-profile contract lives in `docs/70-operations/runbook-local.md`.
 Checkpoint-complete validation now also requires `scripts/validate-launch-profiles.ps1` plus recorded manual launch verification in both VS Code and Visual Studio before a checkpoint can be declared done.
 `scripts/validate-checkpoint.ps1` bundles the standard scripted closeout path (build, tests, docs validation, launch-profile validation), but it does not replace the required manual verification evidence.
-CP14 and CP15 closeout also require `scripts/run-root-host-e2e.ps1` as a separate browser gate; the broadened suite now covers root-host, tenant-host, and impersonation Playwright flows and is intentionally not bundled into `scripts/validate-checkpoint.ps1`.
+Browser-surface checkpoint closeout also requires `scripts/run-browser-e2e.ps1` as a separate browser gate; the broadened suite now covers root-host, tenant-host, and impersonation Playwright flows and is intentionally not bundled into `scripts/validate-checkpoint.ps1`.
 The canonical `scripts/build.ps1` path now runs the frontend build explicitly before `dotnet build` and then passes `SkipFrontendBuild=true` into the solution build so Vite/npm failures surface with tool-native output instead of an opaque MSBuild exit.
 `scripts/restore.ps1` now reruns bodyless `dotnet restore` failures once with richer verbosity and treats persistent no-body restore failures as a likely restricted/offline-environment issue rather than silently implying a broken project graph. Its `npm ci` step also retries one transient Windows `EPERM`/`unlink` lock before failing with explicit close-the-locking-process guidance.
 

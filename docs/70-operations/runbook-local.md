@@ -26,7 +26,7 @@
   - Validate docs: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
   - Validate launch profiles: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
   - Validate checkpoint: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
-  - Run frontend browser E2E: `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1`
+  - Run frontend browser E2E: `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1`
   - Start local stack: `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
   - Preflight: `pwsh ./scripts/preflight.ps1 -Profile Full`
@@ -37,7 +37,7 @@
   - Validate docs: `pwsh ./scripts/validate-docs.ps1`
   - Validate launch profiles: `pwsh ./scripts/validate-launch-profiles.ps1`
   - Validate checkpoint: `pwsh ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
-  - Run frontend browser E2E: `pwsh ./scripts/run-root-host-e2e.ps1`
+  - Run frontend browser E2E: `pwsh ./scripts/run-browser-e2e.ps1`
   - Start local stack: `pwsh ./scripts/start-local.ps1`
 
 ## VS Code Flow
@@ -110,7 +110,7 @@ Local Visual Studio process launches now load missing configuration keys from th
 
 - Before declaring any checkpoint done, run `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`.
 - Prefer `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` for the standard scripted checkpoint-validation bundle.
-- CP14 and CP15 closeout also require `powershell -ExecutionPolicy Bypass -File .\scripts\run-root-host-e2e.ps1`; this browser suite now owns root-host, tenant-host, and impersonation flows, remains a separate required gate, and is not bundled into `scripts/validate-checkpoint.ps1`.
+- Browser-surface checkpoint closeout also requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1`; this browser suite now owns root-host, tenant-host, and impersonation flows, remains a separate required gate, and is not bundled into `scripts/validate-checkpoint.ps1`.
 - Record manual launch verification for every checked-in launch surface in the checkpoint PR artifact's `Validation Evidence` section.
 - `scripts/validate-checkpoint.ps1` does not replace the required manual VS Code and Visual Studio verification evidence.
 - Manual VS Code verification must cover:
@@ -145,8 +145,9 @@ Use `scripts/migrate.ps1` when you need to rerun migrations manually against the
 
 ## Frontend Browser E2E Runtime
 
-- `scripts/run-root-host-e2e.ps1` is the explicit repo-native browser E2E entrypoint for the CP14/CP15 frontend browser gate.
+- `scripts/run-browser-e2e.ps1` is the explicit repo-native browser E2E entrypoint for the browser gate.
 - The script is responsible for using the isolated E2E runtime path so `PB_ENV=Test` stays out of the default reviewer/local stack.
+- The mock challenge fixture is mounted only into the isolated E2E runtime; the default frontend build output and committed app `wwwroot` tree do not publish it.
 - Do not add the E2E runtime path to `scripts/start-local.ps1`, `scripts/reviewer-full-stack.ps1`, or the base `docker-compose.yml` reviewer flow.
 - The script runs the root-host and tenant-host Playwright specs in separate fresh isolated runtimes so CP7's shared pre-auth rate limit remains intact while CP14/CP15 browser specs keep tenant-per-spec ownership.
 
@@ -171,7 +172,7 @@ The checked-in `.env.example` values are fake/demo-safe and are intended to work
 - `Worker Only` loads missing environment variables from the repo-root `.env`, falling back to `.env.example` when needed.
 - VS Code `Launch Frontend Dev Server` remains available when you specifically want the standalone Vite surface on `http://localhost:5173`.
 
-## Current CP13 Limits
+## Current V1 Runtime Notes
 
 - Root-host provisioning and login browser flows are now live on `/` and `/login`, including challenge handling, one-time provisioning credential display, and redirect handoff through the server-provided `redirectUrl`.
 - Named endpoint policies plus tenant-user list/create/role-management, binder, document, and tenant-lease routes are now live at the API boundary.

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using PaperBinder.Application.Provisioning;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Configuration;
+using PaperBinder.Infrastructure.Diagnostics;
 using PaperBinder.Infrastructure.Identity;
 using PaperBinder.Infrastructure.Provisioning;
 using PaperBinder.Infrastructure.Tenancy;
@@ -92,6 +93,7 @@ internal static class PaperBinderAuthenticationExtensions
         app.UsePaperBinderPreAuthProtection();
         app.UseMiddleware<PaperBinderEndpointHostRequirementMiddleware>();
         app.UseMiddleware<PaperBinderCsrfMiddleware>();
+        app.UseMiddleware<PaperBinderAuthenticatedMutationRateLimitMiddleware>();
         app.UseAuthorization();
     }
 
@@ -111,6 +113,24 @@ internal static class PaperBinderAuthenticationExtensions
         {
             return Task.CompletedTask;
         }
+
+        var logger = context.HttpContext.RequestServices
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger(typeof(PaperBinderAuthenticationExtensions).FullName!);
+        var reason = statusCode == StatusCodes.Status401Unauthorized
+            ? PaperBinderTelemetry.SecurityDenialReasons.AuthenticationRequired
+            : PaperBinderTelemetry.SecurityDenialReasons.AccessDenied;
+
+        PaperBinderTelemetry.RecordSecurityDenial(reason, PaperBinderTelemetry.SecurityDenialSurfaces.Authorization);
+        logger.LogWarning(
+            "API authentication boundary rejected request. event_name={event_name} reason={reason} surface={surface} status_code={status_code} path={path} host={host} correlation_id={correlation_id}",
+            "security_denial",
+            reason,
+            PaperBinderTelemetry.SecurityDenialSurfaces.Authorization,
+            statusCode,
+            context.Request.Path.Value ?? string.Empty,
+            context.Request.Host.Host,
+            PaperBinderRequestCorrelation.Get(context.HttpContext) ?? string.Empty);
 
         return PaperBinderProblemDetails.WriteApiProblemAsync(
             context.HttpContext,

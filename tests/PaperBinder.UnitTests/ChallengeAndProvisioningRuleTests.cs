@@ -122,7 +122,8 @@ public sealed class ChallengeAndProvisioningRuleTests
             new ChallengeSettings("local-demo-site-key", "local-demo-secret-key"),
             new LeaseSettings(60, 10, 3, 60),
             new RateLimitSettings(30, 120, 10),
-            new AuditSettings(AuditRetentionMode.RetainTenantPurgedSummary));
+            new AuditSettings(AuditRetentionMode.RetainTenantPurgedSummary),
+            new ObservabilitySettings(null));
 
     private sealed class TestHttpMessageHandler(
         Func<HttpRequestMessage, Task<HttpResponseMessage>> handler) : HttpMessageHandler

@@ -19,7 +19,7 @@ Components:
 - Reverse proxy at edge:
   - TLS termination
   - host-based routing
-  - coarse security headers and optional coarse limits
+  - optional coarse limits
 - ASP.NET app host:
   - serves SPA + API
   - exposes `/health/live` and `/health/ready` (anonymous, minimal payload)
@@ -47,7 +47,7 @@ Components:
 
 1. Internet -> reverse proxy:
    - threats: bot traffic, floods, probing
-   - controls: TLS, coarse limits, headers
+   - controls: TLS and coarse limits
 2. Reverse proxy -> app:
    - threats: header spoofing, host injection
    - controls: strict host/subdomain resolution and explicit public-root configuration for redirect construction
