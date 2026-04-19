@@ -61,7 +61,7 @@ None.
 
 ### NB-POST-1: Mock challenge script ships in the production image
 
-The `e2e-turnstile.js` stub lives in `src/PaperBinder.Web/public/`, which means `vite build` copies it into `dist/` and the Dockerfile bundles it into the production container image. The file is inert unless the `VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL` environment variable points to it (default points to the real Cloudflare Turnstile URL), so there is no behavioral risk. However, the test fixture is physically accessible at `/e2e-turnstile.js` on any deployment. Since PaperBinder is a demo/hiring artifact rather than a production system, this is acceptable for CP13. A later hardening pass could move the mock to a path excluded from the production build.
+The `e2e-turnstile.js` stub lives in the frontend public tree, which means `vite build` copies it into `dist/` and the Dockerfile bundles it into the production container image. The file is inert unless the `VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL` environment variable points to it (default points to the real Cloudflare Turnstile URL), so there is no behavioral risk. However, the test fixture is physically accessible in deployments that serve the built frontend bundle. Since PaperBinder is a demo/hiring artifact rather than a production system, this is acceptable for CP13. A later hardening pass could move the mock to a path excluded from the production build.
 
 Severity: Low.
 

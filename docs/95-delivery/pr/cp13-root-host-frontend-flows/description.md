@@ -33,7 +33,7 @@ Status: Review Ready
   - `NB-4`: the E2E runtime stays isolated behind `docker-compose.e2e.yml` plus `scripts/run-root-host-e2e.ps1` and does not modify the default reviewer/local startup path.
   - `NB-5`: root-host route metadata now describes live onboarding routes instead of CP12 placeholders.
 - Post-implementation non-blocking findings:
-  - `NB-POST-1` deferred: the mock challenge script still ships in the production image because it lives under `src/PaperBinder.Web/public/`. The file is inert under default configuration, the critic marked it low-severity and acceptable for CP13, and moving it out of the production bundle belongs in a later hardening pass rather than this checkpoint closeout.
+  - `NB-POST-1` deferred: the mock challenge script still ships in the production image because it lives in the then-current frontend public tree. The file is inert under default configuration, the critic marked it low-severity and acceptable for CP13, and moving it out of the production bundle belongs in a later hardening pass rather than this checkpoint closeout.
   - `NB-POST-2` resolved in this follow-up: the login flow's manual continue action now re-validates `redirect.redirectUrl` before calling `navigator()`, matching the provision flow's defensive guard.
   - `NB-POST-3` deferred: residual `username` wording remains in older pre-CP13 product docs outside the CP13 scope-lock set. The critic marked this informational and pre-existing; reconciling those broader docs is better handled in a later documentation-hardening pass instead of widening CP13.
 
