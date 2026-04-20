@@ -7,6 +7,7 @@ This is not a roadmap; it is a constraint-aware list of likely scale paths if de
 ## Current Baseline
 
 - Single PostgreSQL database.
+- Single-host Docker Compose remains the supported `V1` deployment topology.
 - API and worker as separate deployables.
 - Client-rendered SPA with direct API calls.
 - Strict tenant-scoped data access and authorization.
@@ -33,3 +34,4 @@ This is not a roadmap; it is a constraint-aware list of likely scale paths if de
 - `docs/20-architecture/tenancy-model.md`
 - `docs/20-architecture/worker-jobs.md`
 - `docs/90-adr/ADR-0004-public-demo-deployment-topology.md`
+- `docs/95-delivery/release-checklist.md`

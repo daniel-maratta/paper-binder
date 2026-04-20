@@ -9,6 +9,8 @@
 ## Read First
 
 - `docs/95-delivery/staging-and-versioning.md`
+- `docs/95-delivery/release-workflow.md`
+- `docs/95-delivery/release-checklist.md`
 
 ## PR Artifacts
 

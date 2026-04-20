@@ -18,6 +18,7 @@
 - Security-boundary changes require explicit regression tests, including middleware-ordering, redirect-trust-boundary, and rate-limit-precedence checks when those seams move.
 - Docs and lint checks must pass before merge-ready status.
 - Environment-gated integration coverage must either run or be skipped with an explicit, visible reason; silent omission is not acceptable.
+- Release-prep docs or validator changes must keep `docs/95-delivery/release-checklist.md` and `scripts/validate-docs.ps1` aligned so the clean-checkout release gate stays executable.
 
 ## Test Design Rules
 

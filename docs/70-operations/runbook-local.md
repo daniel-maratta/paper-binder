@@ -6,6 +6,7 @@
 - Canonical local commands still live in `scripts/` and are reused by VS Code where appropriate.
 - The repo-root `.env` file drives Docker Compose, backend process debugging, and frontend build-time configuration.
 - Process-based API, worker, and Vite launches remain available for focused debugging outside the canonical local stack.
+- `V1` release closeout reuses this runbook's launch contract plus `docs/95-delivery/release-checklist.md`.
 
 ## Prerequisites
 
@@ -111,6 +112,7 @@ Local Visual Studio process launches now load missing configuration keys from th
 - Before declaring any checkpoint done, run `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`.
 - Prefer `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` for the standard scripted checkpoint-validation bundle.
 - Browser-surface checkpoint closeout also requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1`; this browser suite now owns root-host, tenant-host, and impersonation flows, remains a separate required gate, and is not bundled into `scripts/validate-checkpoint.ps1`.
+- `V1` release closeout additionally records `docs/95-delivery/release-checklist.md` and the CP17 release artifact under `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/`.
 - Record manual launch verification for every checked-in launch surface in the checkpoint PR artifact's `Validation Evidence` section.
 - `scripts/validate-checkpoint.ps1` does not replace the required manual VS Code and Visual Studio verification evidence.
 - Manual VS Code verification must cover:
@@ -127,6 +129,7 @@ Local Visual Studio process launches now load missing configuration keys from th
   - `UI Only`
   - `Worker Only`
 - If a Visual Studio build does not expose shared solution launch profiles, verify the equivalent project launch profiles instead and record that fallback explicitly.
+- `Launch Frontend Dev Server` is intentionally VS Code-only and is not part of the Visual Studio verification list.
 
 ## Local Startup Shape
 
@@ -180,7 +183,7 @@ The checked-in `.env.example` values are fake/demo-safe and are intended to work
 - The tenant-host browser UI for `/app`, `/app/binders`, `/app/binders/:binderId`, `/app/documents/:documentId`, and `/app/users` is now live, including lease countdown/extend and tenant-host logout wiring.
 - Interactive API documentation remains intentionally deferred even though the first protected feature endpoints now exist.
 - Worker cleanup now runs on the configured cadence in the checked-in worker host and surfaces structured cleanup-cycle logs through `Reviewer Full Stack`, `App + Worker (Process)`, and `Worker Only`.
-- Tenant-local impersonation is now live on the tenant host with shell-owned banner and stop behavior, but broader hardening remains later-checkpoint work.
+- Tenant-local impersonation is now live on the tenant host with shell-owned banner and stop behavior and is part of the shipped `V1` reviewer walkthrough.
 
 ## Running Tests Locally
 

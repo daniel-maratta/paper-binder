@@ -2,9 +2,9 @@
 
 ## AI Summary
 
-- This lane defines optional AI scope, architecture, and v1 features.
-- AI must remain tenant-scoped, bounded, and removable.
-- Start at subsystem overview, then architecture, then feature catalog.
+- This lane records deferred post-`V1` AI candidate scope and architecture only.
+- No AI feature ships in `V1`.
+- Any future AI work must remain tenant-scoped, bounded, removable, and explicitly approved before implementation.
 
 ## Read First
 
@@ -14,5 +14,5 @@
 
 ## Related Guidance
 
-- Keep AI integration adapter-based and provider-agnostic.
-- Keep AI execution boundaries in the application layer.
+- Keep future AI integration adapter-based and provider-agnostic.
+- Keep future AI execution boundaries in the application layer.

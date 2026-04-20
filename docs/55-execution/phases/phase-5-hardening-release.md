@@ -33,7 +33,7 @@ Close security, operability, and documentation gaps, then package V1 as a review
 - Full regression suite is green.
 - No open critical or high isolation/auth defects remain.
 - Docs contain no stale or aspirational behavior claims.
-- `main` is taggable as V1.
+- `main` is documented as taggable as `V1` via `docs/95-delivery/release-checklist.md`.
 - Deployment and reviewer walkthrough are reproducible from the documented steps.
 
 ## Task Integration

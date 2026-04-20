@@ -1,7 +1,7 @@
 # End-to-End Tests
 Status: V1 (Minimal)
 
-E2E tests validate high-value user-visible flows for the public demo.
+E2E tests validate high-value user-visible flows for the reviewer-ready `V1` surface.
 They start after the CP12 frontend foundation checkpoint; CP12 itself is limited to component and utility coverage.
 
 ## Scope
@@ -54,6 +54,9 @@ Use one tool and keep suite small/stable.
    - prove the shell banner is visible and the effective user sees the restricted experience
    - stop impersonation from the tenant shell and verify the admin route recovers without a root-host login round-trip
 4. Intercept at least one `/api/*` call and assert request header `X-Api-Version` is present and response header `X-Correlation-Id` is present.
+5. Release-cut coverage pairs the browser suite with integration coverage for seams that are not stable to drive from the browser alone:
+   - authenticated `429` plus `Retry-After`
+   - spoofed-host rejection before tenant-scoped execution
 
 ## Challenge Handling in Tests
 
@@ -65,6 +68,7 @@ Use one tool and keep suite small/stable.
 - Run E2E in CI when suite stability is acceptable.
 - At minimum, run E2E on main after merge.
 - Browser-surface checkpoint closeout requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1` as a separate required gate; the browser suite now owns root-host, tenant-host, and impersonation flows and is not bundled into `scripts/validate-checkpoint.ps1`.
+- `V1` release closeout still depends on the clean-checkout scripted bundle plus the recorded launch-verification evidence in the release checklist.
 
 ## Alternatives Considered
 

@@ -1,7 +1,8 @@
-# Runbook (Public Demo)
+# Runbook (Supported Single-Host Deployment)
 Status: V1
 
-This runbook covers minimal incident triage and recovery for the public demo.
+This runbook covers minimal incident triage and recovery for the supported single-host `V1` deployment topology.
+It documents the production-shaped operating model the repo supports; it is not evidence that a public host is currently running.
 
 ## Scope
 
@@ -18,7 +19,7 @@ Out of scope:
 
 - Primary: SSH via Tailscale.
 - Break-glass: provider console.
-- Public entry: `https://lab.danielmaratta.com/`.
+- Example public entry when deployed: `https://lab.danielmaratta.com/`.
 
 ## Triage Checklist
 
@@ -64,7 +65,7 @@ Out of scope:
 
 ## Weekly Checks
 
-- Provision and validate a test tenant.
+- Provision and validate a test tenant when a public deployment is running.
 - Confirm tenant lease read/extend behavior from a tenant-admin session.
 - Confirm lease-expiration cleanup behavior.
 - Confirm backup freshness.

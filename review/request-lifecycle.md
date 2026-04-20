@@ -9,6 +9,7 @@ Canonical behavior is defined in `docs/20-architecture/system-overview.md`, `doc
 ```text
 Client request
   -> Edge routing and host validation
+  -> Root-host challenge and rate-limit checks when the request is pre-auth
   -> API middleware pipeline
   -> Authentication principal resolution
   -> Tenant resolution from host + membership
@@ -28,10 +29,12 @@ Client request
 
 ## Common Failure Outcomes
 
+- `400`: invalid tenant host (`TENANT_HOST_INVALID`).
 - `403`: policy or membership failure.
 - `404`: unknown tenant/resource, or tenant already purged.
 - `410`: tenant expired but not yet purged.
 - `409`: valid request shape but business-state conflict (for example invalid lease extension window).
+- `429`: rate-limit rejection with `RATE_LIMITED` plus `Retry-After` when available.
 
 ## Canonical References
 

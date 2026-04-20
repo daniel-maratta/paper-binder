@@ -12,6 +12,8 @@ Each item would require explicit scope approval and an ADR when it changes archi
 - Expand AI-assisted read-only workflows inside strict tenant boundaries.
 - Evolve deployment topology beyond single-host when operational signals justify it.
 
+Deferred AI candidate scope remains documented in `review/ai-surface-map.md` and `docs/60-ai/`.
+
 ## Explicit v1 Boundary Reminder
 
 Current v1 intentionally excludes several categories, including uploads, cross-tenant sharing, and broad realtime collaboration.

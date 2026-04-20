@@ -9,7 +9,7 @@ Define the delivery terminology and PR artifact expectations used by PaperBinder
 
 - `Phase`: one of the five major execution groupings in `docs/55-execution/`.
 - `Checkpoint`: the mergeable execution unit inside a phase (`CP1` through `CP17`).
-- `Release`: the final reviewer-ready cut of V1.
+- `Release`: the final reviewer-ready cut of `V1`, using prose `V1` and the recommended tag spelling `v1.0.0`.
 
 Do not use legacy `stage` terminology for current execution planning or PR artifacts.
 
@@ -30,7 +30,9 @@ Do not use legacy `stage` terminology for current execution planning or PR artif
 ## Versioning Rules
 
 - V1 execution remains checkpoint-driven until the release checkpoint is complete.
-- Release tagging uses the documented release workflow and validation checklist.
+- Release tagging uses `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md`.
+- `CHANGELOG.md` cuts the shipped release as `## [V1] - YYYY-MM-DD` with a fresh empty `## Unreleased` above it.
+- `docs/95-delivery/release-checklist.md` `Release Readiness` is the canonical "main is taggable" signal, mirrored into the CP17 release artifact and checkpoint ledger.
 - Version identifiers in delivery docs must match the actual shipped cut; do not predeclare future versions.
 
 ## Non-Goals

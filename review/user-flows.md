@@ -8,6 +8,7 @@ Detailed behavior is defined in `docs/10-product/user-stories.md` and `docs/20-a
 
 ```text
 Visitor on root host
+  -> Complete challenge proof
   -> POST /api/provision
   -> Receive generated credentials + redirectUrl
   -> Authenticate
@@ -32,7 +33,17 @@ Tenant admin
   -> POST /api/tenant/users/{userId}/role
 ```
 
-## 4) Lease Extension Near Expiry
+## 4) Tenant-Local Impersonation
+
+```text
+Tenant admin
+  -> POST /api/tenant/impersonation
+  -> Effective experience downgrades to target user's permissions
+  -> DELETE /api/tenant/impersonation
+  -> Admin view recovers without a root-host login round-trip
+```
+
+## 5) Lease Extension Near Expiry
 
 ```text
 Tenant admin reads lease state
@@ -42,7 +53,24 @@ Tenant admin reads lease state
   -> Else -> 409 conflict
 ```
 
-## 5) Expiry and Cleanup Behavior
+## 6) Authenticated Rate-Limit Observation
+
+```text
+Authenticated tenant user
+  -> Repeat unsafe tenant-host mutation
+  -> Receive 429 RATE_LIMITED
+  -> Observe Retry-After header
+```
+
+## 7) Spoofed-Host Rejection
+
+```text
+Client sends API request with an invalid or off-domain host
+  -> Host validation rejects request before tenant-scoped execution
+  -> API returns TENANT_HOST_INVALID or TENANT_NOT_FOUND
+```
+
+## 8) Expiry and Cleanup Behavior
 
 ```text
 Lease reaches expiration

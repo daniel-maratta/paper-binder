@@ -27,9 +27,10 @@ Request Host
 
 ## Failure Semantics
 
-- Unknown tenant: reject request.
-- Missing membership: reject request.
-- Expired tenant: reject request.
+- Invalid tenant host: `400` `TENANT_HOST_INVALID`.
+- Unknown tenant: `404` `TENANT_NOT_FOUND`.
+- Missing membership: `403`.
+- Expired tenant: `410` before purge, then `404` after purge.
 - Resolution failure occurs before tenant-scoped reads or writes.
 
 ## Canonical References

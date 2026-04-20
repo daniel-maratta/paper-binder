@@ -20,7 +20,7 @@ Use this set for a 10-15 minute pre-read before hands-on discussion:
 
 - `domain-model-diagram.md`
 - `system-architecture-diagram.md`
-- `ai-surface-map.md`
+- `ai-surface-map.md` (post-V1 context only)
 - `scaling-considerations.md`
 - `future-evolution.md`
 
@@ -33,6 +33,7 @@ Use these to validate reviewer-summary claims quickly:
 - Security isolation rules: `docs/30-security/tenant-isolation.md`
 - Scope and non-goal boundaries: `docs/00-intent/project-scope.md`, `docs/00-intent/non-goals.md`
 - Decision rationale and tradeoffs: `docs/90-adr/README.md`
+- Release readiness and release sequence: `docs/95-delivery/release-checklist.md`, `docs/95-delivery/release-workflow.md`
 - Tenancy model and host-resolution sources: `docs/20-architecture/tenancy-model.md`, `docs/20-architecture/tenancy-resolution.md`
 - Authorization boundary decision: `docs/20-architecture/policy-authorization.md`, `docs/90-adr/ADR-0008-identity-auth-boundary-with-dapper-stores.md`
 - Frontend boundary decision (no BFF): `docs/90-adr/ADR-0005-no-bff.md`
@@ -62,10 +63,10 @@ If content would duplicate another reviewer doc, keep only a one-line pointer an
 - `docs/20-architecture/demo-tenant-lease.md`
 - `docs/40-contracts/api-contract.md`
 - `docs/30-security/tenant-isolation.md`
-- `docs/60-ai/ai-subsystem-overview.md`
-- `docs/60-ai/ai-features-v1.md`
 - `docs/00-intent/project-scope.md`
 - `docs/00-intent/non-goals.md`
+- `docs/95-delivery/release-checklist.md`
+- `docs/95-delivery/release-workflow.md`
 
 ## Maintenance Note
 

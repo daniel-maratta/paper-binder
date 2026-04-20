@@ -88,10 +88,11 @@ The following must be demonstrably true:
 
 ## 4. Operational Success Criteria
 
-- Application deploys successfully in production configuration.
+- Application deploys successfully in the supported single-host production configuration.
 - HTTPS is enforced.
 - Environment configuration is externalized.
 - Application can be run locally with documented steps.
+- The `V1` release can be reproduced from a clean checkout using the documented validation commands.
 
 ---
 
@@ -138,7 +139,7 @@ PaperBinder is complete when:
 
 - All functional criteria are satisfied.
 - All architectural criteria are satisfied.
-- The release checkpoint is merged and the V1 release artifact is ready.
+- The release checkpoint records `V1` release readiness in the canonical release checklist and release artifact.
 - Documentation matches implementation.
 - No open scope creep items remain.
 

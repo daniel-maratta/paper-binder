@@ -52,7 +52,7 @@ Related standards:
 
 - The current backend surface plus the CP13 through CP15 browser surfaces are covered credibly by unit tests, non-Docker and Docker-backed integration tests, frontend component tests, and the isolated Playwright browser suite.
 - CP15 adds impersonation endpoint, teardown, audit-retention, shell-banner, and view-as browser coverage on top of the CP14 tenant-host baseline.
-- Remaining browser gaps are broader hardening passes and any post-V1 smoke coverage.
+- Release-prep evidence now comes from the clean-checkout scripted bundle plus the browser suite and the recorded launch-verification baseline; remaining browser work is post-`V1` smoke or matrix expansion only.
 
 ## Environment-Gated Test Bypass Reminder
 
