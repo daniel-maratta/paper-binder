@@ -46,7 +46,10 @@
     { "id": "task-t0029", "type": "doc", "path": "docs/05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md", "tags": ["task", "checkpoint", "cp14"] },
     { "id": "task-t0030", "type": "doc", "path": "docs/05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md", "tags": ["task", "checkpoint", "cp15"] },
     { "id": "task-t0031", "type": "doc", "path": "docs/05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md", "tags": ["task", "checkpoint", "cp16"] },
+    { "id": "task-t0032", "type": "doc", "path": "docs/05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md", "tags": ["task", "checkpoint", "cp17"] },
     { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] },
+    { "id": "delivery-release-workflow", "type": "doc", "path": "docs/95-delivery/release-workflow.md", "tags": ["delivery", "release", "workflow"] },
+    { "id": "delivery-release-checklist", "type": "doc", "path": "docs/95-delivery/release-checklist.md", "tags": ["delivery", "release", "checklist"] },
     { "id": "delivery-cp6", "type": "doc", "path": "docs/95-delivery/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md", "tags": ["delivery", "pr", "cp6"] },
     { "id": "delivery-cp9-plan", "type": "doc", "path": "docs/95-delivery/pr/cp9-binder-domain-and-policy-model/implementation-plan.md", "tags": ["delivery", "pr", "cp9", "plan"] },
     { "id": "delivery-cp9-review", "type": "doc", "path": "docs/95-delivery/pr/cp9-binder-domain-and-policy-model/critic-review.md", "tags": ["delivery", "pr", "cp9", "review"] },
@@ -72,7 +75,9 @@
     { "id": "delivery-cp16-plan", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md", "tags": ["delivery", "pr", "cp16", "plan"] },
     { "id": "delivery-cp16-review", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md", "tags": ["delivery", "pr", "cp16", "review"] },
     { "id": "delivery-cp16", "type": "doc", "path": "docs/95-delivery/pr/cp16-hardening-and-consistency-pass/description.md", "tags": ["delivery", "pr", "cp16"] },
-    { "id": "delivery-cp17-plan", "type": "doc", "path": "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md", "tags": ["delivery", "pr", "cp17", "plan"] }
+    { "id": "delivery-cp17-plan", "type": "doc", "path": "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md", "tags": ["delivery", "pr", "cp17", "plan"] },
+    { "id": "delivery-cp17-review", "type": "doc", "path": "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md", "tags": ["delivery", "pr", "cp17", "review"] },
+    { "id": "delivery-cp17", "type": "doc", "path": "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md", "tags": ["delivery", "pr", "cp17"] }
   ],
   "edges": [
     { "from": "idx", "to": "intent", "rel": "lane-index" },
@@ -120,7 +125,10 @@
     { "from": "taskboard", "to": "task-t0029", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0030", "rel": "contains" },
     { "from": "taskboard", "to": "task-t0031", "rel": "contains" },
+    { "from": "taskboard", "to": "task-t0032", "rel": "contains" },
     { "from": "idx", "to": "delivery", "rel": "lane-index" },
+    { "from": "delivery", "to": "delivery-release-workflow", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-release-checklist", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp6", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp9-plan", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp9-review", "rel": "contains" },
@@ -146,6 +154,8 @@
     { "from": "delivery", "to": "delivery-cp16-plan", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp16-review", "rel": "contains" },
     { "from": "delivery", "to": "delivery-cp16", "rel": "contains" },
-    { "from": "delivery", "to": "delivery-cp17-plan", "rel": "contains" }
+    { "from": "delivery", "to": "delivery-cp17-plan", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp17-review", "rel": "contains" },
+    { "from": "delivery", "to": "delivery-cp17", "rel": "contains" }
   ]
 }

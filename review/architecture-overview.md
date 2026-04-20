@@ -78,9 +78,10 @@ PaperBinder is a constrained multi-tenant SaaS demo with:
 - `review/multi-tenancy-diagram.md`
 - `review/request-lifecycle.md`
 - `review/user-flows.md`
-- `review/ai-surface-map.md`
+- `review/future-evolution.md`
+- `review/ai-surface-map.md` (post-V1 context only)
 
-## Live Demo Focus
+## Reviewer Discussion Focus
 
 Hands-on discussion should center on:
 

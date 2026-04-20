@@ -2,20 +2,21 @@
 
 ## Purpose
 
-Define architecture boundaries and technical controls for AI execution in v1.
+Define the architecture boundaries and technical controls that would apply if AI work is approved after `V1`.
 
 ## AI Summary
 
-- AI respects Clean Architecture boundaries.
-- Provider SDK usage is infrastructure-only.
-- Prompt assembly is deterministic and bounded.
+- No AI architecture is implemented in `V1`.
+- Future AI work must respect Clean Architecture boundaries.
+- Provider SDK usage must remain infrastructure-only.
+- Prompt assembly must remain deterministic and bounded.
 - Logging and failure handling must be safe and structured.
-- AI remains removable without breaking core document behavior.
+- AI must remain removable without breaking core document behavior.
 
 ## Layer Boundaries
 
-- Domain/Application contracts:
-  - AI request/response types.
+- Domain or Application contracts:
+  - AI request or response types.
   - Provider and service abstractions.
 - Application orchestration:
   - retrieval, prompt assembly, provider invocation, output shaping.
@@ -26,6 +27,8 @@ Define architecture boundaries and technical controls for AI execution in v1.
 
 ## Provider Contract
 
+If AI work is approved later, the provider boundary remains:
+
 ```csharp
 public interface IAiProvider
 {
@@ -35,7 +38,7 @@ public interface IAiProvider
 
 ## Prompt and Input Guardrails
 
-- Deterministic prompt templates/versioning.
+- Deterministic prompt templates or versioning.
 - Max document count per request.
 - Max characters per document.
 - Max token budget and timeout per request.
@@ -44,28 +47,28 @@ public interface IAiProvider
 ## Security and Logging Controls
 
 - No user-controlled system prompts.
-- Sanitize/normalize document input before prompt assembly.
+- Sanitize or normalize document input before prompt assembly.
 - Never log raw secrets, API keys, or full prompt bodies.
 - Log tenant-scoped usage metadata only.
 
 ## Failure Behavior
 
 - Return typed error responses.
-- Do not crash request pipeline.
+- Do not crash the request pipeline.
 - Do not run unbounded retries.
-- Emit failure telemetry with reason code.
+- Emit failure telemetry with a reason code.
 
-## Testing Minimum
+## Testing Minimum If Approved Later
 
-- Deterministic unit tests using mock provider.
+- Deterministic unit tests using a mock provider.
 - Tenant isolation tests for AI access paths.
 - Oversized-input rejection tests.
-- Timeout/error-path tests.
+- Timeout and error-path tests.
 
 ## Removability Requirement
 
-Removing AI integrations must not:
+Removing future AI integrations must not:
 
-- break core binder/document workflows
+- break core binder or document workflows
 - require core-domain schema redesign
 - alter tenancy resolution semantics

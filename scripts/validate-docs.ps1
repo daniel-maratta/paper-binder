@@ -6,6 +6,30 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $anchorCache = @{}
+$releaseChecklistPath = Join-Path $repoRoot "docs/95-delivery/release-checklist.md"
+$releaseWorkflowPath = Join-Path $repoRoot "docs/95-delivery/release-workflow.md"
+$releaseArtifactPath = Join-Path $repoRoot "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
+$privateGuardTargets = @(
+  (Join-Path $repoRoot "README.md"),
+  (Join-Path $repoRoot "REVIEWERS.md"),
+  (Join-Path $repoRoot "CHANGELOG.md"),
+  (Join-Path $repoRoot "docs/95-delivery/release-workflow.md"),
+  (Join-Path $repoRoot "docs/95-delivery/release-checklist.md"),
+  (Join-Path $repoRoot "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"),
+  (Join-Path $repoRoot "docs/05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md")
+) + @(Get-ChildItem -Path (Join-Path $repoRoot "review") -File -Filter "*.md")
+
+function Test-PathWithinRepoRoot {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Path
+  )
+
+  $resolvedRepoRoot = [IO.Path]::GetFullPath($repoRoot)
+  $resolvedPath = [IO.Path]::GetFullPath($Path)
+
+  return $resolvedPath.StartsWith($resolvedRepoRoot, [System.StringComparison]::OrdinalIgnoreCase)
+}
 
 function Convert-ToMarkdownAnchor {
   param(
@@ -86,6 +110,72 @@ function Assert-PathExists {
   }
 }
 
+function Assert-ReleaseChecklistStructure {
+  Assert-PathExists -RelativePath "docs/95-delivery/release-checklist.md"
+  Assert-PathExists -RelativePath "docs/95-delivery/release-workflow.md"
+  Assert-PathExists -RelativePath "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
+
+  $releaseChecklistContent = Get-Content -Path $releaseChecklistPath -Raw
+  $requiredHeadings = @(
+    "## Required Artifacts",
+    "## Scripted Validation",
+    "## Manual Verification",
+    "## Documentation Integrity",
+    "## Release Readiness"
+  )
+
+  foreach ($heading in $requiredHeadings) {
+    if ($releaseChecklistContent -notmatch [regex]::Escape($heading)) {
+      throw "Release checklist is missing required section heading: $heading"
+    }
+  }
+
+  $requiredScriptLinks = @(
+    "../../scripts/preflight.ps1",
+    "../../scripts/restore.ps1",
+    "../../scripts/build.ps1",
+    "../../scripts/test.ps1",
+    "../../scripts/run-browser-e2e.ps1",
+    "../../scripts/validate-docs.ps1",
+    "../../scripts/validate-launch-profiles.ps1",
+    "../../scripts/validate-checkpoint.ps1"
+  )
+
+  foreach ($scriptLink in $requiredScriptLinks) {
+    if ($releaseChecklistContent -notmatch [regex]::Escape($scriptLink)) {
+      throw "Release checklist is missing required script link: $scriptLink"
+    }
+  }
+
+  $releaseWorkflowContent = Get-Content -Path $releaseWorkflowPath -Raw
+  if ($releaseWorkflowContent -notmatch [regex]::Escape("docs/95-delivery/release-checklist.md")) {
+    throw "Release workflow must reference the canonical release checklist."
+  }
+
+  $releaseArtifactContent = Get-Content -Path $releaseArtifactPath -Raw
+  if ($releaseArtifactContent -notmatch [regex]::Escape("## Validation Evidence")) {
+    throw "CP17 release artifact must contain a Validation Evidence section."
+  }
+}
+
+function Assert-NoLocalPathLeakage {
+  foreach ($path in $privateGuardTargets) {
+    if (-not (Test-Path -LiteralPath $path)) {
+      continue
+    }
+
+    $content = Get-Content -Path $path -Raw
+
+    if ($content -match '(?im)(file|vscode)://') {
+      throw "Local path URI leakage detected in $path"
+    }
+
+    if ($content -match '(?im)[A-Z]:\\Users\\') {
+      throw "Absolute local filesystem path leakage detected in $path"
+    }
+  }
+}
+
 function Test-IsInlineLocalPathLiteral {
   param(
     [Parameter(Mandatory = $true)]
@@ -93,6 +183,10 @@ function Test-IsInlineLocalPathLiteral {
   )
 
   if ([string]::IsNullOrWhiteSpace($Literal) -or $Literal -match '\s') {
+    return $false
+  }
+
+  if ($Literal.Contains('<') -or $Literal.Contains('>')) {
     return $false
   }
 
@@ -200,6 +294,10 @@ foreach ($file in $markdownFiles) {
       throw "Broken link in $($file.FullName): $target"
     }
 
+    if (-not (Test-PathWithinRepoRoot -Path $resolved.Path)) {
+      throw "Local link escapes repository root in $($file.FullName): $target"
+    }
+
     if (-not [string]::IsNullOrWhiteSpace($resolved.Anchor)) {
       if ([System.IO.Path]::GetExtension($resolved.Path) -ne ".md") {
         throw "Anchor target must be a markdown file: $target in $($file.FullName)"
@@ -224,12 +322,18 @@ foreach ($file in $markdownFiles) {
     }
 
     try {
-      [void](Resolve-InlineLocalTarget -CurrentFilePath $file.FullName -RawTarget $target)
+      $resolvedInlinePath = Resolve-InlineLocalTarget -CurrentFilePath $file.FullName -RawTarget $target
+      if (-not (Test-PathWithinRepoRoot -Path $resolvedInlinePath)) {
+        throw "Inline path reference escapes repository root."
+      }
     }
     catch {
       throw "Broken inline path reference in $($file.FullName): $target"
     }
   }
 }
+
+Assert-ReleaseChecklistStructure
+Assert-NoLocalPathLeakage
 
 Write-Host "Documentation validation passed."

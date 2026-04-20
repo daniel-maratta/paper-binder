@@ -1,26 +1,26 @@
-# AI Features - v1
+# AI Features Deferred From `V1`
 
 ## Purpose
 
-Define the bounded AI feature set for v1.
+Define the bounded AI candidate feature set that was deferred from the shipped `V1` release.
 
 ## AI Summary
 
-- v1 AI is optional and non-blocking.
-- All features are manual-triggered and tenant-scoped.
-- AI outputs are suggestions/analysis, not automatic document mutation.
-- Inputs are bounded; usage is metered; failures degrade gracefully.
+- No AI feature ships in `V1`.
+- These candidates remain manual-triggered and tenant-scoped if they are ever approved later.
+- AI outputs would remain suggestions or analysis, not automatic document mutation.
+- Inputs would remain bounded; usage would be metered; failures would need to degrade gracefully.
 
-## Feature Catalog (v1)
+## Candidate Feature Catalog (Post-`V1`)
 
 | Feature | Trigger | Output | Hard Limits |
 | --- | --- | --- | --- |
-| Document summary | User action | concise summary of one doc or bounded binder set | bounded doc count/size/token/time |
-| Metadata tag suggestions | User action | suggested categories/topics/risk labels | bounded input; suggestion-only |
+| Document summary | User action | concise summary of one doc or bounded binder set | bounded doc count or size or token or time |
+| Metadata tag suggestions | User action | suggested categories or topics or risk labels | bounded input; suggestion-only |
 | Cross-document synthesis | User action | common themes, gaps, potential conflicts | same-tenant docs only; structured output |
-| Document insight alerts | User action | risk/compliance/ambiguity/missing-section hints | manual trigger only; no background scans |
+| Document insight alerts | User action | risk or compliance or ambiguity or missing-section hints | manual trigger only; no background scans |
 
-## Shared Rules
+## Shared Rules If Implemented Later
 
 - Operates only on DB-backed immutable text documents.
 - Uses resolved tenant context only.
@@ -28,14 +28,19 @@ Define the bounded AI feature set for v1.
 - Persistence of AI output is explicit, user-confirmed behavior.
 - UI must label generated content (for example: "AI-generated insight").
 
-## Acceptance Baseline
+## `V1` Release Boundary
+
+- No AI endpoint, browser flow, worker job, or provider adapter is part of the `V1` release.
+- Release readiness, reviewer walkthrough, and deployment validation do not depend on AI behavior.
+
+## Acceptance Baseline If Approved Later
 
 - Oversized requests are rejected with structured errors.
-- Token/latency/outcome telemetry is recorded per tenant.
+- Token or latency or outcome telemetry is recorded per tenant.
 - Timeouts and caps are enforced.
-- On quota/cost limit breach, feature fails safely with clear response.
+- On quota or cost limit breach, the feature fails safely with a clear response.
 
-## Non-Goals (v1)
+## Non-Goals For This Candidate Scope
 
 - No chatbot interface.
 - No conversational memory.

@@ -7,7 +7,7 @@ Canonical details are in `docs/30-security/` and architecture/contracts docs.
 ## Security Boundary Model
 
 ```text
-Internet -> Host routing -> API authn/authz -> Tenant-scoped data access -> DB
+Internet -> Host routing and abuse controls -> API authn/authz -> Tenant-scoped data access -> DB
 ```
 
 Key point: tenant isolation is a security boundary, not a convenience feature.
@@ -30,6 +30,7 @@ Untrusted:
 4. Materialize immutable `TenantContext`.
 5. Enforce endpoint policy requirements.
 6. Execute tenant-scoped data access.
+7. Apply authenticated tenant-host mutation limits to unsafe `/api/*` routes when applicable.
 
 ## Data Isolation Rules
 
@@ -41,10 +42,12 @@ Untrusted:
 
 ## Failure Semantics (Reviewer Signals)
 
+- `400`: invalid tenant host.
 - `403`: membership/policy failure.
 - `404`: unknown tenant/resource or already purged tenant.
 - `410`: tenant expired but not yet purged.
 - `409`: business conflict (for example lease extension outside allowed window).
+- `429`: rate-limit rejection with `Retry-After` when available.
 
 ## Canonical References
 

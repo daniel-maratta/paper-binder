@@ -1,19 +1,19 @@
-﻿# AI Surface Map (Reviewer)
+# AI Surface Map (Reviewer, Post-V1 Context)
 
-This summary shows the documented AI scope for v1 and where it is explicitly constrained.
+This summary records the deferred AI candidate scope that remains outside the shipped `V1` release.
 
-AI is optional and not part of the current reviewer-critical execution path. Core workflows must operate without AI.
+No AI feature ships in `V1`. Core reviewer walkthroughs, release readiness, and the canonical local stack do not depend on this material.
 
-## v1 AI Surface
+## Post-V1 Candidate Surface
 
 | Area | Trigger | Inputs | Output | Guardrails |
 | --- | --- | --- | --- | --- |
 | Document summary | manual user action | bounded same-tenant docs | concise summary | no mutation, bounded tokens/time |
 | Metadata tag suggestions | manual user action | bounded same-tenant docs | suggested tags/labels | suggestion-only, explicit user acceptance |
 | Cross-document synthesis | manual user action | bounded same-tenant docs | themes/gaps/conflicts | strict tenant scope, structured output |
-| Insight alerts | manual user action | bounded same-tenant docs | risk/ambiguity hints | no background jobs in v1 |
+| Insight alerts | manual user action | bounded same-tenant docs | risk/ambiguity hints | no background jobs in `V1` |
 
-## AI Boundary Rules
+## AI Boundary Rules If Approved Later
 
 - Tenant context and authorization are resolved before AI execution.
 - AI executes through application-layer abstractions.
@@ -22,7 +22,13 @@ AI is optional and not part of the current reviewer-critical execution path. Cor
 - AI output never mutates source documents automatically.
 - Usage telemetry is tenant-scoped (tokens, latency, outcome).
 
-## Explicit Non-Goals (v1)
+## Explicit `V1` Boundary
+
+- no shipped AI endpoints, background jobs, browser flows, or provider integrations
+- no AI-dependent reviewer path
+- no AI-dependent release gate
+
+## Explicit Non-Goals For The Candidate Scope
 
 - no chatbot interface
 - no conversational memory

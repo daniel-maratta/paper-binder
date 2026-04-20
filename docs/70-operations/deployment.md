@@ -1,7 +1,8 @@
 # Deployment
-Status: V1 (Public Demo)
+Status: V1 (Supported Topology)
 
-This document describes deployment and rollback for the public single-host demo.
+This document describes deployment and rollback for the supported single-host `V1` topology.
+It documents the repo-supported deployment model and rollback path; it does not claim that a live public host is part of the release-blocking evidence set.
 
 ## Scope
 
@@ -40,6 +41,7 @@ Repository deployment baseline:
 DNS:
 - Cloudflare DNS only (no proxy mode).
 - `lab.danielmaratta.com` and `*.lab.danielmaratta.com` records to host IP.
+  Treat these as the supported public-host example, not as proof that a public deployment is currently active.
 
 ## Required Configuration (Illustrative)
 
@@ -119,6 +121,6 @@ Keep `.env.example` aligned to the canonical runtime and frontend build-time key
 
 ## Alternatives Considered
 
-- Local-only deployment: rejected; weak reviewer signal.
+- Local-only deployment as the only supported topology: rejected; weak reviewer signal.
 - Cloud-native stack: rejected; excessive V1 complexity.
 - Serverless approach: rejected; weak fit for this tenancy model.

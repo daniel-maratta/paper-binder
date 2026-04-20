@@ -44,7 +44,7 @@ This is not intended to become a commercial product.
 - `docs/40-contracts/`: API and external contract documentation.
 - `docs/50-engineering/`: product engineering constraints and stack lock.
 - `docs/55-execution/`: staged delivery plan for this product.
-- `docs/60-ai/`: product AI subsystem scope and architecture.
+- `docs/60-ai/`: deferred post-V1 AI candidate scope and architecture.
 - `docs/70-operations/`: operational procedures and runbooks.
 - `docs/80-testing/`: test strategy, test data, and test suites.
 - `docs/90-adr/`: product architecture decision records.
@@ -63,6 +63,8 @@ This is not intended to become a commercial product.
 - Security stance: `docs/30-security/`
 - Operational runbooks: `docs/70-operations/`
 - Testing docs: `docs/80-testing/`
+- Release workflow: `docs/95-delivery/release-workflow.md`
+- Release checklist: `docs/95-delivery/release-checklist.md`
 
 ---
 
@@ -127,4 +129,6 @@ Policy:
 
 ## Status
 
-This repository is under active development.
+PaperBinder is reviewer-ready at `V1`.
+The recommended release tag is `v1.0.0`.
+Release readiness is recorded in `docs/95-delivery/release-checklist.md`, with the release snapshot in `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`.

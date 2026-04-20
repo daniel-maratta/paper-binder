@@ -27,6 +27,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0032: CP17 Release Preparation And Reviewer Snapshot](./tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md)
 - [T-0031: CP16 Hardening And Consistency Pass](./tasks/T-0031-cp16-hardening-and-consistency-pass.md)
 - [T-0030: CP15 Tenant-Local Impersonation And Audit Safety](./tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md)
 - [T-0029: CP14 Tenant-Host Frontend Flows](./tasks/T-0029-cp14-tenant-host-frontend-flows.md)

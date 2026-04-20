@@ -30,8 +30,12 @@ Optimization target:
 - Not production-hardened completeness
 
 Reviewer experience:
-- Live demo
+- Reviewer walkthrough from the documented local stack
 - Code walkthrough
+
+Release boundary:
+- The shipped release is prose `V1` with recommended tag `v1.0.0`
+- Release readiness is documented through the delivery lane; live public-host operation is not a `V1` release gate
 
 Minimum v1 workflow:
 1. Provision demo tenant
@@ -105,6 +109,10 @@ Frontend runtime:
 - No SignalR or other realtime push channels in v1
 - Baseline forms use native controlled/uncontrolled React with lightweight validation
 - `react-hook-form` + `zod` are not baseline v1 dependencies
+
+AI scope:
+- No AI feature ships in `V1`
+- The `docs/60-ai/` lane is deferred post-`V1` candidate scope only
 
 Node and package manager pinning:
 - npm is the package manager for v1 frontend workflows

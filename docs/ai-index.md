@@ -32,6 +32,8 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/80-testing/README.md](./80-testing/README.md)
 - [docs/90-adr/README.md](./90-adr/README.md)
 - [docs/95-delivery/README.md](./95-delivery/README.md)
+- [docs/95-delivery/release-workflow.md](./95-delivery/release-workflow.md)
+- [docs/95-delivery/release-checklist.md](./95-delivery/release-checklist.md)
 
 ## Key ADRs
 
@@ -55,6 +57,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md](./05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md)
 - [docs/05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md](./05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md)
 - [docs/05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md](./05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md)
+- [docs/05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md](./05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md)
 - [docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md](./95-delivery/pr/cp9-binder-domain-and-policy-model/description.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md)
 - [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md)
@@ -78,6 +81,8 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md)
 - [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/description.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/description.md)
 - [docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md](./95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md)
+- [docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md](./95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md)
+- [docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md](./95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md)
 
 ## Local-Only Overrides
 

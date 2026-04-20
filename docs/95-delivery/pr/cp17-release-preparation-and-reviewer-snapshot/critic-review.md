@@ -334,3 +334,138 @@ These are not blockers but are worth tracking through the CP17 PR critique pass 
 ### Disposition
 
 The plan is scope-locked. The executor may proceed with broad CP17 implementation starting from the step 1 canonical-doc reconciliation pass. The Required Plan Edits in the original critic review have been satisfied; the Post-Implementation Checks in the original critic review remain authoritative for the CP17 PR critique pass and should be exercised against the actual diff once CP17 reaches `Review Ready`.
+
+---
+
+## Post-Implementation Review
+
+Reviewer: PaperBinder Critic
+Date: 2026-04-20
+
+Inputs reviewed:
+- Current branch diff against `main` (CHANGELOG, README, REVIEWERS, docs/00-intent/, docs/05-taskboard/, docs/55-execution/, docs/60-ai/, docs/70-operations/, docs/80-testing/, docs/95-delivery/, docs/ai-index.md, docs/repo-map.json, review/, scripts/validate-docs.ps1)
+- New files: [docs/95-delivery/release-workflow.md](../../release-workflow.md), [docs/95-delivery/release-checklist.md](../../release-checklist.md), [description.md](./description.md), [T-0032-cp17-release-preparation-and-reviewer-snapshot.md](../../../05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md)
+- [implementation-plan.md](./implementation-plan.md) (scope-locked revision)
+- Pre-implementation critic review above (B1-B7, NB-1 through NB-8, Required Plan Edits 1-16, Post-Implementation Checks 1-19, Re-Review residual risks 1-7)
+- Author notes accompanying the CP17 closeout
+
+### Verdict
+
+**The checkpoint is ship-ready. No blocking findings remain.** `main` is documented as taggable for `V1` (`v1.0.0`) and the executor closeout matches the locked signal. Residual risks below are non-blocking and are already disclosed in the release artifact; they carry into owner-controlled tag/merge actions rather than back into CP17 scope.
+
+The diff executes the scope-locked plan faithfully:
+- release identity is prose `V1` plus tag `v1.0.0`, consistent across [CHANGELOG.md](../../../../CHANGELOG.md), [release-workflow.md](../../release-workflow.md), [release-checklist.md](../../release-checklist.md), [README.md](../../../../README.md), [REVIEWERS.md](../../../../REVIEWERS.md), [checkpoint-status.md](../../../55-execution/checkpoint-status.md), [T-0032](../../../05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md), and [description.md](./description.md)
+- `CHANGELOG.md` is cut as `## [V1] - 2026-04-19` with a fresh empty `## Unreleased` above it; summary sections replace the prior per-checkpoint accumulator
+- the two new canonical release docs exist as distinct files with the locked roles (workflow owns the sequence; checklist owns the gate list and `Release Readiness` signal)
+- the `Release Readiness` triplet (checklist, CP17 artifact `Validation Evidence`, checkpoint ledger row notes) cross-references correctly
+- the AI lane explicitly reads as deferred post-`V1` scope across [docs/60-ai/README.md](../../../60-ai/README.md), [ai-subsystem-overview.md](../../../60-ai/ai-subsystem-overview.md), [ai-architecture.md](../../../60-ai/ai-architecture.md), [ai-features-v1.md](../../../60-ai/ai-features-v1.md), [review/ai-surface-map.md](../../../../review/ai-surface-map.md), and [review/README.md](../../../../review/README.md); the REVIEWERS.md "Optional" section re-labels `ai-surface-map.md` as post-V1 context only
+- operations docs ([runbook-prod.md](../../../70-operations/runbook-prod.md), [deployment.md](../../../70-operations/deployment.md)) now read as supported-topology reference rather than active-host evidence, and both explicitly note that a live public host is not release-blocking
+- `scripts/run-root-host-e2e.ps1` remains present and is documented as a frozen historical compatibility shim in the checklist
+- [validate-docs.ps1](../../../../scripts/validate-docs.ps1) now asserts the release-checklist structure (required headings, required script-link set), the release-workflow cross-reference, the CP17 artifact `Validation Evidence` section, and a private-path leakage guard over reviewer-facing release artifacts
+- the reviewer walkthrough in [REVIEWERS.md](../../../../REVIEWERS.md) and the CP17 artifact enumerates impersonation downgrade, stop without root-host round-trip, `429` + `Retry-After`, and spoofed-host rejection — matching the NB-1 tightening
+- navigation metadata ([docs/ai-index.md](../../../ai-index.md), [docs/repo-map.json](../../../repo-map.json)) picks up the two new release docs, the CP17 task file, and the CP17 release artifact
+- the taskboard ([work-queue.md](../../../05-taskboard/work-queue.md)) and ledger ([checkpoint-status.md](../../../55-execution/checkpoint-status.md)) both reflect CP17 closure with `Last completed checkpoint: CP17`, `Current checkpoint: none active`, and `Next checkpoint: none planned (post-V1 owner-directed work only)`
+- no diff-scope bleed: no product features, architecture changes, dependency additions, browser-matrix expansion, reviewer microsite, performance testing, or merge/tag actions appear in the change set
+
+### Blocking Findings
+
+None.
+
+### Non-Blocking Findings
+
+#### NB-P1: `docs/60-ai/ai-features-v1.md` keeps its original filename while its content is now "deferred from V1"
+
+The file content ([ai-features-v1.md](../../../60-ai/ai-features-v1.md)) now opens with `# AI Features Deferred From V1` and explicitly states "No AI feature ships in `V1`." However, the filename `ai-features-v1.md` still reads, to a reviewer skimming [repo-map.json](../../../repo-map.json) or the directory listing, like a v1 feature catalog.
+
+The pre-implementation critic explicitly accepted either "rename the file" or "rewrite its header" (see B4 option 1 — "either delete `review/ai-surface-map.md` or rewrite its header"; the same disjunction applied implicitly to `ai-features-v1.md`). The author picked the rewrite-only path, which is defensible and avoids a cascading rename across [docs/ai-index.md](../../../ai-index.md), [repo-map.json](../../../repo-map.json), and cross-references. The file's first-line title, the `## Purpose` paragraph, the `## AI Summary` first bullet, and the `## V1 Release Boundary` section all reinforce the deferred posture, so a reviewer who opens the file is not misled.
+
+Recommendation: acceptable as shipped. If a post-V1 cleanup pass is planned, rename to `ai-features-candidate.md` (or similar) and update navigation metadata in the same change set to remove the filename/content disjunction.
+
+#### NB-P2: Manual VS Code and Visual Studio launch verification is carried forward from CP16, not freshly re-run in CP17
+
+The release checklist and CP17 artifact both state that manual VS Code and Visual Studio verification remain the latest CP16 evidence from `2026-04-19`, and the author notes disclose this as an intentional deviation because CP17 changed no launch surfaces.
+
+This is defensible — CP17's diff touches docs, metadata, and `validate-docs.ps1`, none of which change `PaperBinder.slnLaunch`, `.vscode/launch.json`, `launchSettings.json`, `scripts/reviewer-full-stack.ps1`, or the Docker Compose topology. The carry-forward is documented transparently in both [release-checklist.md](../../release-checklist.md) `Manual Verification` and [description.md](./description.md) `Manual evidence baseline`. The Post-Implementation Checks (original critic review items 12 and 13) require evidence "recorded in the CP17 release artifact" — the release artifact does record it by explicit carry-forward reference.
+
+Recommendation: acceptable as shipped. A fresh owner-driven manual IDE walkthrough remains the strongest final confirmation before `v1.0.0` is tagged; the release artifact already discloses this as a residual risk.
+
+#### NB-P3: `npm ci` reports one high-severity audit advisory during restore
+
+The author notes disclose one high-severity `npm ci` advisory during restore that did not block the scripted validation bundle. This is not mentioned in the release-checklist or CP17 description.
+
+Recommendation: non-blocking for the CP17 release cut because the audit advisory does not break the documented validation bundle and CP17 scope excludes dependency remediation. Suggest the owner add a one-line mention in the CP17 description's `Risks And Rollout Notes` (or create a post-V1 follow-up task) so the advisory is not silently absorbed. Since this was disclosed to the critic via author notes but not the release artifact itself, any reviewer reading only the committed CP17 description will not see it.
+
+#### NB-P4: "Post-V1" vs "deferred" terminology coexists across the AI lane
+
+The re-review flagged this as residual risk 2. Inspecting the shipped AI-lane docs:
+- [docs/60-ai/README.md](../../../60-ai/README.md) uses "deferred post-`V1`"
+- [ai-features-v1.md](../../../60-ai/ai-features-v1.md) uses "deferred from `V1`" and "post-`V1`" interchangeably
+- [ai-subsystem-overview.md](../../../60-ai/ai-subsystem-overview.md) uses "deferred post-`V1`" and "Post-`V1`"
+- [review/ai-surface-map.md](../../../../review/ai-surface-map.md) uses "Post-V1 Context" and the `V1` boundary is stated explicitly
+
+The usages are compatible rather than contradictory — "deferred" describes the scheduling posture while "post-V1" describes the version boundary. No doc implies an AI feature ships in V1. Non-blocking; one consistent label per claim would read cleaner if a future AI approval actually proceeds.
+
+#### NB-P5: `Release Readiness` schema is locked by convention rather than by documented field list
+
+The [release-checklist.md](../../release-checklist.md) `Release Readiness` section exposes: Release label, Recommended tag, Status, Executor attestation, Owner-controlled action pending, Mirrors. The CP17 [description.md](./description.md) mirrors the same field set. The match is correct in this pass.
+
+However, neither doc declares the canonical field list as a schema. If a future release (even a post-V1 patch) re-cuts the checklist, field-set drift between the checklist and the CP17 artifact becomes a likely regression. The re-review flagged this as residual risk 7 and the scope-locked plan accepted it as an implementation detail.
+
+Recommendation: non-blocking. Suggest locking the field set in [release-workflow.md](../../release-workflow.md) `Sequence` step 5 at the next time the release workflow is revisited.
+
+### Residual Risks
+
+Carry these into owner-controlled release actions. None block the CP17 checkpoint close.
+
+1. **Fresh owner-driven manual IDE walkthrough is still the strongest final confirmation before tag.** The carry-forward of same-day CP16 evidence is defensible for the CP17 checkpoint, but the owner should re-verify the six VS Code and five Visual Studio launch profiles against the candidate revision one last time before tagging `v1.0.0`. CP17 changed no launch surfaces, so any regression would be a CP16 surface issue rather than a CP17 one, but the reviewer-facing signal is strongest when the tag and the manual evidence share a timestamp.
+
+2. **npm audit advisory remains open.** Should be tracked as a post-V1 follow-up task or explicitly disclosed in the CP17 description's `Risks And Rollout Notes` before the final reviewer handoff so it is not absorbed silently.
+
+3. **Live public-host operation remains an explicit non-gate.** The locked decision stands: public-demo deployment is not a V1 release blocker. Reviewers who expect a live URL as part of the release evidence will need to read the runbook-prod and deployment-doc framing to understand the boundary. Both docs now state this explicitly, but it remains a deliberate reviewer-expectation tradeoff.
+
+4. **Validator coverage is specific, not generic.** [validate-docs.ps1](../../../../scripts/validate-docs.ps1) hard-codes the CP17 artifact path (`docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`) inside `Assert-ReleaseChecklistStructure`. A post-V1 release will need to either parameterize the artifact path or update the constant. Acceptable for V1 since there is only one release artifact in scope, but worth generalizing before the next release cut.
+
+5. **"No AI in V1" holds only while no AI provider SDK, `IAiProvider` implementation, or AI endpoint is wired into `src/`.** Spot-checked: no such code exists in the tree. This invariant is what allows the AI-lane reclassification to be a pure doc change. Any future CP that begins AI work must also revisit the "deferred" labeling in the same change set to avoid a regression where the docs lag behind the code.
+
+6. **`docs/60-ai/ai-features-v1.md` filename disjunction (see NB-P1).** Low-severity but worth fixing in the next doc cleanup pass.
+
+7. **CHANGELOG `V1` section substructure (`Added`, `Changed`, `Security`, `Docs`) does not include `Fixed`.** Acceptable because nothing in the V1 cut is framed as a bug fix against a prior published release — this is the first release. If a V1.0.1 patch lands later, the Keep-a-Changelog convention would expect `Fixed`.
+
+### Required Fixes Before Merge
+
+None. The checkpoint is ship-ready.
+
+Suggested but non-blocking owner actions before tagging `v1.0.0`:
+1. Re-run the manual VS Code and Visual Studio launch verification once against the candidate revision and record the fresh timestamp (addresses residual risk 1 and NB-P2).
+2. Add a one-line note about the open `npm audit` high-severity advisory to the CP17 [description.md](./description.md) `Risks And Rollout Notes`, or create a post-V1 follow-up task and link it from that section (addresses NB-P3 and residual risk 2).
+3. After the owner merges CP17 and tags `v1.0.0`, update [description.md](./description.md) `Status:` from `Review Ready` to `Merged` and record the tag timestamp — the staging-and-versioning policy explicitly allows this status update for currently relevant artifacts.
+
+### Post-Implementation Check Results
+
+Traceability against the original critic review's Post-Implementation Checks 1-19:
+
+| # | Check | Status | Notes |
+| --- | --- | --- | --- |
+| 1 | V1 identifier consistent everywhere | Pass | Prose `V1` and tag `v1.0.0` present in each required file |
+| 2 | CHANGELOG is cut into the locked shape | Pass | `## [V1] - 2026-04-19` with reseeded empty `## Unreleased` |
+| 3 | `run-root-host-e2e.ps1` shim posture matches the lock | Pass | Shim present; release-checklist names it as historical compatibility; archived PR refs unchanged |
+| 4 | No reviewer-facing or canonical doc claims an AI feature ships in V1 | Pass | AI lane and `review/ai-surface-map.md` explicit about deferred post-V1 posture |
+| 5 | Public-demo deployment scope matches the lock | Pass | `runbook-prod.md` and `deployment.md` read as supported topology; live host is not release gate |
+| 6 | New release docs exist and agree with each other | Pass | Workflow and checklist present, cross-linked, referenced from delivery README, ai-index, repo-map |
+| 7 | `Release Readiness` signal recorded in the locked artifact | Pass | Checklist section populated; mirrored in CP17 artifact Validation Evidence and ledger row |
+| 8 | Reviewer walkthrough is reproducible and covers tightened evidence | Pass | REVIEWERS.md walkthrough enumerates all NB-1 items |
+| 9 | Reviewer docs free of stale checkpoint staging | Pass | No "later-checkpoint" / "placeholder" / "broader hardening" hits in README/REVIEWERS/review set |
+| 10 | Ops runbooks align with Compose, migrations, validation, rollback | Pass | Runbook-local, runbook-prod, deployment all describe the shipped topology |
+| 11 | Clean-checkout validation passes from a fresh checkout/worktree | Pass (attested) | Author-attested scripted bundle run on 2026-04-19; full counts recorded in description.md |
+| 12 | Manual VS Code launch verification recorded | Pass (carry-forward) | See NB-P2; same-day CP16 baseline explicitly carried forward and justified |
+| 13 | Manual Visual Studio launch verification recorded | Pass (carry-forward) | See NB-P2 |
+| 14 | No private-path leakage | Pass | `validate-docs.ps1` guard runs; no sibling-repo or absolute-path hits in reviewer-facing set |
+| 15 | No CP17 scope bleed | Pass | Diff is release-prep docs, metadata, validator, and navigation only |
+| 16 | Discovered defects triaged correctly | Partial | npm audit advisory disclosed only in author notes; see NB-P3 |
+| 17 | CP17 navigation metadata updated | Pass | ai-index.md and repo-map.json include the two new release docs, CP17 artifact, T-0032 |
+| 18 | Taskboard and ledger reflect closure | Pass | work-queue `Recently Done`, ledger CP17 row `done`, snapshot fields updated |
+| 19 | Owner action handoff is explicit | Pass | CP17 artifact and checklist both name "merge and tag `v1.0.0`" as owner-controlled |
+
+### Summary
+
+CP17 executes the scope-locked plan cleanly. All seven blocking plan edits (B1-B7) and all eight non-blocking tightens (NB-1 through NB-8) are reflected in the shipped diff. The release identity is locked, the canonical release docs exist and agree, the AI lane is correctly reclassified, operations docs no longer imply a live public host is required, reviewer docs are free of stale checkpoint staging, the private-path guard is programmatic rather than static, and the clean-checkout validation bundle passed end-to-end. Residual risks are disclosed and non-blocking; the strongest remaining lever is an owner-driven fresh IDE walkthrough before the `v1.0.0` tag is cut. `main` is ship-ready for `V1`.
