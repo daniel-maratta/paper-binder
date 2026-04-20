@@ -28,9 +28,9 @@ Own the canonical release gate list for the shipped `V1` cut.
 
 ## Manual Verification
 
-- [x] Reviewer walkthrough coverage is represented by the `2026-04-19` candidate-release browser suite plus the unchanged runtime surface relative to the CP16 manual launch baseline.
-- [x] VS Code verification baseline remains the latest recorded same-day evidence from CP16 on `2026-04-19`; CP17 changed no launch surfaces.
-- [x] Visual Studio verification baseline remains the latest recorded same-day evidence from CP16 on `2026-04-19`; CP17 changed no launch surfaces.
+- [x] Reviewer walkthrough coverage is represented by the `2026-04-19` candidate-release browser suite plus the refreshed manual IDE launch verification recorded on `2026-04-20`.
+- [x] VS Code manual launch verification completed and passed on `2026-04-20`.
+- [x] Visual Studio manual launch verification completed and passed on `2026-04-20`.
 - [x] `Launch Frontend Dev Server` is recorded explicitly as VS Code-only.
 
 ## Documentation Integrity
@@ -43,7 +43,7 @@ Own the canonical release gate list for the shipped `V1` cut.
 
 - Release label: `V1`
 - Recommended tag: `v1.0.0`
-- Status: scripted validation bundle complete on `2026-04-19`; post-implementation docs-closeout validation re-passed on `2026-04-20`; manual launch evidence is carried forward from the unchanged CP16 runtime surface recorded on `2026-04-19`.
+- Status: scripted validation bundle complete on `2026-04-19`; post-implementation docs-closeout validation re-passed on `2026-04-20`; manual VS Code and Visual Studio launch verification also completed and passed on `2026-04-20`.
 - Executor attestation: `main` is documented as taggable for `V1`.
 - Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore; it is disclosed in the CP17 release artifact and remains outside CP17 scope because it does not block the documented `V1` validation bundle.
 - Owner-controlled action pending: merge and create tag `v1.0.0`.

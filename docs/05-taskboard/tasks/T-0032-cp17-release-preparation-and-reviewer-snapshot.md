@@ -106,10 +106,10 @@ Implement CP17 so PaperBinder ends `V1` as a reviewer-ready release cut: release
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`: passed on `2026-04-19`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`: passed on `2026-04-19`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\reviewer-full-stack.ps1 -NoBrowser`: passed on `2026-04-19`
-- Manual evidence baseline:
-  - latest recorded VS Code launch verification remains the CP16 evidence from `2026-04-19`
-  - latest recorded Visual Studio launch verification remains the CP16 evidence from `2026-04-19`
-  - CP17 changed no launch surfaces, so that baseline is carried forward explicitly in the release artifact and checklist
+- Manual verification evidence:
+  - VS Code launch verification: passed on `2026-04-20`
+  - Visual Studio launch verification: passed on `2026-04-20`
+  - reviewer walkthrough coverage remains represented by the candidate-release browser suite plus the refreshed manual IDE launch verification
 
 ## Decision Notes
 - The shipped release identity is prose `V1` with recommended tag `v1.0.0`.

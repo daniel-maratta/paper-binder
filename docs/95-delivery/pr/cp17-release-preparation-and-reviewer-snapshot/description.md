@@ -52,10 +52,10 @@ Status: Review Ready
   - `validate-launch-profiles.ps1`: passed on `2026-04-19`
   - `validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`: passed on `2026-04-19`
   - `reviewer-full-stack.ps1 -NoBrowser`: passed on `2026-04-19`
-- Manual evidence baseline:
-  - VS Code launch verification remains the latest recorded CP16 evidence from `2026-04-19`; CP17 changed no launch surfaces
-  - Visual Studio launch verification remains the latest recorded CP16 evidence from `2026-04-19`; CP17 changed no launch surfaces
-  - reviewer walkthrough coverage is re-attested by the candidate-release browser suite plus the unchanged runtime surface
+- Manual verification evidence:
+  - VS Code launch verification: passed on `2026-04-20`
+  - Visual Studio launch verification: passed on `2026-04-20`
+  - reviewer walkthrough coverage remains re-attested by the candidate-release browser suite plus the refreshed manual IDE launch verification
 
 ## Reviewer Notes
 - Recommended walkthrough flow:
@@ -85,9 +85,8 @@ Status: Review Ready
   - early `validate-docs.ps1` pass in the working tree succeeded on `2026-04-19`
   - the full scripted release bundle succeeded from a fresh candidate clone on `2026-04-19`
   - `reviewer-full-stack.ps1 -NoBrowser` succeeded as the Docker-backed reviewer-startup smoke on `2026-04-19`
+  - manual VS Code and Visual Studio launch verification completed and passed on `2026-04-20`
 - Intentional deviations:
-  - no fresh GUI-driven VS Code or Visual Studio rerun was performed during CP17 because the checkpoint changed only release-prep docs, metadata, and validator behavior; the release artifact therefore carries forward the latest recorded CP16 manual launch evidence from `2026-04-19`
   - the candidate-release browser suite plus unchanged runtime surface are used as the reviewer-walkthrough re-attestation instead of a brand-new manual browser walkthrough in this CLI session
 - Residual risks:
-  - the carried-forward manual launch baseline is explicit and defensible because CP17 changed no launch surfaces, but a fresh owner-driven manual IDE walkthrough would still be the strongest post-handoff confirmation
   - `npm ci` still reports one high-severity audit advisory during restore; it is now disclosed in `Risks And Rollout Notes`, does not block the shipped `V1` validation bundle, and remains an audit follow-up outside CP17 scope
