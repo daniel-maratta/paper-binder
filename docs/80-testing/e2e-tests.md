@@ -61,6 +61,7 @@ Use one tool and keep suite small/stable.
 ## Challenge Handling in Tests
 
 - In `PB_ENV=Test`, allow a test-only challenge bypass token/path.
+- Keep the explicit local-development bypass flags out of the browser E2E runtime; Playwright coverage continues to use the isolated `PB_ENV=Test` path instead.
 - Never enable bypass behavior in production.
 
 ## Quality Gates

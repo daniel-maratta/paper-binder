@@ -28,7 +28,8 @@ Out of scope:
 
 - Pre-auth endpoints are root-host only.
 - Tenant endpoints require authentication and policy authorization.
-- Challenge checks are anti-abuse friction, not an auth substitute, and they are mandatory on root-host provisioning and login in the current build.
+- Challenge checks are anti-abuse friction, not an auth substitute, and they are mandatory on root-host provisioning and login in the default runtime.
+- The only supported exceptions are the isolated `PB_ENV=Test` automation path and the explicit default-off local-development bypass configuration.
 
 ## Route Conventions
 

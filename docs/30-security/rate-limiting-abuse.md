@@ -13,7 +13,9 @@ Current implementation note:
 - Missing-CSRF tenant-host mutations are rejected before authenticated rate-limit accounting.
 - The current build applies a dedicated fixed-window rate limit to tenant-host `POST /api/tenant/lease/extend`.
 - Lease-extend partitions use tenant-plus-user identity when membership is established, fall back to tenant-plus-IP when only tenant host resolution is available, and otherwise fall back to IP.
-- `PB_ENV=Test` allows a fixed bypass token for automated tests only; production behavior always verifies with the configured secret key.
+- `PB_ENV=Test` allows a fixed bypass token for the isolated automated-test runtime.
+- A separate local-development bypass may also be enabled explicitly through the documented local runtime flags; it remains off by default, is rejected for non-local root hosts, and is not part of the reviewer or production path.
+- Default reviewer and production behavior still verifies with the configured secret key.
 
 ## Scope
 
@@ -65,7 +67,9 @@ Tune limits based on observed traffic.
 - Require challenge proof on `POST /api/provision` and `POST /api/auth/login`.
 - Rate limit provisioning and root-host login together under one shared pre-auth budget.
 - Log failed verification events and throttle aggressively.
-- In tests only, `PB_ENV=Test` may use the fixed bypass token instead of the real provider verification round-trip.
+- In the isolated E2E/runtime-test path, `PB_ENV=Test` may use the fixed bypass token instead of the real provider verification round-trip.
+- In local development only, an explicit opt-in config path may use the same fixed bypass token for manual testing past the root-host challenge when the configured root host is loopback or `.localhost`.
+- Reviewer and production flows must keep both bypass paths disabled.
 
 ## Response Semantics
 

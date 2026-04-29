@@ -164,6 +164,8 @@ Use `scripts/migrate.ps1` when you need to rerun migrations manually against the
 The checked-in `.env.example` values are fake/demo-safe and are intended to work for the local Docker topology without exposing real secrets.
 `PAPERBINDER_PUBLIC_ROOT_URL` should stay aligned with the root host URL exposed by the local reverse proxy.
 If you need to test past the root-host challenge locally, set both `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=true` and `VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=true` in `.env`, then rebuild/restart the relevant app surface. Leave both flags `false` for the normal reviewer path.
+The bypass is accepted only when the configured root host is loopback or `.localhost`; enabling it against a non-local root URL now fails fast.
+`Reviewer Full Stack`, release validation, and any reviewer-facing manual walkthrough should treat bypass-off as the default expected state.
 
 ## Process Debugging Surfaces
 

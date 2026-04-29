@@ -19,6 +19,17 @@ const frontendKeys = [
 type FrontendKey = (typeof frontendKeys)[number];
 type FrontendEnvValues = Record<FrontendKey, string>;
 
+function isLocalHostLike(host: string): boolean {
+  const normalizedHost = host.trim().toLowerCase();
+  return (
+    normalizedHost === "localhost" ||
+    normalizedHost === "127.0.0.1" ||
+    normalizedHost === "::1" ||
+    normalizedHost === "[::1]" ||
+    normalizedHost.endsWith(".localhost")
+  );
+}
+
 function parseEnvFile(path: string): Record<string, string> {
   const env: Record<string, string> = {};
 
@@ -114,6 +125,15 @@ function resolveFrontendEnvironmentValues(mode: string): FrontendEnvValues {
     }
 
     resolvedEnv[key] = value;
+  }
+
+  if (resolvedEnv.VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED === "true") {
+    const rootUrl = new URL(resolvedEnv.VITE_PAPERBINDER_ROOT_URL);
+    if (!isLocalHostLike(rootUrl.hostname)) {
+      throw new Error(
+        "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED may be 'true' only when VITE_PAPERBINDER_ROOT_URL uses a loopback or .localhost host."
+      );
+    }
   }
 
   return resolvedEnv;

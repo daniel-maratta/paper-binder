@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Net;
 
 namespace PaperBinder.Infrastructure.Configuration;
 
@@ -51,6 +52,14 @@ public sealed record PaperBinderRuntimeSettings(
             !string.IsNullOrWhiteSpace(cookieDomain))
         {
             publicUrl = TryParsePublicUrl(publicRootUrl!, cookieDomain!, errors);
+        }
+
+        if (challengeLocalBypassEnabled &&
+            publicUrl is not null &&
+            !IsLocalHostLike(publicUrl.RootUrl.Host))
+        {
+            errors.Add(
+                $"Configuration key `{PaperBinderConfigurationKeys.ChallengeLocalBypassEnabled}` may be enabled only when `{PaperBinderConfigurationKeys.PublicRootUrl}` uses a loopback or `.localhost` host.");
         }
 
         AuditRetentionMode? auditRetentionMode = null;
@@ -237,6 +246,22 @@ public sealed record PaperBinderRuntimeSettings(
         }
 
         return uri;
+    }
+
+    private static bool IsLocalHostLike(string host)
+    {
+        if (string.IsNullOrWhiteSpace(host))
+        {
+            return false;
+        }
+
+        if (IPAddress.TryParse(host, out var address))
+        {
+            return IPAddress.IsLoopback(address);
+        }
+
+        return string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase) ||
+               host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase);
     }
 
     private static AuditRetentionMode AddAuditModeError(

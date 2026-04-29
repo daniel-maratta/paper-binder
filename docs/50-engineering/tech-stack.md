@@ -98,7 +98,9 @@ Frontend UI stack lock-in is defined by this stack baseline plus the PaperBinder
 - PostgreSQL test container for integration tests
 - Vitest + React Testing Library + jsdom for SPA component and utility coverage
 - Playwright preferred for E2E (Cypress acceptable alternative)
-- Environment-gated test challenge bypass (`PB_ENV=Test`) only
+- Environment-gated challenge bypass contracts:
+  - `PB_ENV=Test` for the isolated automated-test runtime
+  - explicit default-off local-development bypass flags for manual local testing
 
 ### AI Subsystem (Optional, V1-bounded)
 

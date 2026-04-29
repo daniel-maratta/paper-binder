@@ -31,7 +31,7 @@ Establish the tenant resolution, authentication, abuse controls, provisioning su
 
 ### CP7 - Pre-Auth Abuse Controls And Provisioning Surface
 
-- Challenge verification integration with environment-gated test bypass.
+- Challenge verification integration with environment-gated bypass contracts.
 - Rate limits for provisioning and root-host login flows.
 - `POST /api/provision` transactional tenant creation with owner user, membership, lease, and session establishment only.
 - Integration tests for challenge-required, rate-limited, successful, and rollback-on-failure paths.
@@ -48,7 +48,7 @@ Establish the tenant resolution, authentication, abuse controls, provisioning su
 - Tenant context is resolved server-side once per request and cannot be overridden by client payloads.
 - Authenticated requests establish both user and tenant context correctly.
 - Wrong-host or missing-membership access is rejected before feature handlers run.
-- Provisioning is all-or-nothing with challenge bypass test-only.
+- Provisioning is all-or-nothing with challenge bypass disabled by default outside the isolated test runtime and explicit local-development path.
 - All protected endpoints use explicit policy enforcement with no ad-hoc role checks.
 - Integration tests prove cross-tenant access is rejected at every layer.
 
