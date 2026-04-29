@@ -3,7 +3,8 @@ const requiredFrontendKeys = [
   "VITE_PAPERBINDER_API_BASE_URL",
   "VITE_PAPERBINDER_TENANT_BASE_DOMAIN",
   "VITE_PAPERBINDER_CHALLENGE_SITE_KEY",
-  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
+  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL",
+  "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
 ] as const;
 
 type FrontendKey = (typeof requiredFrontendKeys)[number];
@@ -17,6 +18,7 @@ type FrontendEnvironment = {
   apiOrigin: string;
   challengeSiteKey: string;
   challengeScriptUrl: string;
+  challengeLocalBypassEnabled: boolean;
 };
 
 declare const __PAPERBINDER_FRONTEND_ENV_FALLBACK__: Record<FrontendKey, string>;
@@ -55,6 +57,19 @@ function parseTenantBaseDomain(value: string): string {
   return normalizedValue;
 }
 
+function parseBoolean(value: string, key: FrontendKey): boolean {
+  const normalizedValue = value.trim().toLowerCase();
+  if (normalizedValue === "true") {
+    return true;
+  }
+
+  if (normalizedValue === "false") {
+    return false;
+  }
+
+  throw new Error(`Frontend environment variable ${key} must be 'true' or 'false'.`);
+}
+
 export function readFrontendEnvironment(
   env: FrontendEnvironmentSource,
   fallbackEnv: FrontendEnvironmentSource = {}
@@ -80,6 +95,10 @@ export function readFrontendEnvironment(
     challengeScriptUrl: parseUrl(
       getRequiredValue(env, "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL", fallbackEnv),
       "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
+    ),
+    challengeLocalBypassEnabled: parseBoolean(
+      getRequiredValue(env, "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED", fallbackEnv),
+      "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
     )
   };
 }

@@ -10,7 +10,8 @@ describe("frontend environment", () => {
         VITE_PAPERBINDER_API_BASE_URL: "https://paperbinder.example.test",
         VITE_PAPERBINDER_TENANT_BASE_DOMAIN: "paperbinder.example.test",
         VITE_PAPERBINDER_CHALLENGE_SITE_KEY: "demo-site-key",
-        VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: "https://challenge.example.test/api.js"
+        VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: "https://challenge.example.test/api.js",
+        VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "false"
       }
     );
 
@@ -21,7 +22,8 @@ describe("frontend environment", () => {
       rootHost: "paperbinder.example.test",
       apiOrigin: "https://paperbinder.example.test",
       challengeSiteKey: "demo-site-key",
-      challengeScriptUrl: "https://challenge.example.test/api.js"
+      challengeScriptUrl: "https://challenge.example.test/api.js",
+      challengeLocalBypassEnabled: false
     });
   });
 });

@@ -41,7 +41,10 @@ internal sealed class TurnstileChallengeVerificationService : IChallengeVerifica
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(challengeToken);
 
-        if (PaperBinderChallengeVerification.AllowsTestBypass(challengeToken, getEnvironmentVariable))
+        if (PaperBinderChallengeVerification.AllowsBypass(
+            challengeToken,
+            runtimeSettings.Challenge.LocalBypassEnabled,
+            getEnvironmentVariable))
         {
             return true;
         }

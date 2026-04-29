@@ -13,7 +13,8 @@ const frontendKeys = [
   "VITE_PAPERBINDER_API_BASE_URL",
   "VITE_PAPERBINDER_TENANT_BASE_DOMAIN",
   "VITE_PAPERBINDER_CHALLENGE_SITE_KEY",
-  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
+  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL",
+  "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
 ] as const;
 type FrontendKey = (typeof frontendKeys)[number];
 type FrontendEnvValues = Record<FrontendKey, string>;
@@ -79,6 +80,18 @@ function resolveFrontendEnvironmentValues(mode: string): FrontendEnvValues {
     if (key === "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL") {
       const value = env[key]?.trim() || defaultChallengeScriptUrl;
       new URL(value);
+      resolvedEnv[key] = value;
+      continue;
+    }
+
+    if (key === "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED") {
+      const value = env[key]?.trim() || "false";
+      if (value !== "true" && value !== "false") {
+        throw new Error(
+          "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED must be 'true' or 'false'."
+        );
+      }
+
       resolvedEnv[key] = value;
       continue;
     }
