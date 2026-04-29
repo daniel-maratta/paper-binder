@@ -66,6 +66,41 @@ function Invoke-ValidationSearch {
   return $result
 }
 
+function Get-DotEnvValue {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Path,
+
+    [Parameter(Mandatory = $true)]
+    [string]$Key
+  )
+
+  if (-not (Test-Path -LiteralPath $Path)) {
+    return $null
+  }
+
+  $line = Select-String -Path $Path -Pattern "^$([Regex]::Escape($Key))=(.*)$" | Select-Object -First 1
+  if ($null -eq $line) {
+    return $null
+  }
+
+  return $line.Matches[0].Groups[1].Value.Trim()
+}
+
+function Assert-LocalChallengeBypassDisabled {
+  $repoRoot = Get-RepoRoot
+  $envPath = Join-Path $repoRoot ".env"
+  $fallbackEnvPath = Join-Path $repoRoot ".env.example"
+  $configurationPath = if (Test-Path -LiteralPath $envPath) { $envPath } else { $fallbackEnvPath }
+
+  $backendBypass = Get-DotEnvValue -Path $configurationPath -Key "PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
+  $frontendBypass = Get-DotEnvValue -Path $configurationPath -Key "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
+
+  if ($backendBypass -eq "true" -or $frontendBypass -eq "true") {
+    throw "Checkpoint validation must run with the local challenge bypass disabled. Set PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=false and VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=false in $configurationPath."
+  }
+}
+
 function Assert-PbEnvIsolation {
   $result = Invoke-ValidationSearch -Arguments @(
     "-n",
@@ -136,6 +171,7 @@ Invoke-PaperBinderScript -ScriptPath $validateLaunchProfilesScript
 
 Write-Host ""
 Write-Host "Checkpoint validation: browser runtime isolation"
+Assert-LocalChallengeBypassDisabled
 Assert-PbEnvIsolation
 Assert-E2EFixtureAbsent
 

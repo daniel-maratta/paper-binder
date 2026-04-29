@@ -10,24 +10,44 @@ namespace PaperBinder.UnitTests;
 public sealed class ChallengeAndProvisioningRuleTests
 {
     [Fact]
-    public void ChallengeVerification_Should_OnlyAllowFixedBypassToken_When_PbEnvIsTest()
+    public void ChallengeVerification_Should_AllowFixedBypassToken_When_PbEnvIsTest()
     {
-        var bypassEnabled = PaperBinderChallengeVerification.AllowsTestBypass(
+        var bypassEnabled = PaperBinderChallengeVerification.AllowsBypass(
             PaperBinderChallengeVerification.TestBypassToken,
+            localBypassEnabled: false,
             key => key == PaperBinderChallengeVerification.TestEnvironmentVariableName
                 ? PaperBinderChallengeVerification.TestEnvironmentValue
                 : null);
 
-        var bypassDisabledInOtherEnvironment = PaperBinderChallengeVerification.AllowsTestBypass(
+        var bypassDisabledInOtherEnvironment = PaperBinderChallengeVerification.AllowsBypass(
             PaperBinderChallengeVerification.TestBypassToken,
+            localBypassEnabled: false,
             _ => "Development");
 
-        var bypassDisabledForWrongToken = PaperBinderChallengeVerification.AllowsTestBypass(
+        var bypassDisabledForWrongToken = PaperBinderChallengeVerification.AllowsBypass(
             "wrong-token",
+            localBypassEnabled: false,
             _ => PaperBinderChallengeVerification.TestEnvironmentValue);
 
         Assert.True(bypassEnabled);
         Assert.False(bypassDisabledInOtherEnvironment);
+        Assert.False(bypassDisabledForWrongToken);
+    }
+
+    [Fact]
+    public void ChallengeVerification_Should_AllowFixedBypassToken_When_LocalBypassIsEnabled()
+    {
+        var bypassEnabled = PaperBinderChallengeVerification.AllowsBypass(
+            PaperBinderChallengeVerification.TestBypassToken,
+            localBypassEnabled: true,
+            _ => "Local");
+
+        var bypassDisabledForWrongToken = PaperBinderChallengeVerification.AllowsBypass(
+            "wrong-token",
+            localBypassEnabled: true,
+            _ => "Local");
+
+        Assert.True(bypassEnabled);
         Assert.False(bypassDisabledForWrongToken);
     }
 
@@ -119,7 +139,7 @@ public sealed class ChallengeAndProvisioningRuleTests
                 5432),
             new PublicUrlSettings(new Uri("http://paperbinder.localhost:8080")),
             new AuthCookieSettings(".paperbinder.localhost", "paperbinder.auth", "paperbinder-local-keys"),
-            new ChallengeSettings("local-demo-site-key", "local-demo-secret-key"),
+            new ChallengeSettings("local-demo-site-key", "local-demo-secret-key", false),
             new LeaseSettings(60, 10, 3, 60),
             new RateLimitSettings(30, 120, 10),
             new AuditSettings(AuditRetentionMode.RetainTenantPurgedSummary),

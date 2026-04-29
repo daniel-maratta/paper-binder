@@ -67,6 +67,7 @@ DNS:
 
 Keep secrets out of git. Use server-side `.env` or secret injection.
 Keep `.env.example` aligned to the canonical runtime and frontend build-time keys using fake values only.
+Do not enable `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` or `VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` in deployed/public environments. The app and frontend build now reject that configuration unless the root host is loopback or `.localhost`.
 
 ## Deploy Procedure
 

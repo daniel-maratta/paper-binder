@@ -85,6 +85,39 @@ public sealed class RuntimeConfigurationTests
     }
 
     [Fact]
+    public void Should_LoadLocalChallengeBypass_When_PublicRootUrlIsLocal()
+    {
+        var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
+            "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password"))
+        {
+            [PaperBinderConfigurationKeys.ChallengeLocalBypassEnabled] = "true"
+        };
+
+        var settings = PaperBinderRuntimeSettings.Load(
+            key => configuration.TryGetValue(key, out var value) ? value : null);
+
+        Assert.True(settings.Challenge.LocalBypassEnabled);
+    }
+
+    [Fact]
+    public void Should_RejectLocalChallengeBypass_When_PublicRootUrlIsNotLocal()
+    {
+        var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
+            "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password"))
+        {
+            [PaperBinderConfigurationKeys.PublicRootUrl] = "https://lab.danielmaratta.com",
+            [PaperBinderConfigurationKeys.AuthCookieDomain] = ".lab.danielmaratta.com",
+            [PaperBinderConfigurationKeys.ChallengeLocalBypassEnabled] = "true"
+        };
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => PaperBinderRuntimeSettings.Load(
+                key => configuration.TryGetValue(key, out var value) ? value : null));
+
+        Assert.Contains(PaperBinderConfigurationKeys.ChallengeLocalBypassEnabled, exception.Message);
+    }
+
+    [Fact]
     public void Should_RejectInvalidObservabilityEndpoint_When_Configured()
     {
         var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(

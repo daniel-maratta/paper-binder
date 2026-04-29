@@ -23,6 +23,8 @@ type RootHostFieldErrors = Partial<Record<"tenantName" | "email" | "password" | 
 
 export type RootHostNavigator = (redirectUrl: string) => void;
 
+const localChallengeBypassToken = "paperbinder-test-challenge-pass";
+
 function defaultRootHostNavigator(redirectUrl: string) {
   window.location.assign(redirectUrl);
 }
@@ -192,6 +194,7 @@ function RootWelcomePage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [challengeResetNonce, setChallengeResetNonce] = useState(0);
   const [provisionedTenant, setProvisionedTenant] = useState<ProvisionResponse | null>(null);
+  const challengeLocalBypassEnabled = hostContext.environment.challengeLocalBypassEnabled;
 
   async function handleProvisionSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -201,7 +204,7 @@ function RootWelcomePage({
       nextFieldErrors.tenantName = "Tenant name is required.";
     }
 
-    if (!challengeToken) {
+    if (!challengeLocalBypassEnabled && !challengeToken) {
       nextFieldErrors.challenge = "Complete the challenge before submitting.";
     }
 
@@ -211,7 +214,7 @@ function RootWelcomePage({
       return;
     }
 
-    const resolvedChallengeToken = challengeToken!;
+    const resolvedChallengeToken = challengeLocalBypassEnabled ? localChallengeBypassToken : challengeToken!;
     setIsSubmitting(true);
     setFieldErrors({});
     setError(null);
@@ -309,15 +312,24 @@ function RootWelcomePage({
                     value={tenantName}
                   />
                 </Field>
-                <RootHostChallengeWidget
-                  error={fieldErrors.challenge}
-                  hint="PaperBinder requires challenge proof before provisioning or login requests are accepted."
-                  label="Challenge"
-                  onTokenChange={setChallengeToken}
-                  resetNonce={challengeResetNonce}
-                  scriptUrl={hostContext.environment.challengeScriptUrl}
-                  siteKey={hostContext.environment.challengeSiteKey}
-                />
+                {challengeLocalBypassEnabled ? (
+                  <Alert variant="info">
+                    <AlertTitle>Local challenge bypass enabled</AlertTitle>
+                    <AlertBody>
+                      Root-host challenge verification is temporarily bypassed for this local runtime.
+                    </AlertBody>
+                  </Alert>
+                ) : (
+                  <RootHostChallengeWidget
+                    error={fieldErrors.challenge}
+                    hint="PaperBinder requires challenge proof before provisioning or login requests are accepted."
+                    label="Challenge"
+                    onTokenChange={setChallengeToken}
+                    resetNonce={challengeResetNonce}
+                    scriptUrl={hostContext.environment.challengeScriptUrl}
+                    siteKey={hostContext.environment.challengeSiteKey}
+                  />
+                )}
                 <RootHostErrorNotice error={error} />
                 <div className="flex flex-wrap gap-3">
                   <Button isLoading={isSubmitting} type="submit">
@@ -371,6 +383,7 @@ function RootLoginPage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [challengeResetNonce, setChallengeResetNonce] = useState(0);
   const [redirect, setRedirect] = useState<LoginResponse | null>(null);
+  const challengeLocalBypassEnabled = hostContext.environment.challengeLocalBypassEnabled;
 
   useEffect(() => {
     if (redirect === null) {
@@ -397,7 +410,7 @@ function RootLoginPage({
       nextFieldErrors.password = "Password is required.";
     }
 
-    if (!challengeToken) {
+    if (!challengeLocalBypassEnabled && !challengeToken) {
       nextFieldErrors.challenge = "Complete the challenge before submitting.";
     }
 
@@ -407,7 +420,7 @@ function RootLoginPage({
       return;
     }
 
-    const resolvedChallengeToken = challengeToken!;
+    const resolvedChallengeToken = challengeLocalBypassEnabled ? localChallengeBypassToken : challengeToken!;
     setIsSubmitting(true);
     setFieldErrors({});
     setError(null);
@@ -494,15 +507,24 @@ function RootLoginPage({
               value={password}
             />
           </Field>
-          <RootHostChallengeWidget
-            error={fieldErrors.challenge}
-            hint="Challenge proof is required for root-host login and resets after retriable failures."
-            label="Challenge"
-            onTokenChange={setChallengeToken}
-            resetNonce={challengeResetNonce}
-            scriptUrl={hostContext.environment.challengeScriptUrl}
-            siteKey={hostContext.environment.challengeSiteKey}
-          />
+          {challengeLocalBypassEnabled ? (
+            <Alert variant="info">
+              <AlertTitle>Local challenge bypass enabled</AlertTitle>
+              <AlertBody>
+                Root-host challenge verification is temporarily bypassed for this local runtime.
+              </AlertBody>
+            </Alert>
+          ) : (
+            <RootHostChallengeWidget
+              error={fieldErrors.challenge}
+              hint="Challenge proof is required for root-host login and resets after retriable failures."
+              label="Challenge"
+              onTokenChange={setChallengeToken}
+              resetNonce={challengeResetNonce}
+              scriptUrl={hostContext.environment.challengeScriptUrl}
+              siteKey={hostContext.environment.challengeSiteKey}
+            />
+          )}
           <RootHostErrorNotice error={error} />
           {redirect ? (
             <Alert variant="info">

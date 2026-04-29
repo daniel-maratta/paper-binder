@@ -13,10 +13,22 @@ const frontendKeys = [
   "VITE_PAPERBINDER_API_BASE_URL",
   "VITE_PAPERBINDER_TENANT_BASE_DOMAIN",
   "VITE_PAPERBINDER_CHALLENGE_SITE_KEY",
-  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
+  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL",
+  "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
 ] as const;
 type FrontendKey = (typeof frontendKeys)[number];
 type FrontendEnvValues = Record<FrontendKey, string>;
+
+function isLocalHostLike(host: string): boolean {
+  const normalizedHost = host.trim().toLowerCase();
+  return (
+    normalizedHost === "localhost" ||
+    normalizedHost === "127.0.0.1" ||
+    normalizedHost === "::1" ||
+    normalizedHost === "[::1]" ||
+    normalizedHost.endsWith(".localhost")
+  );
+}
 
 function parseEnvFile(path: string): Record<string, string> {
   const env: Record<string, string> = {};
@@ -83,6 +95,18 @@ function resolveFrontendEnvironmentValues(mode: string): FrontendEnvValues {
       continue;
     }
 
+    if (key === "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED") {
+      const value = env[key]?.trim() || "false";
+      if (value !== "true" && value !== "false") {
+        throw new Error(
+          "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED must be 'true' or 'false'."
+        );
+      }
+
+      resolvedEnv[key] = value;
+      continue;
+    }
+
     const value = env[key]?.trim();
     if (!value) {
       throw new Error(`Missing required frontend environment variable ${key}.`);
@@ -101,6 +125,15 @@ function resolveFrontendEnvironmentValues(mode: string): FrontendEnvValues {
     }
 
     resolvedEnv[key] = value;
+  }
+
+  if (resolvedEnv.VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED === "true") {
+    const rootUrl = new URL(resolvedEnv.VITE_PAPERBINDER_ROOT_URL);
+    if (!isLocalHostLike(rootUrl.hostname)) {
+      throw new Error(
+        "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED may be 'true' only when VITE_PAPERBINDER_ROOT_URL uses a loopback or .localhost host."
+      );
+    }
   }
 
   return resolvedEnv;

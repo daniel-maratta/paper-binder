@@ -9,7 +9,9 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 
 - Tenant scope is server-resolved from host plus membership; client tenant IDs are ignored.
 - v1 auth is cookie-based only; `/api/*` version defaults to `1` with response header echo.
-- Root-host provisioning and login now enforce server-side challenge verification plus shared pre-auth rate limiting.
+- Root-host provisioning and login now enforce server-side challenge verification plus shared pre-auth rate limiting by default.
+- The only supported bypass paths are the isolated `PB_ENV=Test` automation runtime and the explicit default-off local-development bypass configuration.
+- The local-development bypass configuration is valid only when the configured public root host is loopback or `.localhost`; non-local root hosts must fail challenge verification normally.
 - Authenticated unsafe tenant-host `/api/*` mutations now share one fixed-window limiter keyed by `(tenant_id, effective_user_id)` after membership is established; `POST /api/auth/logout` and `DELETE /api/tenant/impersonation` stay exempt.
 - Tenant lease uses canonical routes `/api/tenant/lease` and `/api/tenant/lease/extend`.
 - Tenant-local impersonation uses `GET|POST|DELETE /api/tenant/impersonation` with server-issued cookie state only.
@@ -105,6 +107,7 @@ Notes:
   - Auth required: N
   - Tenant context source: none (system context, pre-auth)
   - Challenge required: Y
+  - Local-development exception: the documented default-off local bypass may satisfy this requirement with the fixed bypass token when explicitly enabled on a loopback or `.localhost` root host
   - Rate limited: Y
   - Request example:
     ```json
@@ -184,6 +187,7 @@ Notes:
   - Auth required: N
   - Tenant context source: credential plus server-side membership (host may be root domain)
   - Challenge required: Y
+  - Local-development exception: the documented default-off local bypass may satisfy this requirement with the fixed bypass token when explicitly enabled on a loopback or `.localhost` root host
   - Rate limited: Y
   - Request example:
     ```json

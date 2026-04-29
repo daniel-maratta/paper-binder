@@ -6,7 +6,8 @@ import { PaperBinderApiError, type PaperBinderApiClient } from "../api/client";
 import {
   createApiClientStub,
   createProvisionResponse,
-  createRootHostContext
+  createRootHostContext,
+  testEnvironment
 } from "../test/test-helpers";
 
 type TurnstileRenderOptions = {
@@ -74,19 +75,31 @@ function installTurnstileStub(token = "paperbinder-test-challenge-pass") {
 function renderRootRoute({
   route = "/",
   apiClient,
-  navigator = vi.fn<(redirectUrl: string) => void>()
+  navigator = vi.fn<(redirectUrl: string) => void>(),
+  challengeLocalBypassEnabled = false
 }: {
   route?: "/" | "/login";
   apiClient?: PaperBinderApiClient;
   navigator?: (redirectUrl: string) => void;
+  challengeLocalBypassEnabled?: boolean;
 }) {
   const resolvedApiClient = apiClient ?? createApiClientStub();
+  const hostContext = createRootHostContext(route);
+  if (hostContext.kind !== "root") {
+    throw new Error("Expected root-host context for root-host test.");
+  }
 
   render(
     <MemoryRouter initialEntries={[route]}>
       <AppRouter
         apiClient={resolvedApiClient}
-        hostContext={createRootHostContext(route)}
+        hostContext={{
+          ...hostContext,
+          environment: {
+            ...testEnvironment,
+            challengeLocalBypassEnabled
+          }
+        }}
         rootHostNavigator={navigator}
       />
     </MemoryRouter>
@@ -254,5 +267,33 @@ describe("root-host flows", () => {
 
     await screen.findByRole("heading", { name: "Credentials were not accepted." });
     await waitFor(() => expect(turnstile.resetMock).toHaveBeenCalledTimes(1));
+  });
+
+  it("Should_SubmitFixedBypassToken_When_LocalChallengeBypassIsEnabled", async () => {
+    const provisionMock = vi.fn(async () => createProvisionResponse());
+
+    renderRootRoute({
+      route: "/",
+      challengeLocalBypassEnabled: true,
+      apiClient: createApiClientStub({
+        provision: provisionMock as PaperBinderApiClient["provision"]
+      })
+    });
+
+    fireEvent.change(screen.getByLabelText("Tenant name"), {
+      target: { value: " Acme Demo " }
+    });
+    expect(screen.getByRole("heading", { name: "Local challenge bypass enabled" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Challenge")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Provision new demo tenant and log in" }));
+
+    await waitFor(() =>
+      expect(provisionMock).toHaveBeenCalledWith({
+        tenantName: "Acme Demo",
+        challengeToken: "paperbinder-test-challenge-pass"
+      })
+    );
+
+    expect(await screen.findByRole("heading", { name: "Tenant provisioned." })).toBeInTheDocument();
   });
 });

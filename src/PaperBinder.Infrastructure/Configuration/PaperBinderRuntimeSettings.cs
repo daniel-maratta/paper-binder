@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Net;
 
 namespace PaperBinder.Infrastructure.Configuration;
 
@@ -25,6 +26,10 @@ public sealed record PaperBinderRuntimeSettings(
         var keyRingPath = GetRequiredValue(getValue, PaperBinderConfigurationKeys.AuthKeyRingPath, errors);
         var challengeSiteKey = GetRequiredValue(getValue, PaperBinderConfigurationKeys.ChallengeSiteKey, errors);
         var challengeSecretKey = GetRequiredValue(getValue, PaperBinderConfigurationKeys.ChallengeSecretKey, errors);
+        var challengeLocalBypassEnabled = GetOptionalBoolean(
+            getValue,
+            PaperBinderConfigurationKeys.ChallengeLocalBypassEnabled,
+            errors);
         var auditRetentionModeValue = GetRequiredValue(getValue, PaperBinderConfigurationKeys.AuditRetentionMode, errors);
         var otlpEndpointValue = getValue(PaperBinderConfigurationKeys.ObservabilityOtlpEndpoint);
 
@@ -47,6 +52,14 @@ public sealed record PaperBinderRuntimeSettings(
             !string.IsNullOrWhiteSpace(cookieDomain))
         {
             publicUrl = TryParsePublicUrl(publicRootUrl!, cookieDomain!, errors);
+        }
+
+        if (challengeLocalBypassEnabled &&
+            publicUrl is not null &&
+            !IsLocalHostLike(publicUrl.RootUrl.Host))
+        {
+            errors.Add(
+                $"Configuration key `{PaperBinderConfigurationKeys.ChallengeLocalBypassEnabled}` may be enabled only when `{PaperBinderConfigurationKeys.PublicRootUrl}` uses a loopback or `.localhost` host.");
         }
 
         AuditRetentionMode? auditRetentionMode = null;
@@ -79,7 +92,7 @@ public sealed record PaperBinderRuntimeSettings(
             database!,
             publicUrl!,
             new AuthCookieSettings(cookieDomain!, cookieName!, keyRingPath!),
-            new ChallengeSettings(challengeSiteKey!, challengeSecretKey!),
+            new ChallengeSettings(challengeSiteKey!, challengeSecretKey!, challengeLocalBypassEnabled),
             new LeaseSettings(defaultMinutes, extensionMinutes, maxExtensions, cleanupIntervalSeconds),
             new RateLimitSettings(preAuthPerMinute, authenticatedPerMinute, leaseExtendPerMinute),
             new AuditSettings(auditRetentionMode!.Value),
@@ -120,6 +133,26 @@ public sealed record PaperBinderRuntimeSettings(
         }
 
         return parsedValue;
+    }
+
+    private static bool GetOptionalBoolean(
+        Func<string, string?> getValue,
+        string key,
+        ICollection<string> errors)
+    {
+        var rawValue = getValue(key);
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            return false;
+        }
+
+        if (bool.TryParse(rawValue, out var parsedValue))
+        {
+            return parsedValue;
+        }
+
+        errors.Add($"Configuration key `{key}` must be `true` or `false` when provided.");
+        return false;
     }
 
     private static DatabaseSettings? TryParseDatabaseSettings(
@@ -215,6 +248,22 @@ public sealed record PaperBinderRuntimeSettings(
         return uri;
     }
 
+    private static bool IsLocalHostLike(string host)
+    {
+        if (string.IsNullOrWhiteSpace(host))
+        {
+            return false;
+        }
+
+        if (IPAddress.TryParse(host, out var address))
+        {
+            return IPAddress.IsLoopback(address);
+        }
+
+        return string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase) ||
+               host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static AuditRetentionMode AddAuditModeError(
         string invalidValue,
         ICollection<string> errors)
@@ -240,7 +289,8 @@ public sealed record AuthCookieSettings(
 
 public sealed record ChallengeSettings(
     string SiteKey,
-    string SecretKey);
+    string SecretKey,
+    bool LocalBypassEnabled);
 
 public sealed record LeaseSettings(
     int DefaultMinutes,
@@ -274,6 +324,7 @@ public static class PaperBinderConfigurationKeys
     public const string AuthKeyRingPath = "PAPERBINDER_AUTH_KEY_RING_PATH";
     public const string ChallengeSiteKey = "PAPERBINDER_CHALLENGE_SITE_KEY";
     public const string ChallengeSecretKey = "PAPERBINDER_CHALLENGE_SECRET_KEY";
+    public const string ChallengeLocalBypassEnabled = "PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED";
     public const string LeaseDefaultMinutes = "PAPERBINDER_LEASE_DEFAULT_MINUTES";
     public const string LeaseExtensionMinutes = "PAPERBINDER_LEASE_EXTENSION_MINUTES";
     public const string LeaseMaxExtensions = "PAPERBINDER_LEASE_MAX_EXTENSIONS";

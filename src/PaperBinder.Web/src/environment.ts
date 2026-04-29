@@ -3,7 +3,8 @@ const requiredFrontendKeys = [
   "VITE_PAPERBINDER_API_BASE_URL",
   "VITE_PAPERBINDER_TENANT_BASE_DOMAIN",
   "VITE_PAPERBINDER_CHALLENGE_SITE_KEY",
-  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
+  "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL",
+  "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
 ] as const;
 
 type FrontendKey = (typeof requiredFrontendKeys)[number];
@@ -17,6 +18,7 @@ type FrontendEnvironment = {
   apiOrigin: string;
   challengeSiteKey: string;
   challengeScriptUrl: string;
+  challengeLocalBypassEnabled: boolean;
 };
 
 declare const __PAPERBINDER_FRONTEND_ENV_FALLBACK__: Record<FrontendKey, string>;
@@ -55,6 +57,30 @@ function parseTenantBaseDomain(value: string): string {
   return normalizedValue;
 }
 
+function parseBoolean(value: string, key: FrontendKey): boolean {
+  const normalizedValue = value.trim().toLowerCase();
+  if (normalizedValue === "true") {
+    return true;
+  }
+
+  if (normalizedValue === "false") {
+    return false;
+  }
+
+  throw new Error(`Frontend environment variable ${key} must be 'true' or 'false'.`);
+}
+
+function isLocalHostLike(host: string): boolean {
+  const normalizedHost = host.trim().toLowerCase();
+  return (
+    normalizedHost === "localhost" ||
+    normalizedHost === "127.0.0.1" ||
+    normalizedHost === "::1" ||
+    normalizedHost === "[::1]" ||
+    normalizedHost.endsWith(".localhost")
+  );
+}
+
 export function readFrontendEnvironment(
   env: FrontendEnvironmentSource,
   fallbackEnv: FrontendEnvironmentSource = {}
@@ -67,6 +93,17 @@ export function readFrontendEnvironment(
     getRequiredValue(env, "VITE_PAPERBINDER_API_BASE_URL", fallbackEnv),
     "VITE_PAPERBINDER_API_BASE_URL"
   );
+  const rootHost = new URL(rootUrl).host.toLowerCase();
+  const challengeLocalBypassEnabled = parseBoolean(
+    getRequiredValue(env, "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED", fallbackEnv),
+    "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
+  );
+
+  if (challengeLocalBypassEnabled && !isLocalHostLike(new URL(rootUrl).hostname)) {
+    throw new Error(
+      "Frontend environment variable VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED may be 'true' only when VITE_PAPERBINDER_ROOT_URL uses a loopback or .localhost host."
+    );
+  }
 
   return {
     rootUrl,
@@ -74,13 +111,14 @@ export function readFrontendEnvironment(
     tenantBaseDomain: parseTenantBaseDomain(
       getRequiredValue(env, "VITE_PAPERBINDER_TENANT_BASE_DOMAIN", fallbackEnv)
     ),
-    rootHost: new URL(rootUrl).host.toLowerCase(),
+    rootHost,
     apiOrigin: new URL(apiBaseUrl).origin,
     challengeSiteKey: getRequiredValue(env, "VITE_PAPERBINDER_CHALLENGE_SITE_KEY", fallbackEnv),
     challengeScriptUrl: parseUrl(
       getRequiredValue(env, "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL", fallbackEnv),
       "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
-    )
+    ),
+    challengeLocalBypassEnabled
   };
 }
 

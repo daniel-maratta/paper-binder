@@ -48,6 +48,9 @@ Use `docs/70-operations/runbook-local.md` and the `Reviewer Full Stack` launch p
 7. Spoofed-host rejection at the host-validation boundary.
 8. Logout back to the root host.
 
+Reviewer note:
+- The canonical reviewer walkthrough assumes the local challenge bypass is off. If you enable the documented local-development bypass for troubleshooting, disable it again before reviewer-oriented validation.
+
 ## Reviewer Deep-Dive Path
 
 1. System and boundaries:
