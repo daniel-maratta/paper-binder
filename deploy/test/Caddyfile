@@ -18,8 +18,8 @@
 	}
 
 	handle /robots.txt {
-		header Content-Type "text/plain; charset=utf-8"
-		respond "User-agent: *\nDisallow: /\n" 200
+		root * /srv/paperbinder-test
+		file_server
 	}
 
 	encode gzip zstd
