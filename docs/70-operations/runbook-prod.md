@@ -28,6 +28,8 @@ Out of scope:
    - unauthenticated `GET /health/live` returns `200`
    - unauthenticated `GET /health/ready` returns `200`
    - probe payloads remain minimal (no dependency internals or version metadata)
+   - `GET /robots.txt` returns `Disallow: /`
+   - root and tenant-host responses include `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet`
 3. Confirm root and tenant host routing.
 4. Confirm DB connectivity.
 5. Check root-host login, tenant-host logout, the configured root-host logout redirect, and CSRF behavior.
@@ -41,6 +43,11 @@ Out of scope:
 - Verify `/health/live` and `/health/ready` responses.
 - Verify reverse-proxy routing.
 - Restart affected services if needed.
+
+### Unexpected Search Indexing Or Preview Snippets
+- Verify `GET /robots.txt` still returns the blanket disallow policy.
+- Verify `X-Robots-Tag` is present on root-host and tenant-host responses.
+- Remember that public certificates still make the hostname discoverable through certificate-transparency logs even when indexing is discouraged.
 
 ### Tenant Subdomain Routing Failure
 - Verify wildcard DNS record.

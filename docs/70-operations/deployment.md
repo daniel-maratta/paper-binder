@@ -94,6 +94,8 @@ The shared test deployment uses `docker compose -f docker-compose.test.yml ...` 
    - unauthenticated `GET /health/ready` returns `200`
    - health payloads are minimal and non-sensitive (no dependency internals, no version metadata)
    - root host loads
+   - `GET /robots.txt` returns a blanket `Disallow: /` policy on the shared test host
+   - root and tenant-host responses include `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet`
    - root-host provisioning requires challenge proof, returns one-time credentials, and redirects to the server-resolved tenant host
    - root-host login works and redirects to the server-resolved tenant host
    - tenant-host logout requires CSRF, clears both auth and CSRF cookies, and returns a root-host `redirectUrl` anchored to `PAPERBINDER_PUBLIC_ROOT_URL`
@@ -128,6 +130,7 @@ The shared test deployment uses `docker compose -f docker-compose.test.yml ...` 
 - Auth cookie uses `Secure`, `HttpOnly`, and CSRF protections.
 - Root-host provisioning and login require challenge verification and shared pre-auth rate limiting.
 - Wildcard TLS for tenant hosts requires ACME DNS-01 validation through the configured DNS provider module; the current test topology uses Namecheap API credentials plus a whitelisted droplet IPv4.
+- The shared public test host is intentionally non-indexable via `robots.txt` plus `X-Robots-Tag`; this lowers accidental discovery but does not hide the hostname from certificate-transparency logs or direct scans.
 
 ## Alternatives Considered
 
