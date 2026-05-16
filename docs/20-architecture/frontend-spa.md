@@ -40,11 +40,11 @@ Out of scope:
 
 ## Host Contexts
 
-- Root host (`lab.danielmaratta.com`):
+- Root host (`paperbinder-test.danielmaratta.com`):
   - `/` owns live provisioning plus the one-time credential handoff state.
   - `/login` owns live login.
   - challenge/rate-limit handling stays server-authoritative and routes through the shared browser client.
-- Tenant host (`{tenant}.lab.danielmaratta.com`):
+- Tenant host (`{tenant}.paperbinder-test.danielmaratta.com`):
   - `/app` dashboard plus lease visibility
   - `/app/binders` and `/app/binders/:binderId` for binder, document-create, and binder-policy flows
   - `/app/documents/:documentId` for read-only document detail

@@ -145,10 +145,10 @@ Avoid deep shadow stacks.
 PaperBinder has two host environments:
 
 Root host
-`lab.danielmaratta.com`
+`paperbinder-test.danielmaratta.com`
 
 Tenant host
-`{tenant}.lab.danielmaratta.com`
+`{tenant}.paperbinder-test.danielmaratta.com`
 
 Each environment has a different shell layout.
 

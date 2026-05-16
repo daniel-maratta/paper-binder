@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-PaperBinder is hosted publicly as a demo at `lab.danielmaratta.com`. The system must be cheap to operate, simple to deploy, and credible to reviewers.
+PaperBinder is hosted publicly as a demo at `paperbinder-test.danielmaratta.com`. The system must be cheap to operate, simple to deploy, and credible to reviewers.
 
 ## Decision
 

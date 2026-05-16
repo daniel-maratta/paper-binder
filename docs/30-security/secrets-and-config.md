@@ -22,8 +22,8 @@
 ## Required Environment Variables (Examples)
 
 - `PAPERBINDER_DB_CONNECTION=Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=<secret>`
-- `PAPERBINDER_PUBLIC_ROOT_URL=https://lab.danielmaratta.com`
-- `PAPERBINDER_AUTH_COOKIE_DOMAIN=.paperbinder.local`
+- `PAPERBINDER_PUBLIC_ROOT_URL=https://paperbinder-test.danielmaratta.com`
+- `PAPERBINDER_AUTH_COOKIE_DOMAIN=.paperbinder-test.danielmaratta.com`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
 - `PAPERBINDER_AUTH_KEY_RING_PATH=<path-or-provider-ref>`
 - `PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS=60`
@@ -37,9 +37,16 @@
 - `PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE=10`
 - `PAPERBINDER_AUDIT_RETENTION_MODE=RetainTenantPurgedSummary`
 - `PAPERBINDER_OTEL_OTLP_ENDPOINT=https://otel.example.com:4317` (optional)
-- `VITE_PAPERBINDER_ROOT_URL=https://lab.danielmaratta.com`
-- `VITE_PAPERBINDER_API_BASE_URL=https://lab.danielmaratta.com`
-- `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=lab.danielmaratta.com`
+- `VITE_PAPERBINDER_ROOT_URL=https://paperbinder-test.danielmaratta.com`
+- `VITE_PAPERBINDER_API_BASE_URL=https://paperbinder-test.danielmaratta.com`
+- `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=paperbinder-test.danielmaratta.com`
+
+When the shared test deployment uses `docker-compose.test.yml`, Caddy also requires deployment-only DNS-challenge settings:
+
+- `NAMECHEAP_API_USER=<namecheap-username>`
+- `NAMECHEAP_API_KEY=<secret>`
+- `NAMECHEAP_CLIENT_IP=<whitelisted-ipv4>`
+- `NAMECHEAP_API_ENDPOINT=https://api.namecheap.com/xml.response` (optional; production endpoint default)
 
 Do not commit real values.
 Keep the repo-root `.env.example` synchronized with these keys using fake values only.

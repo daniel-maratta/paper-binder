@@ -19,7 +19,7 @@ Out of scope:
 
 - Primary: SSH via Tailscale.
 - Break-glass: provider console.
-- Example public entry when deployed: `https://lab.danielmaratta.com/`.
+- Example public entry when deployed: `https://paperbinder-test.danielmaratta.com/`.
 
 ## Triage Checklist
 
@@ -47,6 +47,12 @@ Out of scope:
 - Verify proxy host routing.
 - Verify host parsing logic in app.
 
+### Wildcard Certificate Issuance Or Renewal Failure
+- Verify `NAMECHEAP_API_USER`, `NAMECHEAP_API_KEY`, and `NAMECHEAP_CLIENT_IP`.
+- Verify the droplet IPv4 is still whitelisted in Namecheap API Access.
+- Verify `docker compose -f docker-compose.test.yml logs proxy`.
+- Confirm the wildcard and root A records still point to the current host IP.
+
 ### Provisioning Spikes or Bot Noise
 - Root-host challenge/rate-limit enforcement is live on provisioning and root-host login.
 - Use edge-level mitigations or temporary route restrictions if single-node limits are insufficient during a spike.
@@ -60,7 +66,7 @@ Out of scope:
 
 ### Cross-Subdomain Login Issues
 - Verify `PAPERBINDER_PUBLIC_ROOT_URL` matches the deployed root host.
-- Verify cookie domain is `.lab.danielmaratta.com`.
+- Verify cookie domain is `.paperbinder-test.danielmaratta.com`.
 - Verify secure cookie flags and CSRF flow.
 
 ## Weekly Checks
@@ -73,9 +79,9 @@ Out of scope:
 
 ## Recovery and Rollback
 
-- Restart services: `docker compose restart`.
-- Re-apply schema if the migration container did not complete cleanly: `docker compose run --rm migrations`.
-- Redeploy current revision: `docker compose up -d --build`.
+- Restart services: `docker compose -f docker-compose.test.yml restart`.
+- Re-apply schema if the migration container did not complete cleanly: `docker compose -f docker-compose.test.yml run --rm migrations`.
+- Redeploy current revision: `docker compose -f docker-compose.test.yml up -d --build`.
 - Roll back to previous known-good revision/tag when needed.
 - Validate schema compatibility during rollback.
 

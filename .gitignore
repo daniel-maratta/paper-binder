@@ -18,6 +18,7 @@ test-results
 .docker-config/
 **/bin/
 **/obj/
+*.lscache
 src/PaperBinder.Api/wwwroot/
 *.local
 .env

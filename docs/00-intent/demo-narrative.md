@@ -11,7 +11,7 @@ This document describes the public demo flow shown to reviewers.
 
 ## User Flow
 
-1. User visits `https://lab.danielmaratta.com/`.
+1. User visits `https://paperbinder-test.danielmaratta.com/`.
 2. User completes an anti-bot challenge before provisioning.
 3. Landing page offers:
    - `Provision new demo tenant and log in`
@@ -19,7 +19,7 @@ This document describes the public demo flow shown to reviewers.
 4. Provisioning flow:
    - Create tenant and initial demo user.
    - Display credentials once.
-   - Redirect to `https://{tenant}.lab.danielmaratta.com/` after sign-in.
+   - Redirect to `https://{tenant}.paperbinder-test.danielmaratta.com/` after sign-in.
 5. Tenant flow:
    - Access binders and DB-backed text documents.
    - View lease countdown and extension action (when eligible).

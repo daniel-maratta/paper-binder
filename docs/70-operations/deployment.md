@@ -32,22 +32,25 @@ Services:
 
 Repository deployment baseline:
 - `docker-compose.yml`
+- `docker-compose.test.yml`
 - `src/PaperBinder.Api/Dockerfile`
 - `src/PaperBinder.Worker/Dockerfile`
 - `src/PaperBinder.Migrations/Dockerfile`
 - `deploy/local/Caddyfile`
+- `deploy/test/Caddyfile`
+- `deploy/test/Caddy.Dockerfile`
 - repo-root `.env` copied from `.env.example`
 
 DNS:
-- Cloudflare DNS only (no proxy mode).
-- `lab.danielmaratta.com` and `*.lab.danielmaratta.com` records to host IP.
-  Treat these as the supported public-host example, not as proof that a public deployment is currently active.
+- Namecheap-managed DNS with API access enabled for ACME DNS-01 challenges.
+- `paperbinder-test.danielmaratta.com` and `*.paperbinder-test.danielmaratta.com` A records to host IP.
+- The Namecheap API must whitelist the droplet IPv4 before wildcard certificate issuance or renewal will work.
 
 ## Required Configuration (Illustrative)
 
 - `PAPERBINDER_DB_CONNECTION=...`
-- `PAPERBINDER_PUBLIC_ROOT_URL=https://lab.danielmaratta.com`
-- `PAPERBINDER_AUTH_COOKIE_DOMAIN=.lab.danielmaratta.com`
+- `PAPERBINDER_PUBLIC_ROOT_URL=https://paperbinder-test.danielmaratta.com`
+- `PAPERBINDER_AUTH_COOKIE_DOMAIN=.paperbinder-test.danielmaratta.com`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
 - `PAPERBINDER_AUTH_KEY_RING_PATH=...`
 - `PAPERBINDER_CHALLENGE_SITE_KEY=...`
@@ -61,13 +64,18 @@ DNS:
 - `PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE=10`
 - `PAPERBINDER_AUDIT_RETENTION_MODE=RetainTenantPurgedSummary`
 - `PAPERBINDER_OTEL_OTLP_ENDPOINT=https://otel.example.com:4317` (optional)
-- `VITE_PAPERBINDER_ROOT_URL=https://lab.danielmaratta.com`
-- `VITE_PAPERBINDER_API_BASE_URL=https://lab.danielmaratta.com`
-- `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=lab.danielmaratta.com`
+- `VITE_PAPERBINDER_ROOT_URL=https://paperbinder-test.danielmaratta.com`
+- `VITE_PAPERBINDER_API_BASE_URL=https://paperbinder-test.danielmaratta.com`
+- `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=paperbinder-test.danielmaratta.com`
+- `NAMECHEAP_API_USER=<namecheap-username>` (required for `docker-compose.test.yml`)
+- `NAMECHEAP_API_KEY=<secret>` (required for `docker-compose.test.yml`)
+- `NAMECHEAP_CLIENT_IP=<whitelisted-ipv4>` (required for `docker-compose.test.yml`)
+- `NAMECHEAP_API_ENDPOINT=https://api.namecheap.com/xml.response` (optional)
 
 Keep secrets out of git. Use server-side `.env` or secret injection.
 Keep `.env.example` aligned to the canonical runtime and frontend build-time keys using fake values only.
 Do not enable `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` or `VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` in deployed/public environments. The app and frontend build now reject that configuration unless the root host is loopback or `.localhost`.
+The shared test deployment uses `docker compose -f docker-compose.test.yml ...` so the stock local-only proxy contract stays intact.
 
 ## Deploy Procedure
 
@@ -75,12 +83,12 @@ Do not enable `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` or `VITE_PAPERBINDER_
 2. Pull latest source or image.
 3. Validate environment configuration.
 4. Run:
-   - `docker compose pull` or
-   - `docker compose build`
+   - `docker compose -f docker-compose.test.yml pull` or
+   - `docker compose -f docker-compose.test.yml build`
 5. Apply schema updates:
-   - `docker compose run --rm migrations`
+   - `docker compose -f docker-compose.test.yml run --rm migrations`
 6. Start/update services:
-   - `docker compose up -d`
+   - `docker compose -f docker-compose.test.yml up -d`
 7. Verify:
    - unauthenticated `GET /health/live` returns `200`
    - unauthenticated `GET /health/ready` returns `200`
@@ -98,7 +106,7 @@ Do not enable `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` or `VITE_PAPERBINDER_
 ## Rollback Procedure
 
 - Tagged-image flow: redeploy previous known-good tag.
-- Source flow: checkout previous commit and redeploy with compose.
+- Source flow: checkout previous commit and redeploy with `docker compose -f docker-compose.test.yml ...`.
 - Validate DB schema compatibility before rollback if migrations ran.
 - If rollback requires a down-migration, execute it explicitly through the migrations workflow before restoring the older app image.
 
@@ -119,6 +127,7 @@ Do not enable `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` or `VITE_PAPERBINDER_
 - Parent-domain auth cookie and CSRF cookie must align with `PAPERBINDER_PUBLIC_ROOT_URL`.
 - Auth cookie uses `Secure`, `HttpOnly`, and CSRF protections.
 - Root-host provisioning and login require challenge verification and shared pre-auth rate limiting.
+- Wildcard TLS for tenant hosts requires ACME DNS-01 validation through the configured DNS provider module; the current test topology uses Namecheap API credentials plus a whitelisted droplet IPv4.
 
 ## Alternatives Considered
 

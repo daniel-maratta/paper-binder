@@ -3,7 +3,7 @@ Status: V1
 
 This document defines top-level pages and navigation for the demo.
 
-## Root Host (`lab.danielmaratta.com`)
+## Root Host (`paperbinder-test.danielmaratta.com`)
 
 Primary views:
 - Welcome/About
@@ -17,7 +17,7 @@ Navigation:
 - Repo (external link)
 - Login/Logout (contextual)
 
-## Tenant Host (`{tenant}.lab.danielmaratta.com`)
+## Tenant Host (`{tenant}.paperbinder-test.danielmaratta.com`)
 
 Primary views:
 - Home dashboard (includes lease status)
