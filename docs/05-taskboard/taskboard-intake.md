@@ -37,6 +37,7 @@ Examples:
 
 - [x] Investigate opaque `dotnet restore` exit-1 behavior on the current Windows/.NET 10 SDK stack -> T-0021 | type:risk | source:T-0016 validation
 - [x] Close remaining test-coverage gaps around challenge-failure handling, worker behavior, and frontend placeholder coverage -> T-0024 | type:risk | source:test sufficiency review 2026-04-08
+- [ ] Plan post-V1 technical narrative and expanded public-site IA for PaperBinder build notes | type:docs | source:UX/copy visual plan alignment 2026-05-20
 
 ## Triage Rules
 

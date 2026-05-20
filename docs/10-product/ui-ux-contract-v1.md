@@ -21,6 +21,8 @@ This contract specifies the concrete visual tokens, layout expectations, compone
 
 The goal is clarity, accessibility, and implementation simplicity.
 
+Future copy or visual refinement plans must update this contract when token, component, layout, or accessibility rules become canonical. Planning documents must not create a parallel design system.
+
 ---
 
 # 1. Design Principles
@@ -70,6 +72,7 @@ Usage rules:
 - Orange is used for CTAs and interactive highlights.
 - Charcoal is used for primary text and dark backgrounds.
 - Light Gray is the main application background.
+- Orange must remain a restrained accent and must meet contrast requirements whenever used for text, focus, or control states.
 
 ---
 
@@ -493,6 +496,8 @@ Minimum accessibility targets:
 Color contrast must meet WCAG AA guidelines.
 
 Error messages must not rely on color alone.
+
+Formal WCAG conformance or ADA compliance claims are out of scope for V1 unless a formal audit is performed; see `docs/10-product/accessibility.md` for the accessibility decision.
 
 ---
 

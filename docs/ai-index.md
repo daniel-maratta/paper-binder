@@ -44,6 +44,10 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md](./90-adr/ADR-0010-playwright-root-host-e2e-runtime.md)
 - [docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md](./90-adr/ADR-0011-observability-opentelemetry-baseline.md)
 
+## Planning References
+
+- [docs/20-architecture/paperbinder-ux-copy-visual-plan.md](./20-architecture/paperbinder-ux-copy-visual-plan.md)
+
 ## Execution References
 
 - [docs/55-execution/execution-plan.md](./55-execution/execution-plan.md)

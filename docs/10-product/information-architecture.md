@@ -3,6 +3,8 @@ Status: V1
 
 This document defines top-level pages and navigation for the demo.
 
+Future public-site expansion candidates, such as separate Product, Build, Writing, or About pages, are planning material only until this V1 IA and `docs/20-architecture/frontend-app-route-map.md` are updated together.
+
 ## Root Host (`paperbinder-test.danielmaratta.com`)
 
 Primary views:

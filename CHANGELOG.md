@@ -4,6 +4,9 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+### Docs
+- Added and aligned the future-scope PaperBinder UX/copy/visual plan, preserving V1 product definitions, route contracts, accessibility authority, public-host wording, and deferred AI/product-expansion boundaries.
+
 ## [V1] - 2026-04-19
 
 ### Added

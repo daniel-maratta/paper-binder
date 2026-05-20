@@ -17,6 +17,8 @@ This document removes route-level ambiguity for the React SPA described in:
 - `docs/10-product/ux-notes.md`
 - `docs/40-contracts/api-contract.md`
 
+Future public-site IA candidates in `docs/20-architecture/paperbinder-ux-copy-visual-plan.md` do not change this V1 route map until this document, product IA, implementation, and tests are updated together.
+
 ## Host Contexts
 
 - Root host: `paperbinder-test.danielmaratta.com`

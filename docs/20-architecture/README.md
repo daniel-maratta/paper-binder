@@ -24,3 +24,4 @@
 - `docs/20-architecture/frontend-spa.md`
 - `docs/20-architecture/frontend-app-route-map.md`
 - `docs/20-architecture/bff.md`
+- `docs/20-architecture/paperbinder-ux-copy-visual-plan.md` (future-scope public-site UX/copy/visual planning reference)
