@@ -22,7 +22,7 @@ services:
   proxy:
     build:
       context: .
-      dockerfile: deploy/test/Caddy.Dockerfile
+      dockerfile: deploy/Caddy.Namecheap.Dockerfile
     depends_on:
       - app
     ports:

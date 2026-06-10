@@ -1,0 +1,28 @@
+# Wildcard certificates require DNS-01 validation; this Caddyfile expects
+# Namecheap API access to be enabled with the production droplet IPv4 whitelisted.
+
+(paperbinder-prod-tls) {
+	tls {
+		dns namecheap {
+			api_key {$NAMECHEAP_API_KEY}
+			user {$NAMECHEAP_API_USER}
+			api_endpoint {$NAMECHEAP_API_ENDPOINT:https://api.namecheap.com/xml.response}
+			client_ip {$NAMECHEAP_CLIENT_IP}
+		}
+	}
+}
+
+(paperbinder-prod-proxy) {
+	encode gzip zstd
+	reverse_proxy app:8080
+}
+
+paperbinder.danielmaratta.com {
+	import paperbinder-prod-tls
+	import paperbinder-prod-proxy
+}
+
+*.paperbinder.danielmaratta.com {
+	import paperbinder-prod-tls
+	import paperbinder-prod-proxy
+}

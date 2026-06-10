@@ -1,0 +1,230 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*.[0-9]*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Stable SemVer version without the leading v, for example 1.0.0"
+        required: true
+        type: string
+      publish_images:
+        description: "Publish GHCR images for the selected tag"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  validate-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      image_registry: ${{ steps.version.outputs.image_registry }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/v{0}', inputs.version) || github.ref }}
+
+      - name: Resolve release version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $version = "${{ inputs.version }}"
+          }
+          else {
+            $refName = "${{ github.ref_name }}"
+            if ($refName -notmatch '^v(?<version>\d+\.\d+\.\d+)$') {
+              throw "Release tags must use vMAJOR.MINOR.PATCH, for example v1.0.0."
+            }
+
+            $version = $Matches.version
+          }
+
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Release version '$version' is not a stable SemVer core version."
+          }
+
+          $registry = "ghcr.io/$($env:GITHUB_REPOSITORY_OWNER.ToLowerInvariant())"
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+          "image_registry=$registry" >> $env:GITHUB_OUTPUT
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: src/PaperBinder.Web/package-lock.json
+
+      - name: Validate version metadata
+        shell: pwsh
+        run: ./scripts/validate-version.ps1 -ExpectedVersion "${{ steps.version.outputs.version }}"
+
+      - name: Restore
+        shell: pwsh
+        run: ./scripts/restore.ps1
+
+      - name: Build
+        shell: pwsh
+        run: ./scripts/build.ps1 -Configuration Release
+
+      - name: Repo tests (frontend + backend)
+        shell: pwsh
+        run: ./scripts/test.ps1 -Configuration Release -DockerIntegrationMode Require
+
+      - name: Browser E2E
+        shell: pwsh
+        run: ./scripts/run-browser-e2e.ps1
+
+      - name: Validate docs
+        shell: pwsh
+        run: ./scripts/validate-docs.ps1
+
+      - name: Validate launch profiles
+        shell: pwsh
+        run: ./scripts/validate-launch-profiles.ps1
+
+      - name: Validate checkpoint bundle
+        shell: pwsh
+        run: ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require
+
+  publish-images:
+    needs: validate-release
+    if: github.event_name == 'push' || inputs.publish_images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: paperbinder-api
+            dockerfile: src/PaperBinder.Api/Dockerfile
+            build_args: |
+              VITE_PAPERBINDER_ROOT_URL=https://paperbinder.danielmaratta.com
+              VITE_PAPERBINDER_API_BASE_URL=https://paperbinder.danielmaratta.com
+              VITE_PAPERBINDER_TENANT_BASE_DOMAIN=paperbinder.danielmaratta.com
+              VITE_PAPERBINDER_CHALLENGE_SITE_KEY=${{ vars.PROD_TURNSTILE_SITE_KEY }}
+              VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL=https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit
+              VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=false
+          - image: paperbinder-api-test
+            dockerfile: src/PaperBinder.Api/Dockerfile
+            build_args: |
+              VITE_PAPERBINDER_ROOT_URL=${{ vars.TEST_PUBLIC_ROOT_URL }}
+              VITE_PAPERBINDER_API_BASE_URL=${{ vars.TEST_PUBLIC_ROOT_URL }}
+              VITE_PAPERBINDER_TENANT_BASE_DOMAIN=${{ vars.TEST_TENANT_BASE_DOMAIN }}
+              VITE_PAPERBINDER_CHALLENGE_SITE_KEY=${{ vars.TEST_TURNSTILE_SITE_KEY }}
+              VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL=https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit
+              VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=false
+          - image: paperbinder-worker
+            dockerfile: src/PaperBinder.Worker/Dockerfile
+            build_args: ""
+          - image: paperbinder-migrations
+            dockerfile: src/PaperBinder.Migrations/Dockerfile
+            build_args: ""
+          - image: paperbinder-proxy
+            dockerfile: deploy/Caddy.Namecheap.Dockerfile
+            build_args: ""
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/v{0}', inputs.version) || github.ref }}
+
+      - name: Validate production build configuration
+        shell: bash
+        run: |
+          test -n "${{ vars.PROD_TURNSTILE_SITE_KEY }}" || { echo "Missing repository or environment variable PROD_TURNSTILE_SITE_KEY."; exit 1; }
+          test -n "${{ vars.TEST_PUBLIC_ROOT_URL }}" || { echo "Missing repository or environment variable TEST_PUBLIC_ROOT_URL."; exit 1; }
+          test -n "${{ vars.TEST_TENANT_BASE_DOMAIN }}" || { echo "Missing repository or environment variable TEST_TENANT_BASE_DOMAIN."; exit 1; }
+          test -n "${{ vars.TEST_TURNSTILE_SITE_KEY }}" || { echo "Missing repository or environment variable TEST_TURNSTILE_SITE_KEY."; exit 1; }
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Resolve image tags
+        id: tags
+        shell: bash
+        run: |
+          image_base="${{ needs.validate-release.outputs.image_registry }}/${{ matrix.image }}"
+          tags="${image_base}:${{ needs.validate-release.outputs.version }}"$'\n'"${image_base}:${{ needs.validate-release.outputs.tag }}"
+
+          if [ "${{ github.event_name }}" = "push" ]; then
+            tags="${tags}"$'\n'"${image_base}:latest"
+          fi
+
+          {
+            echo "value<<EOF"
+            echo "${tags}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and push ${{ matrix.image }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          build-args: ${{ matrix.build_args }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ needs.validate-release.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          tags: ${{ steps.tags.outputs.value }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+
+  create-draft-release:
+    needs:
+      - validate-release
+      - publish-images
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create draft GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if gh release view "${{ needs.validate-release.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Release ${{ needs.validate-release.outputs.tag }} already exists."
+          else
+            gh release create "${{ needs.validate-release.outputs.tag }}" \
+              --draft \
+              --title "PaperBinder ${{ needs.validate-release.outputs.tag }}" \
+              --generate-notes
+          fi
