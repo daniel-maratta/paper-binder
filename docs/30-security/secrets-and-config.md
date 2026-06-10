@@ -22,8 +22,8 @@
 ## Required Environment Variables (Examples)
 
 - `PAPERBINDER_DB_CONNECTION=Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=<secret>`
-- `PAPERBINDER_PUBLIC_ROOT_URL=https://paperbinder-test.danielmaratta.com`
-- `PAPERBINDER_AUTH_COOKIE_DOMAIN=.paperbinder-test.danielmaratta.com`
+- `PAPERBINDER_PUBLIC_ROOT_URL=https://<production-root-host>`
+- `PAPERBINDER_AUTH_COOKIE_DOMAIN=.<production-base-domain>`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
 - `PAPERBINDER_AUTH_KEY_RING_PATH=<path-or-provider-ref>`
 - `PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS=60`
@@ -37,11 +37,14 @@
 - `PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE=10`
 - `PAPERBINDER_AUDIT_RETENTION_MODE=RetainTenantPurgedSummary`
 - `PAPERBINDER_OTEL_OTLP_ENDPOINT=https://otel.example.com:4317` (optional)
-- `VITE_PAPERBINDER_ROOT_URL=https://paperbinder-test.danielmaratta.com`
-- `VITE_PAPERBINDER_API_BASE_URL=https://paperbinder-test.danielmaratta.com`
-- `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=paperbinder-test.danielmaratta.com`
+- `VITE_PAPERBINDER_ROOT_URL=https://<production-root-host>`
+- `VITE_PAPERBINDER_API_BASE_URL=https://<production-root-host>`
+- `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=<production-base-domain>`
 
-When the shared test deployment uses `docker-compose.test.yml`, Caddy also requires deployment-only DNS-challenge settings:
+Shared test uses the equivalent `<shared-test-root-host>` and `<shared-test-base-domain>` values for `PAPERBINDER_PUBLIC_ROOT_URL`, `PAPERBINDER_AUTH_COOKIE_DOMAIN`, and the `VITE_PAPERBINDER_*` host settings.
+Production and shared test must not share cookie-domain settings.
+
+When a deployment uses the repo-owned wildcard-TLS proxy path, Caddy also requires deployment-only DNS-challenge settings:
 
 - `NAMECHEAP_API_USER=<namecheap-username>`
 - `NAMECHEAP_API_KEY=<secret>`
@@ -53,6 +56,7 @@ Keep the repo-root `.env.example` synchronized with these keys using fake values
 
 `PAPERBINDER_PUBLIC_ROOT_URL` must be an absolute root URL with the same host as `PAPERBINDER_AUTH_COOKIE_DOMAIN`.
 Provision, login, and logout redirect construction must use this trusted config value rather than the raw incoming request scheme/host.
+Production is indexable by default. Shared test remains intentionally non-indexable through proxy policy rather than application secrets.
 
 `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the lease-extension eligibility threshold and the number of minutes added on success.
 No separate `PAPERBINDER_LEASE_EXTENSION_WINDOW_*` key exists in v1.

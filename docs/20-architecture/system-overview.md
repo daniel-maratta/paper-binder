@@ -6,6 +6,7 @@ Status: Current (v1)
 
 - Architecture is a single-database, tenant-scoped web system with API, worker, and SPA.
 - Public-demo hosting uses a single ASP.NET app host that serves both the SPA and API.
+- Public deployment policy uses separate production and shared-test hosts; production is intended to deploy from tagged GHCR images while shared test remains non-indexable.
 - Tenant context is resolved early and remains immutable per request.
 - Authorization is policy-based RBAC at the API boundary.
 - Runtime persistence uses Dapper; EF Core is migrations/tooling only.
@@ -26,6 +27,7 @@ PaperBinder is composed of five major layers:
 - Single PostgreSQL database.
 - Primary app host: `PaperBinder.Api` serves the React SPA and API from the same ASP.NET host.
 - Worker runtime: `PaperBinder.Worker` performs lease cleanup as a separate deployable and runs as a separate container in the local/demo Compose topology.
+- Public environments are split between a production root at `paperbinder.danielmaratta.com` and a shared test root at `paperbinder-test.danielmaratta.com`.
 - Post-auth traffic routed via tenant subdomain.
 - Public root redirects and cookie security expectations are anchored to the configured `PAPERBINDER_PUBLIC_ROOT_URL`.
 
