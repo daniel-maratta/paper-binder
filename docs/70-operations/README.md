@@ -12,6 +12,7 @@
 
 - `docs/70-operations/runbook-local.md`
 - `docs/70-operations/runbook-prod.md`
+- `docs/70-operations/runbook-test.md`
 - `docs/70-operations/deployment.md`
 
 ## Supporting Operations Docs

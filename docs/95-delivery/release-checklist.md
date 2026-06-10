@@ -9,6 +9,9 @@ Own the canonical release gate list for the shipped `V1` cut.
 
 - [x] `CHANGELOG.md` is cut as `## [V1] - 2026-04-19` with a fresh empty `## Unreleased`.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on release identity, command surface, and ownership.
+- [x] Repository version metadata is locked to `1.0.0` for the `V1` / `v1.0.0` release identity.
+- [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
+- [x] `.github/workflows/release.yml` defines the tag-driven release validation pipeline for stable SemVer tags.
 - [x] `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` records shipped scope, validation evidence, reviewer walkthrough, and author notes for the critic.
 - [x] `README.md`, `REVIEWERS.md`, `review/`, `docs/60-ai/`, operations docs, testing docs, taskboard state, and checkpoint ledger describe the shipped `V1` system only.
 
@@ -17,6 +20,7 @@ Own the canonical release gate list for the shipped `V1` cut.
 - [x] Fresh candidate clone bootstrapped `.env` from `.env.example` before Docker-backed commands on `2026-04-19`.
 - [x] [preflight.ps1](../../scripts/preflight.ps1) `-Profile Full` passed on `2026-04-19`.
 - [x] [restore.ps1](../../scripts/restore.ps1) passed on `2026-04-19`.
+- [x] [validate-version.ps1](../../scripts/validate-version.ps1) is part of CI and release validation.
 - [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-04-19`.
 - [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require` passed on `2026-04-19`.
 - [x] [run-browser-e2e.ps1](../../scripts/run-browser-e2e.ps1) passed on `2026-04-19`.
@@ -43,10 +47,11 @@ Own the canonical release gate list for the shipped `V1` cut.
 
 - Release label: `V1`
 - Recommended tag: `v1.0.0`
+- SemVer version: `1.0.0`
 - Status: scripted validation bundle complete on `2026-04-19`; post-implementation docs-closeout validation re-passed on `2026-04-20`; manual VS Code and Visual Studio launch verification also completed and passed on `2026-04-20`.
 - Executor attestation: `main` is documented as taggable for `V1`.
 - Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore; it is disclosed in the CP17 release artifact and remains outside CP17 scope because it does not block the documented `V1` validation bundle.
-- Owner-controlled action pending: merge and create tag `v1.0.0`.
+- Owner-controlled action pending: merge, create tag `v1.0.0`, and publish the draft GitHub Release after the tag pipeline passes.
 - Mirrors:
   - `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/55-execution/checkpoint-status.md`

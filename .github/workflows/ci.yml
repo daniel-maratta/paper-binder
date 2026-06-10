@@ -26,6 +26,10 @@ jobs:
           cache: npm
           cache-dependency-path: src/PaperBinder.Web/package-lock.json
 
+      - name: Validate version metadata
+        shell: pwsh
+        run: ./scripts/validate-version.ps1
+
       - name: Restore
         shell: pwsh
         run: ./scripts/restore.ps1
@@ -41,3 +45,7 @@ jobs:
       - name: Validate docs
         shell: pwsh
         run: ./scripts/validate-docs.ps1
+
+      - name: Validate launch profiles
+        shell: pwsh
+        run: ./scripts/validate-launch-profiles.ps1

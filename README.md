@@ -78,6 +78,7 @@ Canonical workspace commands live in `scripts/`:
   - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\migrate.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-version.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
@@ -89,6 +90,7 @@ Canonical workspace commands live in `scripts/`:
   - `pwsh ./scripts/build.ps1`
   - `pwsh ./scripts/test.ps1`
   - `pwsh ./scripts/migrate.ps1`
+  - `pwsh ./scripts/validate-version.ps1`
   - `pwsh ./scripts/validate-docs.ps1`
   - `pwsh ./scripts/validate-launch-profiles.ps1`
   - `pwsh ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`

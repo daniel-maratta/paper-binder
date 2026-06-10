@@ -1,5 +1,5 @@
 # Delivery Versioning And PR Artifacts
-Status: Current (v1)
+Status: Current (`V1`)
 
 ## Purpose
 
@@ -29,13 +29,37 @@ Do not use legacy `stage` terminology for current execution planning or PR artif
 
 ## Versioning Rules
 
-- V1 execution remains checkpoint-driven until the release checkpoint is complete.
-- Release tagging uses `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md`.
+- `V1` is locked as the first stable release line.
+- Stable release tags must use SemVer core spelling with a leading `v`: `vMAJOR.MINOR.PATCH`.
+- The current stable release identity is `V1` / `v1.0.0` / `1.0.0`.
+- Repository version metadata must agree before release validation passes:
+  - `Directory.Build.props` `VersionPrefix`
+  - `src/PaperBinder.Web/package.json` `version`
+  - `src/PaperBinder.Web/package-lock.json` root `version`
+- `scripts/validate-version.ps1` is the canonical local and CI guard for version metadata.
+- Release tagging uses `docs/95-delivery/release-workflow.md`, `docs/95-delivery/release-checklist.md`, and the tag-driven GitHub Actions release workflow.
 - `CHANGELOG.md` cuts the shipped release as `## [V1] - YYYY-MM-DD` with a fresh empty `## Unreleased` above it.
 - `docs/95-delivery/release-checklist.md` `Release Readiness` is the canonical "main is taggable" signal, mirrored into the CP17 release artifact and checkpoint ledger.
 - Version identifiers in delivery docs must match the actual shipped cut; do not predeclare future versions.
 
+## SemVer Policy
+
+- `MAJOR`: increment only for intentional breaking changes to documented user workflows, API contracts, deployment contracts, or tenant/security behavior.
+- `MINOR`: increment for backward-compatible shipped capability that stays inside approved PaperBinder scope.
+- `PATCH`: increment for backward-compatible fixes, documentation corrections, dependency maintenance, and operational hardening.
+- Pre-release tags are not part of the `V1` public release contract. If they become necessary later, define the rule here before publishing them.
+- Tenant isolation regressions, API contract breaks, or deployment contract breaks cannot be hidden in a patch release; either avoid the break or make the release decision explicit before tagging.
+
+## Automated Pipelines
+
+- `.github/workflows/ci.yml` runs on pull requests and pushes to `main`.
+- `.github/workflows/release.yml` runs on stable SemVer tags matching `vMAJOR.MINOR.PATCH` and can also be started manually with a version input.
+- `.github/workflows/deploy-prod.yml` is the owner-invoked production deployment workflow.
+- CI intentionally stays lighter than the tag workflow: it validates version metadata, restores dependencies, builds, runs repo tests with Docker-backed integration required, validates docs, and validates launch-profile drift.
+- The release workflow adds the slower release-only gates: browser E2E and the checkpoint validation bundle, then publishes versioned GHCR images for the release tag.
+- On a pushed tag, the release workflow creates a draft GitHub Release with GitHub-generated notes for that tag after validation passes. Publishing the draft remains owner-controlled.
+
 ## Non-Goals
 
-- No CI/CD implementation detail beyond what is required to understand release artifacts.
+- No automatic production deployment on tag push or release publication for `V1`.
 - No alternate naming system that competes with phase/checkpoint terminology.

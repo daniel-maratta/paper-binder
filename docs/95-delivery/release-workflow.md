@@ -9,6 +9,7 @@ Define the canonical `V1` release-preparation sequence, ownership boundaries, an
 
 - Prose release label: `V1`
 - Recommended tag spelling: `v1.0.0`
+- Version metadata: `1.0.0`
 - Changelog cut shape: `## [V1] - YYYY-MM-DD` with a fresh empty `## Unreleased`
 
 ## Canonical Release Artifacts
@@ -43,6 +44,9 @@ Define the canonical `V1` release-preparation sequence, ownership boundaries, an
 6. Hand off owner-controlled release actions.
    - `main` being documented as taggable for `V1` is the executor closeout.
    - The actual merge and `v1.0.0` tag creation remain owner-controlled actions.
+   - Pushing `v1.0.0` starts `.github/workflows/release.yml`; the workflow now generates draft GitHub Release notes per tag instead of reusing the CP17 release artifact as the release-body source.
+
+The CP17 release artifact set remains the canonical reviewer-facing `V1` release-prep evidence. It is historical documentation for the first release cut, not the release-body source for later tags.
 
 ## Deployment And Rollback Posture
 
@@ -56,6 +60,7 @@ The canonical command surface remains the checked-in scripts:
 
 - [preflight.ps1](../../scripts/preflight.ps1)
 - [restore.ps1](../../scripts/restore.ps1)
+- [validate-version.ps1](../../scripts/validate-version.ps1)
 - [build.ps1](../../scripts/build.ps1)
 - [test.ps1](../../scripts/test.ps1)
 - [run-browser-e2e.ps1](../../scripts/run-browser-e2e.ps1)
