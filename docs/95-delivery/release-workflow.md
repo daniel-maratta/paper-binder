@@ -45,6 +45,7 @@ Define the canonical `V1` release-preparation sequence, ownership boundaries, an
    - `main` being documented as taggable for `V1` is the executor closeout.
    - The actual merge and `v1.0.0` tag creation remain owner-controlled actions.
    - Pushing `v1.0.0` starts `.github/workflows/release.yml`; the workflow now generates draft GitHub Release notes per tag instead of reusing the CP17 release artifact as the release-body source.
+   - Production rollout uses the separate owner-invoked `.github/workflows/deploy-prod.yml` workflow after the tagged images exist in GHCR.
 
 The CP17 release artifact set remains the canonical reviewer-facing `V1` release-prep evidence. It is historical documentation for the first release cut, not the release-body source for later tags.
 
@@ -52,6 +53,8 @@ The CP17 release artifact set remains the canonical reviewer-facing `V1` release
 
 - The supported deployment topology remains the current single-host Docker Compose stack with Caddy, PostgreSQL, migrations, app host, and worker.
 - `docs/70-operations/runbook-prod.md` and `docs/70-operations/deployment.md` document that supported topology and rollback model.
+- The current public test and production hosts remain pre-pipeline manual deployments from checked-out source with locally built images. The GHCR-backed production rollout is the intended contract under validation, not the already-adopted live runtime state.
+- Tagged GHCR publishing now includes the shared worker, migrations, and proxy images plus environment-specific frontend-bearing API images for production and shared-test deploy validation.
 - A live public host is not part of the `V1` release-blocking evidence set.
 
 ## Validation Command Surface
@@ -71,6 +74,18 @@ The canonical command surface remains the checked-in scripts:
 - [reviewer-full-stack.ps1](../../scripts/reviewer-full-stack.ps1)
 
 The release workflow must not introduce a parallel shadow command surface.
+
+## Automated Pipeline Contract
+
+- Pull requests and pushes to `main` run `.github/workflows/ci.yml`.
+- Stable release tags use `.github/workflows/release.yml`.
+- Owner-approved shared-test GHCR validation uses `.github/workflows/deploy-test.yml`.
+- Owner-approved production rollout uses `.github/workflows/deploy-prod.yml`.
+- Release tags must match `vMAJOR.MINOR.PATCH`; `v1.0.0` is the first valid `V1` tag.
+- CI intentionally stays lighter than the release workflow: it validates version metadata, restore, build, repo tests, docs, and launch-profile drift on pull requests and pushes to `main`.
+- The release workflow adds the slower gates that remain tag-time only: browser E2E and the full checkpoint validation bundle.
+- The release workflow validates that repo version metadata matches the tag before it runs the release validation bundle and publishes tagged GHCR images.
+- GitHub Actions may create a draft GitHub Release with GitHub-generated notes from the tag, but it must not publish a public release or deploy the app without owner action.
 
 ## Related Documents
 
