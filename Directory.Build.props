@@ -1,5 +1,13 @@
 <Project>
   <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>$(VersionPrefix)</InformationalVersion>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PaperBinderCoverletCollectorVersion>6.0.4</PaperBinderCoverletCollectorVersion>
     <PaperBinderDapperVersion>2.1.72</PaperBinderDapperVersion>
     <PaperBinderEntityFrameworkCoreDesignVersion>10.0.4</PaperBinderEntityFrameworkCoreDesignVersion>

@@ -1,4 +1,4 @@
-# Runbook (Supported Single-Host Deployment)
+# Runbook: Production Deployment
 Status: V1
 
 This runbook covers minimal incident triage and recovery for the supported single-host `V1` deployment topology.
@@ -17,9 +17,29 @@ Out of scope:
 
 ## Access
 
-- Primary: SSH via Tailscale.
+- Primary: SSH via the private overlay interface.
 - Break-glass: provider console.
-- Example public entry when deployed: `https://paperbinder-test.danielmaratta.com/`.
+- Public entry when deployed: the configured production root host.
+
+## Environment Contract
+
+- Root host: `https://<production-root-host>`
+- Tenant host pattern: `https://{tenant}.<production-base-domain>`
+- Compose file: `docker-compose.prod.yml`
+- Observed current runtime style: manually deployed from checked-out source with locally built images
+- Intended deployment contract: tagged GHCR images referenced by `PAPERBINDER_IMAGE_REGISTRY` and `PAPERBINDER_IMAGE_TAG` once the production rollout workflow is adopted on the live host
+- Reverse proxy config: `deploy/prod/Caddyfile`
+- Public crawler policy: intentionally indexable
+
+Run operational commands from the live app directory that contains `.env`, `docker-compose.prod.yml`, and `deploy/prod/Caddyfile`:
+
+```bash
+cd /opt/paperbinder/app
+docker compose --env-file .env -f docker-compose.prod.yml ...
+```
+
+`/opt/paperbinder` remains the base install directory. The checked-in GitHub deployment workflow still accepts that base directory as input, but it derives the live app directory as `<deploy_path>/app` before it uploads compose assets or runs remote compose commands.
+`/opt/paperbinder/app` is the canonical working directory and is owned by the deploy user in the current public environments. `/opt/paperbinder/app/.env` is untracked and should remain mode `600`.
 
 ## Triage Checklist
 
@@ -28,8 +48,7 @@ Out of scope:
    - unauthenticated `GET /health/live` returns `200`
    - unauthenticated `GET /health/ready` returns `200`
    - probe payloads remain minimal (no dependency internals or version metadata)
-   - `GET /robots.txt` returns `Disallow: /`
-   - root and tenant-host responses include `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet`
+   - production root and tenant hosts do not emit blanket `noindex` policy
 3. Confirm root and tenant host routing.
 4. Confirm DB connectivity.
 5. Check root-host login, tenant-host logout, the configured root-host logout redirect, and CSRF behavior.
@@ -44,10 +63,10 @@ Out of scope:
 - Verify reverse-proxy routing.
 - Restart affected services if needed.
 
-### Unexpected Search Indexing Or Preview Snippets
-- Verify `GET /robots.txt` still returns the blanket disallow policy.
-- Verify `X-Robots-Tag` is present on root-host and tenant-host responses.
-- Remember that public certificates still make the hostname discoverable through certificate-transparency logs even when indexing is discouraged.
+### Unexpected Deindexing Or Crawl Blocking
+- Verify production `GET /robots.txt` does not disallow the site.
+- Verify production root-host and tenant-host responses do not emit blanket `X-Robots-Tag: noindex`.
+- Remember that the shared test host is intentionally non-indexable; do not copy that proxy policy onto production.
 
 ### Tenant Subdomain Routing Failure
 - Verify wildcard DNS record.
@@ -57,7 +76,7 @@ Out of scope:
 ### Wildcard Certificate Issuance Or Renewal Failure
 - Verify `NAMECHEAP_API_USER`, `NAMECHEAP_API_KEY`, and `NAMECHEAP_CLIENT_IP`.
 - Verify the droplet IPv4 is still whitelisted in Namecheap API Access.
-- Verify `docker compose -f docker-compose.test.yml logs proxy`.
+- Verify the production proxy logs.
 - Confirm the wildcard and root A records still point to the current host IP.
 
 ### Provisioning Spikes or Bot Noise
@@ -73,7 +92,7 @@ Out of scope:
 
 ### Cross-Subdomain Login Issues
 - Verify `PAPERBINDER_PUBLIC_ROOT_URL` matches the deployed root host.
-- Verify cookie domain is `.paperbinder-test.danielmaratta.com`.
+- Verify cookie domain is `.<production-base-domain>`.
 - Verify secure cookie flags and CSRF flow.
 
 ## Weekly Checks
@@ -81,16 +100,29 @@ Out of scope:
 - Provision and validate a test tenant when a public deployment is running.
 - Confirm tenant lease read/extend behavior from a tenant-admin session.
 - Confirm lease-expiration cleanup behavior.
-- Confirm backup freshness.
+- Confirm production responses remain indexable and do not inherit shared-test `robots.txt` or `X-Robots-Tag: noindex` behavior.
 - Confirm disk headroom.
+- Confirm the most recent pre-change snapshot exists before any risky infrastructure maintenance window.
+- Confirm the current backup or snapshot path still covers the PostgreSQL volume, Data Protection keys, Caddy state, and the server `.env`.
 
 ## Recovery and Rollback
 
-- Restart services: `docker compose -f docker-compose.test.yml restart`.
-- Re-apply schema if the migration container did not complete cleanly: `docker compose -f docker-compose.test.yml run --rm migrations`.
-- Redeploy current revision: `docker compose -f docker-compose.test.yml up -d --build`.
-- Roll back to previous known-good revision/tag when needed.
-- Validate schema compatibility during rollback.
+- Restart services: `docker compose --env-file .env -f docker-compose.prod.yml restart`.
+- Re-apply schema: `docker compose --env-file .env -f docker-compose.prod.yml run --rm migrations`.
+- Current observed live-host refresh path: `docker compose --env-file .env -f docker-compose.prod.yml up -d --build`.
+- Intended tagged-image rollout path after GHCR adoption: `docker compose --env-file .env -f docker-compose.prod.yml pull`, then `docker compose --env-file .env -f docker-compose.prod.yml run --rm migrations`, then `docker compose --env-file .env -f docker-compose.prod.yml up -d`.
+- Roll back under the intended GHCR contract by setting `PAPERBINDER_IMAGE_TAG` in `.env` to the previous known-good release tag and rerunning the production pull, migrations, and `up -d` sequence.
+- Validate schema compatibility during rollback. If the older image requires an older schema, run an explicit down-migration before restoring the older app image.
+- If the rollback uses `.github/workflows/deploy-prod.yml`, rerun it for the prior tag so the compose file, Caddyfile, and image tag all come from the same release revision.
+
+## Useful Checks
+
+- Service state: `docker compose --env-file .env -f docker-compose.prod.yml ps`
+- Proxy logs: `docker compose --env-file .env -f docker-compose.prod.yml logs proxy --since=30m`
+- App logs: `docker compose --env-file .env -f docker-compose.prod.yml logs app --since=30m`
+- Worker logs: `docker compose --env-file .env -f docker-compose.prod.yml logs worker --since=30m`
+- Root-host health: `curl --fail --silent --show-error https://<production-root-host>/health/live`
+- Root-host readiness: `curl --fail --silent --show-error https://<production-root-host>/health/ready`
 
 ## Non-goals
 

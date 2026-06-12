@@ -19,8 +19,8 @@ This document removes route-level ambiguity for the React SPA described in:
 
 ## Host Contexts
 
-- Root host: `paperbinder-test.danielmaratta.com`
-- Tenant host: `{tenant}.paperbinder-test.danielmaratta.com`
+- Root host: `paperbinder.danielmaratta.com`
+- Tenant host: `{tenant}.paperbinder.danielmaratta.com`
 - Loopback debug aliases such as `localhost` are allowed only for compiled-SPA root-host debugging and never establish tenant context.
 
 Root-host flows are pre-auth provisioning/login flows. CP7 ships the backend contracts for provisioning plus shared challenge/rate-limit guards; CP13 adds the live browser wiring on the root host.

@@ -1,0 +1,219 @@
+name: deploy-prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Stable SemVer version without the leading v, for example 1.0.0"
+        required: true
+        type: string
+      deploy_path:
+        description: "Absolute base install directory on the production droplet; the live app directory is <deploy_path>/app"
+        required: true
+        default: "/opt/paperbinder"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Resolve deployment version
+        id: version
+        shell: pwsh
+        run: |
+          $version = "${{ inputs.version }}"
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Deployment version '$version' is not a stable SemVer core version."
+          }
+
+          $deployBasePath = "${{ inputs.deploy_path }}".TrimEnd("/")
+          if ([string]::IsNullOrWhiteSpace($deployBasePath)) {
+            throw "Deployment base path cannot be empty."
+          }
+
+          $owner = $env:GITHUB_REPOSITORY_OWNER.ToLowerInvariant()
+          $registry = "ghcr.io/$owner"
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+          "image_registry=$registry" >> $env:GITHUB_OUTPUT
+          "registry_owner=$owner" >> $env:GITHUB_OUTPUT
+          "deploy_base_path=$deployBasePath" >> $env:GITHUB_OUTPUT
+          "deploy_app_path=$deployBasePath/app" >> $env:GITHUB_OUTPUT
+
+      - name: Checkout requested release tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.version.outputs.tag }}
+
+      - name: Validate deployment configuration
+        shell: bash
+        run: |
+          test -n "${{ secrets.PROD_SSH_HOST }}" || { echo "Missing secret PROD_SSH_HOST."; exit 1; }
+          test -n "${{ secrets.PROD_SSH_USER }}" || { echo "Missing secret PROD_SSH_USER."; exit 1; }
+          test -n "${{ secrets.PROD_SSH_PRIVATE_KEY }}" || { echo "Missing secret PROD_SSH_PRIVATE_KEY."; exit 1; }
+          test -n "${{ secrets.PROD_SSH_KNOWN_HOSTS }}" || { echo "Missing secret PROD_SSH_KNOWN_HOSTS."; exit 1; }
+          test -n "${{ secrets.PROD_GHCR_PULL_TOKEN }}" || { echo "Missing secret PROD_GHCR_PULL_TOKEN."; exit 1; }
+          test -n "${{ secrets.PROD_POSTGRES_PASSWORD }}" || { echo "Missing secret PROD_POSTGRES_PASSWORD."; exit 1; }
+          test -n "${{ vars.PROD_TURNSTILE_SITE_KEY }}" || { echo "Missing repository or environment variable PROD_TURNSTILE_SITE_KEY."; exit 1; }
+          test -n "${{ secrets.PROD_TURNSTILE_SECRET_KEY }}" || { echo "Missing secret PROD_TURNSTILE_SECRET_KEY."; exit 1; }
+          test -n "${{ secrets.PROD_NAMECHEAP_API_USER }}" || { echo "Missing secret PROD_NAMECHEAP_API_USER."; exit 1; }
+          test -n "${{ secrets.PROD_NAMECHEAP_API_KEY }}" || { echo "Missing secret PROD_NAMECHEAP_API_KEY."; exit 1; }
+          test -n "${{ secrets.PROD_NAMECHEAP_CLIENT_IP }}" || { echo "Missing secret PROD_NAMECHEAP_CLIENT_IP."; exit 1; }
+
+      - name: Prepare deployment bundle
+        env:
+          PROD_POSTGRES_PASSWORD: ${{ secrets.PROD_POSTGRES_PASSWORD }}
+          PROD_TURNSTILE_SITE_KEY: ${{ vars.PROD_TURNSTILE_SITE_KEY }}
+          PROD_TURNSTILE_SECRET_KEY: ${{ secrets.PROD_TURNSTILE_SECRET_KEY }}
+          PROD_NAMECHEAP_API_USER: ${{ secrets.PROD_NAMECHEAP_API_USER }}
+          PROD_NAMECHEAP_API_KEY: ${{ secrets.PROD_NAMECHEAP_API_KEY }}
+          PROD_NAMECHEAP_CLIENT_IP: ${{ secrets.PROD_NAMECHEAP_CLIENT_IP }}
+          PROD_OTEL_OTLP_ENDPOINT: ${{ secrets.PROD_OTEL_OTLP_ENDPOINT }}
+        shell: pwsh
+        run: |
+          function Format-EnvValue([string] $Value) {
+            if ($null -eq $Value) {
+              return '""'
+            }
+
+            return '"' + $Value.Replace('\', '\\').Replace('"', '\"') + '"'
+          }
+
+          $deployRoot = Join-Path (Get-Location) ".deploy/prod"
+          $deployConfigRoot = Join-Path $deployRoot "deploy/prod"
+          New-Item -ItemType Directory -Force -Path $deployConfigRoot | Out-Null
+
+          Copy-Item docker-compose.prod.yml (Join-Path $deployRoot "docker-compose.prod.yml")
+          Copy-Item deploy/prod/Caddyfile (Join-Path $deployConfigRoot "Caddyfile")
+
+          $lines = @(
+            "PAPERBINDER_IMAGE_REGISTRY=$(Format-EnvValue '${{ steps.version.outputs.image_registry }}')",
+            "PAPERBINDER_IMAGE_TAG=$(Format-EnvValue '${{ steps.version.outputs.version }}')",
+            "POSTGRES_DB=$(Format-EnvValue 'paperbinder')",
+            "POSTGRES_USER=$(Format-EnvValue 'paperbinder')",
+            "POSTGRES_PASSWORD=$(Format-EnvValue $env:PROD_POSTGRES_PASSWORD)",
+            "PAPERBINDER_PUBLIC_ROOT_URL=$(Format-EnvValue 'https://paperbinder.danielmaratta.com')",
+            "PAPERBINDER_AUTH_COOKIE_DOMAIN=$(Format-EnvValue '.paperbinder.danielmaratta.com')",
+            "PAPERBINDER_AUTH_COOKIE_NAME=$(Format-EnvValue 'paperbinder.auth')",
+            "PAPERBINDER_CHALLENGE_SITE_KEY=$(Format-EnvValue $env:PROD_TURNSTILE_SITE_KEY)",
+            "PAPERBINDER_CHALLENGE_SECRET_KEY=$(Format-EnvValue $env:PROD_TURNSTILE_SECRET_KEY)",
+            "PAPERBINDER_LEASE_DEFAULT_MINUTES=$(Format-EnvValue '60')",
+            "PAPERBINDER_LEASE_EXTENSION_MINUTES=$(Format-EnvValue '10')",
+            "PAPERBINDER_LEASE_MAX_EXTENSIONS=$(Format-EnvValue '3')",
+            "PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS=$(Format-EnvValue '60')",
+            "PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE=$(Format-EnvValue '30')",
+            "PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE=$(Format-EnvValue '120')",
+            "PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE=$(Format-EnvValue '10')",
+            "PAPERBINDER_AUDIT_RETENTION_MODE=$(Format-EnvValue 'RetainTenantPurgedSummary')",
+            "NAMECHEAP_API_USER=$(Format-EnvValue $env:PROD_NAMECHEAP_API_USER)",
+            "NAMECHEAP_API_KEY=$(Format-EnvValue $env:PROD_NAMECHEAP_API_KEY)",
+            "NAMECHEAP_CLIENT_IP=$(Format-EnvValue $env:PROD_NAMECHEAP_CLIENT_IP)"
+          )
+
+          if (-not [string]::IsNullOrWhiteSpace($env:PROD_OTEL_OTLP_ENDPOINT)) {
+            $lines += "PAPERBINDER_OTEL_OTLP_ENDPOINT=$(Format-EnvValue $env:PROD_OTEL_OTLP_ENDPOINT)"
+          }
+
+          Set-Content -Path (Join-Path $deployRoot ".env") -Value $lines
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.PROD_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Verify pinned SSH host identity
+        shell: bash
+        run: |
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}" "exit 0"
+
+      - name: Create remote deployment directory
+        shell: bash
+        run: |
+          ssh "${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}" "mkdir -p '${{ steps.version.outputs.deploy_app_path }}/deploy/prod'"
+
+      - name: Upload deployment bundle
+        shell: bash
+        run: |
+          scp .deploy/prod/docker-compose.prod.yml "${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:${{ steps.version.outputs.deploy_app_path }}/docker-compose.prod.yml"
+          scp .deploy/prod/.env "${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:${{ steps.version.outputs.deploy_app_path }}/.env"
+          scp .deploy/prod/deploy/prod/Caddyfile "${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:${{ steps.version.outputs.deploy_app_path }}/deploy/prod/Caddyfile"
+
+      - name: Login remote host to GHCR
+        shell: bash
+        run: |
+          printf '%s\n' "${{ secrets.PROD_GHCR_PULL_TOKEN }}" | ssh "${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}" "docker login ghcr.io -u '${{ steps.version.outputs.registry_owner }}' --password-stdin"
+
+      - name: Deploy release
+        shell: bash
+        run: |
+          ssh "${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}" "
+            set -euo pipefail
+            cd '${{ steps.version.outputs.deploy_app_path }}'
+            docker compose --env-file .env -f docker-compose.prod.yml pull
+            docker compose --env-file .env -f docker-compose.prod.yml run --rm migrations
+            docker compose --env-file .env -f docker-compose.prod.yml up -d
+          "
+
+      - name: Smoke check public health endpoints
+        shell: bash
+        run: |
+          check_with_retry() {
+            local url="$1"
+            local attempts="$2"
+            local sleep_seconds="$3"
+            local label="$4"
+            local last_status=0
+
+            for ((attempt = 1; attempt <= attempts; attempt++)); do
+              if curl --fail --silent --show-error "$url" >/dev/null; then
+                echo "$label passed on attempt $attempt/$attempts."
+                return 0
+              fi
+
+              last_status=$?
+              echo "$label failed on attempt $attempt/$attempts for $url."
+              sleep "$sleep_seconds"
+            done
+
+            echo "$label failed after $attempts attempts for $url."
+            return "$last_status"
+          }
+
+          dump_remote_state() {
+            ssh "${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}" "
+              set -euo pipefail
+              cd '${{ steps.version.outputs.deploy_app_path }}'
+              echo '== docker compose ps =='
+              docker compose --env-file .env -f docker-compose.prod.yml ps || true
+              echo '== app logs =='
+              docker compose --env-file .env -f docker-compose.prod.yml logs app --since=15m || true
+              echo '== proxy logs =='
+              docker compose --env-file .env -f docker-compose.prod.yml logs proxy --since=15m || true
+            "
+          }
+
+          if ! check_with_retry "https://paperbinder.danielmaratta.com/health/live" 12 5 "Live health check"; then
+            dump_remote_state
+            exit 1
+          fi
+
+          if ! check_with_retry "https://paperbinder.danielmaratta.com/health/ready" 24 5 "Ready health check"; then
+            dump_remote_state
+            exit 1
+          fi

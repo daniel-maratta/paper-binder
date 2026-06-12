@@ -2,7 +2,7 @@
 
 ## AI Summary
 
-- This lane contains release/versioning guidance and PR artifact standards.
+- This lane contains release/versioning guidance, pipeline ownership, and PR artifact standards.
 - Use this lane to keep commits/PRs clear, cohesive, and reviewer-friendly.
 - PR templates stay at `docs/95-delivery/pr/`; concrete PR artifacts live in per-PR subfolders under that directory.
 
@@ -11,6 +11,14 @@
 - `docs/95-delivery/staging-and-versioning.md`
 - `docs/95-delivery/release-workflow.md`
 - `docs/95-delivery/release-checklist.md`
+
+## Automation
+
+- Pull-request and `main` validation: `.github/workflows/ci.yml`.
+- Stable SemVer tag validation, GHCR image publishing, and draft GitHub Release creation with GitHub-generated notes per tag: `.github/workflows/release.yml`.
+- Owner-invoked production rollout: `.github/workflows/deploy-prod.yml`.
+- Version metadata guard: `scripts/validate-version.ps1`.
+- Pipeline-setup review artifact: `docs/70-operations/pipeline-setup/critic-review.md`.
 
 ## PR Artifacts
 

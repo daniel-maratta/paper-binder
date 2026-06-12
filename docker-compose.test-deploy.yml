@@ -1,0 +1,100 @@
+name: paperbinder-test
+
+x-paperbinder-runtime-environment: &paperbinder-runtime-environment
+  PAPERBINDER_DB_CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB:-paperbinder};Username=${POSTGRES_USER:-paperbinder};Password=${POSTGRES_PASSWORD}
+  PAPERBINDER_PUBLIC_ROOT_URL: ${PAPERBINDER_PUBLIC_ROOT_URL}
+  PAPERBINDER_AUTH_COOKIE_DOMAIN: ${PAPERBINDER_AUTH_COOKIE_DOMAIN}
+  PAPERBINDER_AUTH_COOKIE_NAME: ${PAPERBINDER_AUTH_COOKIE_NAME:-paperbinder.auth}
+  PAPERBINDER_AUTH_KEY_RING_PATH: /data/keys
+  PAPERBINDER_CHALLENGE_SITE_KEY: ${PAPERBINDER_CHALLENGE_SITE_KEY}
+  PAPERBINDER_CHALLENGE_SECRET_KEY: ${PAPERBINDER_CHALLENGE_SECRET_KEY}
+  PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "false"
+  PAPERBINDER_LEASE_DEFAULT_MINUTES: ${PAPERBINDER_LEASE_DEFAULT_MINUTES:-60}
+  PAPERBINDER_LEASE_EXTENSION_MINUTES: ${PAPERBINDER_LEASE_EXTENSION_MINUTES:-10}
+  PAPERBINDER_LEASE_MAX_EXTENSIONS: ${PAPERBINDER_LEASE_MAX_EXTENSIONS:-3}
+  PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS: ${PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS:-60}
+  PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE: ${PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE:-30}
+  PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE: ${PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE:-120}
+  PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE: ${PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE:-10}
+  PAPERBINDER_AUDIT_RETENTION_MODE: ${PAPERBINDER_AUDIT_RETENTION_MODE:-RetainTenantPurgedSummary}
+  PAPERBINDER_OTEL_OTLP_ENDPOINT: ${PAPERBINDER_OTEL_OTLP_ENDPOINT:-}
+
+services:
+  proxy:
+    image: ${PAPERBINDER_IMAGE_REGISTRY}/paperbinder-proxy:${PAPERBINDER_IMAGE_TAG}
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    restart: unless-stopped
+    volumes:
+      - ./deploy/test/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./deploy/test/robots.txt:/srv/paperbinder-test/robots.txt:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      NAMECHEAP_API_KEY: ${NAMECHEAP_API_KEY}
+      NAMECHEAP_API_USER: ${NAMECHEAP_API_USER}
+      NAMECHEAP_API_ENDPOINT: ${NAMECHEAP_API_ENDPOINT:-https://api.namecheap.com/xml.response}
+      NAMECHEAP_CLIENT_IP: ${NAMECHEAP_CLIENT_IP}
+
+  app:
+    image: ${PAPERBINDER_IMAGE_REGISTRY}/paperbinder-api-test:${PAPERBINDER_IMAGE_TAG}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *paperbinder-runtime-environment
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_ENVIRONMENT: Production
+    restart: unless-stopped
+    volumes:
+      - paperbinder_keys:/data/keys
+
+  worker:
+    image: ${PAPERBINDER_IMAGE_REGISTRY}/paperbinder-worker:${PAPERBINDER_IMAGE_TAG}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *paperbinder-runtime-environment
+      DOTNET_ENVIRONMENT: Production
+    restart: unless-stopped
+    volumes:
+      - paperbinder_keys:/data/keys
+
+  migrations:
+    image: ${PAPERBINDER_IMAGE_REGISTRY}/paperbinder-migrations:${PAPERBINDER_IMAGE_TAG}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PAPERBINDER_DB_CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB:-paperbinder};Username=${POSTGRES_USER:-paperbinder};Password=${POSTGRES_PASSWORD}
+      DOTNET_ENVIRONMENT: Production
+    restart: "no"
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-paperbinder}
+      POSTGRES_USER: ${POSTGRES_USER:-paperbinder}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:${PAPERBINDER_DB_HOST_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-paperbinder} -d ${POSTGRES_DB:-paperbinder}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    volumes:
+      - paperbinder_postgres:/var/lib/postgresql/data
+
+volumes:
+  caddy_config:
+  caddy_data:
+  paperbinder_keys:
+  paperbinder_postgres:

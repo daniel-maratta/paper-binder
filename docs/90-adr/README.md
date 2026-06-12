@@ -16,6 +16,7 @@
 - `docs/90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md`
 - `docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md`
 - `docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md`
+- `docs/90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md`
 
 ## Key Decision Clusters
 
@@ -24,5 +25,6 @@
 - Operations/lifecycle behavior: `ADR-0003`, `ADR-0004`, `ADR-0006`
 - Persistence/runtime behavior: `ADR-0007`
 - Observability baseline: `ADR-0011`
+- Deployment distribution and environment indexing: `ADR-0012`
 - Architecture scope constraints: `ADR-0005`
 - Frontend/testing foundation: `ADR-0009`, `ADR-0010`

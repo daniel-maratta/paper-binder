@@ -145,6 +145,7 @@ Local Visual Studio process launches now load missing configuration keys from th
 `scripts/start-local.ps1` now runs `docker compose up -d --build`, which includes a one-shot `migrations` service plus a long-running worker service, and applies pending schema changes before the app host is allowed to finish startup.
 The local stack serves the compiled SPA and API from one ASP.NET host behind the reverse proxy, while the worker runs as a separate container so reviewers can see the same background-runtime shape the docs describe.
 Use `scripts/migrate.ps1` when you need to rerun migrations manually against the current local stack.
+Shared test and production use separate public hostnames plus `docker-compose.test.yml` and `docker-compose.prod.yml`; local development should stay on the checked-in `.localhost` contract and should not reuse deploy-only DNS or wildcard-TLS settings.
 
 ## Frontend Browser E2E Runtime
 
@@ -162,6 +163,7 @@ Use `scripts/migrate.ps1` when you need to rerun migrations manually against the
 4. Run `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`.
 
 The checked-in `.env.example` values are fake/demo-safe and are intended to work for the local Docker topology without exposing real secrets.
+The commented Namecheap values in `.env.example` exist only to document the shared-test wildcard-TLS contract; leave them unset for ordinary local work.
 `PAPERBINDER_PUBLIC_ROOT_URL` should stay aligned with the root host URL exposed by the local reverse proxy.
 If you need to test past the root-host challenge locally, set both `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=true` and `VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=true` in `.env`, then rebuild/restart the relevant app surface. Leave both flags `false` for the normal reviewer path.
 The bypass is accepted only when the configured root host is loopback or `.localhost`; enabling it against a non-local root URL now fails fast.

@@ -32,9 +32,10 @@ Components:
 
 ## Platform Assumptions
 
-- DigitalOcean droplet (or equivalent single VM).
+- Separate DigitalOcean droplets (or equivalent single VMs) for production and shared test.
 - DNS provider with API access suitable for ACME DNS-01 challenges; the current shared test environment uses Namecheap-managed DNS.
 - Caddy reverse proxy.
+- Tagged OCI images published to GitHub Container Registry for production rollout.
 
 ## Administrative Access
 
@@ -57,10 +58,13 @@ Components:
 
 ## Routing and Identity
 
-- Root host: `paperbinder-test.danielmaratta.com` (pre-auth).
-- Tenant host: `{tenant}.paperbinder-test.danielmaratta.com` (tenant-scoped).
+- Production root host: `paperbinder.danielmaratta.com` (pre-auth).
+- Production tenant host: `{tenant}.paperbinder.danielmaratta.com` (tenant-scoped).
+- Shared test root host: `paperbinder-test.danielmaratta.com` (pre-auth).
+- Shared test tenant host: `{tenant}.paperbinder-test.danielmaratta.com` (tenant-scoped).
 - Tenant context is resolved server-side from host + membership.
 - `PAPERBINDER_PUBLIC_ROOT_URL` is the canonical public root origin and must share the same host as the configured parent-domain auth cookie.
+- Production is indexable by default. Shared test is intentionally non-indexable.
 
 ## Anti-Abuse Friction
 

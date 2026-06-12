@@ -34,6 +34,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/95-delivery/README.md](./95-delivery/README.md)
 - [docs/95-delivery/release-workflow.md](./95-delivery/release-workflow.md)
 - [docs/95-delivery/release-checklist.md](./95-delivery/release-checklist.md)
+- [docs/70-operations/pipeline-setup/critic-review.md](./70-operations/pipeline-setup/critic-review.md)
 
 ## Key ADRs
 
@@ -43,6 +44,7 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md](./90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md)
 - [docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md](./90-adr/ADR-0010-playwright-root-host-e2e-runtime.md)
 - [docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md](./90-adr/ADR-0011-observability-opentelemetry-baseline.md)
+- [docs/90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md](./90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md)
 
 ## Execution References
 

@@ -19,7 +19,7 @@ Inputs reviewed:
 - [docs/80-testing/test-strategy.md](../../../80-testing/test-strategy.md), [docs/80-testing/testing-standards.md](../../../80-testing/testing-standards.md), [docs/80-testing/e2e-tests.md](../../../80-testing/e2e-tests.md)
 - [docs/00-intent/success-criteria.md](../../../00-intent/success-criteria.md)
 - [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md](../cp16-hardening-and-consistency-pass/critic-review.md) (carry-forward residuals: shim longevity, observability ADR hygiene, coverage-parity evidence)
-- Repo surface spot checks: [scripts/](../../../../scripts/) (10 canonical PowerShell entrypoints plus `run-root-host-e2e.ps1` shim and `common.ps1`/`migrate.ps1`), [docs/60-ai/](../../../60-ai/) (AI lane present in docs but no AI implementation in `src/`), `paperbinder-test.danielmaratta.com` references in `docs/70-operations/`, [docs/05-taskboard/work-queue.md](../../../05-taskboard/work-queue.md) (no CP17 task file yet)
+- Repo surface spot checks: [scripts/](../../../../scripts/) (10 canonical PowerShell entrypoints plus `run-root-host-e2e.ps1` shim and `common.ps1`/`migrate.ps1`), [docs/60-ai/](../../../60-ai/) (AI lane present in docs but no AI implementation in `src/`), shared-test host references in `docs/70-operations/`, [docs/05-taskboard/work-queue.md](../../../05-taskboard/work-queue.md) (no CP17 task file yet)
 
 ---
 
@@ -109,7 +109,7 @@ Required resolution before scope-lock:
 
 ### B5: Public-demo deployment scope for the V1 release cut is undefined
 
-[docs/70-operations/deployment.md](../../../70-operations/deployment.md) and [docs/70-operations/runbook-prod.md](../../../70-operations/runbook-prod.md) describe a single-host Docker Compose deployment at `paperbinder-test.danielmaratta.com` with Tailscale SSH and a real PostgreSQL container. Success criterion 4.1 says "Application deploys successfully in production configuration." The CP17 plan's Acceptance Criteria require the runbook docs to "align with the current single-host Docker Compose runtime, migrations workflow, validation commands, and rollback expectations, with no stale or aspirational release automation claims" — but it never says whether the public demo at the deployed domain is required to be live for CP17 closeout, or whether public-demo deployment is explicitly deferred and the runbook docs document the contract reviewers can run themselves.
+[docs/70-operations/deployment.md](../../../70-operations/deployment.md) and [docs/70-operations/runbook-prod.md](../../../70-operations/runbook-prod.md) describe a single-host Docker Compose deployment at the configured shared-test root host with private-overlay SSH and a real PostgreSQL container. Success criterion 4.1 says "Application deploys successfully in production configuration." The CP17 plan's Acceptance Criteria require the runbook docs to "align with the current single-host Docker Compose runtime, migrations workflow, validation commands, and rollback expectations, with no stale or aspirational release automation claims" — but it never says whether the public demo at the deployed domain is required to be live for CP17 closeout, or whether public-demo deployment is explicitly deferred and the runbook docs document the contract reviewers can run themselves.
 
 Both interpretations are consistent with the existing plan text, and they have very different validation surfaces:
 

@@ -10,3 +10,4 @@
 
 - Prefer built-in platform capabilities before adding external services.
 - Hosted/managed dependencies require explicit justification tied to measurable risk reduction or necessary functionality.
+- For this app's ephemeral tenant data model, prefer one-off provider snapshots before risky infrastructure changes over recurring backup spend unless operational experience proves otherwise.
