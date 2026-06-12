@@ -4,51 +4,50 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Add-Type -AssemblyName System.Web.Extensions
-
 $root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $directoryBuildPropsPath = Join-Path $root "Directory.Build.props"
 $webPackageJsonPath = Join-Path $root "src/PaperBinder.Web/package.json"
 $webPackageLockPath = Join-Path $root "src/PaperBinder.Web/package-lock.json"
 
-function Read-JsonFile($path) {
+function Read-FileText([string] $path) {
     try {
-        $serializer = New-Object System.Web.Script.Serialization.JavaScriptSerializer
-        $serializer.MaxJsonLength = [int]::MaxValue
-        return $serializer.DeserializeObject((Get-Content $path -Raw))
+        return Get-Content $path -Raw
     }
     catch {
-        throw "Unable to parse JSON file '$path'. $_"
+        throw "Unable to read file '$path'. $_"
     }
 }
 
-function Get-JsonPropertyValue($inputObject, [string] $propertyName) {
-    if ($null -eq $inputObject) {
-        return $null
+function Read-TopLevelJsonStringProperty([string] $path, [string] $propertyName) {
+    $content = Read-FileText $path
+    $escapedPropertyName = [regex]::Escape($propertyName)
+    $match = [regex]::Match(
+        $content,
+        "(?ms)^\s*`"$escapedPropertyName`"\s*:\s*`"(?<value>[^`"]+)`""
+    )
+
+    if (-not $match.Success) {
+        throw "Unable to find top-level JSON string property '$propertyName' in '$path'."
     }
 
-    if ($inputObject -is [System.Collections.IDictionary]) {
-        return $inputObject[$propertyName]
-    }
-
-    return $null
+    return $match.Groups["value"].Value
 }
 
-function Read-JsonValue($inputObject, $selector) {
-    $current = $inputObject
-    foreach ($segment in $selector.Split(".")) {
-        $current = Get-JsonPropertyValue $current $segment
-        if ($null -eq $current) {
-            return $null
-        }
+function Read-PackageLockRootPackageVersion([string] $path) {
+    $content = Read-FileText $path
+    $match = [regex]::Match(
+        $content,
+        '(?ms)"packages"\s*:\s*\{\s*""\s*:\s*\{.*?"version"\s*:\s*"(?<value>[^"]+)"'
+    )
+
+    if (-not $match.Success) {
+        throw "Unable to find package-lock root package version in '$path'."
     }
 
-    return $current
+    return $match.Groups["value"].Value
 }
 
 [xml] $directoryBuildProps = Get-Content $directoryBuildPropsPath -Raw
-$webPackageJson = Read-JsonFile $webPackageJsonPath
-$webPackageLock = Read-JsonFile $webPackageLockPath
 $versionPrefix = $directoryBuildProps.Project.PropertyGroup.VersionPrefix | Where-Object { $_ } | Select-Object -First 1
 
 if ([string]::IsNullOrWhiteSpace($versionPrefix)) {
@@ -73,19 +72,17 @@ if ($versionPrefix -ne $ExpectedVersion) {
     throw "Directory.Build.props VersionPrefix '$versionPrefix' does not match expected version '$ExpectedVersion'."
 }
 
-$webPackageJsonVersion = Read-JsonValue $webPackageJson "version"
+$webPackageJsonVersion = Read-TopLevelJsonStringProperty $webPackageJsonPath "version"
 if ($webPackageJsonVersion -ne $ExpectedVersion) {
     throw "src/PaperBinder.Web/package.json version '$webPackageJsonVersion' does not match expected version '$ExpectedVersion'."
 }
 
-$webPackageLockVersion = Read-JsonValue $webPackageLock "version"
+$webPackageLockVersion = Read-TopLevelJsonStringProperty $webPackageLockPath "version"
 if ($webPackageLockVersion -ne $ExpectedVersion) {
     throw "src/PaperBinder.Web/package-lock.json version '$webPackageLockVersion' does not match expected version '$ExpectedVersion'."
 }
 
-$webPackageLockPackages = Read-JsonValue $webPackageLock "packages"
-$webPackageLockRootPackage = Get-JsonPropertyValue $webPackageLockPackages ""
-$webPackageLockRootVersion = Get-JsonPropertyValue $webPackageLockRootPackage "version"
+$webPackageLockRootVersion = Read-PackageLockRootPackageVersion $webPackageLockPath
 
 if ($webPackageLockRootVersion -ne $ExpectedVersion) {
     throw "src/PaperBinder.Web/package-lock.json root package version '$webPackageLockRootVersion' does not match expected version '$ExpectedVersion'."
