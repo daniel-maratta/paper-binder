@@ -38,31 +38,54 @@ function Wait-ForUrl {
   )
 
   $deadline = [DateTimeOffset]::UtcNow.AddSeconds(60)
+  $lastObservation = $null
 
   while ([DateTimeOffset]::UtcNow -lt $deadline) {
     $statusCode = $null
+    $observation = $null
 
     try {
       $response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 2
       $statusCode = [int]$response.StatusCode
     }
     catch {
-      $response = $_.Exception.Response
-      if ($null -ne $response) {
+      $exception = $_.Exception
+      $responseProperty = $exception.PSObject.Properties["Response"]
+      if ($null -ne $responseProperty) {
+        $response = $responseProperty.Value
         try {
-          $statusCode = [int]$response.StatusCode
+          if ($null -ne $response) {
+            $statusCode = [int]$response.StatusCode
+          }
         }
         catch {
           $statusCode = $null
         }
       }
+
+      if (-not [string]::IsNullOrWhiteSpace($exception.Message)) {
+        $observation = $exception.Message
+      }
+    }
+
+    if ($null -ne $statusCode) {
+      $observation = "HTTP $statusCode"
     }
 
     if ($null -ne $statusCode -and $AllowedStatusCodes -contains $statusCode) {
       return
     }
 
+    if (-not [string]::IsNullOrWhiteSpace($observation) -and $observation -ne $lastObservation) {
+      Write-Host "Wait-ForUrl: $Url not ready yet ($observation)."
+      $lastObservation = $observation
+    }
+
     Start-Sleep -Milliseconds 500
+  }
+
+  if (-not [string]::IsNullOrWhiteSpace($lastObservation)) {
+    throw "Timed out waiting for $Url. Last observed result: $lastObservation."
   }
 
   throw "Timed out waiting for $Url."
