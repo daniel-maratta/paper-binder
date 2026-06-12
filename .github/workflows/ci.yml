@@ -26,6 +26,10 @@ jobs:
           cache: npm
           cache-dependency-path: src/PaperBinder.Web/package-lock.json
 
+      - name: Bootstrap local .env from .env.example
+        shell: bash
+        run: cp .env.example .env
+
       - name: Validate version metadata
         shell: pwsh
         run: ./scripts/validate-version.ps1
