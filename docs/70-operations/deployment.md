@@ -105,7 +105,9 @@ Release image publishing expects:
 Manual shared-test rollout validation via `.github/workflows/deploy-test.yml` expects:
 - Secrets: `TEST_TAILSCALE_OAUTH_CLIENT_ID`, `TEST_TAILSCALE_OAUTH_SECRET`
 - Repository or environment variable: `TEST_TAILSCALE_TAGS`
-- Secrets: `TEST_SSH_HOST`, `TEST_SSH_USER`, `TEST_SSH_PRIVATE_KEY`
+- Secret: `TEST_SSH_HOST`
+- Repository or environment variable: `TEST_SSH_USER`
+- Secret: `TEST_SSH_PRIVATE_KEY`
 - Secret: `TEST_SSH_KNOWN_HOSTS`
 - Secret: `TEST_GHCR_PULL_TOKEN`
 - Secret: `TEST_POSTGRES_PASSWORD`

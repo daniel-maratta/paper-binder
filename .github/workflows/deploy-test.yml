@@ -63,7 +63,7 @@ jobs:
           test -n "${{ secrets.TEST_TAILSCALE_OAUTH_SECRET }}" || { echo "Missing secret TEST_TAILSCALE_OAUTH_SECRET."; exit 1; }
           test -n "${{ vars.TEST_TAILSCALE_TAGS }}" || { echo "Missing repository or environment variable TEST_TAILSCALE_TAGS."; exit 1; }
           test -n "${{ secrets.TEST_SSH_HOST }}" || { echo "Missing secret TEST_SSH_HOST."; exit 1; }
-          test -n "${{ secrets.TEST_SSH_USER }}" || { echo "Missing secret TEST_SSH_USER."; exit 1; }
+          test -n "${{ vars.TEST_SSH_USER }}" || { echo "Missing repository or environment variable TEST_SSH_USER."; exit 1; }
           test -n "${{ secrets.TEST_SSH_PRIVATE_KEY }}" || { echo "Missing secret TEST_SSH_PRIVATE_KEY."; exit 1; }
           test -n "${{ secrets.TEST_SSH_KNOWN_HOSTS }}" || { echo "Missing secret TEST_SSH_KNOWN_HOSTS."; exit 1; }
           test -n "${{ secrets.TEST_GHCR_PULL_TOKEN }}" || { echo "Missing secret TEST_GHCR_PULL_TOKEN."; exit 1; }
@@ -148,38 +148,67 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s\n' "${{ secrets.TEST_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.TEST_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "${{ secrets.TEST_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null
+          printf '%s\n' "${{ secrets.TEST_SSH_KNOWN_HOSTS }}" | tr -d '\r' > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
+          test -s ~/.ssh/known_hosts || { echo "known_hosts file is missing or empty."; exit 1; }
+          cat <<EOF > ~/.ssh/config
+          Host paperbinder-test-deploy
+            HostName ${{ secrets.TEST_SSH_HOST }}
+            User ${{ vars.TEST_SSH_USER }}
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/known_hosts
+            HostKeyAlias ${{ secrets.TEST_SSH_HOST }}
+          EOF
+          chmod 600 ~/.ssh/config
+          ssh -G paperbinder-test-deploy >/dev/null
+          echo "SSH private key parsed successfully."
+          echo "SSH known_hosts file is present and non-empty."
+          echo "SSH config alias paperbinder-test-deploy created."
 
-      - name: Verify pinned SSH host identity
+      - name: Verify SSH authentication and pinned host identity
         shell: bash
         run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}" "exit 0"
+          if ! ssh -o BatchMode=yes paperbinder-test-deploy "exit 0"; then
+            echo "SSH authentication probe failed. Emitting sanitized client debug output."
+            ssh -vv -o BatchMode=yes paperbinder-test-deploy "exit 0" 2>ssh-debug.log || true
+            host_pattern="$(printf '%s\n' "${{ secrets.TEST_SSH_HOST }}" | sed 's/[][\\/.*^$]/\\&/g')"
+            user_pattern="$(printf '%s\n' "${{ vars.TEST_SSH_USER }}" | sed 's/[][\\/.*^$]/\\&/g')"
+            sed \
+              -e "s/${host_pattern}/[redacted-host]/g" \
+              -e "s/${user_pattern}/[redacted-user]/g" \
+              -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/[redacted-ip]/g' \
+              -E 's/SHA256:[A-Za-z0-9+/=]+/[redacted-fingerprint]/g' \
+              ssh-debug.log
+            exit 1
+          fi
 
       - name: Create remote deployment directory
         shell: bash
         run: |
-          ssh "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}" "mkdir -p '${{ steps.version.outputs.deploy_app_path }}/deploy/test'"
+          ssh paperbinder-test-deploy "mkdir -p '${{ steps.version.outputs.deploy_app_path }}/deploy/test'"
 
       - name: Upload deployment bundle
         shell: bash
         run: |
-          scp .deploy/test/docker-compose.test-deploy.yml "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}:${{ steps.version.outputs.deploy_app_path }}/docker-compose.test-deploy.yml"
-          scp .deploy/test/.env "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}:${{ steps.version.outputs.deploy_app_path }}/.env"
-          scp .deploy/test/deploy/test/Caddyfile "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}:${{ steps.version.outputs.deploy_app_path }}/deploy/test/Caddyfile"
-          scp .deploy/test/deploy/test/robots.txt "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}:${{ steps.version.outputs.deploy_app_path }}/deploy/test/robots.txt"
+          scp .deploy/test/docker-compose.test-deploy.yml "paperbinder-test-deploy:${{ steps.version.outputs.deploy_app_path }}/docker-compose.test-deploy.yml"
+          scp .deploy/test/.env "paperbinder-test-deploy:${{ steps.version.outputs.deploy_app_path }}/.env"
+          scp .deploy/test/deploy/test/Caddyfile "paperbinder-test-deploy:${{ steps.version.outputs.deploy_app_path }}/deploy/test/Caddyfile"
+          scp .deploy/test/deploy/test/robots.txt "paperbinder-test-deploy:${{ steps.version.outputs.deploy_app_path }}/deploy/test/robots.txt"
 
       - name: Login remote host to GHCR
         shell: bash
         run: |
-          printf '%s\n' "${{ secrets.TEST_GHCR_PULL_TOKEN }}" | ssh "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}" "docker login ghcr.io -u '${{ steps.version.outputs.registry_owner }}' --password-stdin"
+          printf '%s\n' "${{ secrets.TEST_GHCR_PULL_TOKEN }}" | ssh paperbinder-test-deploy "docker login ghcr.io -u '${{ steps.version.outputs.registry_owner }}' --password-stdin"
 
       - name: Deploy release
         shell: bash
         run: |
-          ssh "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}" "
+          ssh paperbinder-test-deploy "
             set -euo pipefail
             cd '${{ steps.version.outputs.deploy_app_path }}'
             docker compose --env-file .env -f docker-compose.test-deploy.yml pull
@@ -215,7 +244,7 @@ jobs:
           }
 
           dump_remote_state() {
-            ssh "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}" "
+            ssh paperbinder-test-deploy "
               set -euo pipefail
               cd '${{ steps.version.outputs.deploy_app_path }}'
               echo '== docker compose ps =='
