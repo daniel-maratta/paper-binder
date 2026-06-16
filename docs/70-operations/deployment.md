@@ -117,7 +117,11 @@ Manual shared-test rollout validation via `.github/workflows/deploy-test.yml` ex
 - Optional secret: `TEST_OTEL_OTLP_ENDPOINT`
 
 Manual production rollout via `.github/workflows/deploy-prod.yml` expects:
-- Secrets: `PROD_SSH_HOST`, `PROD_SSH_USER`, `PROD_SSH_PRIVATE_KEY`
+- Secrets: `PROD_TAILSCALE_OAUTH_CLIENT_ID`, `PROD_TAILSCALE_OAUTH_SECRET`
+- Repository or environment variable: `PROD_TAILSCALE_TAGS`
+- Secret: `PROD_SSH_HOST`
+- Repository or environment variable: `PROD_SSH_USER`
+- Secret: `PROD_SSH_PRIVATE_KEY`
 - Secret: `PROD_SSH_KNOWN_HOSTS`
 - Secret: `PROD_GHCR_PULL_TOKEN`
 - Secrets: `PROD_POSTGRES_PASSWORD`, `PROD_TURNSTILE_SECRET_KEY`
@@ -126,7 +130,8 @@ Manual production rollout via `.github/workflows/deploy-prod.yml` expects:
 - Repository or environment variable: `PROD_TURNSTILE_SITE_KEY`
 
 The `test` and `production` GitHub environments are the intended places to scope approval and deployment secrets separately. Shared-test and production must not share deploy keys, host-key material, or GHCR pull credentials.
-`.github/workflows/deploy-test.yml` explicitly joins the tailnet through `tailscale/github-action@v4` before any SSH step, which matches the current firewall posture where SSH ingress is allowed only on the private overlay interface. `.github/workflows/deploy-prod.yml` does not yet do this, so do not assume a plain GitHub-hosted runner can reach a tailscale-only production SSH target until the production workflow is given the same tailnet reachability or moved to a self-hosted runner inside the tailnet.
+GitHub Actions deploy SSH keys must be dedicated CI deploy keys without passphrases. Do not reuse workstation or admin SSH keys for CI. The matching public key must be installed for the deploy user on the target host, and the private key belongs only in the corresponding GitHub environment secret.
+Both deployment workflows explicitly join the tailnet through `tailscale/github-action@v4` before any SSH step, which matches the current firewall posture where SSH ingress is allowed only on the private overlay interface.
 The workflow `deploy_path` input is the base install directory. The live production app directory is derived as `<deploy_path>/app`, and the workflow verifies the pinned SSH host key before any upload, remote GHCR login, or remote compose command runs.
 
 ## Deploy Procedure
