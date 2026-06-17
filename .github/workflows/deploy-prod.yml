@@ -112,7 +112,7 @@ jobs:
             "PAPERBINDER_IMAGE_REGISTRY=$(Format-EnvValue '${{ steps.version.outputs.image_registry }}')",
             "PAPERBINDER_IMAGE_TAG=$(Format-EnvValue '${{ steps.version.outputs.version }}')",
             "POSTGRES_DB=$(Format-EnvValue 'paperbinder')",
-            "POSTGRES_USER=$(Format-EnvValue 'paperbinder')",
+            "POSTGRES_USER=$(Format-EnvValue 'paperbinder-prod')",
             "POSTGRES_PASSWORD=$(Format-EnvValue $env:PROD_POSTGRES_PASSWORD)",
             "PAPERBINDER_PUBLIC_ROOT_URL=$(Format-EnvValue 'https://paperbinder.danielmaratta.com')",
             "PAPERBINDER_AUTH_COOKIE_DOMAIN=$(Format-EnvValue '.paperbinder.danielmaratta.com')",

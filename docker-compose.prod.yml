@@ -1,7 +1,7 @@
 name: paperbinder-prod
 
 x-paperbinder-runtime-environment: &paperbinder-runtime-environment
-  PAPERBINDER_DB_CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB:-paperbinder};Username=${POSTGRES_USER:-paperbinder};Password=${POSTGRES_PASSWORD}
+  PAPERBINDER_DB_CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB:-paperbinder};Username=${POSTGRES_USER:-paperbinder-prod};Password=${POSTGRES_PASSWORD}
   PAPERBINDER_PUBLIC_ROOT_URL: ${PAPERBINDER_PUBLIC_ROOT_URL}
   PAPERBINDER_AUTH_COOKIE_DOMAIN: ${PAPERBINDER_AUTH_COOKIE_DOMAIN}
   PAPERBINDER_AUTH_COOKIE_NAME: ${PAPERBINDER_AUTH_COOKIE_NAME:-paperbinder.auth}
@@ -71,7 +71,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      PAPERBINDER_DB_CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB:-paperbinder};Username=${POSTGRES_USER:-paperbinder};Password=${POSTGRES_PASSWORD}
+      PAPERBINDER_DB_CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB:-paperbinder};Username=${POSTGRES_USER:-paperbinder-prod};Password=${POSTGRES_PASSWORD}
       DOTNET_ENVIRONMENT: Production
     restart: "no"
 
@@ -79,12 +79,12 @@ services:
     image: postgres:17-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-paperbinder}
-      POSTGRES_USER: ${POSTGRES_USER:-paperbinder}
+      POSTGRES_USER: ${POSTGRES_USER:-paperbinder-prod}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "127.0.0.1:${PAPERBINDER_DB_HOST_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-paperbinder} -d ${POSTGRES_DB:-paperbinder}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-paperbinder-prod} -d ${POSTGRES_DB:-paperbinder}"]
       interval: 5s
       timeout: 5s
       retries: 10

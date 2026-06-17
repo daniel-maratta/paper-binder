@@ -62,6 +62,7 @@ DNS:
 
 ## Required Configuration (Illustrative)
 
+- `POSTGRES_USER=paperbinder-prod`
 - `PAPERBINDER_DB_CONNECTION=...`
 - `PAPERBINDER_PUBLIC_ROOT_URL=https://<production-root-host>`
 - `PAPERBINDER_AUTH_COOKIE_DOMAIN=.<production-base-domain>`
