@@ -90,6 +90,9 @@ DNS:
 Keep secrets out of git. Use server-side `.env` or secret injection.
 Keep `.env.example` aligned to the canonical runtime and frontend build-time keys using fake values only.
 .env for public deployments lives under `/opt/paperbinder/app/.env`, remains untracked, and should be mode `600`.
+For production GHCR rollouts, the workflow-generated `.env`, the `docker-compose.prod.yml` defaults, and the existing PostgreSQL role on the host must agree on both `POSTGRES_DB` and `POSTGRES_USER`. The current production role is `paperbinder-prod`.
+If production migrations fail with PostgreSQL password-authentication errors such as Npgsql `28P01`, first confirm the deployed `.env` still matches the actual server role and password before assuming the GHCR image or migration binary is at fault.
+Hyphenated PostgreSQL identifiers require double quotes in SQL. For example: `ALTER USER "paperbinder-prod" WITH PASSWORD '...';`
 Do not enable `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` or `VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` in deployed/public environments. The app and frontend build now reject that configuration unless the root host is loopback or `.localhost`.
 The shared test deployment uses `docker compose -f docker-compose.test.yml ...` so the stock local-only proxy contract stays intact.
 Shared test uses the equivalent `<shared-test-root-host>` and `<shared-test-base-domain>` host values and remains intentionally non-indexable.
