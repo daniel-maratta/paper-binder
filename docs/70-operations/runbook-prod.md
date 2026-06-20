@@ -63,6 +63,15 @@ docker compose --env-file .env -f docker-compose.prod.yml ...
 - Verify reverse-proxy routing.
 - Restart affected services if needed.
 
+### Migrations Fail With PostgreSQL Authentication Errors
+- Confirm `/opt/paperbinder/app/.env` still matches the intended production database contract:
+  - `POSTGRES_DB=paperbinder`
+  - `POSTGRES_USER=paperbinder-prod`
+- Confirm the existing PostgreSQL role on the host is still `paperbinder-prod` and that its password matches the current `PROD_POSTGRES_PASSWORD` secret value used by the workflow-generated `.env`.
+- If you must update the password manually in SQL, quote the hyphenated identifier:
+  - `ALTER USER "paperbinder-prod" WITH PASSWORD '...';`
+- Re-run `docker compose --env-file .env -f docker-compose.prod.yml run --rm migrations` after correcting the role/password mismatch.
+
 ### Unexpected Deindexing Or Crawl Blocking
 - Verify production `GET /robots.txt` does not disallow the site.
 - Verify production root-host and tenant-host responses do not emit blanket `X-Robots-Tag: noindex`.

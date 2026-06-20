@@ -21,7 +21,7 @@
 
 ## Required Environment Variables (Examples)
 
-- `PAPERBINDER_DB_CONNECTION=Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=<secret>`
+- `PAPERBINDER_DB_CONNECTION=Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder-prod;Password=<secret>`
 - `PAPERBINDER_PUBLIC_ROOT_URL=https://<production-root-host>`
 - `PAPERBINDER_AUTH_COOKIE_DOMAIN=.<production-base-domain>`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
@@ -43,6 +43,7 @@
 
 Shared test uses the equivalent `<shared-test-root-host>` and `<shared-test-base-domain>` values for `PAPERBINDER_PUBLIC_ROOT_URL`, `PAPERBINDER_AUTH_COOKIE_DOMAIN`, and the `VITE_PAPERBINDER_*` host settings.
 Production and shared test must not share cookie-domain settings.
+Production GHCR deploys also require the workflow-generated `POSTGRES_DB`, `POSTGRES_USER`, and `PAPERBINDER_DB_CONNECTION` values to agree with the existing PostgreSQL role on the host. The current production role is `paperbinder-prod`.
 
 When a deployment uses the repo-owned wildcard-TLS proxy path, Caddy also requires deployment-only DNS-challenge settings:
 
