@@ -34,7 +34,8 @@ Reviewer experience:
 - Code walkthrough
 
 Release boundary:
-- The shipped release is prose `V1` with recommended tag `v1.0.0`
+- The shipped release line is prose `V1` with current stable tag `v1.0.1`
+- The historical first stable tag remains `v1.0.0`
 - Release readiness is documented through the delivery lane; live public-host operation is not a `V1` release gate
 
 Minimum v1 workflow:

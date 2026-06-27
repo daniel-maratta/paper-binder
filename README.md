@@ -133,5 +133,5 @@ Policy:
 ## Status
 
 PaperBinder is reviewer-ready at `V1`.
-The recommended release tag is `v1.0.0`.
+The current stable release tag is `v1.0.1`.
 Release readiness is recorded in `docs/95-delivery/release-checklist.md`, with the release snapshot in `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`.

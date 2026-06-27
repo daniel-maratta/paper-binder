@@ -4,6 +4,17 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## [1.0.1] - 2026-06-26
+
+### Fixed
+- Release version metadata now aligns across `Directory.Build.props`, the frontend package manifests, and the SemVer validation guard so stable `1.0.1` tag validation can pass the release workflow.
+
+### Security
+- ASP.NET Core Data Protection key-ring persistence now supports encrypting key XML at rest with deployment-provided X.509 `.pfx` certificates while keeping filesystem-backed key storage.
+
+### Docs
+- Current release, reviewer, and operational docs now treat `v1.0.1` as the active stable tag while preserving the original `V1` / `v1.0.0` artifact set as historical first-release evidence.
+
 ## [V1] - 2026-04-19
 
 ### Added

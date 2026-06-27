@@ -2,7 +2,7 @@
 
 This guide is for interviewers and technical reviewers who want a fast, accurate read of the shipped `V1` system and its release evidence.
 
-PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The recommended release tag for this cut is `v1.0.0`.
+PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current stable release tag for this cut is `v1.0.1`.
 
 ## Fast Review Path (10-15 Minutes)
 

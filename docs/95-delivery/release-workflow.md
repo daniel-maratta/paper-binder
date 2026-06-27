@@ -3,14 +3,17 @@ Status: Current (`V1`)
 
 ## Purpose
 
-Define the canonical `V1` release-preparation sequence, ownership boundaries, and the artifact set that must agree before `main` is documented as taggable.
+Define the canonical stable-release sequence for the `V1` line, its ownership boundaries, and the artifact set that must agree before `main` is documented as taggable for the current SemVer tag.
 
 ## Locked Release Identity
 
-- Prose release label: `V1`
-- Recommended tag spelling: `v1.0.0`
-- Version metadata: `1.0.0`
-- Changelog cut shape: `## [V1] - YYYY-MM-DD` with a fresh empty `## Unreleased`
+- Prose release line: `V1`
+- Historical first stable tag: `v1.0.0`
+- Current stable tag: `v1.0.1`
+- Current version metadata: `1.0.1`
+- Changelog cut shape:
+  - historical first stable cut: `## [V1] - 2026-04-19`
+  - subsequent stable releases on the same line: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD` with a fresh empty `## Unreleased`
 
 ## Canonical Release Artifacts
 
@@ -30,9 +33,9 @@ Define the canonical `V1` release-preparation sequence, ownership boundaries, an
    - Refresh `README.md`, `REVIEWERS.md`, `review/`, operations docs, testing docs, and taskboard or ledger artifacts so they describe the shipped system only.
    - Reclassify `docs/60-ai/` and reviewer AI references as post-`V1` or deferred context only.
 3. Update release artifacts.
-   - Cut `CHANGELOG.md` for `V1`.
-   - Refresh the CP17 release artifact and the release checklist.
-   - Keep `docs/95-delivery/staging-and-versioning.md` aligned with the locked release identity.
+   - Cut `CHANGELOG.md` for the current stable tag while preserving the historical `V1` first-cut entry.
+   - Refresh the active release checklist and other current-state docs.
+   - Keep `docs/95-delivery/staging-and-versioning.md` aligned with the current stable release identity.
 4. Run the clean-checkout validation bundle from a fresh checkout, clone, or worktree of the candidate revision.
    - Bootstrap the repo-root `.env` from `.env.example` before Docker-backed commands, exactly as documented in `docs/70-operations/runbook-local.md`.
    - Use the exact scripted bundle owned by the release checklist.
@@ -42,9 +45,9 @@ Define the canonical `V1` release-preparation sequence, ownership boundaries, an
    - Note explicitly that `Launch Frontend Dev Server` is VS Code-only.
    - Mirror the final `Release Readiness` signal into the CP17 release artifact and checkpoint ledger.
 6. Hand off owner-controlled release actions.
-   - `main` being documented as taggable for `V1` is the executor closeout.
-   - The actual merge and `v1.0.0` tag creation remain owner-controlled actions.
-   - Pushing `v1.0.0` starts `.github/workflows/release.yml`; the workflow now generates draft GitHub Release notes per tag instead of reusing the CP17 release artifact as the release-body source.
+   - `main` being documented as taggable for the current stable tag is the executor closeout.
+   - The actual merge and SemVer tag creation or retagging remain owner-controlled actions.
+   - Pushing the stable tag starts `.github/workflows/release.yml`; the workflow now generates draft GitHub Release notes per tag instead of reusing the CP17 release artifact as the release-body source.
    - Production rollout uses the separate owner-invoked `.github/workflows/deploy-prod.yml` workflow after the tagged images exist in GHCR.
 
 The CP17 release artifact set remains the canonical reviewer-facing `V1` release-prep evidence. It is historical documentation for the first release cut, not the release-body source for later tags.
@@ -81,7 +84,7 @@ The release workflow must not introduce a parallel shadow command surface.
 - Stable release tags use `.github/workflows/release.yml`.
 - Owner-approved shared-test GHCR validation uses `.github/workflows/deploy-test.yml`.
 - Owner-approved production rollout uses `.github/workflows/deploy-prod.yml`.
-- Release tags must match `vMAJOR.MINOR.PATCH`; `v1.0.0` is the first valid `V1` tag.
+- Release tags must match `vMAJOR.MINOR.PATCH`; `v1.0.0` is the historical first valid `V1` tag and `v1.0.1` is the current stable tag.
 - CI intentionally stays lighter than the release workflow: it validates version metadata, restore, build, repo tests, docs, and launch-profile drift on pull requests and pushes to `main`.
 - The release workflow adds the slower gates that remain tag-time only: browser E2E and the full checkpoint validation bundle.
 - The release workflow validates that repo version metadata matches the tag before it runs the release validation bundle and publishes tagged GHCR images.
