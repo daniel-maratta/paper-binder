@@ -70,6 +70,9 @@ jobs:
           test -n "${{ secrets.TEST_POSTGRES_PASSWORD }}" || { echo "Missing secret TEST_POSTGRES_PASSWORD."; exit 1; }
           test -n "${{ vars.TEST_PUBLIC_ROOT_URL }}" || { echo "Missing repository or environment variable TEST_PUBLIC_ROOT_URL."; exit 1; }
           test -n "${{ vars.TEST_AUTH_COOKIE_DOMAIN }}" || { echo "Missing repository or environment variable TEST_AUTH_COOKIE_DOMAIN."; exit 1; }
+          test -n "${{ vars.TEST_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME }}" || { echo "Missing repository or environment variable TEST_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME."; exit 1; }
+          test -n "${{ vars.TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH }}" || { echo "Missing repository or environment variable TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH."; exit 1; }
+          test -n "${{ secrets.TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD }}" || { echo "Missing secret TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD."; exit 1; }
           test -n "${{ vars.TEST_TURNSTILE_SITE_KEY }}" || { echo "Missing repository or environment variable TEST_TURNSTILE_SITE_KEY."; exit 1; }
           test -n "${{ secrets.TEST_TURNSTILE_SECRET_KEY }}" || { echo "Missing secret TEST_TURNSTILE_SECRET_KEY."; exit 1; }
           test -n "${{ secrets.TEST_NAMECHEAP_API_USER }}" || { echo "Missing secret TEST_NAMECHEAP_API_USER."; exit 1; }
@@ -89,6 +92,9 @@ jobs:
           TEST_POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
           TEST_PUBLIC_ROOT_URL: ${{ vars.TEST_PUBLIC_ROOT_URL }}
           TEST_AUTH_COOKIE_DOMAIN: ${{ vars.TEST_AUTH_COOKIE_DOMAIN }}
+          TEST_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME: ${{ vars.TEST_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME }}
+          TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH: ${{ vars.TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH }}
+          TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD: ${{ secrets.TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD }}
           TEST_TURNSTILE_SITE_KEY: ${{ vars.TEST_TURNSTILE_SITE_KEY }}
           TEST_TURNSTILE_SECRET_KEY: ${{ secrets.TEST_TURNSTILE_SECRET_KEY }}
           TEST_NAMECHEAP_API_USER: ${{ secrets.TEST_NAMECHEAP_API_USER }}
@@ -122,6 +128,9 @@ jobs:
             "PAPERBINDER_PUBLIC_ROOT_URL=$(Format-EnvValue $env:TEST_PUBLIC_ROOT_URL)",
             "PAPERBINDER_AUTH_COOKIE_DOMAIN=$(Format-EnvValue $env:TEST_AUTH_COOKIE_DOMAIN)",
             "PAPERBINDER_AUTH_COOKIE_NAME=$(Format-EnvValue 'paperbinder.auth')",
+            "PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME=$(Format-EnvValue $env:TEST_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME)",
+            "PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH=$(Format-EnvValue $env:TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH)",
+            "PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD=$(Format-EnvValue $env:TEST_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD)",
             "PAPERBINDER_CHALLENGE_SITE_KEY=$(Format-EnvValue $env:TEST_TURNSTILE_SITE_KEY)",
             "PAPERBINDER_CHALLENGE_SECRET_KEY=$(Format-EnvValue $env:TEST_TURNSTILE_SECRET_KEY)",
             "PAPERBINDER_LEASE_DEFAULT_MINUTES=$(Format-EnvValue '60')",

@@ -68,6 +68,9 @@ jobs:
           test -n "${{ secrets.PROD_SSH_KNOWN_HOSTS }}" || { echo "Missing secret PROD_SSH_KNOWN_HOSTS."; exit 1; }
           test -n "${{ secrets.PROD_GHCR_PULL_TOKEN }}" || { echo "Missing secret PROD_GHCR_PULL_TOKEN."; exit 1; }
           test -n "${{ secrets.PROD_POSTGRES_PASSWORD }}" || { echo "Missing secret PROD_POSTGRES_PASSWORD."; exit 1; }
+          test -n "${{ vars.PROD_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME }}" || { echo "Missing repository or environment variable PROD_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME."; exit 1; }
+          test -n "${{ vars.PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH }}" || { echo "Missing repository or environment variable PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH."; exit 1; }
+          test -n "${{ secrets.PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD }}" || { echo "Missing secret PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD."; exit 1; }
           test -n "${{ vars.PROD_TURNSTILE_SITE_KEY }}" || { echo "Missing repository or environment variable PROD_TURNSTILE_SITE_KEY."; exit 1; }
           test -n "${{ secrets.PROD_TURNSTILE_SECRET_KEY }}" || { echo "Missing secret PROD_TURNSTILE_SECRET_KEY."; exit 1; }
           test -n "${{ secrets.PROD_NAMECHEAP_API_USER }}" || { echo "Missing secret PROD_NAMECHEAP_API_USER."; exit 1; }
@@ -85,6 +88,9 @@ jobs:
       - name: Prepare deployment bundle
         env:
           PROD_POSTGRES_PASSWORD: ${{ secrets.PROD_POSTGRES_PASSWORD }}
+          PROD_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME: ${{ vars.PROD_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME }}
+          PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH: ${{ vars.PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH }}
+          PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD: ${{ secrets.PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD }}
           PROD_TURNSTILE_SITE_KEY: ${{ vars.PROD_TURNSTILE_SITE_KEY }}
           PROD_TURNSTILE_SECRET_KEY: ${{ secrets.PROD_TURNSTILE_SECRET_KEY }}
           PROD_NAMECHEAP_API_USER: ${{ secrets.PROD_NAMECHEAP_API_USER }}
@@ -117,6 +123,9 @@ jobs:
             "PAPERBINDER_PUBLIC_ROOT_URL=$(Format-EnvValue 'https://paperbinder.danielmaratta.com')",
             "PAPERBINDER_AUTH_COOKIE_DOMAIN=$(Format-EnvValue '.paperbinder.danielmaratta.com')",
             "PAPERBINDER_AUTH_COOKIE_NAME=$(Format-EnvValue 'paperbinder.auth')",
+            "PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME=$(Format-EnvValue $env:PROD_PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME)",
+            "PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH=$(Format-EnvValue $env:PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH)",
+            "PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD=$(Format-EnvValue $env:PROD_PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD)",
             "PAPERBINDER_CHALLENGE_SITE_KEY=$(Format-EnvValue $env:PROD_TURNSTILE_SITE_KEY)",
             "PAPERBINDER_CHALLENGE_SECRET_KEY=$(Format-EnvValue $env:PROD_TURNSTILE_SECRET_KEY)",
             "PAPERBINDER_LEASE_DEFAULT_MINUTES=$(Format-EnvValue '60')",
