@@ -19,7 +19,7 @@ Both environments are single-host Docker Compose deployments on Ubuntu 24.04.4 L
 | App/API | Docker-internal `8080/tcp`; not host-published |
 | Worker | Internal only |
 | Postgres | Host-local `127.0.0.1:5432`; not public |
-| Data Protection keys | Docker volume mounted at `/data/keys` |
+| Data Protection keys | Docker volume mounted at `/data/keys`, with optional app-only `.pfx` mount at `/run/paperbinder-secrets/data-protection.pfx` |
 | App working directory | `/opt/paperbinder/app`, owned by the deploy user |
 | Secrets | `.env` under `/opt/paperbinder/app`, mode `600`, Compose runtime; never committed |
 
@@ -107,13 +107,15 @@ The key XML files should be:
 
 The app currently runs as root inside the container. This makes the current root-owned key volume readable by the app.
 
-The warning below is known and accepted for now:
+Deployment hardening now supports certificate-backed key encryption with:
 
 ```text
-No XML encryptor configured. Key ... may be persisted to storage in unencrypted form.
+PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME=PaperBinder-Example
+PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH=/run/paperbinder-secrets/data-protection.pfx
+PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD=<set-on-server>
 ```
 
-It means the persisted key XML is not certificate-encrypted at rest. It does not mean the key is missing or public. Removing the warning requires an application/config change.
+When those settings are applied and the certificate is mounted into the app container, the `No XML encryptor configured...` warning should disappear from app logs.
 
 ## Runtime secrets
 
@@ -156,7 +158,6 @@ sed -E '
 The following warnings are expected in the current deployment and should not be treated as immediate defects without additional evidence:
 
 ```text
-No XML encryptor configured...
 Overriding HTTP_PORTS '8080' and HTTPS_PORTS ''. Binding to values defined by URLS instead 'http://+:8080'.
 Tenant resolution rejected request...
 API authentication boundary rejected request...
@@ -169,6 +170,5 @@ Recommended future passes:
 1. Verify unattended upgrades and fail2ban.
 2. Review `.env`, sudo group, and Docker group membership.
 3. Consider moving Caddy DNS credentials to a stricter secret-handling pattern.
-4. Consider certificate-backed ASP.NET Data Protection key encryption.
-5. Consider running app/worker containers as non-root users.
-6. Consider DNS provider/API token model if Namecheap API scope is too broad.
+4. Consider running app/worker containers as non-root users.
+5. Consider DNS provider/API token model if Namecheap API scope is too broad.

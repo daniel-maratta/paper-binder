@@ -18,6 +18,8 @@ public sealed class RuntimeConfigurationTests
         Assert.Equal(5432, settings.Database.Port);
         Assert.Equal("http://paperbinder.localhost:8080/", settings.PublicUrl.RootUrl.ToString());
         Assert.Equal(".paperbinder.localhost", settings.AuthCookie.Domain);
+        Assert.Null(settings.DataProtection.ApplicationName);
+        Assert.Null(settings.DataProtection.CertificatePath);
         Assert.Equal(AuditRetentionMode.RetainTenantPurgedSummary, settings.Audit.RetentionMode);
         Assert.Equal(60, settings.Lease.DefaultMinutes);
         Assert.Equal(120, settings.RateLimits.AuthenticatedPerMinute);
@@ -85,6 +87,25 @@ public sealed class RuntimeConfigurationTests
     }
 
     [Fact]
+    public void Should_LoadDataProtectionConfiguration_When_Configured()
+    {
+        var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
+            "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password"))
+        {
+            [PaperBinderConfigurationKeys.DataProtectionApplicationName] = "PaperBinder-Example",
+            [PaperBinderConfigurationKeys.DataProtectionCertificatePath] = "/run/paperbinder-secrets/data-protection.pfx",
+            [PaperBinderConfigurationKeys.DataProtectionCertificatePassword] = "test-password"
+        };
+
+        var settings = PaperBinderRuntimeSettings.Load(
+            key => configuration.TryGetValue(key, out var value) ? value : null);
+
+        Assert.Equal("PaperBinder-Example", settings.DataProtection.ApplicationName);
+        Assert.Equal("/run/paperbinder-secrets/data-protection.pfx", settings.DataProtection.CertificatePath);
+        Assert.Equal("test-password", settings.DataProtection.CertificatePassword);
+    }
+
+    [Fact]
     public void Should_LoadLocalChallengeBypass_When_PublicRootUrlIsLocal()
     {
         var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
@@ -131,5 +152,22 @@ public sealed class RuntimeConfigurationTests
                 key => configuration.TryGetValue(key, out var value) ? value : null));
 
         Assert.Contains(PaperBinderConfigurationKeys.ObservabilityOtlpEndpoint, exception.Message);
+    }
+
+    [Fact]
+    public void Should_RejectDataProtectionCertificatePath_When_PasswordIsMissing()
+    {
+        var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
+            "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password"))
+        {
+            [PaperBinderConfigurationKeys.DataProtectionCertificatePath] = "/run/paperbinder-secrets/data-protection.pfx"
+        };
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => PaperBinderRuntimeSettings.Load(
+                key => configuration.TryGetValue(key, out var value) ? value : null));
+
+        Assert.Contains(PaperBinderConfigurationKeys.DataProtectionCertificatePath, exception.Message);
+        Assert.Contains(PaperBinderConfigurationKeys.DataProtectionCertificatePassword, exception.Message);
     }
 }

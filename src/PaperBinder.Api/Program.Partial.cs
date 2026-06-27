@@ -33,7 +33,7 @@ public partial class Program
         builder.Services.AddPaperBinderPersistence(runtimeSettings);
         builder.Services.AddPaperBinderObservability(runtimeSettings, builder.Environment);
         builder.Services.AddPaperBinderHttpContract();
-        builder.Services.AddPaperBinderAuthentication(runtimeSettings);
+        builder.Services.AddPaperBinderAuthentication(runtimeSettings, builder.Environment);
         builder.Services.AddPaperBinderTenancy();
         builder.Services.AddSingleton<IDatabaseReadinessProbe, DatabaseReadinessProbe>();
         configureServices?.Invoke(builder.Services);

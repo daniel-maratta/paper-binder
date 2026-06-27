@@ -46,12 +46,16 @@ services:
         condition: service_healthy
     environment:
       <<: *paperbinder-runtime-environment
+      PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME: ${PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME:-PaperBinder}
+      PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH: ${PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH:-}
+      PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD: ${PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD:-}
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       DOTNET_ENVIRONMENT: Production
     restart: unless-stopped
     volumes:
       - paperbinder_keys:/data/keys
+      - /opt/paperbinder/secrets/data-protection.pfx:/run/paperbinder-secrets/data-protection.pfx:ro
 
   worker:
     image: ${PAPERBINDER_IMAGE_REGISTRY}/paperbinder-worker:${PAPERBINDER_IMAGE_TAG}

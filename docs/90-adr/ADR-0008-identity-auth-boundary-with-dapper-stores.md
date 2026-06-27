@@ -29,7 +29,7 @@ Use the following auth boundary for PaperBinder v1:
 - one tenant membership per user in v1, enforced with a unique constraint on `user_tenants.user_id`
 - canonical tenant roles stored on `user_tenants` as `TenantAdmin`, `BinderWrite`, and `BinderRead`
 - parent-domain auth cookie configuration based on the configured auth-cookie domain and name
-- Data Protection keys persisted via `PAPERBINDER_AUTH_KEY_RING_PATH`
+- Data Protection keys persisted via `PAPERBINDER_AUTH_KEY_RING_PATH` and encrypted at rest when a deployment configures the optional X.509 certificate settings
 - redirect origin construction based on trusted `PAPERBINDER_PUBLIC_ROOT_URL`, not raw request scheme/host input
 - CSRF enforcement for authenticated unsafe `/api/*` requests using a readable companion cookie and `X-CSRF-TOKEN`
 

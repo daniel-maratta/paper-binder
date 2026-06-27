@@ -41,6 +41,15 @@ docker compose --env-file .env -f docker-compose.prod.yml ...
 `/opt/paperbinder` remains the base install directory. The checked-in GitHub deployment workflow still accepts that base directory as input, but it derives the live app directory as `<deploy_path>/app` before it uploads compose assets or runs remote compose commands.
 `/opt/paperbinder/app` is the canonical working directory and is owned by the deploy user in the current public environments. `/opt/paperbinder/app/.env` is untracked and should remain mode `600`.
 
+Data Protection deployment hardening now expects:
+
+- `/opt/paperbinder/secrets/data-protection.pfx` mounted read-only into the app container as `/run/paperbinder-secrets/data-protection.pfx`
+- `PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME`
+- `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH`
+- `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD`
+
+Do not commit the `.pfx` or its password. Test and production must use separate certificates and passwords.
+
 ## Triage Checklist
 
 1. Confirm host accessibility and resource headroom.
@@ -49,6 +58,7 @@ docker compose --env-file .env -f docker-compose.prod.yml ...
    - unauthenticated `GET /health/ready` returns `200`
    - probe payloads remain minimal (no dependency internals or version metadata)
    - production root and tenant hosts do not emit blanket `noindex` policy
+   - app logs do not contain `No XML encryptor configured. Key ... may be persisted to storage in unencrypted form.`
 3. Confirm root and tenant host routing.
 4. Confirm DB connectivity.
 5. Check root-host login, tenant-host logout, the configured root-host logout redirect, and CSRF behavior.

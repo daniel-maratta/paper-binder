@@ -26,6 +26,9 @@
 - `PAPERBINDER_AUTH_COOKIE_DOMAIN=.<production-base-domain>`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
 - `PAPERBINDER_AUTH_KEY_RING_PATH=<path-or-provider-ref>`
+- `PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME=PaperBinder-Example`
+- `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH=/run/paperbinder-secrets/data-protection.pfx`
+- `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD=<secret>`
 - `PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS=60`
 - `PAPERBINDER_LEASE_DEFAULT_MINUTES=60`
 - `PAPERBINDER_LEASE_EXTENSION_MINUTES=10`
@@ -54,6 +57,7 @@ When a deployment uses the repo-owned wildcard-TLS proxy path, Caddy also requir
 
 Do not commit real values.
 Keep the repo-root `.env.example` synchronized with these keys using fake values only.
+Do not commit `.pfx` files, private keys, or certificate passwords; place deployment certificates on the server only.
 
 `PAPERBINDER_PUBLIC_ROOT_URL` must be an absolute root URL with the same host as `PAPERBINDER_AUTH_COOKIE_DOMAIN`.
 Provision, login, and logout redirect construction must use this trusted config value rather than the raw incoming request scheme/host.

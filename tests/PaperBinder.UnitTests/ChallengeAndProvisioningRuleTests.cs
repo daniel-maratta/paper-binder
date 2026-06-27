@@ -139,6 +139,7 @@ public sealed class ChallengeAndProvisioningRuleTests
                 5432),
             new PublicUrlSettings(new Uri("http://paperbinder.localhost:8080")),
             new AuthCookieSettings(".paperbinder.localhost", "paperbinder.auth", "paperbinder-local-keys"),
+            new DataProtectionSettings(null, null, null),
             new ChallengeSettings("local-demo-site-key", "local-demo-secret-key", false),
             new LeaseSettings(60, 10, 3, 60),
             new RateLimitSettings(30, 120, 10),
