@@ -7,6 +7,7 @@ public sealed record PaperBinderRuntimeSettings(
     DatabaseSettings Database,
     PublicUrlSettings PublicUrl,
     AuthCookieSettings AuthCookie,
+    DataProtectionSettings DataProtection,
     ChallengeSettings Challenge,
     LeaseSettings Lease,
     RateLimitSettings RateLimits,
@@ -24,6 +25,15 @@ public sealed record PaperBinderRuntimeSettings(
         var cookieDomain = GetRequiredValue(getValue, PaperBinderConfigurationKeys.AuthCookieDomain, errors);
         var cookieName = GetRequiredValue(getValue, PaperBinderConfigurationKeys.AuthCookieName, errors);
         var keyRingPath = GetRequiredValue(getValue, PaperBinderConfigurationKeys.AuthKeyRingPath, errors);
+        var dataProtectionApplicationName = GetOptionalValue(
+            getValue,
+            PaperBinderConfigurationKeys.DataProtectionApplicationName);
+        var dataProtectionCertificatePath = GetOptionalValue(
+            getValue,
+            PaperBinderConfigurationKeys.DataProtectionCertificatePath);
+        var dataProtectionCertificatePassword = GetOptionalValue(
+            getValue,
+            PaperBinderConfigurationKeys.DataProtectionCertificatePassword);
         var challengeSiteKey = GetRequiredValue(getValue, PaperBinderConfigurationKeys.ChallengeSiteKey, errors);
         var challengeSecretKey = GetRequiredValue(getValue, PaperBinderConfigurationKeys.ChallengeSecretKey, errors);
         var challengeLocalBypassEnabled = GetOptionalBoolean(
@@ -82,6 +92,11 @@ public sealed record PaperBinderRuntimeSettings(
                 errors);
         }
 
+        ValidateDataProtectionCertificateConfiguration(
+            dataProtectionCertificatePath,
+            dataProtectionCertificatePassword,
+            errors);
+
         if (errors.Count > 0)
         {
             throw new InvalidOperationException(
@@ -92,6 +107,10 @@ public sealed record PaperBinderRuntimeSettings(
             database!,
             publicUrl!,
             new AuthCookieSettings(cookieDomain!, cookieName!, keyRingPath!),
+            new DataProtectionSettings(
+                dataProtectionApplicationName,
+                dataProtectionCertificatePath,
+                dataProtectionCertificatePassword),
             new ChallengeSettings(challengeSiteKey!, challengeSecretKey!, challengeLocalBypassEnabled),
             new LeaseSettings(defaultMinutes, extensionMinutes, maxExtensions, cleanupIntervalSeconds),
             new RateLimitSettings(preAuthPerMinute, authenticatedPerMinute, leaseExtendPerMinute),
@@ -112,6 +131,14 @@ public sealed record PaperBinderRuntimeSettings(
 
         errors.Add($"Missing required configuration key `{key}`.");
         return null;
+    }
+
+    private static string? GetOptionalValue(
+        Func<string, string?> getValue,
+        string key)
+    {
+        var value = getValue(key);
+        return string.IsNullOrWhiteSpace(value) ? null : value;
     }
 
     private static int GetPositiveInt(
@@ -272,6 +299,27 @@ public sealed record PaperBinderRuntimeSettings(
             $"Configuration key `{PaperBinderConfigurationKeys.AuditRetentionMode}` must be `PurgeTenantAudit` or `RetainTenantPurgedSummary`, but was `{invalidValue}`.");
         return default;
     }
+
+    private static void ValidateDataProtectionCertificateConfiguration(
+        string? certificatePath,
+        string? certificatePassword,
+        ICollection<string> errors)
+    {
+        var hasCertificatePath = !string.IsNullOrWhiteSpace(certificatePath);
+        var hasCertificatePassword = !string.IsNullOrWhiteSpace(certificatePassword);
+
+        if (hasCertificatePath && !hasCertificatePassword)
+        {
+            errors.Add(
+                $"Configuration key `{PaperBinderConfigurationKeys.DataProtectionCertificatePassword}` is required when `{PaperBinderConfigurationKeys.DataProtectionCertificatePath}` is configured.");
+        }
+
+        if (!hasCertificatePath && hasCertificatePassword)
+        {
+            errors.Add(
+                $"Configuration key `{PaperBinderConfigurationKeys.DataProtectionCertificatePath}` is required when `{PaperBinderConfigurationKeys.DataProtectionCertificatePassword}` is configured.");
+        }
+    }
 }
 
 public sealed record DatabaseSettings(
@@ -286,6 +334,15 @@ public sealed record AuthCookieSettings(
     string Domain,
     string Name,
     string KeyRingPath);
+
+public sealed record DataProtectionSettings(
+    string? ApplicationName,
+    string? CertificatePath,
+    string? CertificatePassword)
+{
+    public bool HasCertificateConfiguration =>
+        !string.IsNullOrWhiteSpace(CertificatePath);
+}
 
 public sealed record ChallengeSettings(
     string SiteKey,
@@ -322,6 +379,9 @@ public static class PaperBinderConfigurationKeys
     public const string AuthCookieDomain = "PAPERBINDER_AUTH_COOKIE_DOMAIN";
     public const string AuthCookieName = "PAPERBINDER_AUTH_COOKIE_NAME";
     public const string AuthKeyRingPath = "PAPERBINDER_AUTH_KEY_RING_PATH";
+    public const string DataProtectionApplicationName = "PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME";
+    public const string DataProtectionCertificatePath = "PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH";
+    public const string DataProtectionCertificatePassword = "PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD";
     public const string ChallengeSiteKey = "PAPERBINDER_CHALLENGE_SITE_KEY";
     public const string ChallengeSecretKey = "PAPERBINDER_CHALLENGE_SECRET_KEY";
     public const string ChallengeLocalBypassEnabled = "PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED";

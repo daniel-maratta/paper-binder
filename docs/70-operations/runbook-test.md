@@ -51,6 +51,15 @@ docker compose --env-file .env -f docker-compose.test.yml ...
 Use the checked-in test Compose file explicitly. Because `docker-compose.test.yml` already declares `name: paperbinder-test`, an extra `-p paperbinder-test` is usually unnecessary when you invoke that file directly.
 `/opt/paperbinder` is the default base install directory. `/opt/paperbinder/app` is the canonical working directory, is owned by the deploy user in the current shared-test environment, and stores the untracked `.env` file with expected mode `600`.
 
+Data Protection deployment hardening now expects:
+
+- `/opt/paperbinder/secrets/data-protection.pfx` mounted read-only into the app container as `/run/paperbinder-secrets/data-protection.pfx`
+- `PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME`
+- `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH`
+- `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD`
+
+Do not commit the `.pfx` or its password. Shared test and production must use separate certificates and passwords.
+
 ## Service Inventory
 
 Check current service state:
@@ -147,6 +156,7 @@ Expected result:
 
 - `robots.txt` is served by the proxy from `deploy/test/robots.txt`.
 - Root and tenant-host responses may emit `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet`.
+- App logs should not emit `No XML encryptor configured. Key ... may be persisted to storage in unencrypted form.` after the certificate-backed key-ring rollout.
 
 ## ACME DNS-01 Challenge Records
 

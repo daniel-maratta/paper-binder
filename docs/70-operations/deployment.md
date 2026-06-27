@@ -68,6 +68,9 @@ DNS:
 - `PAPERBINDER_AUTH_COOKIE_DOMAIN=.<production-base-domain>`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
 - `PAPERBINDER_AUTH_KEY_RING_PATH=...`
+- `PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME=PaperBinder-Example`
+- `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH=/run/paperbinder-secrets/data-protection.pfx`
+- `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD=<secret>`
 - `PAPERBINDER_CHALLENGE_SITE_KEY=...`
 - `PAPERBINDER_CHALLENGE_SECRET_KEY=...`
 - `PAPERBINDER_LEASE_DEFAULT_MINUTES=60`
@@ -89,6 +92,7 @@ DNS:
 
 Keep secrets out of git. Use server-side `.env` or secret injection.
 Keep `.env.example` aligned to the canonical runtime and frontend build-time keys using fake values only.
+Keep real `.pfx` files and certificate passwords on the server only; never commit them.
 .env for public deployments lives under `/opt/paperbinder/app/.env`, remains untracked, and should be mode `600`.
 For production GHCR rollouts, the workflow-generated `.env`, the `docker-compose.prod.yml` defaults, and the existing PostgreSQL role on the host must agree on both `POSTGRES_DB` and `POSTGRES_USER`. The current production role is `paperbinder-prod`.
 If production migrations fail with PostgreSQL password-authentication errors such as Npgsql `28P01`, first confirm the deployed `.env` still matches the actual server role and password before assuming the GHCR image or migration binary is at fault.
@@ -146,6 +150,13 @@ Run production compose commands from the live app directory that contains `.env`
 cd /opt/paperbinder/app
 ```
 
+Before the first rollout of certificate-backed Data Protection key protection on a server:
+
+1. Create `/opt/paperbinder/secrets`.
+2. Install the environment-specific `data-protection.pfx` at `/opt/paperbinder/secrets/data-protection.pfx`.
+3. Restrict the certificate file permissions appropriately for the host.
+4. Add `PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME`, `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH`, and `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD` to `/opt/paperbinder/app/.env`.
+
 1. SSH to the host through the private overlay access path.
 2. Confirm host identity against the pinned production `known_hosts` entry before any deploy automation uploads `.env` or sends credentials.
 3. Validate environment configuration.
@@ -169,6 +180,7 @@ cd /opt/paperbinder/app
    - `GET /api/tenant/lease` and `POST /api/tenant/lease/extend` behavior matches lease rules
    - tenant subdomain routing works
    - auth persists across subdomains
+   - app logs no longer emit `No XML encryptor configured. Key ... may be persisted to storage in unencrypted form.`
 
 ## Rollback Procedure
 

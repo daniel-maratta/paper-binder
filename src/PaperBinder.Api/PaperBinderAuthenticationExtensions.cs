@@ -1,4 +1,6 @@
 using System.IO;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
@@ -16,17 +18,19 @@ namespace PaperBinder.Api;
 
 internal static class PaperBinderAuthenticationExtensions
 {
+    internal const string DefaultDataProtectionApplicationName = "PaperBinder";
+
     public static IServiceCollection AddPaperBinderAuthentication(
         this IServiceCollection services,
-        PaperBinderRuntimeSettings runtimeSettings)
+        PaperBinderRuntimeSettings runtimeSettings,
+        IHostEnvironment hostEnvironment)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(runtimeSettings);
+        ArgumentNullException.ThrowIfNull(hostEnvironment);
 
         services.AddHttpContextAccessor();
-        services.AddDataProtection()
-            .SetApplicationName("PaperBinder")
-            .PersistKeysToFileSystem(new DirectoryInfo(Path.GetFullPath(runtimeSettings.AuthCookie.KeyRingPath)));
+        services.AddPaperBinderDataProtection(runtimeSettings, hostEnvironment);
 
         services
             .AddAuthentication(IdentityConstants.ApplicationScheme)
@@ -81,6 +85,41 @@ internal static class PaperBinderAuthenticationExtensions
         services.AddScoped<ITenantUserAdministrationService, DapperTenantUserAdministrationService>();
 
         return services;
+    }
+
+    internal static IDataProtectionBuilder AddPaperBinderDataProtection(
+        this IServiceCollection services,
+        PaperBinderRuntimeSettings runtimeSettings,
+        IHostEnvironment hostEnvironment)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(runtimeSettings);
+        ArgumentNullException.ThrowIfNull(hostEnvironment);
+
+        if (RequiresCertificateConfiguration(runtimeSettings, hostEnvironment) &&
+            !runtimeSettings.DataProtection.HasCertificateConfiguration)
+        {
+            throw new InvalidOperationException(
+                $"Configuration keys `{PaperBinderConfigurationKeys.DataProtectionCertificatePath}` and " +
+                $"`{PaperBinderConfigurationKeys.DataProtectionCertificatePassword}` are required when " +
+                $"`{PaperBinderConfigurationKeys.AuthKeyRingPath}` is configured for deployed environment " +
+                $"`{hostEnvironment.EnvironmentName}`.");
+        }
+
+        var dataProtectionBuilder = services.AddDataProtection()
+            .SetApplicationName(
+                string.IsNullOrWhiteSpace(runtimeSettings.DataProtection.ApplicationName)
+                    ? DefaultDataProtectionApplicationName
+                    : runtimeSettings.DataProtection.ApplicationName)
+            .PersistKeysToFileSystem(new DirectoryInfo(Path.GetFullPath(runtimeSettings.AuthCookie.KeyRingPath)));
+
+        if (!runtimeSettings.DataProtection.HasCertificateConfiguration)
+        {
+            return dataProtectionBuilder;
+        }
+
+        dataProtectionBuilder.ProtectKeysWithCertificate(LoadCertificate(runtimeSettings.DataProtection));
+        return dataProtectionBuilder;
     }
 
     public static void UsePaperBinderAuthentication(this WebApplication app)
@@ -138,5 +177,40 @@ internal static class PaperBinderAuthenticationExtensions
             statusCode,
             title,
             detail);
+    }
+
+    private static bool RequiresCertificateConfiguration(
+        PaperBinderRuntimeSettings runtimeSettings,
+        IHostEnvironment hostEnvironment) =>
+        !string.IsNullOrWhiteSpace(runtimeSettings.AuthCookie.KeyRingPath) &&
+        !hostEnvironment.IsDevelopment() &&
+        !string.Equals(hostEnvironment.EnvironmentName, "Local", StringComparison.OrdinalIgnoreCase) &&
+        !string.Equals(hostEnvironment.EnvironmentName, "Test", StringComparison.OrdinalIgnoreCase);
+
+    private static X509Certificate2 LoadCertificate(DataProtectionSettings settings)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+
+        var certificatePath = settings.CertificatePath!;
+        if (!File.Exists(certificatePath))
+        {
+            throw new InvalidOperationException(
+                $"Configuration key `{PaperBinderConfigurationKeys.DataProtectionCertificatePath}` points to `{certificatePath}`, but the certificate file does not exist.");
+        }
+
+        try
+        {
+            return X509CertificateLoader.LoadPkcs12FromFile(
+                certificatePath,
+                settings.CertificatePassword,
+                X509KeyStorageFlags.EphemeralKeySet,
+                Pkcs12LoaderLimits.Defaults);
+        }
+        catch (CryptographicException ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to load the Data Protection certificate from `{PaperBinderConfigurationKeys.DataProtectionCertificatePath}`. Verify the `.pfx` file and password.",
+                ex);
+        }
     }
 }

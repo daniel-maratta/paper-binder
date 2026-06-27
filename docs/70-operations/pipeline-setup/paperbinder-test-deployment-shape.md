@@ -143,6 +143,9 @@ Expected runtime environment variable:
 
 ```text
 PAPERBINDER_AUTH_KEY_RING_PATH=/data/keys
+PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME=PaperBinder-Example
+PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH=/run/paperbinder-secrets/data-protection.pfx
+PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD=<set-on-server>
 ```
 
 Observed key volume:
@@ -160,13 +163,13 @@ drwx------ root root ... /var/lib/docker/volumes/paperbinder-test_paperbinder_ke
 
 The app currently runs as root inside the container, so it can read the root-owned key-ring files.
 
-The warning below may still appear and is currently accepted for this demo/test deployment tier:
+The app container now supports mounting a deployment-only certificate at:
 
 ```text
-No XML encryptor configured. Key ... may be persisted to storage in unencrypted form.
+/run/paperbinder-secrets/data-protection.pfx
 ```
 
-Interpretation: keys are persisted and permission-restricted, but not certificate-encrypted at rest. Removing this warning requires an app/config change such as certificate-backed Data Protection key protection.
+After the certificate and environment variables are configured, the `No XML encryptor configured...` warning should no longer appear in app logs.
 
 ## Secrets posture
 
@@ -219,13 +222,12 @@ Recommended current posture:
 These are acceptable/known in the current deployment:
 
 ```text
-No XML encryptor configured...
 Overriding HTTP_PORTS '8080' and HTTPS_PORTS ''. Binding to values defined by URLS instead 'http://+:8080'.
 Tenant resolution rejected request...
 API authentication boundary rejected request...
 ```
 
-The Data Protection warning is accepted for now because the key ring is persisted and permission-restricted. Tenant/auth warnings are expected when invalid hosts, expired demo tenants, unauthenticated calls, or probing traffic hit the public instance.
+Tenant/auth warnings are expected when invalid hosts, expired demo tenants, unauthenticated calls, or probing traffic hit the public instance. The Data Protection warning is not expected after the certificate-backed key-ring rollout.
 
 ## Verification commands
 
@@ -261,5 +263,4 @@ curl.exe -Iv https://<representative-tenant-host>
 - Verify unattended upgrades and fail2ban separately.
 - Review `.env` and Docker group membership periodically.
 - Consider non-root app containers in a later hardening pass.
-- Consider certificate-backed ASP.NET Data Protection key encryption if PaperBinder moves beyond demo/portfolio production.
 - Consider narrower DNS API token support through a DNS provider migration if Namecheap API scope becomes a concern.
