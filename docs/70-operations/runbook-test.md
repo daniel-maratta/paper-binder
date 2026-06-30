@@ -8,7 +8,7 @@ This runbook covers the supported shared test environment for PaperBinder. It do
 In scope:
 - Shared-test deployment verification.
 - DNS, TLS, and proxy checks for the public test host.
-- Basic recovery actions for the source-build test stack.
+- Basic recovery actions for the GHCR-backed shared-test stack.
 
 Out of scope:
 - Production rollout approval.
@@ -21,13 +21,13 @@ The shared test environment is intentionally distinct from both local developmen
 
 - Root host: `https://<shared-test-root-host>`
 - Tenant host pattern: `https://{tenant}.<shared-test-base-domain>`
-- Compose file: `docker-compose.test.yml`
+- Compose file: `docker-compose.test-deploy.yml`
 - Compose project name: `paperbinder-test` (declared in the checked-in Compose file)
 - Reverse proxy config: `deploy/test/Caddyfile`
 - Public crawler policy: intentionally non-indexable via `robots.txt` and `X-Robots-Tag`
-- Observed current runtime style: manual deployment from checked-out source with locally built images
-- GHCR validation path: `.github/workflows/deploy-test.yml` stages `docker-compose.test-deploy.yml` plus the checked-in test Caddy assets, joins the tailnet before SSH, and validates the deploy-by-tag model on the shared-test host before production adoption
-- Intended long-term split: shared test remains source-build by default unless the repo's supported runtime contract is changed explicitly
+- Observed current runtime style: GHCR-backed deploy-by-tag rooted at `/opt/paperbinder/app`
+- Owner-invoked rollout path: `.github/workflows/deploy-test.yml` uploads `docker-compose.test-deploy.yml`, a workflow-generated `.env`, and the checked-in test Caddy assets before it joins the tailnet and deploys immutable tagged images
+- `docker-compose.test.yml` remains the repo-owned source-build test shape, but it is not the current public shared-test runtime contract
 
 Expected services:
 
@@ -41,14 +41,14 @@ Expected services:
 
 ## Command Prefix
 
-Run operational commands from the deployment root that contains `.env` and `docker-compose.test.yml`:
+Run operational commands from the deployment root that contains `.env` and `docker-compose.test-deploy.yml`:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml ...
+docker compose --env-file .env -f docker-compose.test-deploy.yml ...
 ```
 
-Use the checked-in test Compose file explicitly. Because `docker-compose.test.yml` already declares `name: paperbinder-test`, an extra `-p paperbinder-test` is usually unnecessary when you invoke that file directly.
+Use the checked-in test deploy Compose file explicitly. Because `docker-compose.test-deploy.yml` already declares `name: paperbinder-test`, an extra `-p paperbinder-test` is usually unnecessary when you invoke that file directly.
 `/opt/paperbinder` is the default base install directory. `/opt/paperbinder/app` is the canonical working directory, is owned by the deploy user in the current shared-test environment, and stores the untracked `.env` file with expected mode `600`.
 
 Data Protection deployment hardening now expects:
@@ -66,7 +66,7 @@ Check current service state:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml ps
+docker compose --env-file .env -f docker-compose.test-deploy.yml ps
 ```
 
 Expected proxy bindings:
@@ -202,7 +202,7 @@ Check recent ACME- or certificate-related proxy logs:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml logs proxy --since=6h \
+docker compose --env-file .env -f docker-compose.test-deploy.yml logs proxy --since=6h \
   | grep -Ei "acme|challenge|certificate|cert|dns|cleanup|error|failed"
 ```
 
@@ -210,7 +210,7 @@ Check unfiltered recent proxy logs:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml logs proxy --since=6h | tail -200
+docker compose --env-file .env -f docker-compose.test-deploy.yml logs proxy --since=6h | tail -200
 ```
 
 Useful success indicators include ACME renewal or certificate-storage entries for both the root host and the wildcard host.
@@ -221,7 +221,7 @@ If the active Compose metadata is unclear, inspect the current proxy container i
 
 ```bash
 cd /opt/paperbinder/app
-proxy_id="$(docker compose --env-file .env -f docker-compose.test.yml ps -q proxy)"
+proxy_id="$(docker compose --env-file .env -f docker-compose.test-deploy.yml ps -q proxy)"
 docker inspect "$proxy_id" --format 'Name={{.Name}}
 Project={{ index .Config.Labels "com.docker.compose.project" }}
 Service={{ index .Config.Labels "com.docker.compose.service" }}
@@ -233,7 +233,7 @@ Expected values:
 
 - Project: `paperbinder-test`
 - Service: `proxy`
-- Config file includes `docker-compose.test.yml`
+- Config file includes `docker-compose.test-deploy.yml`
 
 ## Port Ownership
 
@@ -253,28 +253,30 @@ Restart only the proxy:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml restart proxy
+docker compose --env-file .env -f docker-compose.test-deploy.yml restart proxy
 ```
 
 Restart only the app service:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml restart app
+docker compose --env-file .env -f docker-compose.test-deploy.yml restart app
 ```
 
 Restart the full stack without rebuilding source images:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml up -d
+docker compose --env-file .env -f docker-compose.test-deploy.yml up -d
 ```
 
-Refresh the source-build images and restart the stack:
+Pull the currently selected tagged images, apply migrations, and restart the stack:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml up -d --build
+docker compose --env-file .env -f docker-compose.test-deploy.yml pull
+docker compose --env-file .env -f docker-compose.test-deploy.yml run --rm migrations
+docker compose --env-file .env -f docker-compose.test-deploy.yml up -d
 ```
 
 Avoid unnecessary restarts during active ACME validation unless the failure mode is understood.
@@ -285,7 +287,7 @@ Use this snapshot before and after infrastructure or config changes:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml ps
+docker compose --env-file .env -f docker-compose.test-deploy.yml ps
 curl -Iv https://<shared-test-root-host>
 curl -Iv https://<representative-tenant-host>
 openssl s_client \
@@ -307,13 +309,13 @@ dig @dns2.registrar-servers.com TXT _acme-challenge.<shared-test-base-domain> +s
 Likely causes:
 
 - Command ran outside the deployment root.
-- Command used the default local `docker-compose.yml` instead of `docker-compose.test.yml`.
+- Command used the default local `docker-compose.yml` instead of `docker-compose.test-deploy.yml`.
 
 Use:
 
 ```bash
 cd /opt/paperbinder/app
-docker compose --env-file .env -f docker-compose.test.yml ps
+docker compose --env-file .env -f docker-compose.test-deploy.yml ps
 ```
 
 ### Root host works but tenant host fails TLS
@@ -329,7 +331,7 @@ Checks:
 
 ```bash
 dig @1.1.1.1 <representative-tenant-host> +short
-docker compose --env-file .env -f docker-compose.test.yml logs proxy --since=6h \
+docker compose --env-file .env -f docker-compose.test-deploy.yml logs proxy --since=6h \
   | grep -Ei "acme|challenge|certificate|cert|dns|cleanup|error|failed"
 ```
 
@@ -350,19 +352,19 @@ Check proxy logs for an active issuance or renewal attempt. Do not manually dele
 Check service state:
 
 ```bash
-docker compose --env-file .env -f docker-compose.test.yml ps
+docker compose --env-file .env -f docker-compose.test-deploy.yml ps
 ```
 
 Check proxy logs:
 
 ```bash
-docker compose --env-file .env -f docker-compose.test.yml logs proxy --since=30m
+docker compose --env-file .env -f docker-compose.test-deploy.yml logs proxy --since=30m
 ```
 
 Check app logs:
 
 ```bash
-docker compose --env-file .env -f docker-compose.test.yml logs app --since=30m
+docker compose --env-file .env -f docker-compose.test-deploy.yml logs app --since=30m
 ```
 
 ## Promotion Notes
@@ -376,4 +378,4 @@ Before treating the shared test environment as promotion evidence, capture:
 - Root-host and representative tenant-host smoke-check results
 - Confirmation that the shared-test non-indexing policy is still active
 
-Do not copy shared-test settings into production without separately reviewing hostnames, cookie domain, challenge keys, Namecheap API values, indexing policy, and whether the rollout is source-build or GHCR-image based.
+Do not copy shared-test settings into production without separately reviewing hostnames, cookie domain, challenge keys, Namecheap API values, indexing policy, and the environment-specific deploy Compose and image contract.

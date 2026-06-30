@@ -25,7 +25,7 @@
 - `PAPERBINDER_PUBLIC_ROOT_URL=https://<production-root-host>`
 - `PAPERBINDER_AUTH_COOKIE_DOMAIN=.<production-base-domain>`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
-- `PAPERBINDER_AUTH_KEY_RING_PATH=<path-or-provider-ref>`
+- `PAPERBINDER_AUTH_KEY_RING_PATH=/data/keys`
 - `PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME=PaperBinder-Example`
 - `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH=/run/paperbinder-secrets/data-protection.pfx`
 - `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD=<secret>`
@@ -58,6 +58,8 @@ When a deployment uses the repo-owned wildcard-TLS proxy path, Caddy also requir
 Do not commit real values.
 Keep the repo-root `.env.example` synchronized with these keys using fake values only.
 Do not commit `.pfx` files, private keys, or certificate passwords; place deployment certificates on the server only.
+The current public GHCR deployment contract fixes `PAPERBINDER_AUTH_KEY_RING_PATH` to `/data/keys` in the checked-in deploy Compose files.
+`TEST_AUTH_KEY_RING_PATH` and `PROD_AUTH_KEY_RING_PATH` GitHub environment values are not currently consumed by the deploy workflows; if operator-configurable key-ring paths are introduced later, update workflow validation, generated `.env`, and deploy Compose interpolation together.
 
 `PAPERBINDER_PUBLIC_ROOT_URL` must be an absolute root URL with the same host as `PAPERBINDER_AUTH_COOKIE_DOMAIN`.
 Provision, login, and logout redirect construction must use this trusted config value rather than the raw incoming request scheme/host.
@@ -75,6 +77,8 @@ No separate `PAPERBINDER_LEASE_EXTENSION_WINDOW_*` key exists in v1.
 ## Rotation Expectations
 
 - Cookie encryption/signing material must support rotation (manual rotation is acceptable in v1).
+- Enabling certificate-backed Data Protection key protection does not retroactively re-encrypt an existing persisted key file.
+- If an environment already has an older unencrypted key-ring XML file, rotate or recreate that key-ring volume during a maintenance window when encrypted-at-rest persistence itself is required.
 - Database credentials should be rotated on environment change and incident response events.
 - Document rotation steps in environment runbooks.
 

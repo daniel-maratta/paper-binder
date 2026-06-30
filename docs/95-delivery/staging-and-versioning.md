@@ -31,8 +31,8 @@ Do not use legacy `stage` terminology for current execution planning or PR artif
 
 - `V1` is locked as the first stable release line.
 - Stable release tags must use SemVer core spelling with a leading `v`: `vMAJOR.MINOR.PATCH`.
-- The current stable release identity is `V1` / `v1.0.1` / `1.0.1`.
 - The initial stable release identity remains historical `V1` / `v1.0.0` / `1.0.0`.
+- The current stable release identity is `V1` / `v1.0.1` / `1.0.1`.
 - Repository version metadata must agree before release validation passes:
   - `Directory.Build.props` `VersionPrefix`
   - `src/PaperBinder.Web/package.json` `version`

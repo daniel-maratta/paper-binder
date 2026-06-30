@@ -26,8 +26,8 @@ Out of scope:
 - Root host: `https://<production-root-host>`
 - Tenant host pattern: `https://{tenant}.<production-base-domain>`
 - Compose file: `docker-compose.prod.yml`
-- Observed current runtime style: manually deployed from checked-out source with locally built images
-- Intended deployment contract: tagged GHCR images referenced by `PAPERBINDER_IMAGE_REGISTRY` and `PAPERBINDER_IMAGE_TAG` once the production rollout workflow is adopted on the live host
+- Observed current runtime style: GHCR-backed deploy-by-tag rooted at `/opt/paperbinder/app`
+- Owner-invoked rollout path: `.github/workflows/deploy-prod.yml` uploads `docker-compose.prod.yml`, a workflow-generated `.env`, and the checked-in production Caddyfile before it joins the tailnet and deploys immutable tagged images
 - Reverse proxy config: `deploy/prod/Caddyfile`
 - Public crawler policy: intentionally indexable
 
