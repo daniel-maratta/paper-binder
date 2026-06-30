@@ -9,7 +9,7 @@ Own the canonical release gate list for the current stable `V1` release.
 
 - [x] `CHANGELOG.md` contains the current `## [1.0.1] - 2026-06-26` entry above the historical `## [V1] - 2026-04-19` first-cut release summary, with a fresh empty `## Unreleased`.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the current stable tag, the command surface, and ownership.
-- [x] Repository version metadata is locked to `1.0.1` for the current `V1` / `v1.0.1` release identity.
+- [x] Repository version metadata matched the current stable `V1` release tag `v1.0.1` / `1.0.1` during the latest release workflow run.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
 - [x] `.github/workflows/release.yml` defines the tag-driven release validation pipeline for stable SemVer tags.
 - [x] `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` records shipped scope, validation evidence, reviewer walkthrough, and author notes for the critic.
@@ -33,6 +33,9 @@ Own the canonical release gate list for the current stable `V1` release.
 - [x] [validate-launch-profiles.ps1](../../scripts/validate-launch-profiles.ps1) passed on `2026-04-19`.
 - [x] [validate-checkpoint.ps1](../../scripts/validate-checkpoint.ps1) `-Configuration Release -DockerIntegrationMode Require` passed on `2026-04-19`.
 - [x] [reviewer-full-stack.ps1](../../scripts/reviewer-full-stack.ps1) `-NoBrowser` release smoke passed on `2026-04-19`.
+- [x] `.github/workflows/release.yml` succeeded for `v1.0.1` from commit `63025570f3c259e5116a0e1064cb70cdc11721d3` on `2026-06-28`.
+- [x] `.github/workflows/deploy-test.yml` succeeded for `1.0.1` from commit `63025570f3c259e5116a0e1064cb70cdc11721d3` on `2026-06-29`.
+- [x] `.github/workflows/deploy-prod.yml` succeeded for `1.0.1` from commit `63025570f3c259e5116a0e1064cb70cdc11721d3` on `2026-06-29`.
 
 ## Manual Verification
 
@@ -40,6 +43,9 @@ Own the canonical release gate list for the current stable `V1` release.
 - [x] VS Code manual launch verification completed and passed on `2026-04-20`.
 - [x] Visual Studio manual launch verification completed and passed on `2026-04-20`.
 - [x] `Launch Frontend Dev Server` is recorded explicitly as VS Code-only.
+- [x] Shared-test runtime parity was rechecked on `2026-06-30`; the deployed `1.0.1` app, worker, proxy, and database were healthy, and the persisted Data Protection key XML was verified encrypted at rest.
+- [x] Production runtime parity was rechecked on `2026-06-30`; the deployed `1.0.1` app, worker, proxy, and database were healthy, the key-ring rotation completed, and the new persisted Data Protection key XML was verified encrypted at rest.
+- [x] GitHub Releases `v1.0.0` and `v1.0.1` were published from their workflow-created draft objects on `2026-06-30`.
 
 ## Documentation Integrity
 
@@ -53,10 +59,10 @@ Own the canonical release gate list for the current stable `V1` release.
 - Historical first stable tag: `v1.0.0`
 - Current stable tag: `v1.0.1`
 - SemVer version: `1.0.1`
-- Status: the original `V1` release evidence remains recorded from `2026-04-19` and `2026-04-20`; current version metadata, build, repo tests, and docs validation reran successfully on `2026-06-26`.
-- Executor attestation: `main` is ready for the owner to recreate or push `v1.0.1` and rerun the tag workflow from a repo state whose metadata now matches `1.0.1`.
+- Status: `v1.0.1` is in a known-good public state as of `2026-06-30`; the release workflow plus both public deploy workflows succeeded from commit `63025570f3c259e5116a0e1064cb70cdc11721d3`, shared test and production are both running the tagged GHCR images, and encrypted Data Protection key rings were verified on both hosts.
+- Executor attestation: `main`, tag `v1.0.1`, the published GitHub Release, GHCR images, shared-test deployment, and production deployment are aligned for the current stable release.
 - Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore; it is disclosed in the CP17 release artifact and remains outside CP17 scope because it does not block the documented `V1` validation bundle.
-- Owner-controlled action pending: recreate or push tag `v1.0.1`, rerun `.github/workflows/release.yml`, and only then rerun `.github/workflows/deploy-test.yml`.
+- Owner-controlled action pending: none for the current stable tag beyond ordinary future release hygiene.
 - Mirrors:
   - `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/55-execution/checkpoint-status.md`

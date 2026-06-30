@@ -7,7 +7,8 @@ Define the canonical stable-release sequence for the `V1` line, its ownership bo
 
 ## Locked Release Identity
 
-- Prose release line: `V1`
+- Stable release line label: `V1`
+- Stable tag spelling: `vMAJOR.MINOR.PATCH`
 - Historical first stable tag: `v1.0.0`
 - Current stable tag: `v1.0.1`
 - Current version metadata: `1.0.1`
@@ -48,6 +49,7 @@ Define the canonical stable-release sequence for the `V1` line, its ownership bo
    - `main` being documented as taggable for the current stable tag is the executor closeout.
    - The actual merge and SemVer tag creation or retagging remain owner-controlled actions.
    - Pushing the stable tag starts `.github/workflows/release.yml`; the workflow now generates draft GitHub Release notes per tag instead of reusing the CP17 release artifact as the release-body source.
+   - After tagged-image publishing and deploy verification succeed, the owner publishes the matching GitHub Release draft in place rather than recreating release notes manually.
    - Production rollout uses the separate owner-invoked `.github/workflows/deploy-prod.yml` workflow after the tagged images exist in GHCR.
 
 The CP17 release artifact set remains the canonical reviewer-facing `V1` release-prep evidence. It is historical documentation for the first release cut, not the release-body source for later tags.
@@ -56,7 +58,7 @@ The CP17 release artifact set remains the canonical reviewer-facing `V1` release
 
 - The supported deployment topology remains the current single-host Docker Compose stack with Caddy, PostgreSQL, migrations, app host, and worker.
 - `docs/70-operations/runbook-prod.md` and `docs/70-operations/deployment.md` document that supported topology and rollback model.
-- The current public test and production hosts remain pre-pipeline manual deployments from checked-out source with locally built images. The GHCR-backed production rollout is the intended contract under validation, not the already-adopted live runtime state.
+- The current public test and production hosts now use the GHCR-backed deploy-by-tag contract from `/opt/paperbinder/app`, with `.github/workflows/deploy-test.yml` and `.github/workflows/deploy-prod.yml` as the owner-invoked rollout entrypoints.
 - Tagged GHCR publishing now includes the shared worker, migrations, and proxy images plus environment-specific frontend-bearing API images for production and shared-test deploy validation.
 - A live public host is not part of the `V1` release-blocking evidence set.
 

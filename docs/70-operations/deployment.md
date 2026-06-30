@@ -47,10 +47,11 @@ Repository deployment baseline:
 - repo-root `.env` copied from `.env.example`
 
 Current runtime note:
-- The current public test and production environments are both manually deployed from checked-out source with locally built Docker images. This is the pre-pipeline operational state.
-- Shared test intentionally remains a source-build Compose flow based on `docker-compose.test.yml`.
-- A separate GHCR-backed shared-test validation path now exists through `docker-compose.test-deploy.yml` plus `.github/workflows/deploy-test.yml`. It is intended to validate the immutable deploy-by-tag model before production adoption, not to rewrite the observed current test steady state.
-- The GHCR-backed production path in this repo is the intended deployment contract being built toward. It is not yet the observed live runtime state on the public production host.
+- As of `2026-06-30`, the public shared-test and production environments both run the GHCR-backed deploy-by-tag contract from `/opt/paperbinder/app`.
+- Shared test uses `docker-compose.test-deploy.yml` plus `.github/workflows/deploy-test.yml`.
+- Production uses `docker-compose.prod.yml` plus `.github/workflows/deploy-prod.yml`.
+- Both public environments are in a known-good `v1.0.1` state with certificate-backed ASP.NET Core Data Protection keys persisted under `/data/keys` and verified encrypted at rest.
+- `docker-compose.test.yml` remains the repo-owned source-build test shape, but it is no longer the current public shared-test runtime contract.
 - The canonical live app working directory on both public servers is `/opt/paperbinder/app`; `/opt/paperbinder` is the default base install directory used to hold that app subtree.
 - `/opt/paperbinder/app` is owned by the deploy user in both environments. The parent `/opt/paperbinder` directory is a base install path only and its ownership should not be treated as a cross-environment contract.
 
@@ -67,7 +68,7 @@ DNS:
 - `PAPERBINDER_PUBLIC_ROOT_URL=https://<production-root-host>`
 - `PAPERBINDER_AUTH_COOKIE_DOMAIN=.<production-base-domain>`
 - `PAPERBINDER_AUTH_COOKIE_NAME=paperbinder.auth`
-- `PAPERBINDER_AUTH_KEY_RING_PATH=...`
+- `PAPERBINDER_AUTH_KEY_RING_PATH=/data/keys`
 - `PAPERBINDER_DATA_PROTECTION_APPLICATION_NAME=PaperBinder-Example`
 - `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PATH=/run/paperbinder-secrets/data-protection.pfx`
 - `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD=<secret>`
@@ -98,7 +99,7 @@ For production GHCR rollouts, the workflow-generated `.env`, the `docker-compose
 If production migrations fail with PostgreSQL password-authentication errors such as Npgsql `28P01`, first confirm the deployed `.env` still matches the actual server role and password before assuming the GHCR image or migration binary is at fault.
 Hyphenated PostgreSQL identifiers require double quotes in SQL. For example: `ALTER USER "paperbinder-prod" WITH PASSWORD '...';`
 Do not enable `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` or `VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` in deployed/public environments. The app and frontend build now reject that configuration unless the root host is loopback or `.localhost`.
-The shared test deployment uses `docker compose -f docker-compose.test.yml ...` so the stock local-only proxy contract stays intact.
+The shared public test deployment now uses `docker compose -f docker-compose.test-deploy.yml ...` so the tagged-image contract, generated `.env`, and checked-in test proxy assets stay aligned on the host.
 Shared test uses the equivalent `<shared-test-root-host>` and `<shared-test-base-domain>` host values and remains intentionally non-indexable.
 The visible Turnstile site key is baked into the frontend image at build time through `VITE_PAPERBINDER_CHALLENGE_SITE_KEY`. Rotating only `PAPERBINDER_CHALLENGE_SECRET_KEY` changes backend verification behavior but does not rotate the browser-visible site key. Rotating the site key requires rebuilding and redeploying the frontend image.
 
@@ -119,6 +120,8 @@ Manual shared-test rollout validation via `.github/workflows/deploy-test.yml` ex
 - Secret: `TEST_SSH_KNOWN_HOSTS`
 - Secret: `TEST_GHCR_PULL_TOKEN`
 - Secret: `TEST_POSTGRES_PASSWORD`
+- Repository or environment variables: `TEST_DATA_PROTECTION_APPLICATION_NAME`, `TEST_DATA_PROTECTION_CERTIFICATE_PATH`
+- Secret: `TEST_DATA_PROTECTION_CERTIFICATE_PASSWORD`
 - Repository or environment variables: `TEST_PUBLIC_ROOT_URL`, `TEST_AUTH_COOKIE_DOMAIN`, `TEST_TURNSTILE_SITE_KEY`
 - Secret: `TEST_TURNSTILE_SECRET_KEY`
 - Secrets: `TEST_NAMECHEAP_API_USER`, `TEST_NAMECHEAP_API_KEY`, `TEST_NAMECHEAP_CLIENT_IP`
@@ -133,9 +136,15 @@ Manual production rollout via `.github/workflows/deploy-prod.yml` expects:
 - Secret: `PROD_SSH_KNOWN_HOSTS`
 - Secret: `PROD_GHCR_PULL_TOKEN`
 - Secrets: `PROD_POSTGRES_PASSWORD`, `PROD_TURNSTILE_SECRET_KEY`
+- Repository or environment variables: `PROD_DATA_PROTECTION_APPLICATION_NAME`, `PROD_DATA_PROTECTION_CERTIFICATE_PATH`
+- Secret: `PROD_DATA_PROTECTION_CERTIFICATE_PASSWORD`
 - Secrets: `PROD_NAMECHEAP_API_USER`, `PROD_NAMECHEAP_API_KEY`, `PROD_NAMECHEAP_CLIENT_IP`
 - Optional secret: `PROD_OTEL_OTLP_ENDPOINT`
 - Repository or environment variable: `PROD_TURNSTILE_SITE_KEY`
+
+Current note:
+- `TEST_AUTH_KEY_RING_PATH` and `PROD_AUTH_KEY_RING_PATH` are not currently consumed by the deploy workflows.
+- The checked-in deploy Compose files set `PAPERBINDER_AUTH_KEY_RING_PATH=/data/keys` directly for the public test and production contracts.
 
 The `test` and `production` GitHub environments are the intended places to scope approval and deployment secrets separately. Shared-test and production must not share deploy keys, host-key material, or GHCR pull credentials.
 GitHub Actions deploy SSH keys must be dedicated CI deploy keys without passphrases. Do not reuse workstation or admin SSH keys for CI. The matching public key must be installed for the deploy user on the target host, and the private key belongs only in the corresponding GitHub environment secret.
@@ -185,7 +194,7 @@ Before the first rollout of certificate-backed Data Protection key protection on
 ## Rollback Procedure
 
 - Tagged-image flow: redeploy previous known-good tag.
-- Shared-test source flow: checkout previous commit and redeploy with `docker compose -f docker-compose.test.yml ...`.
+- Shared-test image flow: change `PAPERBINDER_IMAGE_TAG` in `.env` and rerun the shared-test `pull`, migrations, and `up -d` sequence through `docker-compose.test-deploy.yml`.
 - Production image flow: change `PAPERBINDER_IMAGE_TAG` in `.env` and rerun the production Compose pull, migrations, and `up -d` sequence.
 - Validate DB schema compatibility before rollback if migrations ran.
 - If rollback requires a down-migration, execute it explicitly through the migrations workflow before restoring the older app image.
@@ -205,6 +214,12 @@ Before the first rollout of certificate-backed Data Protection key protection on
 ## Security Controls
 
 - Public ingress only on `80/tcp`, `443/tcp`, and `443/udp`.
+- Tailscale carries administrative access, but PaperBinder uses standard OpenSSH over the tailnet rather than Tailscale SSH.
+- The broad allow-all Tailscale grant has been removed from the current administrative policy.
+- Admin SSH access is restricted by Tailscale policy to `group:paperbinder-admins` on `tcp:22`.
+- The shared-test deploy identity may reach only `tag:paperbinder-test-server` on `tcp:22`.
+- The production deploy identity may reach only `tag:paperbinder-prod-server` on `tcp:22`.
+- Cross-environment deploy SSH is denied by policy tests.
 - SSH ingress is restricted by firewall to the private overlay interface rather than the public internet.
 - PostgreSQL is bound to loopback only (`127.0.0.1:5432`).
 - App and worker services remain internal; the app listens on Docker-internal `8080/tcp` only.

@@ -32,9 +32,6 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/80-testing/README.md](./80-testing/README.md)
 - [docs/90-adr/README.md](./90-adr/README.md)
 - [docs/95-delivery/README.md](./95-delivery/README.md)
-- [docs/95-delivery/release-workflow.md](./95-delivery/release-workflow.md)
-- [docs/95-delivery/release-checklist.md](./95-delivery/release-checklist.md)
-- [docs/70-operations/pipeline-setup/critic-review.md](./70-operations/pipeline-setup/critic-review.md)
 
 ## Key ADRs
 
@@ -46,45 +43,11 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md](./90-adr/ADR-0011-observability-opentelemetry-baseline.md)
 - [docs/90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md](./90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md)
 
-## Execution References
+## Focused Retrieval
 
-- [docs/55-execution/execution-plan.md](./55-execution/execution-plan.md)
-- [docs/55-execution/checkpoint-status.md](./55-execution/checkpoint-status.md)
-- [docs/55-execution/workflows/agent-operating-model.md](./55-execution/workflows/agent-operating-model.md)
-- [docs/05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md](./05-taskboard/tasks/T-0023-cp9-binder-domain-and-policy-model.md)
-- [docs/05-taskboard/tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md](./05-taskboard/tasks/T-0025-cp10-document-domain-and-immutable-document-rules.md)
-- [docs/05-taskboard/tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md](./05-taskboard/tasks/T-0026-cp11-worker-runtime-and-lease-lifecycle.md)
-- [docs/05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md](./05-taskboard/tasks/T-0027-cp12-frontend-foundation-and-shared-ui-system.md)
-- [docs/05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md](./05-taskboard/tasks/T-0028-cp13-root-host-frontend-flows.md)
-- [docs/05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md](./05-taskboard/tasks/T-0029-cp14-tenant-host-frontend-flows.md)
-- [docs/05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md](./05-taskboard/tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md)
-- [docs/05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md](./05-taskboard/tasks/T-0031-cp16-hardening-and-consistency-pass.md)
-- [docs/05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md](./05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md)
-- [docs/95-delivery/pr/cp9-binder-domain-and-policy-model/description.md](./95-delivery/pr/cp9-binder-domain-and-policy-model/description.md)
-- [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/implementation-plan.md)
-- [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md)
-- [docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/description.md](./95-delivery/pr/cp10-document-domain-and-immutable-document-rules/description.md)
-- [docs/95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/implementation-plan.md](./95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/implementation-plan.md)
-- [docs/95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/critic-review.md](./95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/critic-review.md)
-- [docs/95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/description.md](./95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/description.md)
-- [docs/95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/implementation-plan.md](./95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/implementation-plan.md)
-- [docs/95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/critic-review.md](./95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/critic-review.md)
-- [docs/95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/description.md](./95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/description.md)
-- [docs/95-delivery/pr/cp13-root-host-frontend-flows/implementation-plan.md](./95-delivery/pr/cp13-root-host-frontend-flows/implementation-plan.md)
-- [docs/95-delivery/pr/cp13-root-host-frontend-flows/critic-review.md](./95-delivery/pr/cp13-root-host-frontend-flows/critic-review.md)
-- [docs/95-delivery/pr/cp13-root-host-frontend-flows/description.md](./95-delivery/pr/cp13-root-host-frontend-flows/description.md)
-- [docs/95-delivery/pr/cp14-tenant-host-frontend-flows/implementation-plan.md](./95-delivery/pr/cp14-tenant-host-frontend-flows/implementation-plan.md)
-- [docs/95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md](./95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md)
-- [docs/95-delivery/pr/cp14-tenant-host-frontend-flows/description.md](./95-delivery/pr/cp14-tenant-host-frontend-flows/description.md)
-- [docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md](./95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md)
-- [docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md](./95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md)
-- [docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md](./95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/description.md)
-- [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md)
-- [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md)
-- [docs/95-delivery/pr/cp16-hardening-and-consistency-pass/description.md](./95-delivery/pr/cp16-hardening-and-consistency-pass/description.md)
-- [docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md](./95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md)
-- [docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md](./95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md)
-- [docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md](./95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md)
+- For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md`, `release-checklist.md`, or a specific PR artifact only when needed.
+- For checkpoint history, start with [docs/55-execution/checkpoint-status.md](./55-execution/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on it.
+- Treat `docs/70-operations/pipeline-setup/` as historical setup analysis, not a default read set.
 
 ## Local-Only Overrides
 
