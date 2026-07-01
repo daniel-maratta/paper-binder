@@ -96,7 +96,6 @@ jobs:
           PROD_NAMECHEAP_API_USER: ${{ secrets.PROD_NAMECHEAP_API_USER }}
           PROD_NAMECHEAP_API_KEY: ${{ secrets.PROD_NAMECHEAP_API_KEY }}
           PROD_NAMECHEAP_CLIENT_IP: ${{ secrets.PROD_NAMECHEAP_CLIENT_IP }}
-          PROD_OTEL_OTLP_ENDPOINT: ${{ secrets.PROD_OTEL_OTLP_ENDPOINT }}
         shell: pwsh
         run: |
           function Format-EnvValue([string] $Value) {
