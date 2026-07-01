@@ -47,6 +47,7 @@ Start here, then load only the lane docs relevant to the task.
 
 - For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md`, `release-checklist.md`, or a specific PR artifact only when needed.
 - For checkpoint history, start with [docs/55-execution/checkpoint-status.md](./55-execution/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on it.
+- For engineering-credibility review, start with [docs/50-engineering/engineering-credibility-audit.md](./50-engineering/engineering-credibility-audit.md) and [docs/50-engineering/engineering-credibility-agent-gap-analysis.md](./50-engineering/engineering-credibility-agent-gap-analysis.md).
 - Treat `docs/70-operations/pipeline-setup/` as historical setup analysis, not a default read set.
 
 ## Local-Only Overrides
