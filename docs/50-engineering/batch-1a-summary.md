@@ -1,4 +1,4 @@
-# Batch 1A Remediation Summary
+# Batch 1A Summary
 
 ## Intent
 

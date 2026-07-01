@@ -23,7 +23,7 @@
   - helper naming semantics
   - idiomatic .NET parsing and validation
   - multi-type file sprawl
-  - generated-looking repetition
+  - mechanically repetitive patterns
 - The coding standard is short and broad; the critic-review artifacts are long and procedural. The detailed machinery is attached to planning and release posture, not code craftsmanship.
 
 ### Agent Noncompliance
@@ -38,7 +38,7 @@
 ### Code-Review Blind Spots
 
 - The current review process is excellent at asking "is this scoped, tested, documented, and mergeable?" It is much weaker at asking "does this reflect senior engineering judgment at the code seam?"
-- The critic-review artifacts in `docs/95-delivery/pr/` are detailed, but they are primarily plan and release reviews. They are not skeptical code-skims of hotspot files.
+- The critic-review artifacts in `docs/95-delivery/pr/` are detailed, but they are primarily plan and release reviews. They are not targeted hotspot reviews of the changed code.
 - A change can pass the current process while still leaving a strong engineer with the impression that the code was generated and only lightly curated.
 
 ## What The Current Docs Likely Optimize For
@@ -60,7 +60,7 @@ What it does **not** optimize for strongly enough:
 - restraint in helper creation
 - file/type organization
 - detection of template-like repetition
-- skeptical hotspot review of actual code
+- targeted hotspot review of actual code
 - consistency between the refinement of repo process and the refinement of local code
 
 ## What Guidance Is Missing Or Too Vague
@@ -175,7 +175,7 @@ Copy-ready policy text:
 > - one infrastructure/data-access file
 > - one test file
 >
-> Record any findings about naming precision, idiomatic platform usage, file organization, helper quality, or generated-looking repetition.
+> Record any findings about naming precision, idiomatic platform usage, file organization, helper quality, or mechanically repetitive patterns.
 
 > **Generated-Looking Repetition**
 > Repeated outcome/failure/mapping scaffolding is a review smell. If a change introduces the same pattern three or more times, either consolidate it or explain why explicit duplication is the clearer choice.
@@ -188,7 +188,7 @@ Copy-ready policy text:
 
 ## Recommended Review Workflow Changes
 
-### Add A Dedicated Post-Implementation Credibility Pass
+### Add A Dedicated Post-Implementation Quality Pass
 
 Run it after functional validation is green and before final merge/release handoff.
 
@@ -199,7 +199,7 @@ Focus files:
 - one infrastructure service
 - one large test file
 
-### Skeptical Review Checklist
+### Targeted Review Checklist
 
 - Does any helper or type name overclaim what it does?
 - Is any string or enum parsing custom without a clear contract reason?
@@ -219,4 +219,4 @@ The current critic-review pattern should keep its scope/security rigor, but it s
 - "File organization findings"
 - "Generated-pattern findings"
 
-Without that section, the process will keep proving that the repo is organized while failing to prove that the code was judged skeptically.
+Without that section, the process will keep proving that the repo is organized while failing to show that hotspot code received direct quality scrutiny.

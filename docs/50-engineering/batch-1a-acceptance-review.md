@@ -4,7 +4,7 @@
 
 Accept with minor follow-up.
 
-Batch 1A materially improves the highest-signal trust-loss hotspots identified in the audit. The parser changes are more idiomatic, the helper names are more honest, the tenant-user endpoint validator is less shallow, and the file split in tenancy improves browseability without broad churn.
+Batch 1A materially improves the highest-signal quality hotspots identified in the audit. The parser changes are more idiomatic, the helper names are more honest, the tenant-user endpoint validator is less shallow, and the file split in tenancy improves browseability without broad churn.
 
 This batch is not fully closed as a merge gate for two reasons:
 
@@ -20,7 +20,7 @@ Neither issue justifies reopening Batch 1A into a broader cleanup pass, but both
 - Semantic precision: improved. The file now clearly parses enum-backed role names instead of hand-maintaining a `nameof(...)` switch.
 - Idiomatic .NET usage: improved. `Enum.TryParse` plus `Enum.IsDefined` is more platform-native than the prior branch table.
 - Contract preservation: mostly preserved. The round-trip string check prevents numeric enum inputs from slipping through, which is correct for this string contract.
-- Remaining concern: exact-case matching is now an implementation fact rather than an explicitly stated contract rule. The behavior is coherent with `role.ToString()` persistence and test usage, but a skeptical reviewer can still ask why case sensitivity is intentional.
+- Remaining concern: exact-case matching is now an implementation fact rather than an explicitly stated contract rule. The behavior is coherent with `role.ToString()` persistence and test usage, but the rationale for case sensitivity is still implicit.
 - Churn: low and justified.
 - Reviewer impact: favorable.
 
@@ -57,7 +57,7 @@ Neither issue justifies reopening Batch 1A into a broader cleanup pass, but both
 - Idiomatic .NET usage: improved. `MailAddress.TryCreate` is a better structural pre-check than the previous `@`-count heuristic.
 - Contract preservation: likely preserved, but not fully re-verified in Docker-backed integration tests from this environment.
 - Remaining concern: the file still uses local request/response records and local validation helpers, so it still reads somewhat template-shaped. Batch 1A did not need to solve that.
-- Churn: moderate but still justified within Batch 1A because this was one of the explicit trust hotspots and the changes stayed on validation/boundary semantics.
+- Churn: moderate but still justified within Batch 1A because this was one of the explicit quality hotspots and the changes stayed on validation/boundary semantics.
 - Reviewer impact: more favorable than before, assuming the unchanged endpoint behavior still passes the Docker-backed tests.
 
 ### `src/PaperBinder.Infrastructure/Binders/DapperBinderService.cs`
@@ -110,7 +110,7 @@ Neither issue justifies reopening Batch 1A into a broader cleanup pass, but both
 
 #### `docs/55-execution/workflows/pr-workflow.md`
 
-- Improved. The PR checklist now includes the skeptical hotspot skim that the earlier process lacked.
+- Improved. The PR checklist now includes the targeted hotspot review that the earlier process lacked.
 - Remaining concern: the workflow now says the right thing; future reviews still need to actually use it.
 
 ## Contract-Risk Findings
@@ -138,7 +138,7 @@ Neither issue justifies reopening Batch 1A into a broader cleanup pass, but both
 
 - `PaperBinderRuntimeSettings.cs` is still a loud multi-type file even though the parser fix was good.
 - `PaperBinderTenantUserEndpoints.cs` still carries the general endpoint-file pattern the audit called out: route handlers, local DTOs, local validation, and mapping all in one place.
-- The large Dapper services still read as bulkier than a skeptical reviewer would prefer, even though Batch 1A did not worsen them.
+- The large Dapper services still read as bulkier than they should for easy hotspot review, even though Batch 1A did not worsen them.
 - The exact-case parser contract would benefit from one short explicit rationale in code comments, tests, or contract docs.
 
 ## Recommended Next Action

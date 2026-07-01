@@ -71,7 +71,7 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
    - Risk: maintainability risk, code-inspection risk.
 
 7. **Integration tests are thorough but shaped like long scenario transcripts**
-   - Why it matters: the tests prove behavior, but many of them are hard to skim, hard to diff, and repetitive in setup. A skeptical engineer may read them as bulk-generated confidence theater rather than carefully chosen tests.
+   - Why it matters: the tests prove behavior, but many of them are hard to skim, hard to diff, and repetitive in setup. The result can feel mechanically repetitive rather than carefully shaped around the most important behaviors.
    - Representative examples:
      - `tests/PaperBinder.IntegrationTests/BinderDomainAndPolicyModelIntegrationTests.cs`
      - `tests/PaperBinder.IntegrationTests/DocumentDomainAndImmutableDocumentRulesIntegrationTests.cs`
@@ -132,7 +132,7 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
 
 ## Prioritized Remediation Batches
 
-### Batch 1: Trust Hotspot Cleanup
+### Batch 1: Quality Hotspot Cleanup
 
 Scope:
 - replace or tighten the custom enum/string parsers
