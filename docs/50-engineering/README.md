@@ -16,3 +16,5 @@
 - `docs/50-engineering/code-quality-gap-analysis.md`
 - `docs/50-engineering/batch-1a-summary.md`
 - `docs/50-engineering/batch-1a-acceptance-review.md`
+- `docs/50-engineering/batch-1b-summary.md`
+- `docs/50-engineering/batch-1b-acceptance-review.md`
