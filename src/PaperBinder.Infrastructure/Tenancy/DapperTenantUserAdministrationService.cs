@@ -23,17 +23,7 @@ public sealed class DapperTenantUserAdministrationService(
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         var records = await connection.QueryAsync<TenantUserRecord>(
             new CommandDefinition(
-                """
-                select
-                    u.id as UserId,
-                    u.email as Email,
-                    ut.role as Role,
-                    ut.is_owner as IsOwner
-                from user_tenants ut
-                inner join users u on u.id = ut.user_id
-                where ut.tenant_id = @TenantId
-                order by u.normalized_email;
-                """,
+                TenantUserAdministrationSql.ListUsers,
                 new { TenantId = tenantId },
                 cancellationToken: cancellationToken));
 
@@ -90,44 +80,14 @@ public sealed class DapperTenantUserAdministrationService(
                 {
                     await connection.ExecuteAsync(
                         new CommandDefinition(
-                            """
-                            insert into users (
-                                id,
-                                user_name,
-                                normalized_user_name,
-                                email,
-                                normalized_email,
-                                email_confirmed,
-                                password_hash,
-                                security_stamp)
-                            values (
-                                @Id,
-                                @UserName,
-                                @NormalizedUserName,
-                                @Email,
-                                @NormalizedEmail,
-                                @EmailConfirmed,
-                                @PasswordHash,
-                                @SecurityStamp);
-                            """,
+                            TenantUserAdministrationSql.InsertUser,
                             user,
                             transaction,
                             cancellationToken: innerCancellationToken));
 
                     await connection.ExecuteAsync(
                         new CommandDefinition(
-                            """
-                            insert into user_tenants (
-                                user_id,
-                                tenant_id,
-                                role,
-                                is_owner)
-                            values (
-                                @UserId,
-                                @TenantId,
-                                @Role,
-                                @IsOwner);
-                            """,
+                            TenantUserAdministrationSql.InsertTenantMembership,
                             new
                             {
                                 UserId = user.Id,
@@ -197,18 +157,7 @@ public sealed class DapperTenantUserAdministrationService(
             {
                 var targetUser = await connection.QuerySingleOrDefaultAsync<TenantUserRecord>(
                     new CommandDefinition(
-                        """
-                        select
-                            u.id as UserId,
-                            u.email as Email,
-                            ut.role as Role,
-                            ut.is_owner as IsOwner
-                        from user_tenants ut
-                        inner join users u on u.id = ut.user_id
-                        where ut.tenant_id = @TenantId
-                          and ut.user_id = @UserId
-                        for update of ut;
-                        """,
+                        TenantUserAdministrationSql.SelectTenantUserForUpdate,
                         new
                         {
                             TenantId = command.TenantId,
@@ -237,13 +186,7 @@ public sealed class DapperTenantUserAdministrationService(
                 {
                     var tenantAdminIds = (await connection.QueryAsync<Guid>(
                         new CommandDefinition(
-                            """
-                            select user_id
-                            from user_tenants
-                            where tenant_id = @TenantId
-                              and role = @Role
-                            for update;
-                            """,
+                            TenantUserAdministrationSql.SelectTenantAdminIdsForUpdate,
                             new
                             {
                                 TenantId = command.TenantId,
@@ -267,12 +210,7 @@ public sealed class DapperTenantUserAdministrationService(
 
                 await connection.ExecuteAsync(
                     new CommandDefinition(
-                        """
-                        update user_tenants
-                        set role = @Role
-                        where tenant_id = @TenantId
-                          and user_id = @UserId;
-                        """,
+                        TenantUserAdministrationSql.UpdateTenantUserRole,
                         new
                         {
                             TenantId = command.TenantId,
@@ -367,18 +305,4 @@ public sealed class DapperTenantUserAdministrationService(
             1 => validationMessages[0],
             _ => string.Join(" ", validationMessages)
         };
-
-    private sealed class TenantUserRecord
-    {
-        public Guid UserId { get; init; }
-
-        public string Email { get; init; } = string.Empty;
-
-        public string Role { get; init; } = string.Empty;
-
-        public bool IsOwner { get; init; }
-
-        public TenantUserSummary ToSummary() =>
-            new(UserId, Email, TenantRoleParser.Parse(Role), IsOwner);
-    }
 }
