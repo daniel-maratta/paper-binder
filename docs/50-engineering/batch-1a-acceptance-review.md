@@ -2,15 +2,11 @@
 
 ## Acceptance Verdict
 
-Accept with minor follow-up.
+Accept as-is.
 
 Batch 1A materially improves the highest-signal quality hotspots identified in the audit. The parser changes are more idiomatic, the helper names are more honest, the tenant-user endpoint validator is less shallow, and the file split in tenancy improves browseability without broad churn.
 
-This batch still has one follow-up item:
-
-- the exact-case parsing contract is coherent but still implicit rather than locally justified
-
-That issue does not justify reopening Batch 1A into a broader cleanup pass, but it is still worth closing so the parser contract reads as deliberate rather than merely implementation-defined.
+The remaining exact-case parsing follow-up is now closed. `TenantRoleParser` and `PaperBinderRuntimeSettings` both carry a short local rationale note, and the related tests now state the canonical exact-case contract explicitly.
 
 ## Per-File Review Notes
 
@@ -19,7 +15,7 @@ That issue does not justify reopening Batch 1A into a broader cleanup pass, but 
 - Semantic precision: improved. The file now clearly parses enum-backed role names instead of hand-maintaining a `nameof(...)` switch.
 - Idiomatic .NET usage: improved. `Enum.TryParse` plus `Enum.IsDefined` is more platform-native than the prior branch table.
 - Contract preservation: mostly preserved. The round-trip string check prevents numeric enum inputs from slipping through, which is correct for this string contract.
-- Remaining concern: exact-case matching is now an implementation fact rather than an explicitly stated contract rule. The behavior is coherent with `role.ToString()` persistence and test usage, but the rationale for case sensitivity is still implicit.
+- Remaining concern: none for this batch. The exact-case contract now has a local rationale note and explicit tests.
 - Churn: low and justified.
 - Reviewer impact: favorable.
 
@@ -28,7 +24,7 @@ That issue does not justify reopening Batch 1A into a broader cleanup pass, but 
 - Semantic precision: improved. The audit-retention parser now reads like validation of a defined enum contract rather than a custom string map.
 - Idiomatic .NET usage: improved for the changed area.
 - Contract preservation: preserved. The accepted values are still the canonical enum names, and the error message remains explicit.
-- Remaining concern: as with tenant roles, exact-case acceptance is coherent but not documented as an intentional configuration contract.
+- Remaining concern: the broader multi-type file remains a later-batch hotspot, but the changed parser seam now reads as deliberate.
 - Churn: low in the touched lines. The rest of the large multi-type file remains a later-batch hotspot, but Batch 1A did not sprawl here.
 - Reviewer impact: favorable, though the file still carries broader structural debt outside this batch.
 
@@ -114,9 +110,9 @@ That issue does not justify reopening Batch 1A into a broader cleanup pass, but 
 
 ## Contract-Risk Findings
 
-1. Exact-case parsing is coherent but still implicit.
-   - `TenantRoleParser` and `PaperBinderRuntimeSettings` now reject numeric enum inputs and mixed-case variants, which is good if the contract is "canonical symbolic names only."
-   - The current code and tests behave consistently with that rule, but the contract is still justified indirectly by implementation and examples rather than by an explicit local rationale.
+1. Exact-case parsing is deliberate and now locally justified.
+   - `TenantRoleParser` and `PaperBinderRuntimeSettings` reject numeric enum inputs and mixed-case variants because the contract accepts canonical symbolic names only.
+   - The current code, comments, and tests now all state that rule consistently.
 
 2. Binder policy parsing remains deliberately custom and that is correct.
    - `TryParseContractValue` is a real improvement because the contract strings (`inherit`, `restricted_roles`) intentionally differ from enum names.
@@ -134,14 +130,8 @@ That issue does not justify reopening Batch 1A into a broader cleanup pass, but 
 - `PaperBinderRuntimeSettings.cs` is still a loud multi-type file even though the parser fix was good.
 - `PaperBinderTenantUserEndpoints.cs` still carries the general endpoint-file pattern the audit called out: route handlers, local DTOs, local validation, and mapping all in one place.
 - The large Dapper services still read as bulkier than they should for easy hotspot review, even though Batch 1A did not worsen them.
-- The exact-case parser contract would benefit from one short explicit rationale in code comments, tests, or contract docs.
-
 ## Recommended Next Action
 
-Merge after one tiny corrective follow-up:
-
-- add one short explicit rationale note, either in tests or nearby contract docs, stating that tenant-role and audit-retention strings intentionally accept canonical symbolic names only, with exact casing
-
-The tenant-user Docker-backed integration slice now passes, so Batch 1A is in reasonable merge shape pending only that rationale note.
+Batch 1A is in merge shape.
 
 Batch 1B should stay focused on endpoint-file overgrowth and one deliberate Dapper-service decomposition rather than widening into test-structure cleanup.

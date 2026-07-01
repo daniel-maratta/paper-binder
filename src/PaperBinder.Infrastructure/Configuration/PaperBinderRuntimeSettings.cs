@@ -75,6 +75,8 @@ public sealed record PaperBinderRuntimeSettings(
         AuditRetentionMode? auditRetentionMode = null;
         if (!string.IsNullOrWhiteSpace(auditRetentionModeValue))
         {
+            // The runtime setting accepts the canonical enum names only so environment values
+            // stay aligned with the documented contract and explicit error messages.
             if (Enum.TryParse<AuditRetentionMode>(auditRetentionModeValue, ignoreCase: false, out var parsedAuditRetentionMode) &&
                 Enum.IsDefined(parsedAuditRetentionMode) &&
                 string.Equals(auditRetentionModeValue, parsedAuditRetentionMode.ToString(), StringComparison.Ordinal))

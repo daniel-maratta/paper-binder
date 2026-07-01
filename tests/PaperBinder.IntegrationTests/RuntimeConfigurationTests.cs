@@ -42,7 +42,7 @@ public sealed class RuntimeConfigurationTests
     }
 
     [Fact]
-    public void Should_RejectAuditRetentionMode_When_CasingDoesNotMatchDefinedValue()
+    public void Should_RejectAuditRetentionMode_When_ValueIsNotTheCanonicalExactCaseName()
     {
         var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
             "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password"))

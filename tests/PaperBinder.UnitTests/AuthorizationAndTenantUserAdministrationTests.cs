@@ -69,7 +69,7 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
     [InlineData(nameof(TenantRole.TenantAdmin), TenantRole.TenantAdmin)]
     [InlineData(nameof(TenantRole.BinderWrite), TenantRole.BinderWrite)]
     [InlineData(nameof(TenantRole.BinderRead), TenantRole.BinderRead)]
-    public void TenantRoleParser_Should_ParseExactDefinedRoleNames(string value, TenantRole expectedRole)
+    public void TenantRoleParser_Should_ParseCanonicalExactCaseRoleNames(string value, TenantRole expectedRole)
     {
         var result = TenantRoleParser.TryParse(value, out var parsedRole);
 
@@ -81,7 +81,7 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
     [InlineData("not-a-role")]
     [InlineData("tenantadmin")]
     [InlineData("1")]
-    public void TenantRoleParser_Should_RejectInvalidOrNonCanonicalRoleValues(string value)
+    public void TenantRoleParser_Should_RejectInvalidMixedCaseOrNumericRoleValues(string value)
     {
         var result = TenantRoleParser.TryParse(value, out _);
 
