@@ -25,6 +25,7 @@ Before opening a PR, verify:
 - [ ] Canonical docs are updated in the same PR if behavior, contracts, or terms changed.
 - [ ] Tenant scoping is not weakened for implementation convenience.
 - [ ] No non-goals are introduced without explicit ADR and scope approval.
+- [ ] Touched hotspot files were skimmed for misleading helper names, hand-rolled parsing, shallow validators, and unjustified multi-type files.
 - [ ] Critic review summary and unresolved-risk status are included in the PR artifact.
 - [ ] The PR artifact status line reflects the current handoff state (`Draft` while in progress, `Review Ready` when ready for reviewer handoff).
 
@@ -47,6 +48,8 @@ Before merging, the PR must satisfy:
 - If the checkpoint plan promises structured logging or observability behavior, verify the implementation actually emits it.
 - Keep later-checkpoint work explicitly deferred in `Scope Boundaries`; do not silently pull it forward.
 - Keep one canonical checkpoint narrative per delivery folder. Do not duplicate `description.md` into a second prose artifact unless that file has a distinct purpose.
+- If a helper name claims normalization or canonicalization, verify the implementation really provides that guarantee.
+- If a parser maps strings into enums or contract modes, verify whether platform-native parsing or explicit contract-named parsing would be clearer.
 
 ## Merge Discipline
 

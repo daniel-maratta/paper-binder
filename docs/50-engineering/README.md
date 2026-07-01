@@ -12,5 +12,7 @@
 - `docs/50-engineering/coding-standards.md`
 - `docs/50-engineering/data-access-standards.md`
 - `docs/50-engineering/frontend-standards.md`
-- `docs/50-engineering/engineering-credibility-audit.md`
-- `docs/50-engineering/engineering-credibility-agent-gap-analysis.md`
+- `docs/50-engineering/code-quality-review.md`
+- `docs/50-engineering/code-quality-gap-analysis.md`
+- `docs/50-engineering/batch-1a-summary.md`
+- `docs/50-engineering/batch-1a-acceptance-review.md`

@@ -1,8 +1,8 @@
-# Engineering Credibility Audit
+# Implementation Audit
 
 ## Executive Summary
 
-PaperBinder does not read as AI-generated because of one catastrophic defect. It reads that way because several small-to-medium code decisions stack in the same direction: hand-rolled parsing where the platform already has a better primitive, helper names that overclaim what they do, bulky multi-type files, repetitive result/mapping boilerplate, and tests that feel transcribed rather than shaped.
+PaperBinder does not have one catastrophic implementation defect. The concern is cumulative: several small-to-medium code decisions lean in the same direction, including hand-rolled parsing where the platform already has a better primitive, helper names that overclaim what they do, bulky multi-type files, repetitive result/mapping boilerplate, and tests that feel transcribed rather than shaped.
 
 Two different problems are mixed together:
 
@@ -11,22 +11,22 @@ Two different problems are mixed together:
   - misleading or underspecified helper semantics
   - large files that mix validation, mapping, SQL, transport contracts, and local DTOs
   - shallow validators at API seams
-- Presentation and reviewer-signal issues:
+- Presentation and code-inspection issues:
   - many files look mechanically assembled rather than deliberately shaped
-  - important reasoning often lives in repo docs instead of at the code seam a reviewer is reading
+  - important reasoning often lives in repo docs instead of at the code seam an engineer is reading
 - the repo's process surface is stronger than its code-craft surface, which makes the weak code decisions stand out more
 
-The repository has real strengths: tenant scoping is explicit, the boundary model is coherent, and the release/process docs are disciplined. The trust problem is that the code-level judgment in several reviewer-hotspot files does not consistently match that standard.
+The repository has real strengths: tenant scoping is explicit, the boundary model is coherent, and the release/process docs are disciplined. The core problem is that the code-level judgment in several hotspot files does not consistently match that standard.
 
 ## Top 10 Highest-Signal Findings
 
 1. **Hand-rolled string and enum parsing is repeated in places where .NET already has stronger primitives**
-   - Why it matters: this is one of the fastest ways to trigger "AI wrote this" skepticism in a senior .NET review. It suggests the author reached for first-available code rather than platform-native APIs and edge-case thinking.
+   - Why it matters: this is one of the fastest ways to suggest weak curation in a senior .NET review. It suggests the author reached for first-available code rather than platform-native APIs and edge-case thinking.
    - Representative examples:
      - `src/PaperBinder.Application/Tenancy/TenantRoleParser.cs` uses a `switch` over `nameof(TenantRole.*)`.
      - `src/PaperBinder.Infrastructure/Configuration/PaperBinderRuntimeSettings.cs` parses `AuditRetentionMode` via a manual `switch`.
      - `src/PaperBinder.Application/Binders/BinderRules.cs` manually maps contract strings to `BinderPolicyMode`.
-   - Risk: correctness risk, maintainability risk, reviewer-signal risk.
+   - Risk: correctness risk, maintainability risk, code-inspection risk.
 
 2. **"Normalize" helpers usually just trim strings or perform shallow cleanup**
    - Why it matters: misleading names are not cosmetic. They make callers assume stronger guarantees than the helper actually provides.
@@ -34,9 +34,9 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
      - `DocumentRules.TryNormalizeTitle` in `src/PaperBinder.Application/Documents/DocumentRules.cs`
      - `BinderNameRules.TryNormalize` in `src/PaperBinder.Application/Binders/BinderRules.cs`
      - `TryNormalizeEmail` in `src/PaperBinder.Api/PaperBinderTenantUserEndpoints.cs`
-   - Risk: maintainability risk, reviewer-signal risk.
+   - Risk: maintainability risk, code-inspection risk.
 
-3. **Multi-type files are common in exactly the places reviewers expect deliberate boundaries**
+3. **Multi-type files are common in exactly the places engineers expect deliberate boundaries**
    - Why it matters: packing interfaces, records, enums, failures, outcomes, and rule helpers into one file makes the codebase feel mechanically grouped by checkpoint or feature slice instead of by responsibility.
    - Representative examples:
      - `src/PaperBinder.Application/Documents/DocumentContracts.cs`
@@ -44,15 +44,15 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
      - `src/PaperBinder.Application/Provisioning/ITenantProvisioningService.cs`
      - `src/PaperBinder.Application/Tenancy/ITenantUserAdministrationService.cs`
      - `src/PaperBinder.Infrastructure/Configuration/PaperBinderRuntimeSettings.cs`
-   - Risk: maintainability risk, reviewer-signal risk.
+   - Risk: maintainability risk, code-inspection risk.
 
 4. **Large infrastructure services mix too many concerns**
-   - Why it matters: a reviewer expects data-access classes to be opinionated but still navigable. These classes combine SQL, validation, authorization checks, logging, persistence DTOs, parsing, and result construction in one place.
+   - Why it matters: a senior engineer expects data-access classes to be opinionated but still navigable. These classes combine SQL, validation, authorization checks, logging, persistence DTOs, parsing, and result construction in one place.
    - Representative examples:
      - `src/PaperBinder.Infrastructure/Documents/DapperDocumentService.cs`
      - `src/PaperBinder.Infrastructure/Binders/DapperBinderService.cs`
      - `src/PaperBinder.Infrastructure/Tenancy/DapperTenantUserAdministrationService.cs`
-   - Risk: maintainability risk, reviewer-signal risk.
+   - Risk: maintainability risk, code-inspection risk.
 
 5. **Endpoint files repeat validation, command construction, transport models, and failure plumbing locally**
    - Why it matters: the API surface is explicit, but the repetition makes it look assembled from a template rather than shaped around the domain. It also encourages local one-off validators.
@@ -60,7 +60,7 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
      - `src/PaperBinder.Api/PaperBinderTenantUserEndpoints.cs`
      - `src/PaperBinder.Api/PaperBinderBinderEndpoints.cs`
      - `src/PaperBinder.Api/PaperBinderDocumentEndpoints.cs`
-   - Risk: maintainability risk, reviewer-signal risk.
+   - Risk: maintainability risk, code-inspection risk.
 
 6. **Outcome/failure/problem-mapping patterns are repeated almost verbatim across slices**
    - Why it matters: explicit result types are defensible, but here the pattern repeats so mechanically that it reads more like generated scaffolding than hand-tuned API design.
@@ -68,38 +68,38 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
      - `DocumentCreateOutcome`, `DocumentListOutcome`, `DocumentDetailOutcome`
      - `BinderCreateOutcome`, `BinderDetailOutcome`, `BinderPolicyReadOutcome`, `BinderPolicyUpdateOutcome`
      - `PaperBinderDocumentProblemMapping`, `PaperBinderBinderProblemMapping`, `PaperBinderTenantUserProblemMapping`
-   - Risk: maintainability risk, reviewer-signal risk.
+   - Risk: maintainability risk, code-inspection risk.
 
 7. **Integration tests are thorough but shaped like long scenario transcripts**
-   - Why it matters: the tests prove behavior, but many of them are hard to skim, hard to diff, and repetitive in setup. A skeptical reviewer may read them as bulk-generated confidence theater rather than carefully chosen tests.
+   - Why it matters: the tests prove behavior, but many of them are hard to skim, hard to diff, and repetitive in setup. A skeptical engineer may read them as bulk-generated confidence theater rather than carefully chosen tests.
    - Representative examples:
      - `tests/PaperBinder.IntegrationTests/BinderDomainAndPolicyModelIntegrationTests.cs`
      - `tests/PaperBinder.IntegrationTests/DocumentDomainAndImmutableDocumentRulesIntegrationTests.cs`
-   - Risk: maintainability risk, reviewer-signal risk.
+   - Risk: maintainability risk, code-inspection risk.
 
 8. **Security-critical code often depends on external documentation instead of local code cues**
-   - Why it matters: this repo has strong architecture docs, but a reviewer opening the code wants the critical seams to explain themselves. Middleware order and boundary assumptions are not obvious from the code alone.
+   - Why it matters: this repo has strong architecture docs, but an engineer opening the code wants the critical seams to explain themselves. Middleware order and boundary assumptions are not obvious from the code alone.
    - Representative examples:
      - `src/PaperBinder.Api/Program.Partial.cs`
      - the request-context requirements repeated via `GetRequiredTenant` and `GetRequiredMembership` helpers across endpoint files
-   - Risk: maintainability risk, reviewer-signal risk.
+   - Risk: maintainability risk, code-inspection risk.
 
 9. **Internal naming is over-prefixed and low-signal in the API layer**
    - Why it matters: the namespace already supplies `PaperBinder`. Repeating it on almost every internal API type makes browsing slower and contributes to a generated-code feel.
    - Representative examples:
      - `src/PaperBinder.Api/` contains dozens of `PaperBinder*.cs` files for internal endpoint, middleware, and mapping types.
-   - Risk: reviewer-signal risk.
+   - Risk: code-inspection risk.
 
 10. **Comments are either sparse where "why" is needed or phrased in delivery/checkpoint language**
    - Why it matters: good comments justify a non-obvious choice. Here the most notable inline comment is tied to checkpoint history, while critical code paths often have no local rationale at all.
    - Representative examples:
      - `src/PaperBinder.Infrastructure/Documents/HtmlEncodingMarkdownDocumentRenderer.cs`
      - `src/PaperBinder.Api/Program.Partial.cs`
-   - Risk: maintainability risk, reviewer-signal risk.
+   - Risk: maintainability risk, code-inspection risk.
 
 ## Recurring Anti-Pattern Catalog
 
-| Anti-pattern | Why it hurts trust | Concrete examples |
+| Anti-pattern | Why it hurts implementation confidence | Concrete examples |
 | --- | --- | --- |
 | Trim-only "normalization" helpers | Overclaims semantics and hides weak invariants behind confident names | `DocumentRules.TryNormalizeTitle`, `BinderNameRules.TryNormalize`, `TryNormalizeEmail` |
 | Fragile string-to-enum matching | Suggests platform primitives were skipped and contract semantics were not thought through deeply | `TenantRoleParser`, `PaperBinderRuntimeSettings` audit mode parsing, `BinderPolicyModeNames.TryParse` |
@@ -108,13 +108,13 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
 | Large service classes with nested record/DTO types | Hides domain intent inside long files that mix concerns | `DapperDocumentService`, `DapperBinderService`, `DapperTenantUserAdministrationService` |
 | Local transport models embedded in endpoint files | Couples route handlers, DTO shape, local validation, and mapping too tightly | `PaperBinderBinderEndpoints`, `PaperBinderDocumentEndpoints`, `PaperBinderTenantUserEndpoints` |
 | Tests as full-flow transcripts | Behavior coverage is real, but the tests are verbose, repetitive, and hard to reason about in small diffs | large binder/document integration test classes |
-| External-doc-first reasoning | Great for architecture packets, weaker for code skim credibility | `Program.Partial.cs` middleware order relies on docs rather than local rationale |
+| External-doc-first reasoning | Great for architecture packets, weaker for code-level explainability | `Program.Partial.cs` middleware order relies on docs rather than local rationale |
 
-## Reviewer Hotspot Map
+## Initial Inspection Hotspot Map
 
-| Hotspot | What a reviewer is likely to inspect | Current impression |
+| Hotspot | What an engineer is likely to inspect | Current impression |
 | --- | --- | --- |
-| `src/PaperBinder.Application/Binders/BinderRules.cs`, `src/PaperBinder.Application/Documents/DocumentRules.cs`, `src/PaperBinder.Application/Tenancy/TenantRoleParser.cs` | low-level rules and helper semantics | Fastest "AI smell" zone: trim-only normalize methods, manual parsers, weak naming precision |
+| `src/PaperBinder.Application/Binders/BinderRules.cs`, `src/PaperBinder.Application/Documents/DocumentRules.cs`, `src/PaperBinder.Application/Tenancy/TenantRoleParser.cs` | low-level rules and helper semantics | Fastest non-idiomatic pattern zone: trim-only normalize methods, manual parsers, weak naming precision |
 | `src/PaperBinder.Api/Program.Partial.cs` | runtime composition and middleware order | Architecture is intentional, but local code does not explain why ordering matters |
 | `src/PaperBinder.Api/*Endpoints.cs` | public API shape and request handling | Explicit but repetitive; looks template-driven and over-localized |
 | `src/PaperBinder.Infrastructure/Documents/DapperDocumentService.cs`, `Binders/DapperBinderService.cs`, `Tenancy/DapperTenantUserAdministrationService.cs` | real backend judgment under load-bearing behavior | Strong tenant predicates, but file shape is bulky and mixes concerns |
@@ -141,8 +141,8 @@ Scope:
 - split the most obvious multi-type hotspot files in `src/PaperBinder.Application/` and `src/PaperBinder.Api/`
 
 Why first:
-- this is the fastest reviewer-trust win
-- it directly targets the files a skeptical senior engineer will open first
+- this is the fastest implementation-confidence win
+- it directly targets the files most likely to surface issues during targeted hotspot review
 - it has relatively low behavioral risk if done carefully
 
 ### Batch 2: Service And Endpoint Shape Pass
@@ -164,7 +164,7 @@ Scope:
 - add focused unit tests for any parsing or normalization edge cases introduced during Batch 1
 
 Why third:
-- it preserves current coverage while making the trust story cleaner
+- it preserves current coverage while making the implementation story cleaner
 - it is easier to do once the production code seams are less noisy
 
 ### Batch 4: Boilerplate And Comment Precision Pass
@@ -176,4 +176,4 @@ Scope:
 
 Why fourth:
 - this should follow the structural cleanup so comments and naming reflect the final shape
-- it is valuable, but less trust-restoring than fixing the earlier hotspots first
+- it is valuable, but less immediately useful than fixing the earlier hotspots first

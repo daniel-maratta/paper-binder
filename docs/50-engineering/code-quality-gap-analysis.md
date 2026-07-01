@@ -1,4 +1,4 @@
-# Engineering Credibility Agent Gap Analysis
+# Implementation Guidance Gap Analysis
 
 ## Instruction-System Failure Analysis
 
@@ -8,7 +8,7 @@
 - There is no explicit rule against hand-rolled string-to-enum parsing when .NET already provides an adequate primitive.
 - There is no file-organization standard beyond broad layer boundaries. The repo does not say when one public type per file is expected, when bundling is acceptable, or when a multi-type file needs justification.
 - There is no repository rule against one-off validators with shallow semantics at API boundaries.
-- There is no "reviewer trust" gate that asks whether code reads as deliberate to a skeptical senior engineer.
+- There is no targeted hotspot-review gate that asks whether code reads as deliberate and well-curated.
 
 ### Weak Guidance
 
@@ -35,11 +35,11 @@
 - Existing guidance to keep naming explicit did not prevent trim-only normalize helpers.
 - Existing guidance to keep comments high-signal did not translate into local rationale at critical seams like middleware ordering.
 
-### Reviewer-Process Blind Spots
+### Code-Review Blind Spots
 
-- The current review process is excellent at asking "is this scoped, tested, documented, and mergeable?" It is much weaker at asking "does this look like senior engineering judgment?"
+- The current review process is excellent at asking "is this scoped, tested, documented, and mergeable?" It is much weaker at asking "does this reflect senior engineering judgment at the code seam?"
 - The critic-review artifacts in `docs/95-delivery/pr/` are detailed, but they are primarily plan and release reviews. They are not skeptical code-skims of hotspot files.
-- A change can pass the current process while still leaving a strong reviewer with the impression that the code was generated and only lightly curated.
+- A change can pass the current process while still leaving a strong engineer with the impression that the code was generated and only lightly curated.
 
 ## What The Current Docs Likely Optimize For
 
@@ -51,7 +51,7 @@ The current instruction set strongly optimizes for:
 - release reproducibility
 - task/PR traceability
 - test execution evidence
-- reviewer-facing architecture clarity
+- architecture clarity during targeted code review
 
 What it does **not** optimize for strongly enough:
 
@@ -141,7 +141,7 @@ These are the quality gates the current workflow does not state explicitly enoug
 - Do not add one-off validators at API boundaries when framework or domain primitives already exist, unless the helper is explicitly described as a minimal syntactic pre-check.
 - Large files that mix more than one major responsibility need an explicit review note before merge.
 - Comments in source code must justify decisions or invariants, not checkpoint history or obvious syntax.
-- A reviewer-trust pass must sample hotspot code files, not only docs, plans, and validation output.
+- A targeted hotspot-review pass must sample hotspot code files, not only docs, plans, and validation output.
 
 ## Recommended Updates To The AI Instructions And Repo Contract
 
@@ -168,7 +168,7 @@ Copy-ready policy text:
 
 Copy-ready policy text:
 
-> **Engineering Credibility Gate**
+> **Targeted Hotspot Review Gate**
 > Before a PR is considered review ready, perform a hotspot skim of at least:
 > - one rule/helper file
 > - one endpoint or application-boundary file
@@ -184,9 +184,9 @@ Copy-ready policy text:
 
 Copy-ready policy text:
 
-> Reviewer trust is a first-class constraint. Passing tests and matching architecture docs are necessary but not sufficient. Avoid code that reads as mechanically generated: misleading helper names, custom parsers where platform APIs exist, unnecessary local validators, unexplained multi-type files, and repetitive scaffolding without a clear payoff.
+> Implementation quality in hotspot files is a first-class constraint. Passing tests and matching architecture docs are necessary but not sufficient. Avoid misleading helper names, custom parsers where platform APIs exist, unnecessary local validators, unexplained multi-type files, and repetitive scaffolding without a clear payoff.
 
-## Recommended Reviewer Workflow Changes
+## Recommended Review Workflow Changes
 
 ### Add A Dedicated Post-Implementation Credibility Pass
 
@@ -199,7 +199,7 @@ Focus files:
 - one infrastructure service
 - one large test file
 
-### Reviewer-Trust Checklist
+### Skeptical Review Checklist
 
 - Does any helper or type name overclaim what it does?
 - Is any string or enum parsing custom without a clear contract reason?
@@ -214,7 +214,7 @@ Focus files:
 
 The current critic-review pattern should keep its scope/security rigor, but it should add a short mandatory code-skimming section:
 
-- "Reviewer hotspot files opened"
+- "Hotspot files opened"
 - "Naming/idiom findings"
 - "File organization findings"
 - "Generated-pattern findings"
