@@ -65,10 +65,25 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
         Assert.Equal("The request tenant membership context can only be established once per request.", ex.Message);
     }
 
-    [Fact]
-    public void TenantRoleParser_Should_RejectInvalidRole()
+    [Theory]
+    [InlineData(nameof(TenantRole.TenantAdmin), TenantRole.TenantAdmin)]
+    [InlineData(nameof(TenantRole.BinderWrite), TenantRole.BinderWrite)]
+    [InlineData(nameof(TenantRole.BinderRead), TenantRole.BinderRead)]
+    public void TenantRoleParser_Should_ParseExactDefinedRoleNames(string value, TenantRole expectedRole)
     {
-        var result = TenantRoleParser.TryParse("not-a-role", out _);
+        var result = TenantRoleParser.TryParse(value, out var parsedRole);
+
+        Assert.True(result);
+        Assert.Equal(expectedRole, parsedRole);
+    }
+
+    [Theory]
+    [InlineData("not-a-role")]
+    [InlineData("tenantadmin")]
+    [InlineData("1")]
+    public void TenantRoleParser_Should_RejectInvalidOrNonCanonicalRoleValues(string value)
+    {
+        var result = TenantRoleParser.TryParse(value, out _);
 
         Assert.False(result);
     }

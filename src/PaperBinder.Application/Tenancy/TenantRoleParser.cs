@@ -4,24 +4,16 @@ public static class TenantRoleParser
 {
     public static bool TryParse(string? value, out TenantRole role)
     {
-        switch (value)
+        if (Enum.TryParse<TenantRole>(value, ignoreCase: false, out var parsedRole) &&
+            Enum.IsDefined(parsedRole) &&
+            string.Equals(value, parsedRole.ToString(), StringComparison.Ordinal))
         {
-            case nameof(TenantRole.TenantAdmin):
-                role = TenantRole.TenantAdmin;
-                return true;
-
-            case nameof(TenantRole.BinderWrite):
-                role = TenantRole.BinderWrite;
-                return true;
-
-            case nameof(TenantRole.BinderRead):
-                role = TenantRole.BinderRead;
-                return true;
-
-            default:
-                role = default;
-                return false;
+            role = parsedRole;
+            return true;
         }
+
+        role = default;
+        return false;
     }
 
     public static TenantRole Parse(string value) =>

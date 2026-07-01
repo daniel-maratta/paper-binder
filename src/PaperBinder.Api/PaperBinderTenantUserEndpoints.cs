@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using Microsoft.AspNetCore.Mvc;
 using PaperBinder.Application.Tenancy;
 
@@ -37,7 +38,7 @@ internal static class PaperBinderTenantUserEndpoints
         CreateTenantUserRequest request,
         CancellationToken cancellationToken)
     {
-        if (!TryNormalizeEmail(request.Email, out var email))
+        if (!TryTrimToValidEmailAddress(request.Email, out var email))
         {
             await PaperBinderProblemDetails.WriteApiProblemAsync(
                 context,
@@ -50,6 +51,7 @@ internal static class PaperBinderTenantUserEndpoints
 
         var tenant = GetRequiredTenant(tenantContext);
         GetRequiredMembership(membershipContext);
+        var requestedRole = request.Role?.Trim() ?? string.Empty;
         var outcome = await tenantUserAdministrationService.CreateUserAsync(
             new TenantUserCreateCommand(
                 tenant.TenantId,
@@ -58,7 +60,7 @@ internal static class PaperBinderTenantUserEndpoints
                 executionUserContext.IsImpersonated,
                 email,
                 request.Password ?? string.Empty,
-                request.Role ?? string.Empty),
+                requestedRole),
             cancellationToken);
 
         if (!outcome.Succeeded)
@@ -84,6 +86,7 @@ internal static class PaperBinderTenantUserEndpoints
     {
         var tenant = GetRequiredTenant(tenantContext);
         GetRequiredMembership(membershipContext);
+        var requestedRole = request.Role?.Trim() ?? string.Empty;
         var outcome = await tenantUserAdministrationService.ChangeRoleAsync(
             new TenantUserRoleChangeCommand(
                 tenant.TenantId,
@@ -91,7 +94,7 @@ internal static class PaperBinderTenantUserEndpoints
                 executionUserContext.EffectiveUserId,
                 executionUserContext.IsImpersonated,
                 userId,
-                request.Role ?? string.Empty),
+                requestedRole),
             cancellationToken);
 
         if (!outcome.Succeeded)
@@ -126,24 +129,16 @@ internal static class PaperBinderTenantUserEndpoints
         membershipContext.Membership
         ?? throw new InvalidOperationException("Tenant user endpoints require an established tenant membership context.");
 
-    private static bool TryNormalizeEmail(string? value, out string normalizedEmail)
+    private static bool TryTrimToValidEmailAddress(string? value, out string emailAddress)
     {
-        normalizedEmail = value?.Trim() ?? string.Empty;
-
-        if (normalizedEmail.Length is 0 or > 256)
+        emailAddress = value?.Trim() ?? string.Empty;
+        if (emailAddress.Length is 0 or > 256)
         {
             return false;
         }
 
-        if (normalizedEmail.Any(char.IsWhiteSpace))
-        {
-            return false;
-        }
-
-        var atIndex = normalizedEmail.IndexOf('@');
-        return atIndex > 0 &&
-               atIndex == normalizedEmail.LastIndexOf('@') &&
-               atIndex < normalizedEmail.Length - 1;
+        return MailAddress.TryCreate(emailAddress, out var parsedAddress) &&
+               string.Equals(parsedAddress.Address, emailAddress, StringComparison.OrdinalIgnoreCase);
     }
 
     private static TenantUserResponse MapUser(TenantUserSummary user) =>

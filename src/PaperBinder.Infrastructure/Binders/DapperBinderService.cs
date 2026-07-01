@@ -64,7 +64,7 @@ public sealed class DapperBinderService(
         ArgumentNullException.ThrowIfNull(command);
         ArgumentNullException.ThrowIfNull(command.Tenant);
 
-        if (!BinderNameRules.TryNormalize(command.Name, out var normalizedName))
+        if (!BinderNameRules.TryTrimToValidName(command.Name, out var normalizedName))
         {
             return BinderCreateOutcome.Failed(
                 new BinderFailure(
@@ -404,7 +404,7 @@ public sealed class DapperBinderService(
         bool WasUpdated);
 
     private static BinderPolicyMode ParseMode(string value) =>
-        BinderPolicyModeNames.TryParse(value, out var mode)
+        BinderPolicyModeNames.TryParseContractValue(value, out var mode)
             ? mode
             : throw new InvalidOperationException($"Unsupported binder policy mode `{value}` in persisted data.");
 

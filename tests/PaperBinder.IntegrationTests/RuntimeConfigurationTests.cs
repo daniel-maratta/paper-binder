@@ -42,6 +42,22 @@ public sealed class RuntimeConfigurationTests
     }
 
     [Fact]
+    public void Should_RejectAuditRetentionMode_When_CasingDoesNotMatchDefinedValue()
+    {
+        var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
+            "Host=localhost;Port=5432;Database=paperbinder;Username=paperbinder;Password=test-password"))
+        {
+            [PaperBinderConfigurationKeys.AuditRetentionMode] = "retainTenantPurgedSummary"
+        };
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => PaperBinderRuntimeSettings.Load(
+                key => configuration.TryGetValue(key, out var value) ? value : null));
+
+        Assert.Contains(PaperBinderConfigurationKeys.AuditRetentionMode, exception.Message);
+    }
+
+    [Fact]
     public void Should_FailFast_When_RequiredConfigurationKeyIsMissing()
     {
         var configuration = new Dictionary<string, string?>(TestRuntimeConfiguration.Create(
