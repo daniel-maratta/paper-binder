@@ -100,7 +100,6 @@ jobs:
           TEST_NAMECHEAP_API_USER: ${{ secrets.TEST_NAMECHEAP_API_USER }}
           TEST_NAMECHEAP_API_KEY: ${{ secrets.TEST_NAMECHEAP_API_KEY }}
           TEST_NAMECHEAP_CLIENT_IP: ${{ secrets.TEST_NAMECHEAP_CLIENT_IP }}
-          TEST_OTEL_OTLP_ENDPOINT: ${{ secrets.TEST_OTEL_OTLP_ENDPOINT }}
         shell: pwsh
         run: |
           function Format-EnvValue([string] $Value) {
