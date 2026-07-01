@@ -55,6 +55,6 @@ This pass stays narrow. It improves one endpoint hotspot and one tenant-user per
 - `dotnet test tests/PaperBinder.UnitTests/PaperBinder.UnitTests.csproj -c Release --no-build --filter "FullyQualifiedName~AuthorizationAndTenantUserAdministrationTests"`
   - Passed: 22 tests.
 - `dotnet test tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj -c Release --no-build --filter "FullyQualifiedName~AuthorizationPoliciesAndTenantUserAdministrationIntegrationTests"`
-  - Not completed in this environment. The tenant-user integration fixture still requires Docker/Testcontainers, and the local Docker endpoint (`npipe://./pipe/docker_engine`) was unavailable.
+  - Passed: 15 tests.
 - `docs/repo-map.json` validation via PowerShell `ConvertFrom-Json`
   - Passed.

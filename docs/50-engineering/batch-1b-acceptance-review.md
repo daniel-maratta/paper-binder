@@ -2,11 +2,9 @@
 
 ## Acceptance Verdict
 
-Accept with minor follow-up.
+Accept as-is.
 
-Batch 1B improves the targeted tenant-user hotspot files without drifting into broader API or persistence cleanup. The endpoint file now reads more like route wiring, and the Dapper service is easier to skim because SQL ownership and row translation no longer compete with transaction flow in the same file.
-
-The only remaining merge-gate caveat is verification depth. The focused unit tests passed, but the Docker-backed tenant-user integration slice could not run in this environment because the local Docker endpoint was unavailable.
+Batch 1B improves the targeted tenant-user hotspot files without drifting into broader API or persistence cleanup. The endpoint file now reads more like route wiring, and the Dapper service is easier to skim because SQL ownership and row translation no longer compete with transaction flow in the same file. The focused unit slice and the Docker-backed tenant-user integration slice both passed, so this batch no longer carries an open verification caveat.
 
 ## Review Targets
 
@@ -120,11 +118,9 @@ For each production file, answer:
 
 ## Remaining Implementation Issues
 
-- Docker-backed tenant-user integration checks still need to run in a Docker-capable environment before treating this slice as fully re-verified end to end.
 - `DapperTenantUserAdministrationService.cs` remains a sizable service even after the extraction, so further decomposition should be deliberate and deferred to a later batch if needed.
 
 ## Recommended Next Action
 
 - Keep the code changes in this batch.
-- Run `AuthorizationPoliciesAndTenantUserAdministrationIntegrationTests` in a Docker-capable environment before merging the full PR.
 - Defer any additional endpoint or Dapper restructuring until a later batch so this pass remains easy to review.

@@ -61,7 +61,7 @@ This pass is intentionally narrow. It targets the fastest implementation-quality
   - Passed: 63 tests.
 - `dotnet test tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj -c Release --no-build --filter "FullyQualifiedName~RuntimeConfigurationTests"`
   - Passed: 11 tests.
-- `dotnet test tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj -c Release --no-build --filter "FullyQualifiedName~AuthorizationPoliciesAndTenantUserAdministrationIntegrationTests.Should_ReturnBadRequest_When_TenantUserEmailIsStructurallyInvalid|FullyQualifiedName~AuthorizationPoliciesAndTenantUserAdministrationIntegrationTests.Should_ReturnUnprocessableEntity_When_TenantUserRoleIsInvalid"`
-  - Not completed: Docker/Testcontainers was unavailable in the current environment (`npipe://./pipe/docker_engine` could not be reached).
+- `dotnet test tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj -c Release --no-build --filter "FullyQualifiedName~AuthorizationPoliciesAndTenantUserAdministrationIntegrationTests"`
+  - Passed: 15 tests.
 - `docs/repo-map.json` validation via PowerShell `ConvertFrom-Json`
   - Passed.

@@ -6,12 +6,11 @@ Accept with minor follow-up.
 
 Batch 1A materially improves the highest-signal quality hotspots identified in the audit. The parser changes are more idiomatic, the helper names are more honest, the tenant-user endpoint validator is less shallow, and the file split in tenancy improves browseability without broad churn.
 
-This batch is not fully closed as a merge gate for two reasons:
+This batch still has one follow-up item:
 
 - the exact-case parsing contract is coherent but still implicit rather than locally justified
-- the tenant-user endpoint behavior changes were not re-verified in Docker-backed integration tests in this environment
 
-Neither issue justifies reopening Batch 1A into a broader cleanup pass, but both are valid follow-up items before treating the batch as fully buttoned up.
+That issue does not justify reopening Batch 1A into a broader cleanup pass, but it is still worth closing so the parser contract reads as deliberate rather than merely implementation-defined.
 
 ## Per-File Review Notes
 
@@ -55,10 +54,10 @@ Neither issue justifies reopening Batch 1A into a broader cleanup pass, but both
 
 - Semantic precision: improved. The email helper no longer pretends to normalize beyond trimming, and the new name frames it as a structural validity check.
 - Idiomatic .NET usage: improved. `MailAddress.TryCreate` is a better structural pre-check than the previous `@`-count heuristic.
-- Contract preservation: likely preserved, but not fully re-verified in Docker-backed integration tests from this environment.
+- Contract preservation: preserved. The Docker-backed tenant-user integration slice now passes against the endpoint behavior changed in Batch 1A.
 - Remaining concern: the file still uses local request/response records and local validation helpers, so it still reads somewhat template-shaped. Batch 1A did not need to solve that.
 - Churn: moderate but still justified within Batch 1A because this was one of the explicit quality hotspots and the changes stayed on validation/boundary semantics.
-- Reviewer impact: more favorable than before, assuming the unchanged endpoint behavior still passes the Docker-backed tests.
+- Reviewer impact: more favorable than before.
 
 ### `src/PaperBinder.Infrastructure/Binders/DapperBinderService.cs`
 
@@ -119,11 +118,7 @@ Neither issue justifies reopening Batch 1A into a broader cleanup pass, but both
    - `TenantRoleParser` and `PaperBinderRuntimeSettings` now reject numeric enum inputs and mixed-case variants, which is good if the contract is "canonical symbolic names only."
    - The current code and tests behave consistently with that rule, but the contract is still justified indirectly by implementation and examples rather than by an explicit local rationale.
 
-2. Tenant-user endpoint changes are only partially verified.
-   - The role trimming and stricter email structural check are reasonable boundary changes.
-   - The non-Docker tests passed, but the Docker-backed tenant-user integration checks did not run in this environment, so the externally observable API behavior is not fully re-confirmed yet.
-
-3. Binder policy parsing remains deliberately custom and that is correct.
+2. Binder policy parsing remains deliberately custom and that is correct.
    - `TryParseContractValue` is a real improvement because the contract strings (`inherit`, `restricted_roles`) intentionally differ from enum names.
    - This area now reads as deliberate rather than as overlooked platform support.
 
@@ -145,9 +140,8 @@ Neither issue justifies reopening Batch 1A into a broader cleanup pass, but both
 
 Merge after one tiny corrective follow-up:
 
-- run the two tenant-user Docker-backed integration checks in a Docker-capable environment
 - add one short explicit rationale note, either in tests or nearby contract docs, stating that tenant-role and audit-retention strings intentionally accept canonical symbolic names only, with exact casing
 
-If those two items are completed cleanly, Batch 1A is a reasonable merge before Batch 1B.
+The tenant-user Docker-backed integration slice now passes, so Batch 1A is in reasonable merge shape pending only that rationale note.
 
 Batch 1B should stay focused on endpoint-file overgrowth and one deliberate Dapper-service decomposition rather than widening into test-structure cleanup.
