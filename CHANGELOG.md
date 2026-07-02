@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## [1.0.2] - 2026-07-02
+
+### Changed
+- The code-quality cleanup branch landed as a staged, scope-locked maintenance pass across tenant-user, binder, and bounded API scaffolding hotspots, improving file responsibility and skim-readability without changing the public route surface.
+- Tenant-user and binder infrastructure hotspots now delegate low-signal SQL, row-mapping, and contract-model ownership into narrower seams so endpoint and service files stay focused on orchestration behavior.
+
+### Fixed
+- Tenant-user API-boundary tests now pin the stricter email validator semantics and the endpoint-level trimming of surrounding whitespace on role inputs.
+
+### Docs
+- Release metadata and current-state delivery docs now align on the `v1.0.2` / `1.0.2` release identity while preserving `v1.0.1` deployment notes as historical last-known-good public state until the new release finishes rollout.
+
 ## [1.0.1] - 2026-06-26
 
 ### Fixed
