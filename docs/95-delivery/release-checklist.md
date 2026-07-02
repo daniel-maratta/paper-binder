@@ -7,9 +7,9 @@ Own the canonical release gate list for the current stable `V1` release.
 
 ## Required Artifacts
 
-- [x] `CHANGELOG.md` contains the current `## [1.0.3] - 2026-07-02` entry above the historical `## [V1] - 2026-04-19` first-cut release summary, with a fresh empty `## Unreleased`.
+- [x] `CHANGELOG.md` contains the current `## [1.0.4] - 2026-07-02` entry above the historical `## [V1] - 2026-04-19` first-cut release summary, with a fresh empty `## Unreleased`.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the current stable tag, the command surface, and ownership.
-- [x] Repository version metadata now matches the current stable `V1` release tag `v1.0.3` / `1.0.3` on `main`.
+- [x] Repository version metadata now matches the current stable `V1` release tag `v1.0.4` / `1.0.4` on `main`.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
 - [x] `.github/workflows/release.yml` defines the tag-driven release validation pipeline for stable SemVer tags.
 - [x] `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` records shipped scope, validation evidence, reviewer walkthrough, and author notes for the critic.
@@ -25,10 +25,12 @@ Own the canonical release gate list for the current stable `V1` release.
 - [x] [validate-version.ps1](../../scripts/validate-version.ps1) is part of CI and release validation and passed for `1.0.1` on `2026-06-26`.
 - [x] [validate-version.ps1](../../scripts/validate-version.ps1) passed for `1.0.2` on `2026-07-02`.
 - [x] [validate-version.ps1](../../scripts/validate-version.ps1) passed for `1.0.3` on `2026-07-02`.
+- [x] [validate-version.ps1](../../scripts/validate-version.ps1) passed for `1.0.4` on `2026-07-02`.
 - [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-04-19`.
 - [x] [build.ps1](../../scripts/build.ps1) passed again on `2026-06-26` after the `1.0.1` metadata and release-doc alignment pass.
 - [x] `dotnet build PaperBinder.sln -c Release --no-restore -p:SkipFrontendBuild=true -v minimal` passed on `2026-07-02` after the `1.0.2` release-bump alignment pass.
 - [x] `dotnet build PaperBinder.sln -c Release --no-restore -p:SkipFrontendBuild=true -v minimal` passed on `2026-07-02` after the `1.0.3` release-bump alignment pass.
+- [x] `dotnet build PaperBinder.sln -c Release --no-restore -p:SkipFrontendBuild=true -v minimal` passed on `2026-07-02` after the `1.0.4` release-bump alignment pass.
 - [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require` passed on `2026-04-19`.
 - [x] [test.ps1](../../scripts/test.ps1) passed again on `2026-06-26`; Docker-backed integration coverage remained skipped locally because Docker was unavailable.
 - [x] [run-browser-e2e.ps1](../../scripts/run-browser-e2e.ps1) passed on `2026-04-19`.
@@ -37,6 +39,7 @@ Own the canonical release gate list for the current stable `V1` release.
 - [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed again on `2026-06-26` after the `1.0.1` version and delivery-doc refresh.
 - [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed again on `2026-07-02` after the `1.0.2` version and delivery-doc refresh.
 - [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed again on `2026-07-02` after the `1.0.3` version and delivery-doc refresh.
+- [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed again on `2026-07-02` after the `1.0.4` version and delivery-doc refresh.
 - [x] [validate-launch-profiles.ps1](../../scripts/validate-launch-profiles.ps1) passed on `2026-04-19`.
 - [x] [validate-checkpoint.ps1](../../scripts/validate-checkpoint.ps1) `-Configuration Release -DockerIntegrationMode Require` passed on `2026-04-19`.
 - [x] [reviewer-full-stack.ps1](../../scripts/reviewer-full-stack.ps1) `-NoBrowser` release smoke passed on `2026-04-19`.
@@ -46,6 +49,7 @@ Own the canonical release gate list for the current stable `V1` release.
 - [x] `.github/workflows/release.yml` succeeded for `v1.0.2` from commit `fc7cc9878d3d84c2196e3dcdf4b61e33e48cfb1b` on `2026-07-02`.
 - [x] `.github/workflows/deploy-test.yml` succeeded for `1.0.2` from commit `fc7cc9878d3d84c2196e3dcdf4b61e33e48cfb1b` on `2026-07-02`.
 - [x] `.github/workflows/deploy-prod.yml` succeeded for `1.0.2` from commit `fc7cc9878d3d84c2196e3dcdf4b61e33e48cfb1b` on `2026-07-02`.
+- [x] `.github/workflows/release.yml` succeeded for `v1.0.3` from commit `781bc9ce11bb60b1d89e72b0f53cf1f158241bdb` on `2026-07-02`.
 
 ## Manual Verification
 
@@ -67,12 +71,12 @@ Own the canonical release gate list for the current stable `V1` release.
 
 - Release line: `V1`
 - Historical first stable tag: `v1.0.0`
-- Current stable tag: `v1.0.3`
-- SemVer version: `1.0.3`
-- Status: `main` is aligned and taggable for `v1.0.3` as of `2026-07-02`; `v1.0.2` is the last known-good public deployed state after the successful release and deploy workflows on `2026-07-02`.
-- Executor attestation: `main`, `CHANGELOG.md`, repo version metadata, and current-state delivery docs are aligned for `v1.0.3`; the `v1.0.2` release and both public environment rollouts have completed successfully, while `v1.0.3` publication and rollout remain pending tag-time automation and owner-invoked deploy workflows.
+- Current stable tag: `v1.0.4`
+- SemVer version: `1.0.4`
+- Status: `main` is aligned and taggable for `v1.0.4` as of `2026-07-02`; `v1.0.2` is still the last known-good public deployed state after the successful release and deploy workflows on `2026-07-02`.
+- Executor attestation: `main`, `CHANGELOG.md`, repo version metadata, and current-state delivery docs are aligned for `v1.0.4`; the `v1.0.3` release workflow succeeded with the release-annotation cleanup in place, while `v1.0.3` publication and public rollout were intentionally superseded by this immediate `v1.0.4` patch cut.
 - Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore; it is disclosed in the CP17 release artifact and remains outside CP17 scope because it does not block the documented `V1` validation bundle.
-- Owner-controlled action pending: verify the `v1.0.3` release workflow, publish the workflow-created GitHub Release draft when ready, and run the shared-test plus production deploy workflows for `1.0.3`.
+- Owner-controlled action pending: verify the `v1.0.4` release workflow, publish the workflow-created GitHub Release draft when ready, and run the shared-test plus production deploy workflows for `1.0.4`.
 - Mirrors:
   - `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/55-execution/checkpoint-status.md`

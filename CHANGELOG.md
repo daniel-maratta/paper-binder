@@ -4,6 +4,17 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## [1.0.4] - 2026-07-02
+
+### Changed
+- The release image-publish workflow now uses current Docker GitHub Action majors, removing the remaining Node.js 20 deprecation annotations from the tagged release run.
+
+### Fixed
+- The API Dockerfile now explicitly skips Docker's `SecretsUsedInArgOrEnv` build check for the public Turnstile site key, clearing the false-positive release annotation without changing frontend runtime configuration.
+
+### Docs
+- Release metadata and current-state delivery docs now align on the `v1.0.4` / `1.0.4` release identity while preserving `v1.0.2` as the last known-good public deployed state until the new release finishes rollout.
+
 ## [1.0.3] - 2026-07-02
 
 ### Security
