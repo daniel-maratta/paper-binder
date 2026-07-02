@@ -213,15 +213,19 @@ public sealed class HardeningConsistencyIntegrationTests(PostgresContainerFixtur
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         await response.Content.ReadAsStringAsync();
 
-        var requestActivity = Assert.Single(
-            activityCapture.Activities,
-            activity => activity.Kind == ActivityKind.Server);
-        var dbConnectionActivities = activityCapture.Activities
-            .Where(activity => string.Equals(
-                activity.OperationName,
-                PaperBinderTelemetry.ActivityNames.DatabaseConnectionOpen,
-                StringComparison.Ordinal))
-            .ToArray();
+        var requestActivity = await activityCapture.WaitForSingleActivityAsync(
+            activity =>
+                activity.Kind == ActivityKind.Server &&
+                string.Equals(activity.GetTagItem("http.route")?.ToString(), "/api/binders/", StringComparison.Ordinal),
+            TimeSpan.FromSeconds(2));
+        var dbConnectionActivities = await activityCapture.WaitForActivitiesAsync(
+            activity =>
+                activity.TraceId == requestActivity.TraceId &&
+                string.Equals(
+                    activity.OperationName,
+                    PaperBinderTelemetry.ActivityNames.DatabaseConnectionOpen,
+                    StringComparison.Ordinal),
+            TimeSpan.FromSeconds(2));
 
         Assert.NotEmpty(dbConnectionActivities);
         Assert.Equal(tenant.Id.ToString("D"), GetRequiredTag(requestActivity, PaperBinderTelemetry.ActivityTags.TenantId));
@@ -249,12 +253,12 @@ public sealed class HardeningConsistencyIntegrationTests(PostgresContainerFixtur
         await cleanupProbe.WaitForCycleAsync(TimeSpan.FromSeconds(10));
         await workerHost.StopAsync();
 
-        var workerActivity = Assert.Single(
-            activityCapture.Activities,
+        var workerActivity = await activityCapture.WaitForSingleActivityAsync(
             activity => string.Equals(
                 activity.OperationName,
                 PaperBinderTelemetry.ActivityNames.WorkerCleanupCycle,
-                StringComparison.Ordinal));
+                StringComparison.Ordinal),
+            TimeSpan.FromSeconds(2));
 
         Assert.Equal("worker", GetRequiredTag(workerActivity, PaperBinderTelemetry.ActivityTags.Surface));
         Assert.Equal("1", GetRequiredTag(workerActivity, PaperBinderTelemetry.ActivityTags.CleanupPurgedTenantCount));
@@ -484,6 +488,60 @@ public sealed class HardeningConsistencyIntegrationTests(PostgresContainerFixtur
                 {
                     return activities.ToArray();
                 }
+            }
+        }
+
+        public async Task<Activity> WaitForSingleActivityAsync(
+            Func<Activity, bool> predicate,
+            TimeSpan timeout)
+        {
+            ArgumentNullException.ThrowIfNull(predicate);
+
+            using var cancellationTokenSource = new CancellationTokenSource(timeout);
+
+            while (true)
+            {
+                var matchingActivities = GetMatchingActivities(predicate);
+                if (matchingActivities.Length == 1)
+                {
+                    return matchingActivities[0];
+                }
+
+                if (matchingActivities.Length > 1)
+                {
+                    throw new Xunit.Sdk.XunitException(
+                        $"Expected exactly one matching activity but found {matchingActivities.Length}.");
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(50), cancellationTokenSource.Token);
+            }
+        }
+
+        public async Task<Activity[]> WaitForActivitiesAsync(
+            Func<Activity, bool> predicate,
+            TimeSpan timeout)
+        {
+            ArgumentNullException.ThrowIfNull(predicate);
+
+            using var cancellationTokenSource = new CancellationTokenSource(timeout);
+
+            while (true)
+            {
+                var matchingActivities = GetMatchingActivities(predicate);
+                if (matchingActivities.Length > 0)
+                {
+                    return matchingActivities;
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(50), cancellationTokenSource.Token);
+            }
+        }
+
+        private Activity[] GetMatchingActivities(Func<Activity, bool> predicate)
+        {
+            lock (activities)
+            {
+                return activities.Where(predicate).ToArray();
             }
         }
 
