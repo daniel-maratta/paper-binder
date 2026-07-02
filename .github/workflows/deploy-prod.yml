@@ -51,7 +51,7 @@ jobs:
           "deploy_app_path=$deployBasePath/app" >> $env:GITHUB_OUTPUT
 
       - name: Checkout requested release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ steps.version.outputs.tag }}
