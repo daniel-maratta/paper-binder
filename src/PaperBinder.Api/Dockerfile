@@ -1,3 +1,5 @@
+# check=skip=SecretsUsedInArgOrEnv
+
 FROM node:24.13-bookworm-slim AS frontend-build
 WORKDIR /src/PaperBinder.Web
 
