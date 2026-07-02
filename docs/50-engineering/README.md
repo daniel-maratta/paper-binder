@@ -24,3 +24,5 @@
 - `docs/50-engineering/batch-2-acceptance-review.md`
 - `docs/50-engineering/batch-3-summary.md`
 - `docs/50-engineering/batch-3-acceptance-review.md`
+- `docs/50-engineering/batch-4-summary.md`
+- `docs/50-engineering/batch-4-acceptance-review.md`
