@@ -34,10 +34,7 @@ internal static class PaperBinderBinderEndpoints
         var membership = GetRequiredMembership(membershipContext);
         var binders = await binderService.ListAsync(tenant, membership.Role, cancellationToken);
 
-        return new ListBindersResponse(
-            binders
-                .Select(MapBinderSummary)
-                .ToArray());
+        return PaperBinderBinderResponseMapping.MapList(binders);
     }
 
     private static async Task CreateBinderAsync(
@@ -68,7 +65,9 @@ internal static class PaperBinderBinderEndpoints
         }
 
         context.Response.StatusCode = StatusCodes.Status201Created;
-        await context.Response.WriteAsJsonAsync(MapBinderSummary(outcome.Binder!), cancellationToken);
+        await context.Response.WriteAsJsonAsync(
+            PaperBinderBinderResponseMapping.MapSummary(outcome.Binder!),
+            cancellationToken);
     }
 
     private static async Task GetBinderAsync(
@@ -102,13 +101,7 @@ internal static class PaperBinderBinderEndpoints
             cancellationToken);
 
         await context.Response.WriteAsJsonAsync(
-            new BinderDetailResponse(
-                outcome.Binder!.BinderId,
-                outcome.Binder.Name,
-                outcome.Binder.CreatedAtUtc,
-                documents
-                    .Select(PaperBinderDocumentResponseMapping.MapSummary)
-                    .ToArray()),
+            PaperBinderBinderResponseMapping.MapDetail(outcome.Binder!, documents),
             cancellationToken);
     }
 
@@ -129,7 +122,9 @@ internal static class PaperBinderBinderEndpoints
             return;
         }
 
-        await context.Response.WriteAsJsonAsync(MapBinderPolicy(outcome.Policy!), cancellationToken);
+        await context.Response.WriteAsJsonAsync(
+            PaperBinderBinderResponseMapping.MapPolicy(outcome.Policy!),
+            cancellationToken);
     }
 
     private static async Task UpdateBinderPolicyAsync(
@@ -162,7 +157,9 @@ internal static class PaperBinderBinderEndpoints
             return;
         }
 
-        await context.Response.WriteAsJsonAsync(MapBinderPolicy(outcome.Policy!), cancellationToken);
+        await context.Response.WriteAsJsonAsync(
+            PaperBinderBinderResponseMapping.MapPolicy(outcome.Policy!),
+            cancellationToken);
     }
 
     private static async Task WriteFailureAsync(
@@ -187,37 +184,4 @@ internal static class PaperBinderBinderEndpoints
     private static TenantMembership GetRequiredMembership(IRequestTenantMembershipContext membershipContext) =>
         membershipContext.Membership
         ?? throw new InvalidOperationException("Binder endpoints require an established tenant membership context.");
-
-    private static BinderSummaryResponse MapBinderSummary(BinderSummary binder) =>
-        new(binder.BinderId, binder.Name, binder.CreatedAtUtc);
-
-    private static BinderPolicyResponse MapBinderPolicy(BinderPolicy policy) =>
-        new(
-            BinderPolicyModeNames.ToContractValue(policy.Mode),
-            policy.AllowedRoles.Select(role => role.ToString()).ToArray());
-
-    internal sealed record CreateBinderRequest(
-        string? Name);
-
-    internal sealed record UpdateBinderPolicyRequest(
-        string? Mode,
-        IReadOnlyList<string>? AllowedRoles);
-
-    internal sealed record ListBindersResponse(
-        IReadOnlyList<BinderSummaryResponse> Binders);
-
-    internal sealed record BinderSummaryResponse(
-        Guid BinderId,
-        string Name,
-        DateTimeOffset CreatedAt);
-
-    internal sealed record BinderDetailResponse(
-        Guid BinderId,
-        string Name,
-        DateTimeOffset CreatedAt,
-        IReadOnlyList<DocumentSummaryResponse> Documents);
-
-    internal sealed record BinderPolicyResponse(
-        string Mode,
-        IReadOnlyList<string> AllowedRoles);
 }
