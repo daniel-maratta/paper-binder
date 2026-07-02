@@ -88,6 +88,30 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
         Assert.False(result);
     }
 
+    [Theory]
+    [InlineData("user@example.com", true, "user@example.com")]
+    [InlineData(" user@example.com ", true, "user@example.com")]
+    [InlineData("not-an-email", false, "not-an-email")]
+    public void TenantUserRequestValidation_Should_ApplyCurrentEmailBoundary(
+        string value,
+        bool expectedValid,
+        string expectedEmailAddress)
+    {
+        var result = PaperBinderTenantUserRequestValidation.TryTrimToValidEmailAddress(value, out var emailAddress);
+
+        Assert.Equal(expectedValid, result);
+        Assert.Equal(expectedEmailAddress, emailAddress);
+    }
+
+    [Fact]
+    public void TenantUserRequestValidation_Should_RejectLegacySingleAtEmailShapeThatMailAddressDisallows()
+    {
+        var result = PaperBinderTenantUserRequestValidation.TryTrimToValidEmailAddress("user@.com", out var emailAddress);
+
+        Assert.False(result);
+        Assert.Equal("user@.com", emailAddress);
+    }
+
     [Fact]
     public void TenantUserProblemMapping_Should_MapInvalidPasswordFailure_ToStableProblemContract()
     {

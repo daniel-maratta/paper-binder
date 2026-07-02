@@ -377,6 +377,39 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
     }
 
     [Fact]
+    public async Task Should_ChangeTenantUserRole_When_RequestRoleHasSurroundingWhitespace()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await StartHostAsync(database.ConnectionString);
+
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-role-change-trimmed",
+            "owner@cp8-role-change-trimmed.local");
+        var targetUser = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "target@cp8-role-change-trimmed.local",
+            TenantRole.BinderRead,
+            isOwner: false);
+
+        using var request = CreateTenantUserRoleChangeRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            targetUser.Id,
+            new TenantUserRoleChangeRequestBody(" TenantAdmin "),
+            adminContext.Session.CsrfCookieValue);
+
+        var response = await host.Client.SendAsync(request);
+        var payload = await response.Content.ReadFromJsonAsync<TenantUserPayload>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(payload);
+        Assert.Equal(targetUser.Id, payload!.UserId);
+        Assert.Equal(nameof(TenantRole.TenantAdmin), payload.Role);
+    }
+
+    [Fact]
     public async Task Should_ReturnNotFound_When_RoleChangeTargetsUserOutsideCurrentTenant()
     {
         await using var database = await postgres.CreateDatabaseAsync();
