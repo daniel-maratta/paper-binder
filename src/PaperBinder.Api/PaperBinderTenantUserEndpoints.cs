@@ -24,7 +24,7 @@ internal static class PaperBinderTenantUserEndpoints
         var tenant = GetRequiredTenant(tenantContext);
         var users = await tenantUserAdministrationService.ListUsersAsync(tenant.TenantId, cancellationToken);
 
-        return new ListTenantUsersResponse(users.Select(MapUser).ToArray());
+        return PaperBinderTenantUserResponseMapping.MapList(users);
     }
 
     private static async Task CreateUserAsync(
@@ -37,7 +37,7 @@ internal static class PaperBinderTenantUserEndpoints
         CreateTenantUserRequest request,
         CancellationToken cancellationToken)
     {
-        if (!TryNormalizeEmail(request.Email, out var email))
+        if (!PaperBinderTenantUserRequestValidation.TryTrimToValidEmailAddress(request.Email, out var email))
         {
             await PaperBinderProblemDetails.WriteApiProblemAsync(
                 context,
@@ -50,6 +50,7 @@ internal static class PaperBinderTenantUserEndpoints
 
         var tenant = GetRequiredTenant(tenantContext);
         GetRequiredMembership(membershipContext);
+        var requestedRole = request.Role?.Trim() ?? string.Empty;
         var outcome = await tenantUserAdministrationService.CreateUserAsync(
             new TenantUserCreateCommand(
                 tenant.TenantId,
@@ -58,7 +59,7 @@ internal static class PaperBinderTenantUserEndpoints
                 executionUserContext.IsImpersonated,
                 email,
                 request.Password ?? string.Empty,
-                request.Role ?? string.Empty),
+                requestedRole),
             cancellationToken);
 
         if (!outcome.Succeeded)
@@ -68,7 +69,9 @@ internal static class PaperBinderTenantUserEndpoints
         }
 
         context.Response.StatusCode = StatusCodes.Status201Created;
-        await context.Response.WriteAsJsonAsync(MapUser(outcome.User!), cancellationToken);
+        await context.Response.WriteAsJsonAsync(
+            PaperBinderTenantUserResponseMapping.MapSummary(outcome.User!),
+            cancellationToken);
     }
 
     private static async Task ChangeRoleAsync(
@@ -84,6 +87,7 @@ internal static class PaperBinderTenantUserEndpoints
     {
         var tenant = GetRequiredTenant(tenantContext);
         GetRequiredMembership(membershipContext);
+        var requestedRole = request.Role?.Trim() ?? string.Empty;
         var outcome = await tenantUserAdministrationService.ChangeRoleAsync(
             new TenantUserRoleChangeCommand(
                 tenant.TenantId,
@@ -91,7 +95,7 @@ internal static class PaperBinderTenantUserEndpoints
                 executionUserContext.EffectiveUserId,
                 executionUserContext.IsImpersonated,
                 userId,
-                request.Role ?? string.Empty),
+                requestedRole),
             cancellationToken);
 
         if (!outcome.Succeeded)
@@ -100,7 +104,9 @@ internal static class PaperBinderTenantUserEndpoints
             return;
         }
 
-        await context.Response.WriteAsJsonAsync(MapUser(outcome.User!), cancellationToken);
+        await context.Response.WriteAsJsonAsync(
+            PaperBinderTenantUserResponseMapping.MapSummary(outcome.User!),
+            cancellationToken);
     }
 
     private static async Task WriteFailureAsync(
@@ -125,44 +131,4 @@ internal static class PaperBinderTenantUserEndpoints
     private static TenantMembership GetRequiredMembership(IRequestTenantMembershipContext membershipContext) =>
         membershipContext.Membership
         ?? throw new InvalidOperationException("Tenant user endpoints require an established tenant membership context.");
-
-    private static bool TryNormalizeEmail(string? value, out string normalizedEmail)
-    {
-        normalizedEmail = value?.Trim() ?? string.Empty;
-
-        if (normalizedEmail.Length is 0 or > 256)
-        {
-            return false;
-        }
-
-        if (normalizedEmail.Any(char.IsWhiteSpace))
-        {
-            return false;
-        }
-
-        var atIndex = normalizedEmail.IndexOf('@');
-        return atIndex > 0 &&
-               atIndex == normalizedEmail.LastIndexOf('@') &&
-               atIndex < normalizedEmail.Length - 1;
-    }
-
-    private static TenantUserResponse MapUser(TenantUserSummary user) =>
-        new(user.UserId, user.Email, user.Role.ToString(), user.IsOwner);
-
-    internal sealed record CreateTenantUserRequest(
-        string? Email,
-        string? Password,
-        string? Role);
-
-    internal sealed record ChangeTenantUserRoleRequest(
-        string? Role);
-
-    internal sealed record ListTenantUsersResponse(
-        IReadOnlyList<TenantUserResponse> Users);
-
-    internal sealed record TenantUserResponse(
-        Guid UserId,
-        string Email,
-        string Role,
-        bool IsOwner);
 }

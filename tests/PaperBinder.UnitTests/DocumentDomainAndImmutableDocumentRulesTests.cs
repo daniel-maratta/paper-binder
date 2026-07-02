@@ -9,7 +9,7 @@ public sealed class DocumentDomainAndImmutableDocumentRulesTests
     [Fact]
     public void DocumentRules_Should_TrimWhitespace_ForValidTitle()
     {
-        var result = DocumentRules.TryNormalizeTitle("  Executive Handbook  ", out var normalizedTitle);
+        var result = DocumentRules.TryTrimToValidTitle("  Executive Handbook  ", out var normalizedTitle);
 
         Assert.True(result);
         Assert.Equal("Executive Handbook", normalizedTitle);
@@ -21,7 +21,7 @@ public sealed class DocumentDomainAndImmutableDocumentRulesTests
     [InlineData("   ")]
     public void DocumentRules_Should_RejectBlankTitles(string? input)
     {
-        var result = DocumentRules.TryNormalizeTitle(input, out _);
+        var result = DocumentRules.TryTrimToValidTitle(input, out _);
 
         Assert.False(result);
     }
@@ -31,7 +31,7 @@ public sealed class DocumentDomainAndImmutableDocumentRulesTests
     {
         var title = new string('a', DocumentRules.MaxTitleLength + 1);
 
-        var result = DocumentRules.TryNormalizeTitle(title, out _);
+        var result = DocumentRules.TryTrimToValidTitle(title, out _);
 
         Assert.False(result);
     }

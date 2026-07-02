@@ -6,10 +6,10 @@ public static class BinderNameRules
 {
     public const int MaxLength = 200;
 
-    public static bool TryNormalize(string? value, out string normalizedName)
+    public static bool TryTrimToValidName(string? value, out string trimmedName)
     {
-        normalizedName = value?.Trim() ?? string.Empty;
-        return normalizedName.Length is > 0 and <= MaxLength;
+        trimmedName = value?.Trim() ?? string.Empty;
+        return trimmedName.Length is > 0 and <= MaxLength;
     }
 }
 
@@ -18,22 +18,23 @@ public static class BinderPolicyModeNames
     public const string Inherit = "inherit";
     public const string RestrictedRoles = "restricted_roles";
 
-    public static bool TryParse(string? value, out BinderPolicyMode mode)
+    public static bool TryParseContractValue(string? value, out BinderPolicyMode mode)
     {
-        switch (value?.Trim())
+        var trimmedValue = value?.Trim();
+        if (string.Equals(trimmedValue, Inherit, StringComparison.Ordinal))
         {
-            case Inherit:
-                mode = BinderPolicyMode.Inherit;
-                return true;
-
-            case RestrictedRoles:
-                mode = BinderPolicyMode.RestrictedRoles;
-                return true;
-
-            default:
-                mode = default;
-                return false;
+            mode = BinderPolicyMode.Inherit;
+            return true;
         }
+
+        if (string.Equals(trimmedValue, RestrictedRoles, StringComparison.Ordinal))
+        {
+            mode = BinderPolicyMode.RestrictedRoles;
+            return true;
+        }
+
+        mode = default;
+        return false;
     }
 
     public static string ToContractValue(BinderPolicyMode mode) =>
@@ -61,13 +62,13 @@ public static class BinderPolicyRules
         string? modeValue,
         IReadOnlyList<string>? allowedRoleValues)
     {
-        if (!BinderPolicyModeNames.TryParse(modeValue, out var mode))
+        if (!BinderPolicyModeNames.TryParseContractValue(modeValue, out var mode))
         {
             return BinderPolicyValidationResult.Failed(
                 "The supplied binder policy mode is not supported.");
         }
 
-        var normalizedRoles = NormalizeRoles(allowedRoleValues);
+        var normalizedRoles = ValidateAndCanonicalizeAllowedRoles(allowedRoleValues);
         if (!normalizedRoles.Succeeded)
         {
             return normalizedRoles;
@@ -90,7 +91,7 @@ public static class BinderPolicyRules
         return BinderPolicyValidationResult.Success(normalizedPolicy);
     }
 
-    private static BinderPolicyValidationResult NormalizeRoles(IReadOnlyList<string>? allowedRoleValues)
+    private static BinderPolicyValidationResult ValidateAndCanonicalizeAllowedRoles(IReadOnlyList<string>? allowedRoleValues)
     {
         if (allowedRoleValues is null || allowedRoleValues.Count == 0)
         {

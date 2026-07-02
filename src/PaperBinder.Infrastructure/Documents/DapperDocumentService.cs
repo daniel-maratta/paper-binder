@@ -30,7 +30,7 @@ public sealed class DapperDocumentService(
                     "The request must include a binder id."));
         }
 
-        if (!DocumentRules.TryNormalizeTitle(command.Title, out var normalizedTitle))
+        if (!DocumentRules.TryTrimToValidTitle(command.Title, out var normalizedTitle))
         {
             return DocumentCreateOutcome.Failed(
                 new DocumentFailure(
@@ -698,7 +698,7 @@ public sealed class DapperDocumentService(
     }
 
     private static BinderPolicyMode ParseMode(string value) =>
-        BinderPolicyModeNames.TryParse(value, out var mode)
+        BinderPolicyModeNames.TryParseContractValue(value, out var mode)
             ? mode
             : throw new InvalidOperationException($"Unsupported binder policy mode `{value}` in persisted data.");
 

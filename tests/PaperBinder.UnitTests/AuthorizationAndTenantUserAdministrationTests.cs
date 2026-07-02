@@ -65,12 +65,51 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
         Assert.Equal("The request tenant membership context can only be established once per request.", ex.Message);
     }
 
-    [Fact]
-    public void TenantRoleParser_Should_RejectInvalidRole()
+    [Theory]
+    [InlineData(nameof(TenantRole.TenantAdmin), TenantRole.TenantAdmin)]
+    [InlineData(nameof(TenantRole.BinderWrite), TenantRole.BinderWrite)]
+    [InlineData(nameof(TenantRole.BinderRead), TenantRole.BinderRead)]
+    public void TenantRoleParser_Should_ParseCanonicalExactCaseRoleNames(string value, TenantRole expectedRole)
     {
-        var result = TenantRoleParser.TryParse("not-a-role", out _);
+        var result = TenantRoleParser.TryParse(value, out var parsedRole);
+
+        Assert.True(result);
+        Assert.Equal(expectedRole, parsedRole);
+    }
+
+    [Theory]
+    [InlineData("not-a-role")]
+    [InlineData("tenantadmin")]
+    [InlineData("1")]
+    public void TenantRoleParser_Should_RejectInvalidMixedCaseOrNumericRoleValues(string value)
+    {
+        var result = TenantRoleParser.TryParse(value, out _);
 
         Assert.False(result);
+    }
+
+    [Theory]
+    [InlineData("user@example.com", true, "user@example.com")]
+    [InlineData(" user@example.com ", true, "user@example.com")]
+    [InlineData("not-an-email", false, "not-an-email")]
+    public void TenantUserRequestValidation_Should_ApplyCurrentEmailBoundary(
+        string value,
+        bool expectedValid,
+        string expectedEmailAddress)
+    {
+        var result = PaperBinderTenantUserRequestValidation.TryTrimToValidEmailAddress(value, out var emailAddress);
+
+        Assert.Equal(expectedValid, result);
+        Assert.Equal(expectedEmailAddress, emailAddress);
+    }
+
+    [Fact]
+    public void TenantUserRequestValidation_Should_RejectLegacySingleAtEmailShapeThatMailAddressDisallows()
+    {
+        var result = PaperBinderTenantUserRequestValidation.TryTrimToValidEmailAddress("user@.com", out var emailAddress);
+
+        Assert.False(result);
+        Assert.Equal("user@.com", emailAddress);
     }
 
     [Fact]

@@ -6,10 +6,10 @@ public static class DocumentRules
     public const int MaxContentLength = 50_000;
     public const string MarkdownContentType = "markdown";
 
-    public static bool TryNormalizeTitle(string? value, out string normalizedTitle)
+    public static bool TryTrimToValidTitle(string? value, out string trimmedTitle)
     {
-        normalizedTitle = value?.Trim() ?? string.Empty;
-        return normalizedTitle.Length is > 0 and <= MaxTitleLength;
+        trimmedTitle = value?.Trim() ?? string.Empty;
+        return trimmedTitle.Length is > 0 and <= MaxTitleLength;
     }
 
     public static bool HasRequiredContent(string? value) =>

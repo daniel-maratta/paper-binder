@@ -34,7 +34,7 @@ public sealed class BinderDomainAndPolicyModelTests
     [Fact]
     public void BinderNameRules_Should_TrimWhitespace_ForValidName()
     {
-        var result = BinderNameRules.TryNormalize("  Executive Policies  ", out var normalizedName);
+        var result = BinderNameRules.TryTrimToValidName("  Executive Policies  ", out var normalizedName);
 
         Assert.True(result);
         Assert.Equal("Executive Policies", normalizedName);
@@ -46,7 +46,7 @@ public sealed class BinderDomainAndPolicyModelTests
     [InlineData("   ")]
     public void BinderNameRules_Should_RejectBlankNames(string? input)
     {
-        var result = BinderNameRules.TryNormalize(input, out _);
+        var result = BinderNameRules.TryTrimToValidName(input, out _);
 
         Assert.False(result);
     }
@@ -56,7 +56,29 @@ public sealed class BinderDomainAndPolicyModelTests
     {
         var input = new string('a', BinderNameRules.MaxLength + 1);
 
-        var result = BinderNameRules.TryNormalize(input, out _);
+        var result = BinderNameRules.TryTrimToValidName(input, out _);
+
+        Assert.False(result);
+    }
+
+    [Theory]
+    [InlineData(BinderPolicyModeNames.Inherit, BinderPolicyMode.Inherit)]
+    [InlineData(" restricted_roles ", BinderPolicyMode.RestrictedRoles)]
+    public void BinderPolicyModeNames_Should_ParseContractValues(string value, BinderPolicyMode expectedMode)
+    {
+        var result = BinderPolicyModeNames.TryParseContractValue(value, out var mode);
+
+        Assert.True(result);
+        Assert.Equal(expectedMode, mode);
+    }
+
+    [Theory]
+    [InlineData("RestrictedRoles")]
+    [InlineData("restrictedroles")]
+    [InlineData("custom")]
+    public void BinderPolicyModeNames_Should_RejectNonContractValues(string value)
+    {
+        var result = BinderPolicyModeNames.TryParseContractValue(value, out _);
 
         Assert.False(result);
     }

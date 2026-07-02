@@ -24,25 +24,7 @@ public sealed class DapperBinderService(
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         var records = await connection.QueryAsync<BinderSummaryRecord>(
             new CommandDefinition(
-                """
-                select
-                    b.id as BinderId,
-                    b.name as Name,
-                    b.created_at_utc as CreatedAtUtc
-                from binders b
-                inner join binder_policies bp
-                    on bp.tenant_id = b.tenant_id
-                   and bp.binder_id = b.id
-                where b.tenant_id = @TenantId
-                  and (
-                        bp.mode = @InheritMode
-                        or (
-                            bp.mode = @RestrictedRolesMode
-                            and bp.allowed_roles @> @AllowedRoles
-                        )
-                      )
-                order by b.created_at_utc, b.id;
-                """,
+                BinderSql.ListVisibleBinders,
                 new
                 {
                     TenantId = tenant.TenantId,
@@ -53,7 +35,7 @@ public sealed class DapperBinderService(
                 cancellationToken: cancellationToken));
 
         return records
-            .Select(record => new BinderSummary(record.BinderId, record.Name, record.CreatedAtUtc))
+            .Select(record => record.ToSummary())
             .ToArray();
     }
 
@@ -64,7 +46,7 @@ public sealed class DapperBinderService(
         ArgumentNullException.ThrowIfNull(command);
         ArgumentNullException.ThrowIfNull(command.Tenant);
 
-        if (!BinderNameRules.TryNormalize(command.Name, out var normalizedName))
+        if (!BinderNameRules.TryTrimToValidName(command.Name, out var normalizedName))
         {
             return BinderCreateOutcome.Failed(
                 new BinderFailure(
@@ -80,18 +62,7 @@ public sealed class DapperBinderService(
             {
                 await connection.ExecuteAsync(
                     new CommandDefinition(
-                        """
-                        insert into binders (
-                            id,
-                            tenant_id,
-                            name,
-                            created_at_utc)
-                        values (
-                            @BinderId,
-                            @TenantId,
-                            @Name,
-                            @CreatedAtUtc);
-                        """,
+                        BinderSql.InsertBinder,
                         new
                         {
                             BinderId = binderId,
@@ -104,22 +75,7 @@ public sealed class DapperBinderService(
 
                 await connection.ExecuteAsync(
                     new CommandDefinition(
-                        """
-                        insert into binder_policies (
-                            tenant_id,
-                            binder_id,
-                            mode,
-                            allowed_roles,
-                            created_at_utc,
-                            updated_at_utc)
-                        values (
-                            @TenantId,
-                            @BinderId,
-                            @Mode,
-                            @AllowedRoles,
-                            @CreatedAtUtc,
-                            @UpdatedAtUtc);
-                        """,
+                        BinderSql.InsertDefaultPolicy,
                         new
                         {
                             TenantId = command.Tenant.TenantId,
@@ -157,20 +113,7 @@ public sealed class DapperBinderService(
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         var record = await connection.QuerySingleOrDefaultAsync<BinderDetailRecord>(
             new CommandDefinition(
-                """
-                select
-                    b.id as BinderId,
-                    b.name as Name,
-                    b.created_at_utc as CreatedAtUtc,
-                    bp.mode as Mode,
-                    bp.allowed_roles as AllowedRoles
-                from binders b
-                inner join binder_policies bp
-                    on bp.tenant_id = b.tenant_id
-                   and bp.binder_id = b.id
-                where b.tenant_id = @TenantId
-                  and b.id = @BinderId;
-                """,
+                BinderSql.SelectBinderDetail,
                 new
                 {
                     TenantId = tenant.TenantId,
@@ -196,7 +139,7 @@ public sealed class DapperBinderService(
         }
 
         return BinderDetailOutcome.Success(
-            new BinderDetail(record.BinderId, record.Name, record.CreatedAtUtc));
+            record.ToDetail());
     }
 
     public async Task<BinderPolicyReadOutcome> GetPolicyAsync(
@@ -209,14 +152,7 @@ public sealed class DapperBinderService(
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         var record = await connection.QuerySingleOrDefaultAsync<BinderPolicyRecord>(
             new CommandDefinition(
-                """
-                select
-                    mode as Mode,
-                    allowed_roles as AllowedRoles
-                from binder_policies
-                where tenant_id = @TenantId
-                  and binder_id = @BinderId;
-                """,
+                BinderSql.SelectBinderPolicy,
                 new
                 {
                     TenantId = tenant.TenantId,
@@ -268,15 +204,7 @@ public sealed class DapperBinderService(
             {
                 var currentRecord = await connection.QuerySingleOrDefaultAsync<BinderPolicyRecord>(
                     new CommandDefinition(
-                        """
-                        select
-                            mode as Mode,
-                            allowed_roles as AllowedRoles
-                        from binder_policies
-                        where tenant_id = @TenantId
-                          and binder_id = @BinderId
-                        for update;
-                        """,
+                        BinderSql.SelectBinderPolicyForUpdate,
                         new
                         {
                             TenantId = command.Tenant.TenantId,
@@ -305,14 +233,7 @@ public sealed class DapperBinderService(
 
                 await connection.ExecuteAsync(
                     new CommandDefinition(
-                        """
-                        update binder_policies
-                        set mode = @Mode,
-                            allowed_roles = @AllowedRoles,
-                            updated_at_utc = @UpdatedAtUtc
-                        where tenant_id = @TenantId
-                          and binder_id = @BinderId;
-                        """,
+                        BinderSql.UpdateBinderPolicy,
                         new
                         {
                             TenantId = command.Tenant.TenantId,
@@ -364,53 +285,7 @@ public sealed class DapperBinderService(
         left.Mode == right.Mode &&
         left.AllowedRoles.SequenceEqual(right.AllowedRoles);
 
-    private sealed class BinderSummaryRecord
-    {
-        public Guid BinderId { get; init; }
-
-        public string Name { get; init; } = string.Empty;
-
-        public DateTimeOffset CreatedAtUtc { get; init; }
-    }
-
-    private sealed class BinderDetailRecord
-    {
-        public Guid BinderId { get; init; }
-
-        public string Name { get; init; } = string.Empty;
-
-        public DateTimeOffset CreatedAtUtc { get; init; }
-
-        public string Mode { get; init; } = string.Empty;
-
-        public string[] AllowedRoles { get; init; } = [];
-
-        public BinderPolicy ToPolicy() =>
-            new(ParseMode(Mode), ParseAllowedRoles(AllowedRoles));
-    }
-
-    private sealed class BinderPolicyRecord
-    {
-        public string Mode { get; init; } = string.Empty;
-
-        public string[] AllowedRoles { get; init; } = [];
-
-        public BinderPolicy ToPolicy() =>
-            new(ParseMode(Mode), ParseAllowedRoles(AllowedRoles));
-    }
-
     private sealed record BinderPolicyUpdateExecutionResult(
         BinderPolicyUpdateOutcome Outcome,
         bool WasUpdated);
-
-    private static BinderPolicyMode ParseMode(string value) =>
-        BinderPolicyModeNames.TryParse(value, out var mode)
-            ? mode
-            : throw new InvalidOperationException($"Unsupported binder policy mode `{value}` in persisted data.");
-
-    private static IReadOnlyList<TenantRole> ParseAllowedRoles(string[] values) =>
-        values
-            .Select(TenantRoleParser.Parse)
-            .OrderBy(role => role)
-            .ToArray();
 }

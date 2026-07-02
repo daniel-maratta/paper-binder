@@ -21,6 +21,10 @@ Do not reference local-only files in committed artifacts.
 - Prefer DB-backed text documents.
 - Do not add non-goals without explicit ADR + feature spec approval.
 - Documentation integrity is mandatory: path, anchor, and concept changes must be propagated in the same change set.
+- Implementation quality at hotspot seams is a delivery requirement, not a cosmetic follow-up.
+- Prefer platform-native parsing and validation when the contract matches the platform primitive.
+- Helper and type names must describe actual behavior; do not call trim/coalesce helpers `Normalize`.
+- Split public types by responsibility unless a multi-type file has one clear, defensible reason to stay together.
 
 ---
 
@@ -55,6 +59,7 @@ Use these as authoritative topic guides:
 - If task introduces dependencies or architectural decisions: read `docs/90-adr/README.md`.
 - If task touches tests: read `docs/80-testing/test-strategy.md` and `docs/80-testing/testing-standards.md`.
 - If task touches config/secrets/operations: read `docs/70-operations/README.md`.
+- If task touches implementation quality, hotspot cleanup, or audit remediation: read `docs/50-engineering/coding-standards.md`, `docs/50-engineering/code-quality-review.md`, and `docs/50-engineering/code-quality-gap-analysis.md`.
 - If task touches product scope or non-goals: read `docs/00-intent/AGENTS.md`, `docs/00-intent/project-scope.md`, and `docs/00-intent/non-goals.md`.
 - If task touches docs structure or docs navigation: read `docs/ai-index.md` and `docs/repo-map.json`.
 - If task changes file paths, headings, contracts, or canonical terms: read and apply `docs/00-intent/documentation-integrity-contract.md`.
