@@ -12,6 +12,12 @@ namespace PaperBinder.IntegrationTests;
 [Collection(PostgresDatabaseCollection.Name)]
 public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationTests(PostgresContainerFixture postgres)
 {
+    private const string DefaultPassword = "checkpoint-8-password";
+    private const string TenantUsersPath = "/api/tenant/users";
+    private const string AuthenticatedPolicyProbePath = "/api/__tests/policies/authenticated";
+    private const string BinderReadPolicyProbePath = "/api/__tests/policies/binder-read";
+    private const string BinderWritePolicyProbePath = "/api/__tests/policies/binder-write";
+    private const string TenantAdminPolicyProbePath = "/api/__tests/policies/tenant-admin";
     private const string CsrfHeaderName = "X-CSRF-TOKEN";
     private const string TenantUserNotFoundErrorCode = "TENANT_USER_NOT_FOUND";
     private const string TenantUserEmailConflictErrorCode = "TENANT_USER_EMAIL_CONFLICT";
@@ -27,18 +33,25 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-list-users");
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-list-users",
+            "owner@cp8-list-users.local");
+
         var otherTenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-list-users-other");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-list-users.local", "checkpoint-8-password");
-        var member = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "reader@cp8-list-users.local", "checkpoint-8-password");
-        var otherTenantUser = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-list-users-other.local", "checkpoint-8-password");
+        var member = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "reader@cp8-list-users.local",
+            TenantRole.BinderRead,
+            isOwner: false);
+        var otherTenantUser = await SeedTenantMemberAsync(
+            host,
+            otherTenant,
+            "owner@cp8-list-users-other.local",
+            TenantRole.TenantAdmin);
 
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, member, tenant, TenantRole.BinderRead, isOwner: false);
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, otherTenantUser, otherTenant, TenantRole.TenantAdmin);
-
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(HttpMethod.Get, tenant, session, "/api/tenant/users");
+        using var request = CreateTenantUserListRequest(adminContext.Tenant, adminContext.Session);
 
         var response = await host.Client.SendAsync(request);
         var payload = await response.Content.ReadFromJsonAsync<ListTenantUsersResponsePayload>();
@@ -49,8 +62,8 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             payload!.Users.OrderBy(user => user.Email, StringComparer.OrdinalIgnoreCase),
             user =>
             {
-                Assert.Equal(admin.Id, user.UserId);
-                Assert.Equal(admin.Email, user.Email);
+                Assert.Equal(adminContext.Admin.Id, user.UserId);
+                Assert.Equal(adminContext.Admin.Email, user.Email);
                 Assert.Equal(nameof(TenantRole.TenantAdmin), user.Role);
                 Assert.True(user.IsOwner);
             },
@@ -70,15 +83,19 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-non-admin");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-non-admin.local", "checkpoint-8-password");
-        var member = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "reader@cp8-non-admin.local", "checkpoint-8-password");
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-non-admin",
+            "owner@cp8-non-admin.local");
+        var member = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "reader@cp8-non-admin.local",
+            TenantRole.BinderRead,
+            isOwner: false);
 
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, member, tenant, TenantRole.BinderRead, isOwner: false);
-
-        var session = await AuthIntegrationTestClient.LoginAsync(host, member.Email, member.Password);
-        using var request = CreateTenantApiRequest(HttpMethod.Get, tenant, session, "/api/tenant/users");
+        var memberSession = await AuthIntegrationTestClient.LoginAsync(host, member.Email, member.Password);
+        using var request = CreateTenantUserListRequest(adminContext.Tenant, memberSession);
 
         var response = await host.Client.SendAsync(request);
 
@@ -91,14 +108,14 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-root-host");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-root-host.local", "checkpoint-8-password");
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-root-host",
+            "owner@cp8-root-host.local");
 
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/tenant/users");
+        using var request = new HttpRequestMessage(HttpMethod.Get, TenantUsersPath);
         request.Headers.Host = "paperbinder.localhost";
-        request.Headers.Add("Cookie", session.ToCookieHeader());
+        request.Headers.Add("Cookie", adminContext.Session.ToCookieHeader());
 
         var response = await host.Client.SendAsync(request);
 
@@ -111,41 +128,37 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-create-user");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-create-user.local", "checkpoint-8-password");
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-create-user",
+            "owner@cp8-create-user.local");
+        var createBody = new TenantUserCreateRequestBody(
+            "writer@cp8-create-user.local",
+            "new-user-password",
+            nameof(TenantRole.BinderWrite));
 
-        var adminSession = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var createRequest = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            adminSession,
-            "/api/tenant/users",
-            body: new
-            {
-                email = "writer@cp8-create-user.local",
-                password = "new-user-password",
-                role = nameof(TenantRole.BinderWrite)
-            },
-            csrfToken: adminSession.CsrfCookieValue);
+        using var createRequest = CreateTenantUserRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            createBody,
+            adminContext.Session.CsrfCookieValue);
 
         var createResponse = await host.Client.SendAsync(createRequest);
         var createdUser = await createResponse.Content.ReadFromJsonAsync<TenantUserPayload>();
 
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
         Assert.NotNull(createdUser);
-        Assert.Equal("writer@cp8-create-user.local", createdUser!.Email);
-        Assert.Equal(nameof(TenantRole.BinderWrite), createdUser.Role);
+        Assert.Equal(createBody.Email, createdUser!.Email);
+        Assert.Equal(createBody.Role, createdUser.Role);
         Assert.False(createdUser.IsOwner);
 
-        var newUserSession = await AuthIntegrationTestClient.LoginAsync(host, createdUser.Email, "new-user-password");
-        Assert.Equal($"http://{tenant.Slug}.paperbinder.localhost:8080/app", newUserSession.LoginPayload!.RedirectUrl);
+        var newUserSession = await AuthIntegrationTestClient.LoginAsync(host, createdUser.Email, createBody.Password);
+        Assert.Equal($"http://{adminContext.Tenant.Slug}.paperbinder.localhost:8080/app", newUserSession.LoginPayload!.RedirectUrl);
 
-        using var probeRequest = CreateTenantApiRequest(
-            HttpMethod.Get,
-            tenant,
+        using var probeRequest = CreatePolicyProbeRequest(
+            adminContext.Tenant,
             newUserSession,
-            "/api/__tests/policies/binder-write");
+            BinderWritePolicyProbePath);
 
         var probeResponse = await host.Client.SendAsync(probeRequest);
 
@@ -158,26 +171,26 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-email-conflict");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-email-conflict.local", "checkpoint-8-password");
-        var existingUser = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "existing@cp8-email-conflict.local", "checkpoint-8-password");
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-email-conflict",
+            "owner@cp8-email-conflict.local");
+        var existingUser = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "existing@cp8-email-conflict.local",
+            TenantRole.BinderRead,
+            isOwner: false);
+        var createBody = new TenantUserCreateRequestBody(
+            existingUser.Email,
+            "another-password",
+            nameof(TenantRole.BinderRead));
 
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, existingUser, tenant, TenantRole.BinderRead, isOwner: false);
-
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            session,
-            "/api/tenant/users",
-            body: new
-            {
-                email = existingUser.Email,
-                password = "another-password",
-                role = nameof(TenantRole.BinderRead)
-            },
-            csrfToken: session.CsrfCookieValue);
+        using var request = CreateTenantUserRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            createBody,
+            adminContext.Session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
@@ -193,23 +206,19 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-invalid-email");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-invalid-email.local", "checkpoint-8-password");
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-invalid-email",
+            "owner@cp8-invalid-email.local");
 
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            session,
-            "/api/tenant/users",
-            body: new
-            {
-                email = "not-an-email",
-                password = "valid-password",
-                role = nameof(TenantRole.BinderRead)
-            },
-            csrfToken: session.CsrfCookieValue);
+        using var request = CreateTenantUserRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            new TenantUserCreateRequestBody(
+                "not-an-email",
+                "valid-password",
+                nameof(TenantRole.BinderRead)),
+            adminContext.Session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
@@ -225,23 +234,19 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-invalid-role");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-invalid-role.local", "checkpoint-8-password");
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-invalid-role",
+            "owner@cp8-invalid-role.local");
 
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            session,
-            "/api/tenant/users",
-            body: new
-            {
-                email = "invalid-role@cp8.local",
-                password = "valid-password",
-                role = "Nope"
-            },
-            csrfToken: session.CsrfCookieValue);
+        using var request = CreateTenantUserRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            new TenantUserCreateRequestBody(
+                "invalid-role@cp8.local",
+                "valid-password",
+                "Nope"),
+            adminContext.Session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
@@ -257,23 +262,19 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-invalid-password");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-invalid-password.local", "checkpoint-8-password");
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-invalid-password",
+            "owner@cp8-invalid-password.local");
 
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            session,
-            "/api/tenant/users",
-            body: new
-            {
-                email = "invalid-password@cp8.local",
-                password = "short",
-                role = nameof(TenantRole.BinderRead)
-            },
-            csrfToken: session.CsrfCookieValue);
+        using var request = CreateTenantUserRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            new TenantUserCreateRequestBody(
+                "invalid-password@cp8.local",
+                "short",
+                nameof(TenantRole.BinderRead)),
+            adminContext.Session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
@@ -289,22 +290,18 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-create-csrf-missing");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-create-csrf-missing.local", "checkpoint-8-password");
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-create-csrf-missing",
+            "owner@cp8-create-csrf-missing.local");
 
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            session,
-            "/api/tenant/users",
-            body: new
-            {
-                email = "missing-csrf@cp8.local",
-                password = "valid-password",
-                role = nameof(TenantRole.BinderRead)
-            });
+        using var request = CreateTenantUserRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            new TenantUserCreateRequestBody(
+                "missing-csrf@cp8.local",
+                "valid-password",
+                nameof(TenantRole.BinderRead)));
 
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
@@ -320,20 +317,22 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-role-csrf-invalid");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-role-csrf-invalid.local", "checkpoint-8-password");
-        var targetUser = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "target@cp8-role-csrf-invalid.local", "checkpoint-8-password");
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-role-csrf-invalid",
+            "owner@cp8-role-csrf-invalid.local");
+        var targetUser = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "target@cp8-role-csrf-invalid.local",
+            TenantRole.BinderRead,
+            isOwner: false);
 
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, targetUser, tenant, TenantRole.BinderRead, isOwner: false);
-
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            session,
-            $"/api/tenant/users/{targetUser.Id:D}/role",
-            body: new { role = nameof(TenantRole.BinderWrite) },
+        using var request = CreateTenantUserRoleChangeRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            targetUser.Id,
+            new TenantUserRoleChangeRequestBody(nameof(TenantRole.BinderWrite)),
             csrfToken: "invalid-token");
 
         var response = await host.Client.SendAsync(request);
@@ -350,21 +349,23 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-role-change");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-role-change.local", "checkpoint-8-password");
-        var targetUser = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "target@cp8-role-change.local", "checkpoint-8-password");
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-role-change",
+            "owner@cp8-role-change.local");
+        var targetUser = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "target@cp8-role-change.local",
+            TenantRole.BinderRead,
+            isOwner: false);
 
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, targetUser, tenant, TenantRole.BinderRead, isOwner: false);
-
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            session,
-            $"/api/tenant/users/{targetUser.Id:D}/role",
-            body: new { role = nameof(TenantRole.BinderWrite) },
-            csrfToken: session.CsrfCookieValue);
+        using var request = CreateTenantUserRoleChangeRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            targetUser.Id,
+            new TenantUserRoleChangeRequestBody(nameof(TenantRole.BinderWrite)),
+            adminContext.Session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
         var payload = await response.Content.ReadFromJsonAsync<TenantUserPayload>();
@@ -381,22 +382,24 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-role-not-found");
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-role-not-found",
+            "owner@cp8-role-not-found.local");
         var otherTenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-role-not-found-other");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-role-not-found.local", "checkpoint-8-password");
-        var otherTenantUser = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "target@cp8-role-not-found-other.local", "checkpoint-8-password");
+        var otherTenantUser = await SeedTenantMemberAsync(
+            host,
+            otherTenant,
+            "target@cp8-role-not-found-other.local",
+            TenantRole.BinderRead,
+            isOwner: false);
 
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, otherTenantUser, otherTenant, TenantRole.BinderRead, isOwner: false);
-
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            session,
-            $"/api/tenant/users/{otherTenantUser.Id:D}/role",
-            body: new { role = nameof(TenantRole.BinderWrite) },
-            csrfToken: session.CsrfCookieValue);
+        using var request = CreateTenantUserRoleChangeRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            otherTenantUser.Id,
+            new TenantUserRoleChangeRequestBody(nameof(TenantRole.BinderWrite)),
+            adminContext.Session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
@@ -412,18 +415,17 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-last-admin");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp8-last-admin.local", "checkpoint-8-password");
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-last-admin",
+            "owner@cp8-last-admin.local");
 
-        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Post,
-            tenant,
-            session,
-            $"/api/tenant/users/{admin.Id:D}/role",
-            body: new { role = nameof(TenantRole.BinderRead) },
-            csrfToken: session.CsrfCookieValue);
+        using var request = CreateTenantUserRoleChangeRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            adminContext.Admin.Id,
+            new TenantUserRoleChangeRequestBody(nameof(TenantRole.BinderRead)),
+            adminContext.Session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
@@ -439,33 +441,58 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-policy-hierarchy");
-        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "admin@cp8-policy-hierarchy.local", "checkpoint-8-password");
-        var writer = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "writer@cp8-policy-hierarchy.local", "checkpoint-8-password");
-        var reader = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "reader@cp8-policy-hierarchy.local", "checkpoint-8-password");
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-policy-hierarchy",
+            "admin@cp8-policy-hierarchy.local");
+        var writer = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "writer@cp8-policy-hierarchy.local",
+            TenantRole.BinderWrite,
+            isOwner: false);
+        var reader = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "reader@cp8-policy-hierarchy.local",
+            TenantRole.BinderRead,
+            isOwner: false);
 
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, writer, tenant, TenantRole.BinderWrite, isOwner: false);
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, reader, tenant, TenantRole.BinderRead, isOwner: false);
-
-        var adminSession = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
         var writerSession = await AuthIntegrationTestClient.LoginAsync(host, writer.Email, writer.Password);
         var readerSession = await AuthIntegrationTestClient.LoginAsync(host, reader.Email, reader.Password);
 
-        await AssertPolicyStatusAsync(host, tenant, adminSession, "/api/__tests/policies/authenticated", HttpStatusCode.OK);
-        await AssertPolicyStatusAsync(host, tenant, adminSession, "/api/__tests/policies/binder-read", HttpStatusCode.OK);
-        await AssertPolicyStatusAsync(host, tenant, adminSession, "/api/__tests/policies/binder-write", HttpStatusCode.OK);
-        await AssertPolicyStatusAsync(host, tenant, adminSession, "/api/__tests/policies/tenant-admin", HttpStatusCode.OK);
-
-        await AssertPolicyStatusAsync(host, tenant, writerSession, "/api/__tests/policies/authenticated", HttpStatusCode.OK);
-        await AssertPolicyStatusAsync(host, tenant, writerSession, "/api/__tests/policies/binder-read", HttpStatusCode.OK);
-        await AssertPolicyStatusAsync(host, tenant, writerSession, "/api/__tests/policies/binder-write", HttpStatusCode.OK);
-        await AssertPolicyStatusAsync(host, tenant, writerSession, "/api/__tests/policies/tenant-admin", HttpStatusCode.Forbidden);
-
-        await AssertPolicyStatusAsync(host, tenant, readerSession, "/api/__tests/policies/authenticated", HttpStatusCode.OK);
-        await AssertPolicyStatusAsync(host, tenant, readerSession, "/api/__tests/policies/binder-read", HttpStatusCode.OK);
-        await AssertPolicyStatusAsync(host, tenant, readerSession, "/api/__tests/policies/binder-write", HttpStatusCode.Forbidden);
-        await AssertPolicyStatusAsync(host, tenant, readerSession, "/api/__tests/policies/tenant-admin", HttpStatusCode.Forbidden);
+        await AssertPolicyMatrixAsync(
+            host,
+            adminContext.Tenant,
+            [
+                new PolicyExpectation(
+                    "tenant admin",
+                    adminContext.Session,
+                    [
+                        new PolicyProbeExpectation(AuthenticatedPolicyProbePath, HttpStatusCode.OK),
+                        new PolicyProbeExpectation(BinderReadPolicyProbePath, HttpStatusCode.OK),
+                        new PolicyProbeExpectation(BinderWritePolicyProbePath, HttpStatusCode.OK),
+                        new PolicyProbeExpectation(TenantAdminPolicyProbePath, HttpStatusCode.OK)
+                    ]),
+                new PolicyExpectation(
+                    "binder writer",
+                    writerSession,
+                    [
+                        new PolicyProbeExpectation(AuthenticatedPolicyProbePath, HttpStatusCode.OK),
+                        new PolicyProbeExpectation(BinderReadPolicyProbePath, HttpStatusCode.OK),
+                        new PolicyProbeExpectation(BinderWritePolicyProbePath, HttpStatusCode.OK),
+                        new PolicyProbeExpectation(TenantAdminPolicyProbePath, HttpStatusCode.Forbidden)
+                    ]),
+                new PolicyExpectation(
+                    "binder reader",
+                    readerSession,
+                    [
+                        new PolicyProbeExpectation(AuthenticatedPolicyProbePath, HttpStatusCode.OK),
+                        new PolicyProbeExpectation(BinderReadPolicyProbePath, HttpStatusCode.OK),
+                        new PolicyProbeExpectation(BinderWritePolicyProbePath, HttpStatusCode.Forbidden),
+                        new PolicyProbeExpectation(TenantAdminPolicyProbePath, HttpStatusCode.Forbidden)
+                    ])
+            ]);
     }
 
     [Fact]
@@ -476,16 +503,15 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
 
         var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-policy-tenant-a");
         var otherTenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-policy-tenant-b");
-        var user = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "reader@cp8-policy-tenant-a.local", "checkpoint-8-password");
-
-        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, user, tenant, TenantRole.BinderRead, isOwner: false);
-
+        var user = await SeedTenantMemberAsync(
+            host,
+            tenant,
+            "reader@cp8-policy-tenant-a.local",
+            TenantRole.BinderRead,
+            isOwner: false);
         var session = await AuthIntegrationTestClient.LoginAsync(host, user.Email, user.Password);
-        using var request = CreateTenantApiRequest(
-            HttpMethod.Get,
-            otherTenant,
-            session,
-            "/api/__tests/policies/binder-read");
+
+        using var request = CreatePolicyProbeRequest(otherTenant, session, BinderReadPolicyProbePath);
 
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
@@ -499,6 +525,31 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await TenantResolutionIntegrationTestHost.StartDockerHostAsync(
             databaseConnection,
             additionalConfigureBeforeStart: ConfigurePolicyProbes);
+
+    private static async Task<TenantAdminContext> CreateTenantAdminContextAsync(
+        PaperBinderApplicationHost host,
+        string tenantSlug,
+        string adminEmail)
+    {
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, tenantSlug);
+        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, adminEmail, DefaultPassword);
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
+
+        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
+        return new TenantAdminContext(tenant, admin, session);
+    }
+
+    private static async Task<SeededUser> SeedTenantMemberAsync(
+        PaperBinderApplicationHost host,
+        SeededTenant tenant,
+        string email,
+        TenantRole role,
+        bool isOwner = true)
+    {
+        var user = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, email, DefaultPassword);
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, user, tenant, role, isOwner);
+        return user;
+    }
 
     private static void ConfigurePolicyProbes(WebApplication app)
     {
@@ -515,18 +566,66 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             .RequireAuthorization(PaperBinderAuthorizationPolicyNames.TenantAdmin);
     }
 
+    private static async Task AssertPolicyMatrixAsync(
+        PaperBinderApplicationHost host,
+        SeededTenant tenant,
+        IReadOnlyList<PolicyExpectation> expectations)
+    {
+        foreach (var expectation in expectations)
+        {
+            foreach (var probe in expectation.Probes)
+            {
+                await AssertPolicyStatusAsync(host, tenant, expectation.Actor, expectation.Session, probe);
+            }
+        }
+    }
+
     private static async Task AssertPolicyStatusAsync(
         PaperBinderApplicationHost host,
         SeededTenant tenant,
+        string actor,
         AuthenticatedSession session,
-        string path,
-        HttpStatusCode expectedStatus)
+        PolicyProbeExpectation probe)
     {
-        using var request = CreateTenantApiRequest(HttpMethod.Get, tenant, session, path);
+        using var request = CreatePolicyProbeRequest(tenant, session, probe.Path);
         using var response = await host.Client.SendAsync(request);
 
-        Assert.Equal(expectedStatus, response.StatusCode);
+        Assert.True(
+            response.StatusCode == probe.ExpectedStatus,
+            $"{actor} expected {probe.ExpectedStatus} from {probe.Path} but received {response.StatusCode}.");
     }
+
+    private static HttpRequestMessage CreateTenantUserListRequest(
+        SeededTenant tenant,
+        AuthenticatedSession session) =>
+        CreateTenantApiRequest(HttpMethod.Get, tenant, session, TenantUsersPath);
+
+    private static HttpRequestMessage CreateTenantUserRequest(
+        SeededTenant tenant,
+        AuthenticatedSession session,
+        TenantUserCreateRequestBody body,
+        string? csrfToken = null) =>
+        CreateTenantApiRequest(HttpMethod.Post, tenant, session, TenantUsersPath, body, csrfToken);
+
+    private static HttpRequestMessage CreateTenantUserRoleChangeRequest(
+        SeededTenant tenant,
+        AuthenticatedSession session,
+        Guid userId,
+        TenantUserRoleChangeRequestBody body,
+        string? csrfToken = null) =>
+        CreateTenantApiRequest(
+            HttpMethod.Post,
+            tenant,
+            session,
+            $"{TenantUsersPath}/{userId:D}/role",
+            body,
+            csrfToken);
+
+    private static HttpRequestMessage CreatePolicyProbeRequest(
+        SeededTenant tenant,
+        AuthenticatedSession session,
+        string path) =>
+        CreateTenantApiRequest(HttpMethod.Get, tenant, session, path);
 
     private static HttpRequestMessage CreateTenantApiRequest(
         HttpMethod method,
@@ -552,6 +651,27 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
 
         return request;
     }
+
+    private sealed record TenantAdminContext(
+        SeededTenant Tenant,
+        SeededUser Admin,
+        AuthenticatedSession Session);
+
+    private sealed record TenantUserCreateRequestBody(
+        string Email,
+        string Password,
+        string Role);
+
+    private sealed record TenantUserRoleChangeRequestBody(string Role);
+
+    private sealed record PolicyExpectation(
+        string Actor,
+        AuthenticatedSession Session,
+        IReadOnlyList<PolicyProbeExpectation> Probes);
+
+    private sealed record PolicyProbeExpectation(
+        string Path,
+        HttpStatusCode ExpectedStatus);
 
     private sealed record PolicyProbeResponse(bool Allowed);
 
