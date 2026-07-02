@@ -50,7 +50,7 @@ Current runtime note:
 - As of `2026-06-30`, the public shared-test and production environments both run the GHCR-backed deploy-by-tag contract from `/opt/paperbinder/app`.
 - Shared test uses `docker-compose.test-deploy.yml` plus `.github/workflows/deploy-test.yml`.
 - Production uses `docker-compose.prod.yml` plus `.github/workflows/deploy-prod.yml`.
-- Both public environments are in a known-good `v1.0.1` state with certificate-backed ASP.NET Core Data Protection keys persisted under `/data/keys` and verified encrypted at rest.
+- Both public environments are in a known-good `v1.0.2` state after the successful `2026-07-02` rollouts, with certificate-backed ASP.NET Core Data Protection keys persisted under `/data/keys`.
 - `docker-compose.test.yml` remains the repo-owned source-build test shape, but it is no longer the current public shared-test runtime contract.
 - The canonical live app working directory on both public servers is `/opt/paperbinder/app`; `/opt/paperbinder` is the default base install directory used to hold that app subtree.
 - `/opt/paperbinder/app` is owned by the deploy user in both environments. The parent `/opt/paperbinder` directory is a base install path only and its ownership should not be treated as a cross-environment contract.

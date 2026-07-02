@@ -4,6 +4,17 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## [1.0.3] - 2026-07-02
+
+### Security
+- OpenTelemetry runtime dependencies now align on `1.16.0`, clearing the current `NU1902` vulnerability warnings in the shipped API and worker observability baseline.
+
+### Changed
+- GitHub Actions workflow dependencies now use the Node 24-capable `v5` majors for `actions/checkout`, `actions/setup-node`, and `actions/setup-dotnet`, removing the Node 20 deprecation annotation from CI and deploy pipeline runs.
+
+### Docs
+- Release metadata and current-state delivery docs now align on the `v1.0.3` / `1.0.3` release identity while preserving `v1.0.2` as the last known-good public deployed state until the new release finishes rollout.
+
 ## [1.0.2] - 2026-07-02
 
 ### Changed
