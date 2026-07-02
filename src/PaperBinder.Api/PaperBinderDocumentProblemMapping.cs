@@ -2,15 +2,9 @@ using PaperBinder.Application.Documents;
 
 namespace PaperBinder.Api;
 
-internal sealed record DocumentProblemContract(
-    int StatusCode,
-    string Title,
-    string Detail,
-    string ErrorCode);
-
 internal static class PaperBinderDocumentProblemMapping
 {
-    public static DocumentProblemContract Map(DocumentFailure failure) =>
+    public static PaperBinderApiProblem Map(DocumentFailure failure) =>
         failure.Kind switch
         {
             DocumentFailureKind.NotFound => new(

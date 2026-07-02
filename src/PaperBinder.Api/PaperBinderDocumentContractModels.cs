@@ -2,6 +2,16 @@ using PaperBinder.Application.Documents;
 
 namespace PaperBinder.Api;
 
+internal sealed record CreateDocumentRequest(
+    Guid? BinderId,
+    string? Title,
+    string? ContentType,
+    string? Content,
+    Guid? SupersedesDocumentId);
+
+internal sealed record ListDocumentsResponse(
+    IReadOnlyList<DocumentSummaryResponse> Documents);
+
 internal sealed record DocumentSummaryResponse(
     Guid DocumentId,
     Guid BinderId,
@@ -23,6 +33,9 @@ internal sealed record DocumentDetailResponse(
 
 internal static class PaperBinderDocumentResponseMapping
 {
+    public static ListDocumentsResponse MapList(IReadOnlyList<DocumentSummary> documents) =>
+        new(documents.Select(MapSummary).ToArray());
+
     public static DocumentSummaryResponse MapSummary(DocumentSummary document) =>
         new(
             document.DocumentId,

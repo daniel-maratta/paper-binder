@@ -2,15 +2,9 @@ using PaperBinder.Application.Tenancy;
 
 namespace PaperBinder.Api;
 
-internal sealed record TenantUserProblemContract(
-    int StatusCode,
-    string Title,
-    string Detail,
-    string ErrorCode);
-
 internal static class PaperBinderTenantUserProblemMapping
 {
-    public static TenantUserProblemContract Map(TenantUserAdministrationFailure failure) =>
+    public static PaperBinderApiProblem Map(TenantUserAdministrationFailure failure) =>
         failure.Kind switch
         {
             TenantUserAdministrationFailureKind.UserNotFound => new(

@@ -50,10 +50,7 @@ internal static class PaperBinderDocumentEndpoints
         }
 
         await context.Response.WriteAsJsonAsync(
-            new ListDocumentsResponse(
-                outcome.Documents!
-                    .Select(PaperBinderDocumentResponseMapping.MapSummary)
-                    .ToArray()),
+            PaperBinderDocumentResponseMapping.MapList(outcome.Documents!),
             cancellationToken);
     }
 
@@ -225,14 +222,4 @@ internal static class PaperBinderDocumentEndpoints
     private static TenantMembership GetRequiredMembership(IRequestTenantMembershipContext membershipContext) =>
         membershipContext.Membership
         ?? throw new InvalidOperationException("Document endpoints require an established tenant membership context.");
-
-    internal sealed record CreateDocumentRequest(
-        Guid? BinderId,
-        string? Title,
-        string? ContentType,
-        string? Content,
-        Guid? SupersedesDocumentId);
-
-    internal sealed record ListDocumentsResponse(
-        IReadOnlyList<DocumentSummaryResponse> Documents);
 }
