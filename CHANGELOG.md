@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## [1.0.5] - 2026-07-03
+
+### Fixed
+- The Docker-backed trace-correlation release gate now waits for the expected request, database, and worker activities before asserting, eliminating the false-negative failure that stopped the `v1.0.4` release workflow before image publishing.
+
+### Docs
+- Release metadata and current-state delivery docs now align on the `v1.0.5` / `1.0.5` release identity while preserving `v1.0.2` as the last known-good public deployed state until the new release finishes rollout.
+
 ## [1.0.4] - 2026-07-02
 
 ### Changed
