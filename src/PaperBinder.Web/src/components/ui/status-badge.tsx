@@ -5,10 +5,13 @@ type StatusBadgeVariant = "neutral" | "success" | "warning" | "danger";
 
 const badgeVariants: Record<StatusBadgeVariant, string> = {
   neutral:
-    "border-[var(--pb-color-border)] bg-[var(--pb-color-panel-muted)] text-[var(--pb-color-text)]",
-  success: "border-[var(--pb-color-success)] bg-[var(--pb-color-success-soft)] text-[var(--pb-color-success)]",
-  warning: "border-[var(--pb-color-warning)] bg-[var(--pb-color-warning-soft)] text-[var(--pb-color-warning-text)]",
-  danger: "border-[var(--pb-color-danger)] bg-[var(--pb-color-danger-soft)] text-[var(--pb-color-danger)]"
+    "border-[var(--pb-border-subtle)] bg-[var(--pb-surface-subtle)] text-[var(--pb-text-strong)]",
+  success:
+    "border-[var(--pb-status-success)] bg-[var(--pb-status-success-soft)] text-[var(--pb-status-success-text)]",
+  warning:
+    "border-[var(--pb-status-warning)] bg-[var(--pb-status-warning-soft)] text-[var(--pb-status-warning-text)]",
+  danger:
+    "border-[var(--pb-status-danger)] bg-[var(--pb-status-danger-soft)] text-[var(--pb-status-danger-text)]"
 };
 
 export function StatusBadge({

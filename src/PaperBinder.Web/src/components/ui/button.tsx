@@ -13,10 +13,11 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    "border-[var(--pb-color-primary)] bg-[var(--pb-color-primary)] text-white hover:bg-[#de6a1a]",
+    "border-[var(--pb-action-primary)] bg-[var(--pb-action-primary)] text-white hover:border-[var(--pb-action-primary-hover)] hover:bg-[var(--pb-action-primary-hover)] active:border-[var(--pb-action-primary-active)] active:bg-[var(--pb-action-primary-active)]",
   secondary:
-    "border-[var(--pb-color-border-strong)] bg-white text-[var(--pb-color-text)] hover:bg-[var(--pb-color-panel-muted)]",
-  danger: "border-[var(--pb-color-danger)] bg-[var(--pb-color-danger)] text-white hover:bg-[#95261f]"
+    "border-[var(--pb-border-subtle)] bg-[var(--pb-action-secondary)] text-[var(--pb-action-secondary-text)] hover:border-[var(--pb-border-strong)] hover:bg-[var(--pb-action-secondary-hover)]",
+  danger:
+    "border-[var(--pb-status-danger)] bg-[var(--pb-status-danger)] text-white hover:border-[var(--pb-status-danger-text)] hover:bg-[var(--pb-status-danger-text)]"
 };
 
 export function Button({
@@ -31,7 +32,7 @@ export function Button({
   const Comp = asChild ? Slot : "button";
   const isDisabled = disabled || isLoading;
   const baseClassName = cn(
-    "inline-flex items-center justify-center gap-2 rounded-[var(--pb-radius-md)] border px-4 py-2 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-color-primary)] disabled:cursor-not-allowed disabled:opacity-60",
+    "inline-flex items-center justify-center gap-2 rounded-[var(--pb-radius-md)] border px-4 py-2 text-sm font-semibold shadow-[0_1px_2px_rgba(20,34,53,0.04)] transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-focus-ring)] disabled:cursor-not-allowed disabled:opacity-60",
     buttonVariants[variant],
     className
   );

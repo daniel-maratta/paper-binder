@@ -2,31 +2,67 @@
 
 :root {
   color-scheme: light;
-  --pb-color-bg: #fafafa;
-  --pb-color-text: #102d45;
-  --pb-color-text-muted: #4c6175;
-  --pb-color-text-subtle: #6c7b88;
-  --pb-color-primary: #f67d28;
-  --pb-color-border: #dde3e8;
-  --pb-color-border-strong: #bcc8d0;
-  --pb-color-panel-muted: #f4f6f8;
-  --pb-color-success: #2e7d32;
-  --pb-color-success-soft: #e8f5ea;
-  --pb-color-warning: #d97706;
-  --pb-color-warning-text: #915106;
-  --pb-color-warning-soft: #fff4e5;
-  --pb-color-danger: #b3261e;
-  --pb-color-danger-soft: #fdecea;
-  --pb-color-info: #2a6cb0;
-  --pb-color-info-soft: #edf4fb;
+  --pb-canvas: #f3f6fa;
+  --pb-canvas-accent: #eaf0f7;
+  --pb-surface: #ffffff;
+  --pb-surface-subtle: #eef3f8;
+  --pb-surface-subtle-strong: #e2eaf3;
+  --pb-border-subtle: #d3dce8;
+  --pb-border-strong: #b3c1d1;
+  --pb-text-strong: #162235;
+  --pb-text-muted: #516174;
+  --pb-text-subtle: #728297;
+  --pb-action-primary: #29496f;
+  --pb-action-primary-hover: #203b5b;
+  --pb-action-primary-active: #182e47;
+  --pb-action-secondary: #f8fafc;
+  --pb-action-secondary-hover: #edf2f7;
+  --pb-action-secondary-text: var(--pb-text-strong);
+  --pb-focus-ring: #7c9fc7;
+  --pb-status-success: #2d6e54;
+  --pb-status-success-soft: #e7f2ec;
+  --pb-status-success-text: #1f5a44;
+  --pb-status-warning: #a77829;
+  --pb-status-warning-soft: #f8edd7;
+  --pb-status-warning-text: #704d12;
+  --pb-status-danger: #b24a47;
+  --pb-status-danger-soft: #fae8e7;
+  --pb-status-danger-text: #8b2e2b;
+  --pb-status-info: #5177a7;
+  --pb-status-info-soft: #e8eff9;
+  --pb-status-info-text: #315682;
+  --pb-overlay-scrim: rgba(18, 30, 47, 0.42);
   --pb-radius-md: 6px;
   --pb-radius-lg: 8px;
-  --pb-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --pb-shadow-card:
+    0 18px 42px -34px rgba(20, 34, 53, 0.32),
+    0 2px 8px rgba(20, 34, 53, 0.07);
+  --pb-shadow-modal:
+    0 28px 88px -44px rgba(20, 34, 53, 0.5),
+    0 8px 24px rgba(20, 34, 53, 0.12);
   --pb-surface-gradient:
-    radial-gradient(circle at top right, rgba(246, 125, 40, 0.15), transparent 32%),
-    linear-gradient(180deg, #fff8f1 0%, #fafafa 42%, #f3f6f8 100%);
-  color: var(--pb-color-text);
-  background: var(--pb-color-bg);
+    radial-gradient(circle at top right, rgba(69, 104, 150, 0.18), transparent 34%),
+    radial-gradient(circle at top left, rgba(173, 188, 208, 0.16), transparent 28%),
+    linear-gradient(180deg, #f8fbfe 0%, var(--pb-canvas) 42%, var(--pb-canvas-accent) 100%);
+  --pb-color-bg: var(--pb-canvas);
+  --pb-color-text: var(--pb-text-strong);
+  --pb-color-text-muted: var(--pb-text-muted);
+  --pb-color-text-subtle: var(--pb-text-subtle);
+  --pb-color-primary: var(--pb-action-primary);
+  --pb-color-border: var(--pb-border-subtle);
+  --pb-color-border-strong: var(--pb-border-strong);
+  --pb-color-panel-muted: var(--pb-surface-subtle);
+  --pb-color-success: var(--pb-status-success);
+  --pb-color-success-soft: var(--pb-status-success-soft);
+  --pb-color-warning: var(--pb-status-warning);
+  --pb-color-warning-text: var(--pb-status-warning-text);
+  --pb-color-warning-soft: var(--pb-status-warning-soft);
+  --pb-color-danger: var(--pb-status-danger);
+  --pb-color-danger-soft: var(--pb-status-danger-soft);
+  --pb-color-info: var(--pb-status-info);
+  --pb-color-info-soft: var(--pb-status-info-soft);
+  color: var(--pb-text-strong);
+  background: var(--pb-canvas);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -39,7 +75,7 @@
 body {
   margin: 0;
   min-width: 320px;
-  background: var(--pb-color-bg);
+  background: var(--pb-canvas);
 }
 
 * {

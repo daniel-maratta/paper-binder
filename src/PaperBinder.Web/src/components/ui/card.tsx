@@ -8,7 +8,7 @@ export function Card({
   return (
     <section
       className={cn(
-        "rounded-[var(--pb-radius-lg)] border border-[var(--pb-color-border)] bg-white p-6 shadow-[var(--pb-shadow-card)]",
+        "rounded-[var(--pb-radius-lg)] border border-[var(--pb-border-subtle)] bg-[var(--pb-surface)] p-6 shadow-[var(--pb-shadow-card)]",
         className
       )}
       {...props}
@@ -54,9 +54,9 @@ export function CardMeta({
   value: ReactNode;
 }) {
   return (
-    <div className="rounded-[var(--pb-radius-md)] bg-[var(--pb-color-panel-muted)] px-4 py-3">
-      <dt className="text-xs uppercase tracking-[0.16em] text-[var(--pb-color-text-subtle)]">{label}</dt>
-      <dd className="mt-2 text-sm font-medium text-[var(--pb-color-text)]">{value}</dd>
+    <div className="rounded-[var(--pb-radius-md)] border border-[var(--pb-border-subtle)] bg-[var(--pb-surface-subtle)] px-4 py-3">
+      <dt className="text-xs uppercase tracking-[0.16em] text-[var(--pb-text-subtle)]">{label}</dt>
+      <dd className="mt-2 text-sm font-medium text-[var(--pb-text-strong)]">{value}</dd>
     </div>
   );
 }

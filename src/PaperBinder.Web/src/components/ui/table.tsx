@@ -28,14 +28,14 @@ export function DataTable({
   isLoading = false
 }: DataTableProps) {
   return (
-    <div className="overflow-x-auto rounded-[var(--pb-radius-md)] border border-[var(--pb-color-border)] bg-white">
+    <div className="overflow-x-auto rounded-[var(--pb-radius-md)] border border-[var(--pb-border-subtle)] bg-[var(--pb-surface)] shadow-[0_1px_2px_rgba(20,34,53,0.03)]">
       <table className="min-w-full border-collapse">
         <caption className="sr-only">{caption}</caption>
         <thead>
-          <tr className="border-b border-[var(--pb-color-border)] bg-[var(--pb-color-panel-muted)]">
+          <tr className="border-b border-[var(--pb-border-subtle)] bg-[var(--pb-surface-subtle)]">
             {columns.map((column) => (
               <th
-                className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.12em] text-[var(--pb-color-text-subtle)]"
+                className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.12em] text-[var(--pb-text-subtle)]"
                 key={column.key}
                 scope="col"
               >
@@ -65,7 +65,7 @@ export function DataTable({
             </tr>
           ) : (
             rows.map((row) => (
-              <tr className="border-b border-[var(--pb-color-border)] last:border-b-0" key={row.key}>
+              <tr className="border-b border-[var(--pb-border-subtle)] last:border-b-0" key={row.key}>
                 {row.cells.map((cell, index) => (
                   <td className="px-4 py-4 text-sm text-[var(--pb-color-text)]" key={`${row.key}-${index}`}>
                     {cell}

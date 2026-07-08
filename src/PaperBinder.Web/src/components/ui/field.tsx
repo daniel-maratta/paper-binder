@@ -38,7 +38,7 @@ export function Field({ label, hint, error, children }: FieldProps) {
     "aria-describedby": describedBy,
     "aria-invalid": Boolean(error),
     className: cn(
-      "w-full rounded-[var(--pb-radius-md)] border border-[var(--pb-color-border-strong)] bg-white px-3 py-2 text-sm text-[var(--pb-color-text)] shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-color-primary)] disabled:cursor-not-allowed disabled:bg-[var(--pb-color-panel-muted)]",
+      "w-full rounded-[var(--pb-radius-md)] border border-[var(--pb-border-strong)] bg-[var(--pb-surface)] px-3 py-2 text-sm text-[var(--pb-text-strong)] shadow-[0_1px_2px_rgba(20,34,53,0.03)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-focus-ring)] disabled:cursor-not-allowed disabled:bg-[var(--pb-surface-subtle)]",
       (control.props as ControlProps).className
     )
   });
