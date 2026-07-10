@@ -1,22 +1,22 @@
 export const rootRouteDefinitions = [
   {
     path: "/" as const,
-    label: "Provision",
-    title: "Provision a demo tenant",
-    description: "Create a tenant, review one-time credentials, then continue to the tenant host."
+    label: "Product",
+    title: "PaperBinder product overview",
+    description: "See the live workspace story and the product-led public path."
   },
   {
-    path: "/login" as const,
-    label: "Login",
-    title: "Root-host login",
-    description: "Sign in with existing demo credentials and redirect with the server-provided URL."
+    path: "/start-demo" as const,
+    label: "Demo",
+    title: "Start a live demo workspace",
+    description: "Create a disposable workspace and continue into the live product."
   },
   {
     path: "/about" as const,
     label: "About",
     title: "About PaperBinder",
-    description: "Checkpoint scope, product constraints, and reviewer context."
-  }
+    description: "Scope, constraints, and reviewer context."
+  },
 ] as const;
 
 export const tenantNavigationItems = [

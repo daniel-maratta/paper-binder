@@ -1,5 +1,5 @@
 import { Fragment, type FormEvent, useEffect, useState } from "react";
-import { NavLink, Outlet, Route } from "react-router-dom";
+import { NavLink, Outlet, Route, useLocation } from "react-router-dom";
 import type { LoginResponse, PaperBinderApiClient, ProvisionResponse } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
@@ -13,6 +13,7 @@ import {
   CardTitle
 } from "../components/ui/card";
 import { Field } from "../components/ui/field";
+import { StatusBadge } from "../components/ui/status-badge";
 import { cn } from "../lib/cn";
 import { RootHostChallengeWidget } from "./challenge-widget";
 import type { RootHostContext } from "./host-context";
@@ -76,6 +77,9 @@ function RootHostErrorNotice({ error }: { error: RootHostErrorViewModel | null }
 }
 
 function RootShell({ hostContext }: { hostContext: RootHostContext }) {
+  const location = useLocation();
+  const isDemoRoute = location.pathname === "/start-demo";
+
   return (
     <div className="min-h-screen bg-[var(--pb-surface-gradient)] text-[var(--pb-color-text)]">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6 lg:px-10">
@@ -84,17 +88,22 @@ function RootShell({ hostContext }: { hostContext: RootHostContext }) {
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--pb-color-text-subtle)]">
               PaperBinder
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em]">Root-host onboarding</h1>
+            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em]">Secure document workspaces</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--pb-color-text-muted)]">
-              Provision a demo tenant or log in with existing credentials. Redirect routing stays
-              server-authoritative, and the tenant host continues on the live authenticated product routes.
+              Product-led public entry, disposable live demo workspaces, and a tenant-host experience that
+              stays grounded in server-authoritative routing and access boundaries.
             </p>
           </div>
-          <div className="rounded-[var(--pb-radius-md)] bg-[var(--pb-color-panel-muted)] px-4 py-3 text-sm text-[var(--pb-color-text-muted)]">
-            <p className="font-semibold text-[var(--pb-color-text)]">
-              {hostContext.debugAlias ? "Loopback root-host debug alias" : "Canonical root host"}
-            </p>
-            <p className="mt-1 break-all">{hostContext.currentOrigin}</p>
+          <div className="flex flex-col gap-3 md:items-end">
+            <Button asChild type="button" variant={isDemoRoute ? "secondary" : "primary"}>
+              <NavLink to="/start-demo">{isDemoRoute ? "Demo workspace route" : "Start live demo"}</NavLink>
+            </Button>
+            <div className="rounded-[var(--pb-radius-md)] bg-[var(--pb-color-panel-muted)] px-4 py-3 text-sm text-[var(--pb-color-text-muted)]">
+              <p className="font-semibold text-[var(--pb-color-text)]">
+                {hostContext.debugAlias ? "Loopback root-host debug alias" : "Canonical root host"}
+              </p>
+              <p className="mt-1 break-all">{hostContext.currentOrigin}</p>
+            </div>
           </div>
         </header>
 
@@ -126,6 +135,149 @@ function RootShell({ hostContext }: { hostContext: RootHostContext }) {
             <Outlet />
           </main>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function RootLandingPage() {
+  const proofPillars = [
+    {
+      title: "Isolation",
+      body: "Each workspace stays separated by tenant-aware routing and access boundaries."
+    },
+    {
+      title: "Access control",
+      body: "Users, binders, and actions stay shaped by role-aware permissions."
+    },
+    {
+      title: "Visibility",
+      body: "Review binders, document detail, and active workspace state inside the live product."
+    }
+  ] as const;
+
+  return (
+    <div className="space-y-6">
+      <Card className="overflow-hidden border-[rgba(8,20,35,0.08)] bg-[linear-gradient(135deg,rgba(7,20,35,0.98),rgba(18,41,69,0.96))] text-[var(--pb-public-text)]">
+        <CardContent className="grid gap-8 p-6 lg:grid-cols-[1.02fr_0.98fr] lg:p-8">
+          <section className="space-y-6">
+            <div>
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-[var(--pb-public-text-muted)]">
+                PaperBinder
+              </p>
+              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[var(--pb-public-text)]">
+                A secure workspace for your documents and your team.
+              </h2>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--pb-public-text-muted)]">
+                Multi-tenant by design. Built for organized review, controlled access, and clear visibility.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button asChild className="border-white/10 bg-white text-[#081528] hover:border-white/20 hover:bg-[#f6f9fd]" type="button" variant="secondary">
+                <NavLink to="/start-demo">Start live demo</NavLink>
+              </Button>
+              <Button asChild className="border-white/12 bg-white/6 text-white hover:border-white/18 hover:bg-white/10" type="button" variant="secondary">
+                <NavLink to="/about">Learn more</NavLink>
+              </Button>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              {proofPillars.map((pillar) => (
+                <div
+                  className="rounded-[22px] border border-white/10 bg-white/6 px-4 py-4 backdrop-blur"
+                  key={pillar.title}
+                >
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/50">
+                    {pillar.title}
+                  </p>
+                  <p className="mt-2 text-sm font-medium leading-6 text-white/90">{pillar.body}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section aria-label="Live workspace preview" className="rounded-[30px] border border-white/10 bg-[rgba(255,255,255,0.08)] p-4 shadow-[0_34px_88px_-48px_rgba(0,0,0,0.72)] backdrop-blur">
+            <div className="rounded-[24px] border border-white/8 bg-[rgba(8,17,29,0.6)] px-4 py-3 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-white/60">
+              Live workspace preview
+            </div>
+            <div className="mt-4 rounded-[24px] bg-[linear-gradient(180deg,#f7fbff_0%,#eef4fa_100%)] p-5 text-[var(--pb-color-text)]">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[var(--pb-color-text-subtle)]">
+                    Workspace
+                  </p>
+                  <h3 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--pb-color-text)]">
+                    Binders, documents, and access in one place
+                  </h3>
+                </div>
+                <StatusBadge variant="success">Live demo</StatusBadge>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <CardMeta className="min-h-[6rem]" label="Binders" value="Grouped workspaces" />
+                <CardMeta className="min-h-[6rem]" label="Documents" value="Readable source detail" />
+                <CardMeta className="min-h-[6rem]" label="Users" value="Role-aware actions" />
+              </div>
+
+              <div className="mt-5 grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+                <div className="rounded-[22px] border border-[var(--pb-border-subtle)] bg-white px-4 py-4 shadow-[var(--pb-shadow-card)]">
+                  <p className="text-sm font-semibold text-[var(--pb-color-text)]">What you can do here</p>
+                  <ul className="mt-3 space-y-3 text-sm leading-6 text-[var(--pb-color-text-muted)]">
+                    <li>Review binders and open document detail pages inside the live workspace.</li>
+                    <li>See lease state, visible content, and role-aware user-management entry points.</li>
+                    <li>Inspect a real product surface instead of starting with provisioning mechanics.</li>
+                  </ul>
+                </div>
+                <div className="rounded-[22px] border border-[var(--pb-border-subtle)] bg-[linear-gradient(180deg,rgba(244,248,252,0.96),rgba(236,242,248,0.9))] px-4 py-4">
+                  <p className="text-sm font-semibold text-[var(--pb-color-text)]">Live demo path</p>
+                  <div className="mt-3 space-y-3 text-sm leading-6 text-[var(--pb-color-text-muted)]">
+                    <p>Start a disposable workspace, receive one-time credentials, and continue into the tenant-host product routes.</p>
+                    <p>Direct sign-in still exists for return trips, but the product path now leads with the software itself.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 lg:grid-cols-[1.02fr_0.98fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>A document workspace that feels like real software.</CardTitle>
+            <CardDescription>
+              PaperBinder groups work into binders, documents, and tenant user controls inside an isolated
+              workspace. The public path now shows the product first instead of leading with setup mechanics.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-6 text-[var(--pb-color-text-muted)]">
+            <p>Binder-based organization keeps grouped work easy to review.</p>
+            <p>Document detail pages combine readable metadata with immutable source content.</p>
+            <p>User management remains role-aware, tenant-scoped, and grounded in the live authenticated product.</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Live demo, honest scope.</CardTitle>
+            <CardDescription>
+              PaperBinder is presented as a real product-style demo artifact. Technical context remains available
+              without taking over the main story.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button asChild className="w-full justify-center sm:w-auto" type="button">
+              <NavLink to="/start-demo">Start live demo</NavLink>
+            </Button>
+            <Button asChild className="w-full justify-center sm:w-auto" type="button" variant="secondary">
+              <NavLink to="/login">Use existing demo credentials</NavLink>
+            </Button>
+            <Button asChild className="w-full justify-center sm:w-auto" type="button" variant="secondary">
+              <NavLink to="/about">About PaperBinder</NavLink>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
@@ -537,7 +689,7 @@ function RootLoginPage({
               Log in
             </Button>
             <Button asChild type="button" variant="secondary">
-              <NavLink to="/">Back to provision</NavLink>
+              <NavLink to="/">Back to live demo</NavLink>
             </Button>
           </div>
         </form>
@@ -558,23 +710,23 @@ function RootAboutPage() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>About root-host onboarding</CardTitle>
+          <CardTitle>About PaperBinder</CardTitle>
           <CardDescription>
-            Root-host onboarding establishes the reviewer path into the live tenant-host product surface
-            without introducing client-built tenant redirects.
+            PaperBinder is a constrained multi-tenant document workspace demo designed to show coherent
+            product thinking, role-aware access, and reviewable implementation depth.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
-          <CardMeta label="Architecture" value="Single React SPA, direct API calls, no BFF" />
-          <CardMeta label="Provisioning handoff" value="Show credentials once, then continue" />
-          <CardMeta label="Browser E2E" value="Shared frontend browser gate" />
+          <CardMeta label="Core objects" value="Binders and immutable text documents" />
+          <CardMeta label="Access model" value="Role-aware and tenant-isolated" />
+          <CardMeta label="Live demo path" value="Product first, then disposable workspace entry" />
         </CardContent>
         <CardFooter>
           <Alert variant="info">
-            <AlertTitle>Still out of scope</AlertTitle>
+            <AlertTitle>Intentionally constrained scope</AlertTitle>
             <AlertBody>
-              Impersonation, document editing, archive controls, password reset, and broader hardening remain
-              outside the current checkpoint boundary.
+              PaperBinder leads with a real product surface, but it does not pretend to be a fully expanded
+              collaboration suite or a broad enterprise platform.
             </AlertBody>
           </Alert>
         </CardFooter>
@@ -597,8 +749,8 @@ function RootNotFoundPage() {
         <Alert variant="warning">
           <AlertTitle>Known root routes</AlertTitle>
           <AlertBody>
-            <code>/</code>, <code>/login</code>, and <code>/about</code> are the canonical root-host routes
-            for CP14.
+            <code>/</code>, <code>/start-demo</code>, <code>/login</code>, and <code>/about</code> are the
+            canonical root-host routes for the current presentation cut.
           </AlertBody>
         </Alert>
       </CardContent>
@@ -618,7 +770,8 @@ export function RootHostRoutes({
   return (
     <Fragment>
       <Route element={<RootShell hostContext={hostContext} />}>
-        <Route element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/" />
+        <Route element={<RootLandingPage />} path="/" />
+        <Route element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/start-demo" />
         <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/login" />
         <Route element={<RootAboutPage />} path="/about" />
         <Route element={<RootNotFoundPage />} path="*" />

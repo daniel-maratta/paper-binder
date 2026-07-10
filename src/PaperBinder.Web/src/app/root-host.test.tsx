@@ -78,7 +78,7 @@ function renderRootRoute({
   navigator = vi.fn<(redirectUrl: string) => void>(),
   challengeLocalBypassEnabled = false
 }: {
-  route?: "/" | "/login";
+  route?: "/" | "/login" | "/start-demo";
   apiClient?: PaperBinderApiClient;
   navigator?: (redirectUrl: string) => void;
   challengeLocalBypassEnabled?: boolean;
@@ -116,12 +116,29 @@ afterEach(() => {
 });
 
 describe("root-host flows", () => {
+  it("Should_RenderProductLedLanding_Without_InlineProvisioningOrLogin_When_PublicHomeLoads", async () => {
+    renderRootRoute({
+      route: "/"
+    });
+
+    expect(
+      screen.getByRole("heading", { name: "A secure workspace for your documents and your team." })
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: "Start live demo" }).some((link) => link.getAttribute("href") === "/start-demo")
+    ).toBe(true);
+    expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
+    expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
+  });
+
   it("Should_SubmitProvisionRequest_WithTenantNameAndChallengeToken_When_RootHostProvisionFormIsValid", async () => {
     installTurnstileStub();
     const provisionMock = vi.fn(async () => createProvisionResponse());
 
     renderRootRoute({
-      route: "/",
+      route: "/start-demo",
       apiClient: createApiClientStub({
         provision: provisionMock as PaperBinderApiClient["provision"]
       })
@@ -148,7 +165,7 @@ describe("root-host flows", () => {
     const navigator = vi.fn();
 
     renderRootRoute({
-      route: "/",
+      route: "/start-demo",
       navigator
     });
 
@@ -215,7 +232,7 @@ describe("root-host flows", () => {
     });
 
     renderRootRoute({
-      route: "/",
+      route: "/start-demo",
       apiClient: createApiClientStub({
         provision: vi.fn(async () => {
           throw error;
@@ -273,7 +290,7 @@ describe("root-host flows", () => {
     const provisionMock = vi.fn(async () => createProvisionResponse());
 
     renderRootRoute({
-      route: "/",
+      route: "/start-demo",
       challengeLocalBypassEnabled: true,
       apiClient: createApiClientStub({
         provision: provisionMock as PaperBinderApiClient["provision"]
