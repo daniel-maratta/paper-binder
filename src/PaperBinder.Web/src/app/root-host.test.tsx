@@ -121,9 +121,15 @@ describe("root-host flows", () => {
       route: "/"
     });
 
+    expect(screen.getByRole("navigation", { name: "Primary navigation" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Root host navigation")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Product" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Demo" })).toHaveAttribute("href", "/start-demo");
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
     expect(
       screen.getByRole("heading", { name: "A secure workspace for your documents and your team." })
     ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start live demo" })).toHaveAttribute("href", "/start-demo");
     expect(
       screen.getByRole("img", {
         name: "PaperBinder dashboard showing lease metrics, recent binders, and next actions inside the authenticated workspace."

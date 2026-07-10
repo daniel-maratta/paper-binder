@@ -15,7 +15,7 @@ export const rootRouteDefinitions = [
     path: "/about" as const,
     label: "About",
     title: "About PaperBinder",
-    description: "Scope, constraints, and reviewer context."
+    description: "Scope, product truth, and supporting context."
   },
 ] as const;
 
