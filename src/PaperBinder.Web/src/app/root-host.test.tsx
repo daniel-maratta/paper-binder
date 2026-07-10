@@ -125,6 +125,16 @@ describe("root-host flows", () => {
       screen.getByRole("heading", { name: "A secure workspace for your documents and your team." })
     ).toBeInTheDocument();
     expect(
+      screen.getByRole("img", {
+        name: "PaperBinder dashboard showing lease metrics, recent binders, and next actions inside the authenticated workspace."
+      })
+    ).toHaveAttribute("src", "/presentation/dashboard-proof.png");
+    expect(
+      screen.getByRole("img", {
+        name: "PaperBinder users and access page showing current users, add-user form, role management, and view-as actions."
+      })
+    ).toHaveAttribute("src", "/presentation/users-proof.png");
+    expect(
       screen.getAllByRole("link", { name: "Start Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
     ).toBe(true);
     expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");

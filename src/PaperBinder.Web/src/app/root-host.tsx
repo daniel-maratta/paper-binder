@@ -174,10 +174,20 @@ function RootLandingPage() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <Button asChild className="border-white/10 bg-white text-[#081528] hover:border-white/20 hover:bg-[#f6f9fd]" type="button" variant="secondary">
+              <Button
+                asChild
+                className="border-white/10 bg-white text-[#081528] hover:border-white/20 hover:bg-[#f6f9fd]"
+                type="button"
+                variant="secondary"
+              >
                 <NavLink to="/start-demo">Start Demo</NavLink>
               </Button>
-              <Button asChild className="border-white/12 bg-white/6 text-white hover:border-white/18 hover:bg-white/10" type="button" variant="secondary">
+              <Button
+                asChild
+                className="border-white/12 bg-white/6 text-white hover:border-white/18 hover:bg-white/10"
+                type="button"
+                variant="secondary"
+              >
                 <NavLink to="/about">Learn more</NavLink>
               </Button>
             </div>
@@ -197,7 +207,10 @@ function RootLandingPage() {
             </div>
           </section>
 
-          <section aria-label="Live workspace preview" className="rounded-[30px] border border-white/10 bg-[rgba(255,255,255,0.08)] p-4 shadow-[0_34px_88px_-48px_rgba(0,0,0,0.72)] backdrop-blur">
+          <section
+            aria-label="Live workspace preview"
+            className="rounded-[30px] border border-white/10 bg-[rgba(255,255,255,0.08)] p-4 shadow-[0_34px_88px_-48px_rgba(0,0,0,0.72)] backdrop-blur"
+          >
             <div className="rounded-[24px] border border-white/8 bg-[rgba(8,17,29,0.6)] px-4 py-3 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-white/60">
               Live workspace preview
             </div>
@@ -214,28 +227,27 @@ function RootLandingPage() {
                 <StatusBadge variant="success">Live demo</StatusBadge>
               </div>
 
+              <div className="mt-5 overflow-hidden rounded-[22px] border border-[var(--pb-border-subtle)] bg-white shadow-[var(--pb-shadow-card)]">
+                <img
+                  alt="PaperBinder dashboard showing lease metrics, recent binders, and next actions inside the authenticated workspace."
+                  className="block h-auto w-full"
+                  src="/presentation/dashboard-proof.png"
+                />
+              </div>
+
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <CardMeta className="min-h-[6rem]" label="Binders" value="Grouped workspaces" />
                 <CardMeta className="min-h-[6rem]" label="Documents" value="Readable source detail" />
                 <CardMeta className="min-h-[6rem]" label="Users" value="Role-aware actions" />
               </div>
 
-              <div className="mt-5 grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
-                <div className="rounded-[22px] border border-[var(--pb-border-subtle)] bg-white px-4 py-4 shadow-[var(--pb-shadow-card)]">
-                  <p className="text-sm font-semibold text-[var(--pb-color-text)]">What you can do here</p>
-                  <ul className="mt-3 space-y-3 text-sm leading-6 text-[var(--pb-color-text-muted)]">
-                    <li>Review binders and open document detail pages inside the live workspace.</li>
-                    <li>See lease state, visible content, and role-aware user-management entry points.</li>
-                    <li>Inspect a real product surface instead of starting with provisioning mechanics.</li>
-                  </ul>
-                </div>
-                <div className="rounded-[22px] border border-[var(--pb-border-subtle)] bg-[linear-gradient(180deg,rgba(244,248,252,0.96),rgba(236,242,248,0.9))] px-4 py-4">
-                  <p className="text-sm font-semibold text-[var(--pb-color-text)]">Live demo path</p>
-                  <div className="mt-3 space-y-3 text-sm leading-6 text-[var(--pb-color-text-muted)]">
-                    <p>Start a disposable workspace, receive one-time credentials, and continue into the tenant-host product routes.</p>
-                    <p>Direct sign-in still exists for return trips, but the product path now leads with the software itself.</p>
-                  </div>
-                </div>
+              <div className="mt-5 rounded-[22px] border border-[var(--pb-border-subtle)] bg-white px-4 py-4 shadow-[var(--pb-shadow-card)]">
+                <p className="text-sm font-semibold text-[var(--pb-color-text)]">What you can do here</p>
+                <ul className="mt-3 space-y-3 text-sm leading-6 text-[var(--pb-color-text-muted)]">
+                  <li>Review binders and open document detail pages inside the live workspace.</li>
+                  <li>See lease state, visible content, and role-aware user-management entry points.</li>
+                  <li>Inspect a real product surface instead of starting with provisioning mechanics.</li>
+                </ul>
               </div>
             </div>
           </section>
@@ -260,13 +272,24 @@ function RootLandingPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Live demo, honest scope.</CardTitle>
+            <CardTitle>Users and access stay inside the workspace.</CardTitle>
             <CardDescription>
-              PaperBinder is presented as a real product-style demo artifact. Technical context remains available
-              without taking over the main story.
+              Product proof now comes from the real authenticated surfaces rather than a handcrafted landing mock.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="overflow-hidden rounded-[22px] border border-[var(--pb-border-subtle)] bg-[var(--pb-color-panel-muted)]">
+              <img
+                alt="PaperBinder users and access page showing current users, add-user form, role management, and view-as actions."
+                className="block h-auto w-full"
+                src="/presentation/users-proof.png"
+              />
+            </div>
+            <p className="text-sm leading-6 text-[var(--pb-color-text-muted)]">
+              Tenant admins add users, adjust roles, and start view-as from one product surface without leaving
+              the workspace context. Provisioning, challenge verification, one-time credentials, and redirect-safe
+              sign in stay behind the dedicated demo-entry flow.
+            </p>
             <Button asChild className="w-full justify-center sm:w-auto" type="button">
               <NavLink to="/start-demo">Start Demo</NavLink>
             </Button>
@@ -497,7 +520,8 @@ function RootWelcomePage({
                 <NavLink to="/login">Go to login</NavLink>
               </Button>
               <p className="text-sm leading-6 text-[var(--pb-color-text-muted)]">
-                Root-host sign in stays available for return trips and still uses the same server-provided redirect flow.
+                Root-host sign in stays available for return trips and still uses the same server-provided
+                redirect flow.
               </p>
             </CardContent>
           </Card>
@@ -790,8 +814,14 @@ export function RootHostRoutes({
     <Fragment>
       <Route element={<RootShell hostContext={hostContext} />}>
         <Route element={<RootLandingPage />} path="/" />
-        <Route element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/start-demo" />
-        <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/login" />
+        <Route
+          element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />}
+          path="/start-demo"
+        />
+        <Route
+          element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />}
+          path="/login"
+        />
         <Route element={<RootAboutPage />} path="/about" />
         <Route element={<RootNotFoundPage />} path="*" />
       </Route>
