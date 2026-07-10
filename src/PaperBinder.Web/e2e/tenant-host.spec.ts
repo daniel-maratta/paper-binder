@@ -62,7 +62,7 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
 
   await page.getByRole("button", { name: "Log out" }).click();
   await expect(page).toHaveURL("http://paperbinder.localhost:5081/login");
-  await expect(page.getByRole("heading", { level: 2, name: "Log in to an existing tenant", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Sign in to a demo workspace", exact: true })).toBeVisible();
 
   await loginViaApi(page, { email: readerEmail, password: readerPassword });
   await page.goto(tenantHostUrl(provisionedTenant.tenantSlug));

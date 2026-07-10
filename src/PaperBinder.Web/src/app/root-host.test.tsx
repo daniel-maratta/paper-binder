@@ -125,7 +125,7 @@ describe("root-host flows", () => {
       screen.getByRole("heading", { name: "A secure workspace for your documents and your team." })
     ).toBeInTheDocument();
     expect(
-      screen.getAllByRole("link", { name: "Start live demo" }).some((link) => link.getAttribute("href") === "/start-demo")
+      screen.getAllByRole("link", { name: "Start Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
     ).toBe(true);
     expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
     expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
@@ -144,11 +144,11 @@ describe("root-host flows", () => {
       })
     });
 
-    fireEvent.change(screen.getByLabelText("Tenant name"), {
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: " Acme Demo " }
     });
     fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
-    fireEvent.click(screen.getByRole("button", { name: "Provision new demo tenant and log in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
 
     await waitFor(() =>
       expect(provisionMock).toHaveBeenCalledWith({
@@ -169,17 +169,46 @@ describe("root-host flows", () => {
       navigator
     });
 
-    fireEvent.change(screen.getByLabelText("Tenant name"), {
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: "Acme Demo" }
     });
     fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
-    fireEvent.click(screen.getByRole("button", { name: "Provision new demo tenant and log in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
 
-    expect(await screen.findByRole("heading", { name: "Tenant provisioned." })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Workspace ready." })).toBeInTheDocument();
     expect(navigator).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Continue to tenant" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open workspace" }));
     expect(navigator).toHaveBeenCalledWith("https://acme-demo.paperbinder.example.test/app");
+  });
+
+  it("Should_ProvisionOrLogin_FromStartDemoFlow_When_ChallengeAndServerRedirectsSucceed", async () => {
+    installTurnstileStub();
+    const provisionMock = vi.fn(async () => createProvisionResponse());
+
+    renderRootRoute({
+      route: "/start-demo",
+      apiClient: createApiClientStub({
+        provision: provisionMock as PaperBinderApiClient["provision"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Start a live demo workspace" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Go to login" })).toHaveAttribute("href", "/login");
+
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
+      target: { value: "Acme Demo" }
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
+
+    await waitFor(() =>
+      expect(provisionMock).toHaveBeenCalledWith({
+        tenantName: "Acme Demo",
+        challengeToken: "paperbinder-test-challenge-pass"
+      })
+    );
+    expect(await screen.findByRole("heading", { name: "Workspace ready." })).toBeInTheDocument();
   });
 
   it("Should_SubmitLoginRequest_AndRedirectUsingServerProvidedUrl_When_RootHostLoginSucceeds", async () => {
@@ -240,11 +269,11 @@ describe("root-host flows", () => {
       })
     });
 
-    fireEvent.change(screen.getByLabelText("Tenant name"), {
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: "Acme Demo" }
     });
     fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
-    fireEvent.click(screen.getByRole("button", { name: "Provision new demo tenant and log in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
 
     expect(await screen.findByRole("heading", { name: "Tenant name already exists." })).toBeInTheDocument();
     expect(screen.getAllByText("That tenant name is already in use.")).toHaveLength(2);
@@ -297,12 +326,12 @@ describe("root-host flows", () => {
       })
     });
 
-    fireEvent.change(screen.getByLabelText("Tenant name"), {
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: " Acme Demo " }
     });
     expect(screen.getByRole("heading", { name: "Local challenge bypass enabled" })).toBeInTheDocument();
     expect(screen.queryByLabelText("Challenge")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Provision new demo tenant and log in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
 
     await waitFor(() =>
       expect(provisionMock).toHaveBeenCalledWith({
@@ -311,6 +340,6 @@ describe("root-host flows", () => {
       })
     );
 
-    expect(await screen.findByRole("heading", { name: "Tenant provisioned." })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Workspace ready." })).toBeInTheDocument();
   });
 });

@@ -21,7 +21,7 @@ describe("app router", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("heading", { name: "Log in to an existing tenant" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sign in to a demo workspace" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /About/ })).toBeInTheDocument();
 
     rootView.unmount();
