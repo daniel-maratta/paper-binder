@@ -88,6 +88,14 @@ export function formatRole(role: TenantRole): string {
   }
 }
 
+export function canManageWorkspaceUsers(role: TenantRole): boolean {
+  return role === "TenantAdmin";
+}
+
+export function hasUsersDashboardAccess(impersonation: TenantImpersonationStatus): boolean {
+  return canManageWorkspaceUsers(impersonation.effective.role);
+}
+
 function calculateCountdownSeconds(expiresAt: string): number {
   const millisecondsRemaining = Date.parse(expiresAt) - Date.now();
   if (!Number.isFinite(millisecondsRemaining)) {
@@ -428,77 +436,99 @@ export function TenantShell({
 
   return (
     <div className="min-h-screen bg-[var(--pb-surface-gradient)] text-[var(--pb-color-text)]">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-6 lg:px-10">
-        <header className="flex flex-col gap-4 rounded-[var(--pb-radius-lg)] border border-white/70 bg-white/85 px-6 py-5 shadow-[var(--pb-shadow-card)] backdrop-blur lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--pb-color-text-subtle)]">
+      <div className="mx-auto grid min-h-screen max-w-[1450px] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:px-6 lg:py-5">
+        <aside className="flex flex-col rounded-[30px] border border-white/12 bg-[var(--pb-sidebar-shell)] p-4 text-white shadow-[0_34px_84px_-46px_rgba(5,11,22,0.92)]">
+          <div className="rounded-[24px] border border-white/12 bg-white/[0.08] px-4 py-4">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-white/62">
               PaperBinder
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em]">Tenant workspace</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--pb-color-text-muted)]">
-              Authenticated tenant-host flows stay inside the single SPA, rely on server-authoritative
-              route contracts, and use the shared API client for every `/api/*` request.
+            <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">Workspace</p>
+            <p className="mt-2 text-sm leading-6 text-white/78">
+              Binders, immutable source documents, role-aware access, and live lease state.
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="rounded-[var(--pb-radius-md)] bg-[var(--pb-color-panel-muted)] px-4 py-3 text-sm text-[var(--pb-color-text-muted)]">
-              <p className="font-semibold text-[var(--pb-color-text)]">Tenant host</p>
-              <p className="mt-1 break-all">{hostContext.currentOrigin}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--pb-color-text-subtle)]">
-                {hostContext.tenantSlug}
+
+          <nav aria-label="Workspace navigation" className="mt-5 space-y-2">
+            {tenantNavigationItems.map((route) => (
+              <NavLink
+                className={({ isActive }) =>
+                  cn(
+                    "block rounded-[22px] px-4 py-3 text-sm transition",
+                    isActive
+                      ? "bg-white/14 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),0_18px_32px_-24px_rgba(0,0,0,0.9)]"
+                      : "text-white/88 hover:bg-white/[0.09] hover:text-white"
+                  )
+                }
+                end={route.path === "/app"}
+                key={route.path}
+                to={route.path}
+              >
+                <span className="block font-semibold">{route.label}</span>
+                <span className="mt-1 block text-xs leading-5 text-current/72">{route.description}</span>
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="mt-auto rounded-[24px] border border-white/12 bg-white/[0.07] p-4">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/60">
+              Workspace context
+            </p>
+            <div className="mt-4 space-y-4">
+              <div>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/58">Tenant slug</p>
+                <p className="mt-1 break-all text-sm font-semibold text-white">{hostContext.tenantSlug}</p>
+              </div>
+              <div className="h-px bg-white/10" />
+              <div>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/58">Current host</p>
+                <p className="mt-1 break-all text-xs leading-5 text-white/74">{hostContext.currentOrigin}</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main className="min-w-0 space-y-5 pb-10 pt-2">
+          <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="px-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--pb-color-text-subtle)]">
+                Current workspace
+              </p>
+              <h1 className="mt-2 text-[2.6rem] font-semibold tracking-[-0.05em] text-[var(--pb-color-text)]">
+                Workspace
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--pb-color-text-muted)]">
+                Review binders, immutable source documents, workspace access, and lease state inside the
+                current isolated tenant workspace.
               </p>
             </div>
-            <Button isLoading={isLoggingOut} onClick={() => void handleLogout()} type="button" variant="secondary">
-              Log out
-            </Button>
-          </div>
-        </header>
 
-        <div className="mt-6 grid flex-1 gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
-          <aside className="space-y-4 rounded-[var(--pb-radius-lg)] border border-white/70 bg-white/80 p-4 shadow-[var(--pb-shadow-card)] backdrop-blur">
-            <nav aria-label="Tenant host navigation" className="space-y-1">
-              {tenantNavigationItems.map((route) => (
-                <NavLink
-                  className={({ isActive }) =>
-                    cn(
-                      "block rounded-[var(--pb-radius-md)] px-4 py-3 text-sm transition",
-                      isActive
-                        ? "bg-[var(--pb-color-primary)] text-white"
-                        : "text-[var(--pb-color-text-muted)] hover:bg-[var(--pb-color-panel-muted)] hover:text-[var(--pb-color-text)]"
-                    )
-                  }
-                  end={route.path === "/app"}
-                  key={route.path}
-                  to={route.path}
-                >
-                  <span className="block font-semibold">{route.label}</span>
-                  <span className="mt-1 block text-xs opacity-80">{route.description}</span>
-                </NavLink>
-              ))}
-            </nav>
+            <div className="flex items-center gap-3">
+              <div className="hidden rounded-[20px] border border-[var(--pb-border-subtle)] bg-white/72 px-4 py-3 text-sm shadow-[var(--pb-shadow-card)] xl:block">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--pb-color-text-subtle)]">
+                  Tenant slug
+                </p>
+                <p className="mt-1 font-semibold text-[var(--pb-color-text)]">{hostContext.tenantSlug}</p>
+              </div>
+              <Button isLoading={isLoggingOut} onClick={() => void handleLogout()} type="button" variant="secondary">
+                Log out
+              </Button>
+            </div>
+          </header>
 
-            <Card className="border-none bg-[var(--pb-color-panel-muted)] p-4 shadow-none">
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-base">Tenant boundary</CardTitle>
-                <CardDescription>
-                  Tenant identity comes from the current host and stays immutable for the request.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </aside>
-
-          <main className="space-y-6 pb-10">
+          <div className="space-y-5">
             <TenantImpersonationBanner
               impersonation={impersonation}
               isStopping={isStoppingImpersonation}
               onStop={handleStopImpersonation}
             />
-            <TenantLeaseBanner
-              countdownSeconds={countdownSeconds}
-              isExtending={isExtending}
-              lease={lease}
-              onExtend={handleExtendLease}
-            />
+            {lease.canExtend ? (
+              <TenantLeaseBanner
+                countdownSeconds={countdownSeconds}
+                isExtending={isExtending}
+                lease={lease}
+                onExtend={handleExtendLease}
+              />
+            ) : null}
             <TenantHostErrorNotice error={shellError} />
             <Outlet
               context={
@@ -513,8 +543,8 @@ export function TenantShell({
                 } satisfies TenantShellOutletContext
               }
             />
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
     </div>
   );

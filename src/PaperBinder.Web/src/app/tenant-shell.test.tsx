@@ -148,9 +148,61 @@ describe("tenant shell", () => {
       })
     });
 
-    expect(await screen.findByRole("heading", { name: "Tenant dashboard" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
     expect(await screen.findByText("Operations")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Review binders" })).toBeInTheDocument();
+  });
+
+  it("Should_RenderWorkspaceDashboard_With_CountdownMetric_And_ExtensionWindowBanner_When_TenantBootstrapSucceeds", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-17T12:00:00Z"));
+
+    renderTenantRoute({
+      apiClient: createApiClientStub({
+        getTenantLease: vi.fn(async () =>
+          createTenantLeaseSummary({
+            expiresAt: "2026-04-17T12:01:00Z",
+            secondsRemaining: 60,
+            extensionCount: 1,
+            maxExtensions: 3,
+            canExtend: true
+          })
+        ) as PaperBinderApiClient["getTenantLease"]
+      })
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
+    expect(screen.getByText("Lease extension window open.")).toBeInTheDocument();
+    expect(screen.getAllByText("Time remaining")).toHaveLength(2);
+    expect(screen.getAllByText("1m 0s")).toHaveLength(2);
+    expect(screen.getByText("1 of 3 used")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Extend lease" })).toBeInTheDocument();
+  });
+
+  it("Should_HideDashboardUsersEntryPoint_When_EffectiveRoleCannotManageUsers", async () => {
+    renderTenantRoute({
+      route: "/app",
+      apiClient: createApiClientStub({
+        getImpersonationStatus: vi.fn(async () =>
+          createTenantImpersonationStatus({
+            effective: {
+              userId: "user-2",
+              email: "reader@acme-demo.local",
+              role: "BinderRead"
+            }
+          })
+        ) as PaperBinderApiClient["getImpersonationStatus"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Manage tenant users" })).not.toBeInTheDocument();
+    expect(screen.getByText(/workspace admins see user management here/i)).toBeInTheDocument();
   });
 
   it("Should_RenderActiveImpersonationBanner_AndStopFromTenantShell_When_ImpersonationIsActive", async () => {
@@ -434,7 +486,7 @@ describe("tenant shell", () => {
     fireEvent.click(await screen.findByRole("button", { name: "View as" }));
 
     await waitFor(() => expect(startImpersonation).toHaveBeenCalledWith("user-2"));
-    expect(await screen.findByRole("heading", { name: "Tenant dashboard" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
     expect(await screen.findByText("Impersonation active.")).toBeInTheDocument();
   });
 
@@ -476,13 +528,13 @@ describe("tenant shell", () => {
       await Promise.resolve();
     });
 
-    expect(screen.getByRole("heading", { name: "Tenant dashboard" })).toBeInTheDocument();
-    expect(screen.getByText("1m 0s")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
+    expect(screen.getAllByText("1m 0s")).toHaveLength(2);
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1000);
     });
-    expect(screen.getByText("0m 59s")).toBeInTheDocument();
+    expect(screen.getAllByText("0m 59s")).toHaveLength(2);
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Extend lease" }));

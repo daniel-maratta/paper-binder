@@ -7,13 +7,15 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
   const readerPassword = "Checkpoint14-reader!1";
 
   await page.goto(tenantHostUrl(provisionedTenant.tenantSlug));
-  await expect(page.getByRole("heading", { level: 2, name: "Tenant dashboard", exact: true })).toBeVisible();
-  await expect(page.getByText("0 of 3")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Workspace dashboard", exact: true })).toBeVisible();
+  await expect(page.getByText("0 of 3", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Extend lease" })).toBeVisible();
 
   await page.getByRole("button", { name: "Extend lease" }).click();
-  await expect(page.getByText("1 of 3")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Extend when window opens" })).toBeDisabled();
+  await expect(page.getByText("1 of 3 used")).toBeVisible();
+  await expect(
+    page.getByText(/when the remaining lease time enters the final extension window/i)
+  ).toBeVisible();
 
   await page.getByRole("link", { name: /Binders/ }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Binders", exact: true })).toBeVisible();
@@ -67,7 +69,7 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
   await loginViaApi(page, { email: readerEmail, password: readerPassword });
   await page.goto(tenantHostUrl(provisionedTenant.tenantSlug));
   await expect(page).toHaveURL(tenantHostUrl(provisionedTenant.tenantSlug));
-  await expect(page.getByRole("heading", { level: 2, name: "Tenant dashboard", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Workspace dashboard", exact: true })).toBeVisible();
 
   await page.getByRole("link", { name: /Binders/ }).click();
   await page.getByRole("link", { name: "Open binder" }).click();
@@ -83,7 +85,7 @@ test("Should_RenderExpiredTenantState_InBrowser_When_TenantLeaseHasExpired", asy
   const provisionedTenant = await provisionTenantViaApi(page, `Expired CP14 ${Date.now()}`);
 
   await page.goto(tenantHostUrl(provisionedTenant.tenantSlug));
-  await expect(page.getByRole("heading", { level: 2, name: "Tenant dashboard", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Workspace dashboard", exact: true })).toBeVisible();
 
   expireTenant(provisionedTenant.tenantSlug);
   await page.goto(tenantHostUrl(provisionedTenant.tenantSlug, "/app"));
