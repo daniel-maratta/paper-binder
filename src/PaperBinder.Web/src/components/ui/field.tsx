@@ -38,24 +38,24 @@ export function Field({ label, hint, error, children }: FieldProps) {
     "aria-describedby": describedBy,
     "aria-invalid": Boolean(error),
     className: cn(
-      "w-full rounded-[var(--pb-radius-md)] border border-[var(--pb-border-strong)] bg-[var(--pb-surface)] px-3 py-2 text-sm text-[var(--pb-text-strong)] shadow-[0_1px_2px_rgba(20,34,53,0.03)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-focus-ring)] disabled:cursor-not-allowed disabled:bg-[var(--pb-surface-subtle)]",
+      "w-full rounded-[var(--pb-radius-md)] border border-[var(--pb-border-strong)] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,251,255,0.96))] px-3.5 py-2.5 text-sm text-[var(--pb-text-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_1px_2px_rgba(20,34,53,0.04)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-focus-ring)] disabled:cursor-not-allowed disabled:bg-[var(--pb-surface-subtle)]",
       (control.props as ControlProps).className
     )
   });
 
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-[var(--pb-color-text)]" htmlFor={fieldId}>
+    <div className="space-y-1.5">
+      <label className="block text-sm font-semibold text-[var(--pb-color-text)]" htmlFor={fieldId}>
         {label}
       </label>
       {enhancedControl}
       {hint ? (
-        <p className="text-sm text-[var(--pb-color-text-muted)]" id={hintId}>
+        <p className="text-[0.82rem] leading-5 text-[var(--pb-color-text-muted)]" id={hintId}>
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p className="text-sm text-[var(--pb-color-danger)]" id={errorId}>
+        <p className="text-[0.82rem] font-medium text-[var(--pb-color-danger)]" id={errorId}>
           {error}
         </p>
       ) : null}

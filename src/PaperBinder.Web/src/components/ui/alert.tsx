@@ -26,7 +26,7 @@ export function Alert({
   return (
     <section
       className={cn(
-        "rounded-[var(--pb-radius-md)] border px-4 py-3 shadow-[0_1px_2px_rgba(20,34,53,0.03)]",
+        "rounded-[calc(var(--pb-radius-md)+4px)] border px-4 py-4 shadow-[var(--pb-shadow-card)]",
         alertVariants[variant],
         className
       )}
@@ -37,9 +37,9 @@ export function Alert({
 }
 
 export function AlertTitle({ className, ...props }: ComponentPropsWithoutRef<"h3">) {
-  return <h3 className={cn("text-sm font-semibold", className)} {...props} />;
+  return <h3 className={cn("text-[0.95rem] font-semibold tracking-[-0.01em]", className)} {...props} />;
 }
 
 export function AlertBody({ className, ...props }: ComponentPropsWithoutRef<"p">) {
-  return <p className={cn("mt-1 text-sm leading-6", className)} {...props} />;
+  return <p className={cn("mt-1.5 text-sm leading-6", className)} {...props} />;
 }

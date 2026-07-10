@@ -2,48 +2,58 @@
 
 :root {
   color-scheme: light;
-  --pb-canvas: #f3f6fa;
-  --pb-canvas-accent: #eaf0f7;
-  --pb-surface: #ffffff;
-  --pb-surface-subtle: #eef3f8;
-  --pb-surface-subtle-strong: #e2eaf3;
-  --pb-border-subtle: #d3dce8;
-  --pb-border-strong: #b3c1d1;
-  --pb-text-strong: #162235;
-  --pb-text-muted: #516174;
-  --pb-text-subtle: #728297;
-  --pb-action-primary: #29496f;
-  --pb-action-primary-hover: #203b5b;
-  --pb-action-primary-active: #182e47;
-  --pb-action-secondary: #f8fafc;
-  --pb-action-secondary-hover: #edf2f7;
+  --pb-canvas: #eef3f8;
+  --pb-canvas-accent: #e2e9f2;
+  --pb-surface: #fbfdff;
+  --pb-surface-subtle: #edf2f7;
+  --pb-surface-subtle-strong: #dde6f0;
+  --pb-border-subtle: #d5dee9;
+  --pb-border-strong: #b1c1d3;
+  --pb-text-strong: #122136;
+  --pb-text-muted: #4a5d74;
+  --pb-text-subtle: #70819a;
+  --pb-action-primary: #203d63;
+  --pb-action-primary-hover: #19304f;
+  --pb-action-primary-active: #142640;
+  --pb-action-secondary: #f7f9fc;
+  --pb-action-secondary-hover: #eaf0f6;
   --pb-action-secondary-text: var(--pb-text-strong);
-  --pb-focus-ring: #7c9fc7;
-  --pb-status-success: #2d6e54;
-  --pb-status-success-soft: #e7f2ec;
-  --pb-status-success-text: #1f5a44;
-  --pb-status-warning: #a77829;
-  --pb-status-warning-soft: #f8edd7;
-  --pb-status-warning-text: #704d12;
-  --pb-status-danger: #b24a47;
-  --pb-status-danger-soft: #fae8e7;
-  --pb-status-danger-text: #8b2e2b;
-  --pb-status-info: #5177a7;
-  --pb-status-info-soft: #e8eff9;
-  --pb-status-info-text: #315682;
+  --pb-focus-ring: #6f95c6;
+  --pb-status-success: #2b6d57;
+  --pb-status-success-soft: #e8f3ee;
+  --pb-status-success-text: #1c5540;
+  --pb-status-warning: #a9792b;
+  --pb-status-warning-soft: #f7eedb;
+  --pb-status-warning-text: #724e12;
+  --pb-status-danger: #ad4a47;
+  --pb-status-danger-soft: #f9e7e6;
+  --pb-status-danger-text: #852d2a;
+  --pb-status-info: #4d75a7;
+  --pb-status-info-soft: #e7eef8;
+  --pb-status-info-text: #2f5684;
   --pb-overlay-scrim: rgba(18, 30, 47, 0.42);
-  --pb-radius-md: 6px;
-  --pb-radius-lg: 8px;
+  --pb-radius-md: 14px;
+  --pb-radius-lg: 26px;
   --pb-shadow-card:
-    0 18px 42px -34px rgba(20, 34, 53, 0.32),
-    0 2px 8px rgba(20, 34, 53, 0.07);
+    0 30px 70px -46px rgba(20, 34, 53, 0.42),
+    0 18px 30px -28px rgba(20, 34, 53, 0.2),
+    0 1px 2px rgba(20, 34, 53, 0.08);
   --pb-shadow-modal:
-    0 28px 88px -44px rgba(20, 34, 53, 0.5),
-    0 8px 24px rgba(20, 34, 53, 0.12);
+    0 36px 96px -48px rgba(20, 34, 53, 0.54),
+    0 10px 24px rgba(20, 34, 53, 0.14);
   --pb-surface-gradient:
-    radial-gradient(circle at top right, rgba(69, 104, 150, 0.18), transparent 34%),
-    radial-gradient(circle at top left, rgba(173, 188, 208, 0.16), transparent 28%),
-    linear-gradient(180deg, #f8fbfe 0%, var(--pb-canvas) 42%, var(--pb-canvas-accent) 100%);
+    radial-gradient(circle at top right, rgba(57, 91, 133, 0.2), transparent 34%),
+    radial-gradient(circle at top left, rgba(184, 197, 216, 0.16), transparent 26%),
+    linear-gradient(180deg, #f8fbfe 0%, #f1f5fa 34%, var(--pb-canvas) 62%, var(--pb-canvas-accent) 100%);
+  --pb-public-shell: #071423;
+  --pb-public-shell-strong: #0d2037;
+  --pb-public-shell-soft: rgba(12, 26, 45, 0.72);
+  --pb-public-shell-border: rgba(255, 255, 255, 0.12);
+  --pb-public-shell-muted: rgba(179, 198, 222, 0.16);
+  --pb-public-text: #f4f8fc;
+  --pb-public-text-muted: #b9c7d8;
+  --pb-sidebar-shell:
+    linear-gradient(180deg, rgba(7, 20, 35, 0.98) 0%, rgba(11, 28, 48, 0.98) 62%, rgba(15, 37, 61, 0.98) 100%);
   --pb-color-bg: var(--pb-canvas);
   --pb-color-text: var(--pb-text-strong);
   --pb-color-text-muted: var(--pb-text-muted);
@@ -63,7 +73,7 @@
   --pb-color-info-soft: var(--pb-status-info-soft);
   color: var(--pb-text-strong);
   background: var(--pb-canvas);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+  font-family: "Segoe UI Variable Text", "Aptos", "Segoe UI", Inter, system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -76,6 +86,11 @@ body {
   margin: 0;
   min-width: 320px;
   background: var(--pb-canvas);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8d9cb0;
 }
 
 * {
