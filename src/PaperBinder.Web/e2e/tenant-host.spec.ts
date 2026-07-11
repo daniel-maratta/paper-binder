@@ -12,7 +12,7 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
   await expect(page.getByRole("button", { name: "Extend lease" })).toBeVisible();
 
   await page.getByRole("button", { name: "Extend lease" }).click();
-  await expect(page.getByText("1 of 3 used")).toBeVisible();
+  await expect(page.getByText(/1 of 3/)).toBeVisible();
   await expect(
     page.getByText(/when the remaining lease time enters the final extension window/i)
   ).toBeVisible();

@@ -307,6 +307,9 @@ describe("tenant shell", () => {
     });
 
     expect(await screen.findByRole("heading", { name: "Operations" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Visible documents" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Binder access" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Add document" })).toBeInTheDocument();
     expect((await screen.findAllByText("Incident handbook")).length).toBeGreaterThan(0);
 
     await screen.findByRole("button", { name: "Save policy" });
@@ -370,7 +373,9 @@ describe("tenant shell", () => {
     });
 
     expect(await screen.findByRole("heading", { name: "Archived handbook" })).toBeInTheDocument();
-    expect(screen.getByText("Archived")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Document source" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Reference metadata" })).toBeInTheDocument();
+    expect(screen.getAllByText("Archived")).toHaveLength(2);
     expect(screen.getByText("# archived detail")).toBeInTheDocument();
     expect(screen.getByText(/direct reads remain available/i)).toBeInTheDocument();
   });
