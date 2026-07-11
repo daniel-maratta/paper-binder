@@ -39,7 +39,6 @@ function BinderListIcon() {
     </svg>
   );
 }
-
 export function DashboardPage() {
   const { apiClient, lease, countdownSeconds, impersonation } = useTenantShellContext();
   const [binders, setBinders] = useState<BinderSummary[]>([]);

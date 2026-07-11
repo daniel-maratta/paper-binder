@@ -1,6 +1,5 @@
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import { CardMeta } from "../components/ui/card";
 import type { TenantImpersonationStatus, TenantRole } from "../api/client";
 
 function formatRole(role: TenantRole): string {
@@ -30,8 +29,8 @@ export function TenantImpersonationBanner({
   }
 
   return (
-    <Alert className="overflow-hidden" variant="warning">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <Alert className="pb-auth-banner" variant="warning">
+      <div className="pb-auth-banner__layout">
         <div className="max-w-2xl">
           <AlertTitle>Impersonation active.</AlertTitle>
           <AlertBody>
@@ -42,9 +41,15 @@ export function TenantImpersonationBanner({
             stop behavior and audit-safe signaling.
           </AlertBody>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[28rem]">
-          <CardMeta label="Actor" value={impersonation.actor.email} />
-          <CardMeta label="Effective" value={impersonation.effective.email} />
+        <div className="pb-auth-banner__metrics">
+          <div className="pb-auth-banner__metric">
+            <p className="pb-auth-stat-label">Actor</p>
+            <p className="pb-auth-banner__metric-value">{impersonation.actor.email}</p>
+          </div>
+          <div className="pb-auth-banner__metric">
+            <p className="pb-auth-stat-label">Effective</p>
+            <p className="pb-auth-banner__metric-value">{impersonation.effective.email}</p>
+          </div>
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-3">

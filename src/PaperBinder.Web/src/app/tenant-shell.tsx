@@ -9,14 +9,6 @@ import {
 } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from "../components/ui/card";
 import { cn } from "../lib/cn";
 import type { TenantHostContext } from "./host-context";
 import { tenantNavigationItems } from "./route-registry";
@@ -173,52 +165,50 @@ function TenantBootstrapFailurePage({
   rootLoginUrl: string;
 }) {
   return (
-    <div className="min-h-screen bg-[var(--pb-surface-gradient)] px-6 py-6 text-[var(--pb-color-text)] lg:px-10">
-      <div className="mx-auto max-w-4xl">
-        <Card>
-          <CardHeader>
-            <CardTitle>{error.title}</CardTitle>
-            <CardDescription>
-              Tenant-host requests remain host-derived and server-authoritative even when bootstrap fails.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Alert variant="danger">
-              <AlertTitle>Safe fallback only</AlertTitle>
-              <AlertBody>{error.detail}</AlertBody>
-              {error.retryAfterLabel ? <AlertBody>{error.retryAfterLabel}</AlertBody> : null}
-              {error.correlationId ? (
-                <AlertBody>
-                  Correlation id:{" "}
-                  <span className="font-mono text-xs uppercase tracking-[0.08em]">{error.correlationId}</span>
-                </AlertBody>
-              ) : null}
-            </Alert>
-          </CardContent>
-          <CardFooter>
-            <Button asChild type="button">
-              <a href={rootLoginUrl}>Return to root-host login</a>
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
+    <div className="pb-auth-boot">
+      <section className="pb-auth-panel pb-auth-boot-card">
+        <div className="pb-auth-panel-header">
+          <p className="pb-auth-eyebrow">Workspace routing</p>
+          <h1 className="pb-auth-page-title">{error.title}</h1>
+          <p className="pb-auth-panel-copy">
+            Tenant-host requests remain host-derived and server-authoritative even when bootstrap fails.
+          </p>
+        </div>
+        <div className="pb-auth-panel-body">
+          <Alert variant="danger">
+            <AlertTitle>Safe fallback only</AlertTitle>
+            <AlertBody>{error.detail}</AlertBody>
+            {error.retryAfterLabel ? <AlertBody>{error.retryAfterLabel}</AlertBody> : null}
+            {error.correlationId ? (
+              <AlertBody>
+                Correlation id:{" "}
+                <span className="font-mono text-xs uppercase tracking-[0.08em]">{error.correlationId}</span>
+              </AlertBody>
+            ) : null}
+          </Alert>
+        </div>
+        <div className="pb-auth-panel-actions">
+          <Button asChild type="button">
+            <a href={rootLoginUrl}>Return to root-host login</a>
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }
 
 function TenantShellLoadingPage() {
   return (
-    <div className="min-h-screen bg-[var(--pb-surface-gradient)] px-6 py-6 text-[var(--pb-color-text)] lg:px-10">
-      <div className="mx-auto max-w-4xl">
-        <Card>
-          <CardHeader>
-            <CardTitle>Loading tenant workspace</CardTitle>
-            <CardDescription>
-              PaperBinder is reloading the current tenant shell with the current host-derived context.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+    <div className="pb-auth-boot">
+      <section className="pb-auth-panel pb-auth-boot-card">
+        <div className="pb-auth-panel-header">
+          <p className="pb-auth-eyebrow">Workspace loading</p>
+          <h1 className="pb-auth-page-title">Loading tenant workspace</h1>
+          <p className="pb-auth-panel-copy">
+            PaperBinder is reloading the current tenant shell with the current host-derived context.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }
@@ -231,16 +221,17 @@ export function TenantRouteFailureCard({
   action?: ReactNode;
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{error.title}</CardTitle>
-        <CardDescription>PaperBinder kept the route inside the current tenant host.</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <section className="pb-auth-panel pb-auth-panel--route">
+      <div className="pb-auth-panel-header">
+        <p className="pb-auth-eyebrow">Route status</p>
+        <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">{error.title}</h2>
+        <p className="pb-auth-panel-copy">PaperBinder kept the route inside the current tenant host.</p>
+      </div>
+      <div className="pb-auth-panel-body">
         <TenantHostErrorNotice error={error} />
-      </CardContent>
-      {action ? <CardFooter>{action}</CardFooter> : null}
-    </Card>
+      </div>
+      {action ? <div className="pb-auth-panel-actions">{action}</div> : null}
+    </section>
   );
 }
 
@@ -435,79 +426,68 @@ export function TenantShell({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--pb-surface-gradient)] text-[var(--pb-color-text)]">
-      <div className="mx-auto grid min-h-screen max-w-[1450px] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:px-6 lg:py-5">
-        <aside className="flex flex-col rounded-[30px] border border-white/12 bg-[var(--pb-sidebar-shell)] p-4 text-white shadow-[0_34px_84px_-46px_rgba(5,11,22,0.92)]">
-          <div className="rounded-[24px] border border-white/12 bg-white/[0.08] px-4 py-4">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-white/62">
-              PaperBinder
-            </p>
-            <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">Workspace</p>
-            <p className="mt-2 text-sm leading-6 text-white/78">
+    <div className="pb-auth-shell">
+      <div className="pb-auth-grid">
+        <aside className="pb-auth-sidebar">
+          <div className="pb-auth-sidebar-panel">
+            <p className="pb-auth-sidebar-brand">PaperBinder</p>
+            <p className="pb-auth-sidebar-title">Workspace</p>
+            <p className="pb-auth-sidebar-copy">
               Binders, immutable source documents, role-aware access, and live lease state.
             </p>
           </div>
 
-          <nav aria-label="Workspace navigation" className="mt-5 space-y-2">
+          <nav aria-label="Workspace navigation" className="pb-auth-nav">
             {tenantNavigationItems.map((route) => (
               <NavLink
                 className={({ isActive }) =>
                   cn(
-                    "block rounded-[22px] px-4 py-3 text-sm transition",
-                    isActive
-                      ? "bg-white/14 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),0_18px_32px_-24px_rgba(0,0,0,0.9)]"
-                      : "text-white/88 hover:bg-white/[0.09] hover:text-white"
+                    "pb-auth-nav-link",
+                    isActive ? "pb-auth-nav-link--active" : null
                   )
                 }
                 end={route.path === "/app"}
                 key={route.path}
                 to={route.path}
               >
-                <span className="block font-semibold">{route.label}</span>
-                <span className="mt-1 block text-xs leading-5 text-current/72">{route.description}</span>
+                <span className="pb-auth-nav-label">{route.label}</span>
+                <span className="pb-auth-sidebar-nav-copy">{route.description}</span>
               </NavLink>
             ))}
           </nav>
 
-          <div className="mt-auto rounded-[24px] border border-white/12 bg-white/[0.07] p-4">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/60">
-              Workspace context
-            </p>
-            <div className="mt-4 space-y-4">
-              <div>
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/58">Tenant slug</p>
-                <p className="mt-1 break-all text-sm font-semibold text-white">{hostContext.tenantSlug}</p>
-              </div>
-              <div className="h-px bg-white/10" />
-              <div>
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/58">Current host</p>
-                <p className="mt-1 break-all text-xs leading-5 text-white/74">{hostContext.currentOrigin}</p>
-              </div>
+          <div className="pb-auth-sidebar-panel pb-auth-sidebar-panel--context">
+            <div className="pb-auth-sidebar-context-row">
+              <p className="pb-auth-sidebar-context-label">Workspace context</p>
+            </div>
+            <div className="pb-auth-sidebar-context-row">
+              <p className="pb-auth-sidebar-context-label">Tenant slug</p>
+              <p className="pb-auth-sidebar-context-value">{hostContext.tenantSlug}</p>
+            </div>
+            <div className="pb-auth-sidebar-context-row">
+              <p className="pb-auth-sidebar-context-label">Current host</p>
+              <p className="pb-auth-sidebar-context-value pb-auth-sidebar-context-value--host">
+                {hostContext.currentOrigin}
+              </p>
             </div>
           </div>
         </aside>
 
-        <main className="min-w-0 space-y-5 pb-10 pt-2">
-          <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="px-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--pb-color-text-subtle)]">
-                Current workspace
-              </p>
-              <h1 className="mt-2 text-[2.6rem] font-semibold tracking-[-0.05em] text-[var(--pb-color-text)]">
-                Workspace
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--pb-color-text-muted)]">
+        <main className="pb-auth-main">
+          <header className="pb-auth-header">
+            <div>
+              <p className="pb-auth-eyebrow">Current workspace</p>
+              <h1 className="pb-auth-header-title">Workspace</h1>
+              <p className="pb-auth-page-copy">
                 Review binders, immutable source documents, workspace access, and lease state inside the
                 current isolated tenant workspace.
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="hidden rounded-[20px] border border-[var(--pb-border-subtle)] bg-white/72 px-4 py-3 text-sm shadow-[var(--pb-shadow-card)] xl:block">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--pb-color-text-subtle)]">
-                  Tenant slug
-                </p>
-                <p className="mt-1 font-semibold text-[var(--pb-color-text)]">{hostContext.tenantSlug}</p>
+            <div className="pb-auth-header-actions">
+              <div className="pb-auth-header-pill">
+                <p className="pb-auth-eyebrow">Tenant slug</p>
+                <p className="pb-auth-header-pill-value">{hostContext.tenantSlug}</p>
               </div>
               <Button isLoading={isLoggingOut} onClick={() => void handleLogout()} type="button" variant="secondary">
                 Log out
@@ -515,7 +495,7 @@ export function TenantShell({
             </div>
           </header>
 
-          <div className="space-y-5">
+          <div className="pb-auth-shell-body">
             <TenantImpersonationBanner
               impersonation={impersonation}
               isStopping={isStoppingImpersonation}

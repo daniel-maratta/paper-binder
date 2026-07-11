@@ -90,7 +90,7 @@ test("Should_RenderExpiredTenantState_InBrowser_When_TenantLeaseHasExpired", asy
   expireTenant(provisionedTenant.tenantSlug);
   await page.goto(tenantHostUrl(provisionedTenant.tenantSlug, "/app"));
 
-  await expect(page.getByRole("heading", { level: 2, name: "Tenant expired", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Tenant expired", exact: true })).toBeVisible();
   await expect(page.getByText(/safe fallback only/i)).toBeVisible();
 });
 
