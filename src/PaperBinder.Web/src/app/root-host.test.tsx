@@ -113,6 +113,7 @@ function renderRootRoute({
 
 afterEach(() => {
   delete window.turnstile;
+  vi.restoreAllMocks();
 });
 
 describe("root-host flows", () => {
@@ -198,6 +199,38 @@ describe("root-host flows", () => {
     expect(navigator).toHaveBeenCalledWith("https://acme-demo.paperbinder.example.test/app");
   });
 
+  it("Should_CopyProvisionedTenantValues_When_CopyActionsAreUsed", async () => {
+    installTurnstileStub();
+    const writeText = vi.fn(async () => undefined);
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText
+      }
+    });
+
+    renderRootRoute({
+      route: "/start-demo"
+    });
+
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
+      target: { value: "Acme Demo" }
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
+
+    await screen.findByRole("heading", { name: "Workspace ready." });
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy email" }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("owner@acme-demo.local"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy password" }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("generated-password"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy tenant slug" }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("acme-demo"));
+  });
+
   it("Should_ProvisionOrLogin_FromStartDemoFlow_When_ChallengeAndServerRedirectsSucceed", async () => {
     installTurnstileStub();
     const provisionMock = vi.fn(async () => createProvisionResponse());
@@ -210,7 +243,7 @@ describe("root-host flows", () => {
     });
 
     expect(await screen.findByRole("heading", { name: "Start a live demo workspace" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Go to login" })).toHaveAttribute("href", "/login");
+    expect(screen.getAllByRole("link", { name: "Go to sign in" })[0]).toHaveAttribute("href", "/login");
 
     fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: "Acme Demo" }
