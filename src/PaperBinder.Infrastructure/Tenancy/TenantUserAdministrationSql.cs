@@ -74,11 +74,29 @@ internal static class TenantUserAdministrationSql
         for update;
         """;
 
+    public const string SelectTenantOwnerIdsForUpdate =
+        """
+        select user_id
+        from user_tenants
+        where tenant_id = @TenantId
+          and is_owner = true
+        for update;
+        """;
+
     public const string UpdateTenantUserRole =
         """
         update user_tenants
         set role = @Role
         where tenant_id = @TenantId
           and user_id = @UserId;
+        """;
+
+    public const string DeleteTenantUser =
+        """
+        delete from users u
+        using user_tenants ut
+        where u.id = ut.user_id
+          and ut.tenant_id = @TenantId
+          and ut.user_id = @UserId;
         """;
 }

@@ -14,6 +14,7 @@ internal static class PaperBinderTenantUserEndpoints
         tenantUsers.MapGet(string.Empty, ListUsersAsync);
         tenantUsers.MapPost(string.Empty, CreateUserAsync);
         tenantUsers.MapPost("/{userId:guid}/role", ChangeRoleAsync);
+        tenantUsers.MapDelete("/{userId:guid}", DeleteUserAsync);
     }
 
     private static async Task<ListTenantUsersResponse> ListUsersAsync(
@@ -107,6 +108,36 @@ internal static class PaperBinderTenantUserEndpoints
         await context.Response.WriteAsJsonAsync(
             PaperBinderTenantUserResponseMapping.MapSummary(outcome.User!),
             cancellationToken);
+    }
+
+    private static async Task DeleteUserAsync(
+        HttpContext context,
+        Guid userId,
+        ITenantUserAdministrationService tenantUserAdministrationService,
+        IRequestTenantContext tenantContext,
+        IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
+        IProblemDetailsService problemDetailsService,
+        CancellationToken cancellationToken)
+    {
+        var tenant = GetRequiredTenant(tenantContext);
+        GetRequiredMembership(membershipContext);
+        var outcome = await tenantUserAdministrationService.DeleteUserAsync(
+            new TenantUserDeleteCommand(
+                tenant.TenantId,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated,
+                userId),
+            cancellationToken);
+
+        if (!outcome.Succeeded)
+        {
+            await WriteFailureAsync(context, problemDetailsService, outcome.Failure!);
+            return;
+        }
+
+        context.Response.StatusCode = StatusCodes.Status204NoContent;
     }
 
     private static async Task WriteFailureAsync(

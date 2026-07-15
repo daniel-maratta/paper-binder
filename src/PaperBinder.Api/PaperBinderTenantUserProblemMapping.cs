@@ -37,6 +37,12 @@ internal static class PaperBinderTenantUserProblemMapping
                 failure.Detail,
                 PaperBinderErrorCodes.LastTenantAdminRequired),
 
+            TenantUserAdministrationFailureKind.LastTenantOwnerRequired => new(
+                StatusCodes.Status409Conflict,
+                "Tenant owner required.",
+                failure.Detail,
+                PaperBinderErrorCodes.LastTenantOwnerRequired),
+
             _ => throw new ArgumentOutOfRangeException(nameof(failure.Kind), failure.Kind, "Unknown tenant-user failure.")
         };
 }

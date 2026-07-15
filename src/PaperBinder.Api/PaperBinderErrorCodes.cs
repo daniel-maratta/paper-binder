@@ -18,6 +18,7 @@ internal static class PaperBinderErrorCodes
     public const string TenantUserNotFound = "TENANT_USER_NOT_FOUND";
     public const string TenantUserEmailConflict = "TENANT_USER_EMAIL_CONFLICT";
     public const string LastTenantAdminRequired = "LAST_TENANT_ADMIN_REQUIRED";
+    public const string LastTenantOwnerRequired = "LAST_TENANT_OWNER_REQUIRED";
     public const string TenantRoleInvalid = "TENANT_ROLE_INVALID";
     public const string TenantUserPasswordInvalid = "TENANT_USER_PASSWORD_INVALID";
     public const string TenantImpersonationNotAllowed = "TENANT_IMPERSONATION_NOT_ALLOWED";

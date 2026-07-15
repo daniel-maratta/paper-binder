@@ -125,6 +125,19 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
         Assert.Equal(PaperBinderErrorCodes.TenantUserPasswordInvalid, problem.ErrorCode);
     }
 
+    [Fact]
+    public void TenantUserProblemMapping_Should_MapLastTenantOwnerFailure_ToStableProblemContract()
+    {
+        var problem = PaperBinderTenantUserProblemMapping.Map(
+            new TenantUserAdministrationFailure(
+                TenantUserAdministrationFailureKind.LastTenantOwnerRequired,
+                "At least one tenant owner must remain assigned to the tenant."));
+
+        Assert.Equal(StatusCodes.Status409Conflict, problem.StatusCode);
+        Assert.Equal("Tenant owner required.", problem.Title);
+        Assert.Equal(PaperBinderErrorCodes.LastTenantOwnerRequired, problem.ErrorCode);
+    }
+
     [Theory]
     [InlineData(TenantRole.TenantAdmin, TenantRole.BinderRead, 1, true)]
     [InlineData(TenantRole.TenantAdmin, TenantRole.BinderWrite, 2, false)]
@@ -140,6 +153,34 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
             currentRole,
             requestedRole,
             tenantAdminCount);
+
+        Assert.Equal(expectedBlocked, blocked);
+    }
+
+    [Theory]
+    [InlineData(TenantRole.TenantAdmin, 1, true)]
+    [InlineData(TenantRole.TenantAdmin, 2, false)]
+    [InlineData(TenantRole.BinderWrite, 1, false)]
+    public void TenantUserAdministrationRules_Should_ApplyLastAdminDeleteGuard(
+        TenantRole currentRole,
+        int tenantAdminCount,
+        bool expectedBlocked)
+    {
+        var blocked = TenantUserAdministrationRules.WouldDeleteLastAdmin(currentRole, tenantAdminCount);
+
+        Assert.Equal(expectedBlocked, blocked);
+    }
+
+    [Theory]
+    [InlineData(true, 1, true)]
+    [InlineData(true, 2, false)]
+    [InlineData(false, 1, false)]
+    public void TenantUserAdministrationRules_Should_ApplyLastOwnerDeleteGuard(
+        bool isOwner,
+        int tenantOwnerCount,
+        bool expectedBlocked)
+    {
+        var blocked = TenantUserAdministrationRules.WouldDeleteLastOwner(isOwner, tenantOwnerCount);
 
         Assert.Equal(expectedBlocked, blocked);
     }

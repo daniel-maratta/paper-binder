@@ -354,6 +354,17 @@ Notes:
     - `422` for invalid role value.
   - Idempotency: conditionally idempotent.
 
+- `DELETE /api/tenant/users/{userId}`
+  - Auth required: Y (`TenantAdmin`)
+  - Tenant context source: subdomain plus cookie
+  - Success semantics:
+    - `204` when the target tenant-scoped user is deleted.
+  - Failure semantics:
+    - `404` when the target user does not belong to the current tenant.
+    - `409` when delete would remove the last remaining tenant admin.
+    - `409` when delete would remove the last remaining tenant owner.
+  - Idempotency: conditionally idempotent.
+
 ### Binders
 
 - `GET /api/binders`
@@ -689,6 +700,7 @@ Health payloads must not include dependency internals or version metadata.
 - `GET /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users/{userId}/role` -> `TenantAdmin`.
+- `DELETE /api/tenant/users/{userId}` -> `TenantAdmin`.
 - `GET /api/binders` -> `BinderRead`.
 - `POST /api/binders` -> `BinderWrite`.
 - `GET /api/binders/{binderId}` -> `BinderRead`.

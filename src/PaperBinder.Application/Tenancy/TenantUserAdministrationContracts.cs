@@ -23,13 +23,21 @@ public sealed record TenantUserRoleChangeCommand(
     Guid TargetUserId,
     string Role);
 
+public sealed record TenantUserDeleteCommand(
+    Guid TenantId,
+    Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
+    Guid TargetUserId);
+
 public enum TenantUserAdministrationFailureKind
 {
     UserNotFound,
     EmailConflict,
     InvalidRole,
     InvalidPassword,
-    LastTenantAdminRequired
+    LastTenantAdminRequired,
+    LastTenantOwnerRequired
 }
 
 public sealed record TenantUserAdministrationFailure(
@@ -59,4 +67,15 @@ public sealed record TenantUserRoleChangeOutcome(
 
     public static TenantUserRoleChangeOutcome Failed(TenantUserAdministrationFailure failure) =>
         new(false, null, failure);
+}
+
+public sealed record TenantUserDeleteOutcome(
+    bool Succeeded,
+    TenantUserAdministrationFailure? Failure)
+{
+    public static TenantUserDeleteOutcome Success() =>
+        new(true, null);
+
+    public static TenantUserDeleteOutcome Failed(TenantUserAdministrationFailure failure) =>
+        new(false, failure);
 }
