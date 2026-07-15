@@ -25,12 +25,6 @@ internal static class PaperBinderTenantUserProblemMapping
                 failure.Detail,
                 PaperBinderErrorCodes.TenantRoleInvalid),
 
-            TenantUserAdministrationFailureKind.InvalidPassword => new(
-                StatusCodes.Status422UnprocessableEntity,
-                "Tenant user password invalid.",
-                failure.Detail,
-                PaperBinderErrorCodes.TenantUserPasswordInvalid),
-
             TenantUserAdministrationFailureKind.LastTenantAdminRequired => new(
                 StatusCodes.Status409Conflict,
                 "Tenant admin required.",

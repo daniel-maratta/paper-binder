@@ -59,7 +59,6 @@ internal static class PaperBinderTenantUserEndpoints
                 executionUserContext.EffectiveUserId,
                 executionUserContext.IsImpersonated,
                 email,
-                request.Password ?? string.Empty,
                 requestedRole),
             cancellationToken);
 
@@ -71,7 +70,7 @@ internal static class PaperBinderTenantUserEndpoints
 
         context.Response.StatusCode = StatusCodes.Status201Created;
         await context.Response.WriteAsJsonAsync(
-            PaperBinderTenantUserResponseMapping.MapSummary(outcome.User!),
+            PaperBinderTenantUserResponseMapping.MapCreated(outcome.CreatedUser!),
             cancellationToken);
     }
 

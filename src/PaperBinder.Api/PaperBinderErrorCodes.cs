@@ -20,7 +20,6 @@ internal static class PaperBinderErrorCodes
     public const string LastTenantAdminRequired = "LAST_TENANT_ADMIN_REQUIRED";
     public const string LastTenantOwnerRequired = "LAST_TENANT_OWNER_REQUIRED";
     public const string TenantRoleInvalid = "TENANT_ROLE_INVALID";
-    public const string TenantUserPasswordInvalid = "TENANT_USER_PASSWORD_INVALID";
     public const string TenantImpersonationNotAllowed = "TENANT_IMPERSONATION_NOT_ALLOWED";
     public const string TenantImpersonationTargetInvalid = "TENANT_IMPERSONATION_TARGET_INVALID";
     public const string TenantImpersonationTargetNotFound = "TENANT_IMPERSONATION_TARGET_NOT_FOUND";

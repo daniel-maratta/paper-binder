@@ -39,7 +39,7 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - [x] Admin authority over binders cannot be removed accidentally through binder-policy or role-selection mistakes.
 - [x] Document-title uniqueness is enforced in the backend contract when the product rule remains "unique within a binder unless superseding the same-title predecessor."
 - [x] Any in-scope `v1.1.x` document edit or supersede follow-on operations are either implemented or explicitly ruled out in canon/taskboard docs before work starts.
-- [ ] Generated tenant-user passwords come from the server, not from client-side generation logic.
+- [x] Generated tenant-user passwords come from the server, not from client-side generation logic.
 - [ ] Cleanup validation proves that active-lease tenants are never purged early and that the cleanup path still respects the intended expiry timing.
 - [ ] Targeted automated coverage exists for every behavior-changing slice landed under this task.
 
@@ -58,7 +58,7 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - Escalation Notes: If document edit or supersede operations prove out of scope for `v1.1.x`, close that decision explicitly in canon/taskboard docs instead of leaving a vague placeholder.
 
 ## Current State
-- Active. Binder rename, binder delete, tenant-user delete, the binder admin-authority safeguard, and document-title uniqueness are complete on this branch. The document follow-through decision is now closed: `v1.1.x` keeps read-only document detail plus `POST /api/documents` with optional same-binder `SupersedesDocumentId`, and does not add edit, replace, `PUT`, `PATCH`, or dedicated supersede endpoints. The remaining backend carry-forwards are server-generated tenant-user passwords and cleanup validation.
+- Active. Binder rename, binder delete, tenant-user delete, the binder admin-authority safeguard, document-title uniqueness, and server-generated tenant-user passwords are complete on this branch. The document follow-through decision is now closed: `v1.1.x` keeps read-only document detail plus `POST /api/documents` with optional same-binder `SupersedesDocumentId`, and does not add edit, replace, `PUT`, `PATCH`, or dedicated supersede endpoints. The remaining backend carry-forward is cleanup validation.
 
 ## Touch Points
 - `src/PaperBinder.Api/`
@@ -77,11 +77,12 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
   3. tenant-user delete
   4. admin-manageability safeguard
   5. document-title uniqueness contract
-  6. password-generation authority and cleanup-timing validation
+  6. password-generation authority
+  7. cleanup-timing validation
 - Reconcile contracts and docs in the same change set as each behavior slice.
 
 ## Next Action
-- Implement the server-generated tenant-user password slice, then finish with cleanup validation for active-lease safety and intended expiry timing.
+- Finish cleanup validation for active-lease safety and intended expiry timing.
 
 ## Validation Plan
 - Targeted `dotnet test` runs for each new integration slice
@@ -89,7 +90,7 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - `scripts/validate-docs.ps1` after contract/taskboard updates
 
 ## Outcome (Fill when done)
-- In progress. Six backend carry-forward decisions/slices are complete; remaining work is limited to server-generated tenant-user passwords and cleanup-validation follow-through.
+- In progress. Seven backend carry-forward decisions/slices are complete; remaining work is limited to cleanup-validation follow-through.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

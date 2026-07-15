@@ -314,10 +314,16 @@ describe("tenant shell", () => {
 
   it("Should_RenderTenantUsersAndApplyMutations_When_AdminActionsSucceed", async () => {
     const createTenantUser = vi.fn(async () => ({
-      userId: "user-2",
-      email: "member@acme-demo.local",
-      role: "BinderRead" as const,
-      isOwner: false
+      user: {
+        userId: "user-2",
+        email: "member@acme-demo.local",
+        role: "BinderRead" as const,
+        isOwner: false
+      },
+      credentials: {
+        email: "member@acme-demo.local",
+        password: "generated-password-1"
+      }
     }));
     const updateTenantUserRole = vi.fn(async () => ({
       userId: "user-2",
@@ -347,9 +353,6 @@ describe("tenant shell", () => {
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "member@acme-demo.local" }
     });
-    fireEvent.change(screen.getByLabelText("Temporary password"), {
-      target: { value: "checkpoint-password-1" }
-    });
     fireEvent.change(screen.getByLabelText("Role"), {
       target: { value: "BinderRead" }
     });
@@ -358,11 +361,11 @@ describe("tenant shell", () => {
     await waitFor(() =>
       expect(createTenantUser).toHaveBeenCalledWith({
         email: "member@acme-demo.local",
-        password: "checkpoint-password-1",
         role: "BinderRead"
       })
     );
     expect(await screen.findByText("Tenant user created.")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("generated-password-1")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Role for member@acme-demo.local"), {
       target: { value: "BinderWrite" }

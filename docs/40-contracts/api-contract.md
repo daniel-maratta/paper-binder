@@ -76,7 +76,6 @@ Notes:
 - Lease-extension window violations return `409` ProblemDetails with `errorCode` `TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN`.
 - Lease-extension limit violations return `409` ProblemDetails with `errorCode` `TENANT_LEASE_EXTENSION_LIMIT_REACHED`.
 - Invalid tenant role values return `422` ProblemDetails with `errorCode` `TENANT_ROLE_INVALID`.
-- Invalid tenant-user passwords return `422` ProblemDetails with `errorCode` `TENANT_USER_PASSWORD_INVALID`.
 - Tenant-local impersonation denial returns `403` with `TENANT_IMPERSONATION_NOT_ALLOWED`.
 - Invalid impersonation payloads return `400` with `TENANT_IMPERSONATION_TARGET_INVALID`.
 - Unknown or cross-tenant impersonation targets return `404` with `TENANT_IMPERSONATION_TARGET_NOT_FOUND`.
@@ -313,24 +312,31 @@ Notes:
     ```json
     {
       "email": "writer@acme-demo.local",
-      "password": "<temporary-password>",
       "role": "BinderWrite"
     }
     ```
   - Response example (`201`):
     ```json
     {
-      "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
-      "email": "writer@acme-demo.local",
-      "role": "BinderWrite",
-      "isOwner": false
+      "user": {
+        "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+        "email": "writer@acme-demo.local",
+        "role": "BinderWrite",
+        "isOwner": false
+      },
+      "credentials": {
+        "email": "writer@acme-demo.local",
+        "password": "<generated>"
+      }
     }
     ```
   - Failure semantics:
     - `400` when the email is empty, too long, contains whitespace, or does not contain exactly one `@`.
     - `409` when the requested email already exists.
     - `422` for invalid role values.
-    - `422` for passwords that fail the configured Identity password validators.
+  - Notes:
+    - The request never includes a password; the server generates a one-time password and returns it only in the successful create response.
+    - Clients should treat returned credentials as transient handoff data and should not expect a later read endpoint for the generated password.
   - Idempotency: not idempotent.
 
 - `POST /api/tenant/users/{userId}/role`

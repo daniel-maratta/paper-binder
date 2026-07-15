@@ -105,10 +105,10 @@ As a tenant admin, I can manage tenant users and assign roles without crossing t
 
 ### Acceptance Criteria
 - `GET /api/tenant/users` returns only users for the current tenant.
-- `POST /api/tenant/users` creates a tenant-scoped user with an initial role.
+- `POST /api/tenant/users` creates a tenant-scoped user with an initial role and returns server-generated one-time credentials exactly once in the create response.
 - `POST /api/tenant/users/{userId}/role` changes role only for tenant-scoped users.
 - `DELETE /api/tenant/users/{userId}` deletes only tenant-scoped users and removes their current tenant-owned identity record.
-- Tenant-host `/app/users` exposes list, create, role-change, and delete behavior only for `TenantAdmin`.
+- Tenant-host `/app/users` exposes list, create, role-change, and delete behavior only for `TenantAdmin`, and shows the generated one-time credentials only in the immediate post-create handoff state.
 - Attempting to demote the last remaining tenant admin returns `409`.
 - Attempting to delete the last remaining tenant admin returns `409`.
 - Attempting to delete the last remaining tenant owner returns `409`.

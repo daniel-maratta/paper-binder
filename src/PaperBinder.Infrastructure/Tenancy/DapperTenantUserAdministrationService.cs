@@ -2,6 +2,7 @@ using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using PaperBinder.Application.Identity;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Identity;
@@ -52,11 +53,12 @@ public sealed class DapperTenantUserAdministrationService(
 
         var normalizedEmailInput = command.Email.Trim();
         var user = CreateUser(normalizedEmailInput);
-        var passwordValidationMessages = await ValidatePasswordAsync(user, command.Password);
+        var generatedPassword = OneTimePasswordRules.Generate();
+        var passwordValidationMessages = await ValidatePasswordAsync(user, generatedPassword);
         if (passwordValidationMessages.Count > 0)
         {
-            logger.LogWarning(
-                "Tenant user creation rejected an invalid password. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email} ValidationMessageCount={ValidationMessageCount}",
+            logger.LogError(
+                "Tenant user creation generated a password that failed validation. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email} ValidationMessageCount={ValidationMessageCount}",
                 command.TenantId,
                 command.ActorUserId,
                 command.EffectiveUserId,
@@ -64,14 +66,11 @@ public sealed class DapperTenantUserAdministrationService(
                 normalizedEmailInput,
                 passwordValidationMessages.Count);
 
-            return TenantUserCreateOutcome.Failed(
-                new TenantUserAdministrationFailure(
-                    TenantUserAdministrationFailureKind.InvalidPassword,
-                    BuildValidationDetail(passwordValidationMessages),
-                    passwordValidationMessages));
+            throw new InvalidOperationException(
+                BuildValidationDetail(passwordValidationMessages));
         }
 
-        user.PasswordHash = passwordHasher.HashPassword(user, command.Password);
+        user.PasswordHash = passwordHasher.HashPassword(user, generatedPassword);
 
         try
         {
@@ -98,7 +97,9 @@ public sealed class DapperTenantUserAdministrationService(
                             transaction,
                             cancellationToken: innerCancellationToken));
 
-                    return new TenantUserSummary(user.Id, user.Email, role, IsOwner: false);
+                    return new CreatedTenantUser(
+                        new TenantUserSummary(user.Id, user.Email, role, IsOwner: false),
+                        generatedPassword);
                 },
                 cancellationToken: cancellationToken);
 
@@ -108,8 +109,8 @@ public sealed class DapperTenantUserAdministrationService(
                 command.ActorUserId,
                 command.EffectiveUserId,
                 command.IsImpersonated,
-                createdUser.UserId,
-                createdUser.Role);
+                createdUser.User.UserId,
+                createdUser.User.Role);
 
             return TenantUserCreateOutcome.Success(createdUser);
         }

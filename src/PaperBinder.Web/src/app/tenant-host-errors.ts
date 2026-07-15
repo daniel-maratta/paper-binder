@@ -6,7 +6,6 @@ export type TenantHostErrorField =
   | "documentContent"
   | "documentSupersedesDocumentId"
   | "tenantUserEmail"
-  | "tenantUserPassword"
   | "tenantUserRole"
   | "binderPolicy";
 
@@ -174,14 +173,6 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
         title: "Email already exists.",
         detail: error.detail ?? "Choose a different email for the tenant user.",
         field: "tenantUserEmail",
-        correlationId: error.correlationId,
-        retryAfterLabel
-      };
-    case "TENANT_USER_PASSWORD_INVALID":
-      return {
-        title: "Password does not meet the rules.",
-        detail: error.detail ?? "Choose a stronger password for the tenant user.",
-        field: "tenantUserPassword",
         correlationId: error.correlationId,
         retryAfterLabel
       };

@@ -12,7 +12,6 @@ public sealed record TenantUserCreateCommand(
     Guid EffectiveUserId,
     bool IsImpersonated,
     string Email,
-    string Password,
     string Role);
 
 public sealed record TenantUserRoleChangeCommand(
@@ -35,7 +34,6 @@ public enum TenantUserAdministrationFailureKind
     UserNotFound,
     EmailConflict,
     InvalidRole,
-    InvalidPassword,
     LastTenantAdminRequired,
     LastTenantOwnerRequired
 }
@@ -45,13 +43,17 @@ public sealed record TenantUserAdministrationFailure(
     string Detail,
     IReadOnlyList<string>? ValidationMessages = null);
 
+public sealed record CreatedTenantUser(
+    TenantUserSummary User,
+    string GeneratedPassword);
+
 public sealed record TenantUserCreateOutcome(
     bool Succeeded,
-    TenantUserSummary? User,
+    CreatedTenantUser? CreatedUser,
     TenantUserAdministrationFailure? Failure)
 {
-    public static TenantUserCreateOutcome Success(TenantUserSummary user) =>
-        new(true, user, null);
+    public static TenantUserCreateOutcome Success(CreatedTenantUser createdUser) =>
+        new(true, createdUser, null);
 
     public static TenantUserCreateOutcome Failed(TenantUserAdministrationFailure failure) =>
         new(false, null, failure);

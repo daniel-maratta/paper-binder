@@ -113,19 +113,6 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
     }
 
     [Fact]
-    public void TenantUserProblemMapping_Should_MapInvalidPasswordFailure_ToStableProblemContract()
-    {
-        var problem = PaperBinderTenantUserProblemMapping.Map(
-            new TenantUserAdministrationFailure(
-                TenantUserAdministrationFailureKind.InvalidPassword,
-                "Passwords must be at least 8 characters."));
-
-        Assert.Equal(StatusCodes.Status422UnprocessableEntity, problem.StatusCode);
-        Assert.Equal("Tenant user password invalid.", problem.Title);
-        Assert.Equal(PaperBinderErrorCodes.TenantUserPasswordInvalid, problem.ErrorCode);
-    }
-
-    [Fact]
     public void TenantUserProblemMapping_Should_MapLastTenantOwnerFailure_ToStableProblemContract()
     {
         var problem = PaperBinderTenantUserProblemMapping.Map(
