@@ -142,6 +142,109 @@ public sealed class DapperBinderService(
             record.ToDetail());
     }
 
+    public async Task<BinderRenameOutcome> RenameAsync(
+        BinderRenameCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        ArgumentNullException.ThrowIfNull(command.Tenant);
+
+        if (!BinderNameRules.TryTrimToValidName(command.Name, out var normalizedName))
+        {
+            return BinderRenameOutcome.Failed(
+                new BinderFailure(
+                    BinderFailureKind.NameInvalid,
+                    "The request must include a binder name between 1 and 200 characters."));
+        }
+
+        var executionResult = await transactionScopeRunner.ExecuteAsync(
+            async (connection, transaction, innerCancellationToken) =>
+            {
+                var record = await connection.QuerySingleOrDefaultAsync<BinderDetailRecord>(
+                    new CommandDefinition(
+                        BinderSql.SelectBinderDetailForUpdate,
+                        new
+                        {
+                            TenantId = command.Tenant.TenantId,
+                            BinderId = command.BinderId
+                        },
+                        transaction,
+                        cancellationToken: innerCancellationToken));
+
+                if (record is null)
+                {
+                    return new BinderRenameExecutionResult(
+                        BinderRenameOutcome.Failed(
+                            new BinderFailure(
+                                BinderFailureKind.NotFound,
+                                "The requested binder does not exist in the current tenant.")),
+                        WasUpdated: false);
+                }
+
+                var policy = record.ToPolicy();
+                if (!policyEvaluator.CanAccess(command.CallerRole, policy))
+                {
+                    return new BinderRenameExecutionResult(
+                        BinderRenameOutcome.Failed(
+                            new BinderFailure(
+                                BinderFailureKind.PolicyDenied,
+                                "The current tenant role is not allowed to access this binder.")),
+                        WasUpdated: false);
+                }
+
+                if (string.Equals(record.Name, normalizedName, StringComparison.Ordinal))
+                {
+                    return new BinderRenameExecutionResult(
+                        BinderRenameOutcome.Success(new BinderSummary(record.BinderId, record.Name, record.CreatedAtUtc)),
+                        WasUpdated: false);
+                }
+
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        BinderSql.UpdateBinderName,
+                        new
+                        {
+                            TenantId = command.Tenant.TenantId,
+                            BinderId = command.BinderId,
+                            Name = normalizedName
+                        },
+                        transaction,
+                        cancellationToken: innerCancellationToken));
+
+                return new BinderRenameExecutionResult(
+                    BinderRenameOutcome.Success(new BinderSummary(record.BinderId, normalizedName, record.CreatedAtUtc)),
+                    WasUpdated: true);
+            },
+            cancellationToken: cancellationToken);
+
+        if (!executionResult.Outcome.Succeeded)
+        {
+            logger.LogWarning(
+                "Binder rename rejected. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id} failure_kind={failure_kind}",
+                "binder_rename_rejected",
+                command.Tenant.TenantId,
+                command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
+                command.BinderId,
+                executionResult.Outcome.Failure!.Kind);
+
+            return executionResult.Outcome;
+        }
+
+        logger.LogInformation(
+            "Binder renamed. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id} binder_name={binder_name}",
+            executionResult.WasUpdated ? "binder_renamed" : "binder_rename_noop",
+            command.Tenant.TenantId,
+            command.ActorUserId,
+            command.EffectiveUserId,
+            command.IsImpersonated,
+            command.BinderId,
+            executionResult.Outcome.Binder!.Name);
+
+        return executionResult.Outcome;
+    }
+
     public async Task<BinderPolicyReadOutcome> GetPolicyAsync(
         TenantContext tenant,
         Guid binderId,
@@ -284,6 +387,10 @@ public sealed class DapperBinderService(
     private static bool PoliciesEqual(BinderPolicy left, BinderPolicy right) =>
         left.Mode == right.Mode &&
         left.AllowedRoles.SequenceEqual(right.AllowedRoles);
+
+    private sealed record BinderRenameExecutionResult(
+        BinderRenameOutcome Outcome,
+        bool WasUpdated);
 
     private sealed record BinderPolicyUpdateExecutionResult(
         BinderPolicyUpdateOutcome Outcome,

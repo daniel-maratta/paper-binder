@@ -23,6 +23,15 @@ public sealed record BinderCreateCommand(
     bool IsImpersonated,
     string? Name);
 
+public sealed record BinderRenameCommand(
+    TenantContext Tenant,
+    Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
+    TenantRole CallerRole,
+    Guid BinderId,
+    string? Name);
+
 public sealed record BinderPolicyUpdateCommand(
     TenantContext Tenant,
     Guid ActorUserId,
@@ -68,6 +77,16 @@ public sealed record BinderDetailOutcome(
     public static BinderDetailOutcome Success(BinderDetail binder) => new(true, binder, null);
 
     public static BinderDetailOutcome Failed(BinderFailure failure) => new(false, null, failure);
+}
+
+public sealed record BinderRenameOutcome(
+    bool Succeeded,
+    BinderSummary? Binder,
+    BinderFailure? Failure)
+{
+    public static BinderRenameOutcome Success(BinderSummary binder) => new(true, binder, null);
+
+    public static BinderRenameOutcome Failed(BinderFailure failure) => new(false, null, failure);
 }
 
 public sealed record BinderPolicyReadOutcome(

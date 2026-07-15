@@ -432,6 +432,30 @@ Notes:
     - Archived documents are hidden by default in binder detail responses.
   - Idempotency: idempotent.
 
+- `PUT /api/binders/{binderId}`
+  - Auth required: Y (`BinderWrite`)
+  - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Request example:
+    ```json
+    { "name": "Executive Policies" }
+    ```
+  - Response example (`200`):
+    ```json
+    {
+      "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "name": "Executive Policies",
+      "createdAt": "2026-04-07T15:30:00Z"
+    }
+    ```
+  - Failure semantics:
+    - `400` when the binder name is empty, whitespace-only, or longer than 200 characters after trimming.
+    - `403` when the caller lacks the `BinderWrite` endpoint policy, binder-local policy denies the caller after endpoint authorization passes, or the request omits a valid CSRF token.
+    - `404` when the binder does not exist in the current tenant or the request host is not a tenant host.
+  - Notes:
+    - Binder-local policy still applies after endpoint authorization, so callers with `BinderWrite` cannot rename a same-tenant binder hidden behind `restricted_roles` they do not satisfy.
+  - Idempotency: idempotent for same normalized name.
+
 - `GET /api/binders/{binderId}/policy`
   - Auth required: Y (`TenantAdmin`)
   - Tenant context source: subdomain plus cookie
@@ -654,6 +678,7 @@ Health payloads must not include dependency internals or version metadata.
 - `GET /api/binders` -> `BinderRead`.
 - `POST /api/binders` -> `BinderWrite`.
 - `GET /api/binders/{binderId}` -> `BinderRead`.
+- `PUT /api/binders/{binderId}` -> `BinderWrite` plus binder-local policy enforcement in the binder service.
 - `GET /api/binders/{binderId}/policy` -> `TenantAdmin`.
 - `PUT /api/binders/{binderId}/policy` -> `TenantAdmin`.
 - `GET /api/documents` -> `BinderRead`.

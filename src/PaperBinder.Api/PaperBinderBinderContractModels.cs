@@ -6,6 +6,9 @@ namespace PaperBinder.Api;
 internal sealed record CreateBinderRequest(
     string? Name);
 
+internal sealed record UpdateBinderRequest(
+    string? Name);
+
 internal sealed record UpdateBinderPolicyRequest(
     string? Mode,
     IReadOnlyList<string>? AllowedRoles);
