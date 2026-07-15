@@ -73,6 +73,7 @@ As a tenant user with permission, I can create and read immutable text documents
 ### Acceptance Criteria
 - `POST /api/documents` creates immutable text document in a tenant binder.
 - `POST /api/documents` trims title to 1-200 characters, requires exact `contentType=markdown`, requires non-whitespace content <= 50,000 characters, and accepts optional same-binder `SupersedesDocumentId`.
+- `POST /api/documents` enforces binder-local title uniqueness unless the new document supersedes an earlier same-title document in that binder.
 - Tenant-host `/app/binders/{binderId}` owns document creation, and `/app/documents/{documentId}` owns read-only document detail in the browser.
 - `GET /api/documents` lists documents scoped to current tenant, omits restricted binders on unfiltered requests, and returns `403` when an explicit binder filter targets a same-tenant binder denied by binder-local policy.
 - `GET /api/documents/{id}` returns document only when tenant-scoped access is valid and still allows direct-id reads of archived documents.

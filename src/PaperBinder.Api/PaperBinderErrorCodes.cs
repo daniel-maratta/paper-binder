@@ -34,6 +34,7 @@ internal static class PaperBinderErrorCodes
     public const string BinderPolicyDenied = "BINDER_POLICY_DENIED";
     public const string DocumentNotFound = "DOCUMENT_NOT_FOUND";
     public const string DocumentTitleInvalid = "DOCUMENT_TITLE_INVALID";
+    public const string DocumentTitleConflict = "DOCUMENT_TITLE_CONFLICT";
     public const string DocumentContentRequired = "DOCUMENT_CONTENT_REQUIRED";
     public const string DocumentContentTooLarge = "DOCUMENT_CONTENT_TOO_LARGE";
     public const string DocumentContentTypeInvalid = "DOCUMENT_CONTENT_TYPE_INVALID";

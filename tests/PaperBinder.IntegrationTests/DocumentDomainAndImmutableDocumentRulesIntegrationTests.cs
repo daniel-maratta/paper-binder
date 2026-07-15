@@ -21,6 +21,7 @@ public sealed class DocumentDomainAndImmutableDocumentRulesIntegrationTests(Post
     private const string BinderPolicyDeniedErrorCode = "BINDER_POLICY_DENIED";
     private const string DocumentNotFoundErrorCode = "DOCUMENT_NOT_FOUND";
     private const string DocumentTitleInvalidErrorCode = "DOCUMENT_TITLE_INVALID";
+    private const string DocumentTitleConflictErrorCode = "DOCUMENT_TITLE_CONFLICT";
     private const string DocumentContentRequiredErrorCode = "DOCUMENT_CONTENT_REQUIRED";
     private const string DocumentContentTooLargeErrorCode = "DOCUMENT_CONTENT_TOO_LARGE";
     private const string DocumentContentTypeInvalidErrorCode = "DOCUMENT_CONTENT_TYPE_INVALID";
@@ -523,6 +524,92 @@ public sealed class DocumentDomainAndImmutableDocumentRulesIntegrationTests(Post
         AssertApiProtocolHeaders(unknownResponse);
         Assert.NotNull(unknownProblem);
         Assert.Equal(DocumentSupersedesInvalidErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(unknownProblem!, "errorCode"));
+    }
+
+    [Fact]
+    public async Task Should_EnforceBinderLocalDocumentTitleUniqueness_Unless_SupersedingSameTitleDocument()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp10-title-uniqueness");
+        var writer = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "writer@cp10-title-uniqueness.local", "checkpoint-10-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, writer, tenant, TenantRole.BinderWrite, isOwner: false);
+
+        var binder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(host, tenant, "Title Uniqueness Binder");
+        var originalDocument = await TenantResolutionIntegrationTestHost.SeedDocumentAsync(host, tenant, binder, "Operations handbook", "# v1");
+        var differentTitleDocument = await TenantResolutionIntegrationTestHost.SeedDocumentAsync(host, tenant, binder, "Runbook", "# other");
+
+        var session = await AuthIntegrationTestClient.LoginAsync(host, writer.Email, writer.Password);
+
+        using var duplicateRequest = CreateTenantApiRequest(
+            HttpMethod.Post,
+            tenant,
+            session,
+            "/api/documents",
+            body: new
+            {
+                binderId = binder.Id,
+                title = "Operations handbook",
+                contentType = MarkdownContentType,
+                content = "# duplicate"
+            },
+            csrfToken: session.CsrfCookieValue);
+
+        var duplicateResponse = await host.Client.SendAsync(duplicateRequest);
+        var duplicateProblem = await duplicateResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.Conflict, duplicateResponse.StatusCode);
+        AssertApiProtocolHeaders(duplicateResponse);
+        Assert.NotNull(duplicateProblem);
+        Assert.Equal(DocumentTitleConflictErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(duplicateProblem!, "errorCode"));
+
+        using var mismatchedSupersedesRequest = CreateTenantApiRequest(
+            HttpMethod.Post,
+            tenant,
+            session,
+            "/api/documents",
+            body: new
+            {
+                binderId = binder.Id,
+                title = "Operations handbook",
+                contentType = MarkdownContentType,
+                content = "# duplicate",
+                supersedesDocumentId = differentTitleDocument.Id
+            },
+            csrfToken: session.CsrfCookieValue);
+
+        var mismatchedSupersedesResponse = await host.Client.SendAsync(mismatchedSupersedesRequest);
+        var mismatchedSupersedesProblem = await mismatchedSupersedesResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.Conflict, mismatchedSupersedesResponse.StatusCode);
+        AssertApiProtocolHeaders(mismatchedSupersedesResponse);
+        Assert.NotNull(mismatchedSupersedesProblem);
+        Assert.Equal(DocumentTitleConflictErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(mismatchedSupersedesProblem!, "errorCode"));
+
+        using var validSupersedesRequest = CreateTenantApiRequest(
+            HttpMethod.Post,
+            tenant,
+            session,
+            "/api/documents",
+            body: new
+            {
+                binderId = binder.Id,
+                title = "Operations handbook",
+                contentType = MarkdownContentType,
+                content = "# v2",
+                supersedesDocumentId = originalDocument.Id
+            },
+            csrfToken: session.CsrfCookieValue);
+
+        var validSupersedesResponse = await host.Client.SendAsync(validSupersedesRequest);
+        var validSupersedesPayload = await validSupersedesResponse.Content.ReadFromJsonAsync<DocumentDetailPayload>();
+
+        Assert.Equal(HttpStatusCode.Created, validSupersedesResponse.StatusCode);
+        AssertApiProtocolHeaders(validSupersedesResponse);
+        Assert.NotNull(validSupersedesPayload);
+        Assert.Equal(originalDocument.Id, validSupersedesPayload!.SupersedesDocumentId);
+        Assert.Equal("Operations handbook", validSupersedesPayload.Title);
     }
 
     [Fact]

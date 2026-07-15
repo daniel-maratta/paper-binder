@@ -21,6 +21,12 @@ public static class DocumentRules
     public static bool IsSupportedContentType(string? value) =>
         string.Equals(value, MarkdownContentType, StringComparison.Ordinal);
 
+    public static bool CanCreateWhenSameTitleDocumentsExist(
+        IReadOnlySet<Guid> sameTitleDocumentIds,
+        Guid? supersedesDocumentId) =>
+        sameTitleDocumentIds.Count == 0 ||
+        (supersedesDocumentId.HasValue && sameTitleDocumentIds.Contains(supersedesDocumentId.Value));
+
     public static DocumentFailureKind? ValidateArchiveTransition(DateTimeOffset? archivedAtUtc, bool archiveRequested) =>
         archiveRequested
             ? archivedAtUtc is null ? null : DocumentFailureKind.AlreadyArchived

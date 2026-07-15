@@ -89,6 +89,7 @@ Notes:
 - Invalid binder-policy payloads return `422` ProblemDetails with `errorCode` `BINDER_POLICY_INVALID`.
 - Unknown tenant-scoped documents return `404` ProblemDetails with `errorCode` `DOCUMENT_NOT_FOUND`.
 - Document-title validation failures return `400` ProblemDetails with `errorCode` `DOCUMENT_TITLE_INVALID`.
+- Duplicate document titles within the same binder return `409` ProblemDetails with `errorCode` `DOCUMENT_TITLE_CONFLICT` unless the new document supersedes an earlier same-title document in that binder.
 - Missing or whitespace-only document content returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_REQUIRED`.
 - Document content longer than 50,000 characters returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TOO_LARGE`.
 - Unsupported document `contentType` values return `422` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TYPE_INVALID`.
@@ -610,11 +611,13 @@ Notes:
     ```
   - Failure semantics:
     - `400` when `binderId` is missing, title is empty/whitespace/overlength after trimming, content is empty/whitespace, or content exceeds 50,000 characters.
+    - `409` when a document with the same trimmed title already exists in the binder and the request is not superseding an earlier same-title document in that binder.
     - `403` when binder-local policy denies the target binder after the `BinderWrite` endpoint policy has already passed, or the request omits a valid CSRF token.
     - `404` when the target binder does not exist in the current tenant or the request host is not a tenant host.
     - `422` when `contentType` is not the exact value `markdown` or `supersedesDocumentId` does not reference an existing document in the same tenant and same binder.
   - Notes:
     - Titles are trimmed and must be 1-200 characters after trimming.
+    - Title uniqueness is binder-local; a reused title is allowed only when `supersedesDocumentId` points at an earlier same-title document in that binder.
     - Stored `content` remains raw markdown; rendered HTML is not stored in CP10.
     - The browser renders document content as HTML-encoded safe source only; v1 does not parse markdown or allow raw HTML.
   - Idempotency: not idempotent.

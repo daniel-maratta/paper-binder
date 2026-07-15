@@ -51,6 +51,7 @@ public enum DocumentFailureKind
 {
     NotFound,
     TitleInvalid,
+    TitleConflict,
     ContentRequired,
     ContentTooLarge,
     ContentTypeInvalid,

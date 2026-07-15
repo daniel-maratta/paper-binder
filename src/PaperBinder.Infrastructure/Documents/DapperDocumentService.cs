@@ -1,10 +1,12 @@
 using Dapper;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using PaperBinder.Application.Binders;
 using PaperBinder.Application.Documents;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Application.Time;
+using System.Data;
 
 namespace PaperBinder.Infrastructure.Documents;
 
@@ -15,6 +17,8 @@ public sealed class DapperDocumentService(
     IBinderPolicyEvaluator policyEvaluator,
     ILogger<DapperDocumentService> logger) : IDocumentService
 {
+    private const int CreateSerializationRetryLimit = 1;
+
     public async Task<DocumentCreateOutcome> CreateAsync(
         DocumentCreateCommand command,
         CancellationToken cancellationToken = default)
@@ -65,120 +69,166 @@ public sealed class DapperDocumentService(
         var documentId = Guid.NewGuid();
         var createdAtUtc = clock.UtcNow;
 
-        var outcome = await transactionScopeRunner.ExecuteAsync(
-            async (connection, transaction, innerCancellationToken) =>
+        DocumentCreateOutcome outcome;
+        var attempt = 0;
+        while (true)
+        {
+            try
             {
-                var binderAccess = await GetBinderAccessStateAsync(
-                    connection,
-                    transaction,
-                    command.Tenant,
-                    command.CallerRole,
-                    command.BinderId.Value,
-                    innerCancellationToken);
-
-                if (binderAccess == BinderAccessState.NotFound)
-                {
-                    return DocumentCreateOutcome.Failed(
-                        new DocumentFailure(
-                            DocumentFailureKind.BinderNotFound,
-                            "The target binder does not exist in the current tenant."));
-                }
-
-                if (binderAccess == BinderAccessState.Denied)
-                {
-                    return DocumentCreateOutcome.Failed(
-                        new DocumentFailure(
-                            DocumentFailureKind.BinderPolicyDenied,
-                            "The current tenant role is not allowed to access the target binder."));
-                }
-
-                if (command.SupersedesDocumentId.HasValue)
-                {
-                    if (command.SupersedesDocumentId.Value == documentId)
+                outcome = await transactionScopeRunner.ExecuteAsync(
+                    async (connection, transaction, innerCancellationToken) =>
                     {
-                        return DocumentCreateOutcome.Failed(
-                            new DocumentFailure(
-                                DocumentFailureKind.SupersedesInvalid,
-                                "The supplied supersedes document id must reference a different document in the same binder."));
-                    }
-
-                    var supersedesExists = await connection.ExecuteScalarAsync<int?>(
-                        new CommandDefinition(
-                            """
-                            select 1
-                            from documents
-                            where tenant_id = @TenantId
-                              and binder_id = @BinderId
-                              and id = @SupersedesDocumentId;
-                            """,
-                            new
-                            {
-                                TenantId = command.Tenant.TenantId,
-                                BinderId = command.BinderId.Value,
-                                SupersedesDocumentId = command.SupersedesDocumentId.Value
-                            },
+                        var binderAccess = await GetBinderAccessStateAsync(
+                            connection,
                             transaction,
-                            cancellationToken: innerCancellationToken));
+                            command.Tenant,
+                            command.CallerRole,
+                            command.BinderId.Value,
+                            innerCancellationToken);
 
-                    if (!supersedesExists.HasValue)
-                    {
-                        return DocumentCreateOutcome.Failed(
-                            new DocumentFailure(
-                                DocumentFailureKind.SupersedesInvalid,
-                                "The supplied supersedes document id must reference an existing document in the same binder."));
-                    }
-                }
-
-                await connection.ExecuteAsync(
-                    new CommandDefinition(
-                        """
-                        insert into documents (
-                            id,
-                            tenant_id,
-                            binder_id,
-                            title,
-                            content_type,
-                            content,
-                            supersedes_document_id,
-                            created_at_utc,
-                            archived_at_utc)
-                        values (
-                            @DocumentId,
-                            @TenantId,
-                            @BinderId,
-                            @Title,
-                            @ContentType,
-                            @Content,
-                            @SupersedesDocumentId,
-                            @CreatedAtUtc,
-                            null);
-                        """,
-                        new
+                        if (binderAccess == BinderAccessState.NotFound)
                         {
-                            DocumentId = documentId,
-                            TenantId = command.Tenant.TenantId,
-                            BinderId = command.BinderId.Value,
-                            Title = normalizedTitle,
-                            ContentType = DocumentRules.MarkdownContentType,
-                            Content = command.Content!,
-                            command.SupersedesDocumentId,
-                            CreatedAtUtc = createdAtUtc
-                        },
-                        transaction,
-                        cancellationToken: innerCancellationToken));
+                            return DocumentCreateOutcome.Failed(
+                                new DocumentFailure(
+                                    DocumentFailureKind.BinderNotFound,
+                                    "The target binder does not exist in the current tenant."));
+                        }
 
-                return DocumentCreateOutcome.Success(
-                    new DocumentDetail(
-                        documentId,
-                        command.BinderId.Value,
-                        normalizedTitle,
-                        DocumentRules.MarkdownContentType,
-                        command.Content!,
-                        command.SupersedesDocumentId,
-                        createdAtUtc,
-                        null));
-            },
-            cancellationToken: cancellationToken);
+                        if (binderAccess == BinderAccessState.Denied)
+                        {
+                            return DocumentCreateOutcome.Failed(
+                                new DocumentFailure(
+                                    DocumentFailureKind.BinderPolicyDenied,
+                                    "The current tenant role is not allowed to access the target binder."));
+                        }
+
+                        if (command.SupersedesDocumentId.HasValue)
+                        {
+                            if (command.SupersedesDocumentId.Value == documentId)
+                            {
+                                return DocumentCreateOutcome.Failed(
+                                    new DocumentFailure(
+                                        DocumentFailureKind.SupersedesInvalid,
+                                        "The supplied supersedes document id must reference a different document in the same binder."));
+                            }
+
+                            var supersedesExists = await connection.ExecuteScalarAsync<int?>(
+                                new CommandDefinition(
+                                    """
+                                    select 1
+                                    from documents
+                                    where tenant_id = @TenantId
+                                      and binder_id = @BinderId
+                                      and id = @SupersedesDocumentId;
+                                    """,
+                                    new
+                                    {
+                                        TenantId = command.Tenant.TenantId,
+                                        BinderId = command.BinderId.Value,
+                                        SupersedesDocumentId = command.SupersedesDocumentId.Value
+                                    },
+                                    transaction,
+                                    cancellationToken: innerCancellationToken));
+
+                            if (!supersedesExists.HasValue)
+                            {
+                                return DocumentCreateOutcome.Failed(
+                                    new DocumentFailure(
+                                        DocumentFailureKind.SupersedesInvalid,
+                                        "The supplied supersedes document id must reference an existing document in the same binder."));
+                            }
+                        }
+
+                        var sameTitleDocumentIds = (await connection.QueryAsync<Guid>(
+                            new CommandDefinition(
+                                """
+                                select id
+                                from documents
+                                where tenant_id = @TenantId
+                                  and binder_id = @BinderId
+                                  and title = @Title;
+                                """,
+                                new
+                                {
+                                    TenantId = command.Tenant.TenantId,
+                                    BinderId = command.BinderId.Value,
+                                    Title = normalizedTitle
+                                },
+                                transaction,
+                                cancellationToken: innerCancellationToken)))
+                            .ToHashSet();
+
+                        if (!DocumentRules.CanCreateWhenSameTitleDocumentsExist(
+                                sameTitleDocumentIds,
+                                command.SupersedesDocumentId))
+                        {
+                            return DocumentCreateOutcome.Failed(
+                                new DocumentFailure(
+                                    DocumentFailureKind.TitleConflict,
+                                    "A document with this title already exists in the binder. Use a unique title or supersede an earlier document with the same title."));
+                        }
+
+                        await connection.ExecuteAsync(
+                            new CommandDefinition(
+                                """
+                                insert into documents (
+                                    id,
+                                    tenant_id,
+                                    binder_id,
+                                    title,
+                                    content_type,
+                                    content,
+                                    supersedes_document_id,
+                                    created_at_utc,
+                                    archived_at_utc)
+                                values (
+                                    @DocumentId,
+                                    @TenantId,
+                                    @BinderId,
+                                    @Title,
+                                    @ContentType,
+                                    @Content,
+                                    @SupersedesDocumentId,
+                                    @CreatedAtUtc,
+                                    null);
+                                """,
+                                new
+                                {
+                                    DocumentId = documentId,
+                                    TenantId = command.Tenant.TenantId,
+                                    BinderId = command.BinderId.Value,
+                                    Title = normalizedTitle,
+                                    ContentType = DocumentRules.MarkdownContentType,
+                                    Content = command.Content!,
+                                    command.SupersedesDocumentId,
+                                    CreatedAtUtc = createdAtUtc
+                                },
+                                transaction,
+                                cancellationToken: innerCancellationToken));
+
+                        return DocumentCreateOutcome.Success(
+                            new DocumentDetail(
+                                documentId,
+                                command.BinderId.Value,
+                                normalizedTitle,
+                                DocumentRules.MarkdownContentType,
+                                command.Content!,
+                                command.SupersedesDocumentId,
+                                createdAtUtc,
+                                null));
+                    },
+                    isolationLevel: IsolationLevel.Serializable,
+                    cancellationToken: cancellationToken);
+
+                break;
+            }
+            catch (PostgresException ex) when (
+                ex.SqlState == PostgresErrorCodes.SerializationFailure &&
+                attempt < CreateSerializationRetryLimit)
+            {
+                attempt++;
+            }
+        }
 
         if (outcome.Succeeded)
         {

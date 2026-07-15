@@ -165,6 +165,7 @@ All entities are tenant-scoped unless explicitly global.
 - Documents are immutable after creation.
 - Changes require creating a new document (optional `SupersedesDocumentId` metadata).
 - Document titles are trimmed and must be 1-200 characters after trimming.
+- Document titles are unique within a binder unless the new document supersedes an earlier same-title document in that binder.
 - Document `contentType` must be the exact contract value `markdown`.
 - Document content must be non-whitespace and no longer than 50,000 characters.
 - `SupersedesDocumentId`, when supplied, must reference another document in the same tenant and same binder.
