@@ -494,6 +494,7 @@ Notes:
   - Policy payload rules:
     - `allowedRoles` must be empty when `mode=inherit`.
     - `allowedRoles` must contain one or more exact v1 tenant role values when `mode=restricted_roles`.
+    - `allowedRoles` must include `TenantAdmin` when `mode=restricted_roles` so tenant-admin authority remains authoritative.
   - Request example:
     ```json
     {

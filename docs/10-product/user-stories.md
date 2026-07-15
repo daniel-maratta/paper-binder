@@ -62,7 +62,7 @@ As a tenant user with permission, I can create and view binders within my tenant
 - `GET /api/binders/{id}` returns binder only when it belongs to current tenant and returns concrete visible document summaries in `documents`.
 - `GET /api/binders/{id}/policy` and `PUT /api/binders/{id}/policy` enforce tenant-admin policy management.
 - Deleting a binder removes its tenant-owned documents through the existing cascade path.
-- Binder policy payloads use `mode` plus exact-role `allowedRoles`.
+- Binder policy payloads use `mode` plus exact-role `allowedRoles`, and any `restricted_roles` policy must include `TenantAdmin` so tenant-admin authority cannot be stranded accidentally.
 - Unauthorized access returns `403`, while wrong-tenant or unknown binders return `404`.
 
 ## Slice 5: Documents (Immutable)

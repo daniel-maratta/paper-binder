@@ -379,6 +379,39 @@ public sealed class BinderDomainAndPolicyModelIntegrationTests(PostgresContainer
     }
 
     [Fact]
+    public async Task Should_ReturnUnprocessableEntity_When_RestrictedBinderPolicyOmitsTenantAdmin()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp9-policy-admin-required");
+        var admin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "admin@cp9-policy-admin-required.local", "checkpoint-9-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, admin, tenant, TenantRole.TenantAdmin);
+
+        var binder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(host, tenant, "Admin Safe Binder");
+        var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
+        using var request = CreateTenantApiRequest(
+            HttpMethod.Put,
+            tenant,
+            session,
+            $"/api/binders/{binder.Id:D}/policy",
+            body: new
+            {
+                mode = BinderPolicyModeNames.RestrictedRoles,
+                allowedRoles = new[] { nameof(TenantRole.BinderWrite) }
+            },
+            csrfToken: session.CsrfCookieValue);
+
+        var response = await host.Client.SendAsync(request);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        AssertApiProtocolHeaders(response);
+        Assert.NotNull(problem);
+        Assert.Equal(BinderPolicyInvalidErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+    }
+
+    [Fact]
     public async Task Should_UpdateBinderPolicy_Idempotently_AndApplyListOmissionSemantics()
     {
         await using var database = await postgres.CreateDatabaseAsync();

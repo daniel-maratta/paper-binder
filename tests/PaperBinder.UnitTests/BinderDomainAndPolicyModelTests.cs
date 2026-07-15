@@ -115,6 +115,17 @@ public sealed class BinderDomainAndPolicyModelTests
     }
 
     [Fact]
+    public void BinderPolicyRules_Should_RejectRestrictedRolesMode_When_TenantAdminIsMissing()
+    {
+        var result = BinderPolicyRules.ValidateAndNormalize(
+            BinderPolicyModeNames.RestrictedRoles,
+            [nameof(TenantRole.BinderRead)]);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("must include TenantAdmin", result.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void BinderPolicyRules_Should_RejectInvalidRoleValues()
     {
         var result = BinderPolicyRules.ValidateAndNormalize(
