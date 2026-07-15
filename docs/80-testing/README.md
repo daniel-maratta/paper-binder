@@ -11,6 +11,12 @@
 - `docs/80-testing/test-strategy.md`
 - `docs/80-testing/testing-standards.md`
 
+## Repo-Native Commands
+
+- Full test pass: `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1`
+- Focused frontend tests: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1`
+- Focused integration tests: `powershell -ExecutionPolicy Bypass -File .\scripts\test-integration.ps1`
+
 ## Test-Type Guides
 
 - `docs/80-testing/unit-tests.md`

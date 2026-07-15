@@ -68,6 +68,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active forward 
 - For the completed detailed `Phase 4.1` presentation tranche, load [docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md](./05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md) as the execution record.
 - For curated reviewer-support context that the public path should eventually reference, start with `REVIEWERS.md`, then `review/README.md`, then the selected canonical docs those files point to.
 - For implementation guidance, start with [docs/50-engineering/README.md](./50-engineering/README.md), then load the active standards in that lane. Use the code-quality audit and batch documents only when historical remediation context is needed.
+- For local command execution, validation, or git-write workflows, then load [docs/50-engineering/agent-execution-hygiene.md](./50-engineering/agent-execution-hygiene.md) before composing commands.
 - Treat `docs/70-operations/pipeline-setup/` as historical setup analysis, not a default read set.
 
 ## Local-Only Overrides
