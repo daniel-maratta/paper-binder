@@ -37,6 +37,9 @@ Examples:
 
 - [x] Investigate opaque `dotnet restore` exit-1 behavior on the current Windows/.NET 10 SDK stack -> T-0021 | type:risk | source:T-0016 validation
 - [x] Close remaining test-coverage gaps around challenge-failure handling, worker behavior, and frontend placeholder coverage -> T-0024 | type:risk | source:test sufficiency review 2026-04-08
+- [x] Plan the next post-V1 presentation implementation cut around the approved sample direction and auth-safe flow split -> T-0033 | type:feature | source:owner direction 2026-07-09
+- [ ] Add a Light / Dark / System theme preference after `v1.1.0` | type:feature | source:temp UI backlog 2026-07-12
+- [ ] Add a fun `404` game treatment after `v1.1.0` | type:feature | source:temp UI backlog 2026-07-12
 
 ## Triage Rules
 
