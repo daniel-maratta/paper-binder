@@ -404,7 +404,10 @@ public sealed class TenantImpersonationIntegrationTests(PostgresContainerFixture
         Assert.Equal(HttpStatusCode.OK, stopResponse.StatusCode);
         Assert.Equal(2, (await GetAuditEventsAsync(host, tenant.Id)).Count);
 
-        await TenantResolutionIntegrationTestHost.ExpireTenantAsync(host, tenant);
+        await TenantResolutionIntegrationTestHost.ExpireTenantAsync(
+            host,
+            tenant,
+            DateTimeOffset.UtcNow - TenantLeaseRules.CleanupRetentionWindow - TimeSpan.FromMinutes(1));
         var cleanupResult = await RunCleanupCycleAsync(host);
 
         Assert.Equal(1, cleanupResult.SelectedTenantCount);

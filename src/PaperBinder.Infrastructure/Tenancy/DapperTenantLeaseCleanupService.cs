@@ -20,6 +20,7 @@ public sealed class DapperTenantLeaseCleanupService(
         CancellationToken cancellationToken = default)
     {
         var now = clock.UtcNow;
+        var purgeEligibilityCutoff = TenantLeaseRules.GetPurgeEligibilityCutoff(now);
         try
         {
             await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
@@ -29,10 +30,10 @@ public sealed class DapperTenantLeaseCleanupService(
                     select
                         id as TenantId
                     from tenants
-                    where expires_at_utc <= @Now
+                    where expires_at_utc <= @PurgeEligibilityCutoff
                     order by expires_at_utc, id;
                     """,
-                    new { Now = now },
+                    new { PurgeEligibilityCutoff = purgeEligibilityCutoff },
                     cancellationToken: cancellationToken)))
                 .ToArray();
 
@@ -44,7 +45,7 @@ public sealed class DapperTenantLeaseCleanupService(
             {
                 try
                 {
-                    var outcome = await PurgeTenantIfExpiredAsync(candidate.TenantId, now, cancellationToken);
+                    var outcome = await PurgeTenantIfExpiredAsync(candidate.TenantId, purgeEligibilityCutoff, cancellationToken);
                     switch (outcome.Kind)
                     {
                         case TenantCleanupOutcomeKind.Purged:
@@ -96,7 +97,7 @@ public sealed class DapperTenantLeaseCleanupService(
 
     private async Task<TenantCleanupOutcome> PurgeTenantIfExpiredAsync(
         Guid tenantId,
-        DateTimeOffset now,
+        DateTimeOffset purgeEligibilityCutoff,
         CancellationToken cancellationToken)
     {
         return await transactionScopeRunner.ExecuteAsync(
@@ -108,13 +109,13 @@ public sealed class DapperTenantLeaseCleanupService(
                         select id
                         from tenants
                         where id = @TenantId
-                          and expires_at_utc <= @Now
+                          and expires_at_utc <= @PurgeEligibilityCutoff
                         for update;
                         """,
                         new
                         {
                             TenantId = tenantId,
-                            Now = now
+                            PurgeEligibilityCutoff = purgeEligibilityCutoff
                         },
                         transaction,
                         cancellationToken: innerCancellationToken));

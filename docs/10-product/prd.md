@@ -185,6 +185,7 @@ All entities are tenant-scoped unless explicitly global.
 
 - Each demo tenant has an expiration timestamp.
 - Background worker checks for expired tenants on a fixed cadence (target: every minute).
+- Expired tenants remain in the expired-but-not-purged `410` state until they reach the 5-minute cleanup threshold.
 - Expired tenants are hard-deleted.
 - Cleanup removes the tenant row, user memberships, tenant-owned user records, binders, binder policies, documents, and other current tenant-owned rows.
 - Cleanup is deterministic and idempotent.

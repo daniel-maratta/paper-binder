@@ -1,7 +1,7 @@
 # T-0034: V1.1 API And Backend Carry-Forwards
 
 ## Status
-active
+done
 
 ## Type
 feature
@@ -40,8 +40,8 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - [x] Document-title uniqueness is enforced in the backend contract when the product rule remains "unique within a binder unless superseding the same-title predecessor."
 - [x] Any in-scope `v1.1.x` document edit or supersede follow-on operations are either implemented or explicitly ruled out in canon/taskboard docs before work starts.
 - [x] Generated tenant-user passwords come from the server, not from client-side generation logic.
-- [ ] Cleanup validation proves that active-lease tenants are never purged early and that the cleanup path still respects the intended expiry timing.
-- [ ] Targeted automated coverage exists for every behavior-changing slice landed under this task.
+- [x] Cleanup validation proves that active-lease tenants are never purged early and that the cleanup path still respects the intended expiry timing.
+- [x] Targeted automated coverage exists for every behavior-changing slice landed under this task.
 
 ## Dependencies
 - [T-0033](./T-0033-phase-4-1-v1-1-presentation-realignment.md)
@@ -58,7 +58,9 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - Escalation Notes: If document edit or supersede operations prove out of scope for `v1.1.x`, close that decision explicitly in canon/taskboard docs instead of leaving a vague placeholder.
 
 ## Current State
-- Active. Binder rename, binder delete, tenant-user delete, the binder admin-authority safeguard, document-title uniqueness, and server-generated tenant-user passwords are complete on this branch. The document follow-through decision is now closed: `v1.1.x` keeps read-only document detail plus `POST /api/documents` with optional same-binder `SupersedesDocumentId`, and does not add edit, replace, `PUT`, `PATCH`, or dedicated supersede endpoints. The remaining backend carry-forward is cleanup validation.
+- Done. Binder rename, binder delete, tenant-user delete, the binder admin-authority safeguard, document-title uniqueness, and server-generated tenant-user passwords are complete on this branch. The document follow-through decision is now closed: `v1.1.x` keeps read-only document detail plus `POST /api/documents` with optional same-binder `SupersedesDocumentId`, and does not add edit, replace, `PUT`, `PATCH`, or dedicated supersede endpoints.
+- Cleanup-timing implementation and coverage are complete: the cleanup path retains expired tenants in the `410` window until the 5-minute purge threshold, active and recently expired tenants are not purged early, and the docs/contracts now match that behavior.
+- Validation closeout is complete: targeted Docker-backed integration coverage and the canonical backend validation bundle both passed on `2026-07-15`.
 
 ## Touch Points
 - `src/PaperBinder.Api/`
@@ -82,7 +84,7 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - Reconcile contracts and docs in the same change set as each behavior slice.
 
 ## Next Action
-- Finish cleanup validation for active-lease safety and intended expiry timing.
+- None for `T-0034`. Move execution to `T-0035`.
 
 ## Validation Plan
 - Targeted `dotnet test` runs for each new integration slice
@@ -90,7 +92,18 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - `scripts/validate-docs.ps1` after contract/taskboard updates
 
 ## Outcome (Fill when done)
-- In progress. Seven backend carry-forward decisions/slices are complete; remaining work is limited to cleanup-validation follow-through.
+- Complete. `T-0034` now closes the API/backend carry-forward tranche by adding the cleanup-retention-window rule, reconciling the lease/cleanup contracts and docs, and proving the intended purge timing through unit, targeted Docker-backed integration, and canonical repo validation.
+
+## Validation Evidence
+- `dotnet build PaperBinder.sln -c Release --no-restore -p:SkipFrontendBuild=true -v minimal`: passed on `2026-07-15`
+- `dotnet test tests/PaperBinder.UnitTests/PaperBinder.UnitTests.csproj -c Release --no-restore --filter FullyQualifiedName~TenantLeaseLifecycleTests --logger "console;verbosity=minimal"`: passed on `2026-07-15`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`: passed on `2026-07-15`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test-integration.ps1 -Configuration Release -Category Docker -Filter "FullyQualifiedName~TenantLeaseLifecycleIntegrationTests|FullyQualifiedName~TenantImpersonationIntegrationTests|FullyQualifiedName~HardeningConsistencyIntegrationTests"`: passed on `2026-07-15` (`23` tests)
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release -DockerIntegrationMode Require`: passed on `2026-07-15`
+  - frontend component tests: `35` passed, `0` failed
+  - unit tests: `143` passed, `0` failed
+  - non-Docker integration tests: `32` passed, `0` failed
+  - Docker-backed integration tests: `104` passed, `0` failed
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

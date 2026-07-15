@@ -1,7 +1,7 @@
 # T-0035: Tenant-Host Failure Externalization And Trusted Expiry Recovery
 
 ## Status
-queued
+active
 
 ## Type
 feature
@@ -56,7 +56,7 @@ Implement the trust-aware tenant-host failure policy from `ADR-0014` so public o
 - Escalation Notes: If the current deployment topology leaks materially more tenant-existence signal than the application contract intends, record it as an operations follow-up rather than silently widening this task.
 
 ## Current State
-- Queued. The explicit policy is now documented, and the app-layer normalization work remains open.
+- Active. `T-0034` is now closed, the explicit policy remains documented, and this task is the next execution target for the `v1.1` queue.
 
 ## Touch Points
 - `src/PaperBinder.Api/TenantResolutionMiddleware.cs`

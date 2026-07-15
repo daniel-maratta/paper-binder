@@ -68,6 +68,21 @@ public sealed class TenantLeaseLifecycleTests
         Assert.True(projected.CanExtend);
     }
 
+    [Theory]
+    [InlineData("2026-04-10T11:55:01Z", false)]
+    [InlineData("2026-04-10T11:55:00Z", true)]
+    [InlineData("2026-04-10T11:50:00Z", true)]
+    public void TenantLeaseRules_Should_AllowPurgeOnlyAfterCleanupRetentionWindow(
+        string expiresAtUtc,
+        bool expectedPurgeEligible)
+    {
+        var purgeEligible = TenantLeaseRules.IsPurgeEligible(
+            DateTimeOffset.Parse(expiresAtUtc, System.Globalization.CultureInfo.InvariantCulture),
+            DateTimeOffset.Parse("2026-04-10T12:00:00Z", System.Globalization.CultureInfo.InvariantCulture));
+
+        Assert.Equal(expectedPurgeEligible, purgeEligible);
+    }
+
     [Fact]
     public void TenantLeaseProblemMapping_Should_MapStableLeaseSpecificConflictCodes()
     {

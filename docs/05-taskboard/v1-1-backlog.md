@@ -24,7 +24,7 @@ After this file lands:
 3. [T-0036: V1.1 Docs And Public-Copy Reconciliation](./tasks/T-0036-v1-1-docs-and-public-copy-reconciliation.md)
 4. [T-0037: V1.1 Final Validation And Close-Out](./tasks/T-0037-v1-1-final-validation-and-close-out.md)
 
-Current active execution target: `T-0034` (remaining slice: cleanup validation).
+Current active execution target: `T-0035`.
 
 ## Active Backlog Map
 
@@ -35,7 +35,7 @@ Current active execution target: `T-0034` (remaining slice: cleanup validation).
 | Move document-title uniqueness enforcement fully into the backend contract | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | `T-0033`, temp UI backlog | Do not leave as SPA-only behavior |
 | Ensure admins cannot create binder-policy states that strand admin authority | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | temp UI backlog | Admin manageability must remain authoritative |
 | Ensure generated tenant-user passwords are server-generated, not client-generated | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | temp UI backlog | Complete on the current branch; tenant-user create now returns server-generated one-time credentials |
-| Validate cleanup timing and ensure active-lease tenants are never purged early | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | temp UI backlog | Includes cleanup-agent active-lease safety |
+| Validate cleanup timing and ensure active-lease tenants are never purged early | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | temp UI backlog | Complete on branch, including targeted and canonical validation |
 | Flatten public or otherwise untrusted tenant-host failure behavior | [T-0035](./tasks/T-0035-tenant-host-failure-externalization-and-trusted-expiry-recovery.md) | `T-0033`, `ADR-0014`, temp UI backlog | Public concealment path |
 | Preserve explicit expired-workspace recovery for trusted authenticated tenant sessions | [T-0035](./tasks/T-0035-tenant-host-failure-externalization-and-trusted-expiry-recovery.md) | `T-0033`, `ADR-0014`, temp UI backlog | Trusted recovery path |
 | Align tenant-host API and non-API HTML fallback behavior with the trust split | [T-0035](./tasks/T-0035-tenant-host-failure-externalization-and-trusted-expiry-recovery.md) | `T-0033`, `ADR-0014` | Same policy on both surfaces |

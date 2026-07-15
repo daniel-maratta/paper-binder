@@ -91,11 +91,11 @@ As the platform, expired tenants are removed automatically so demo environments 
 
 ### Acceptance Criteria
 - Worker runs on fixed cadence (target: every minute).
-- Worker selects tenants where `ExpiresAt <= now`.
+- Worker selects tenants where `ExpiresAt <= now - 5 minutes`.
 - Worker hard-deletes expired tenants and tenant-owned data, including the tenant row, user memberships, tenant-owned users, binders, binder policies, and documents.
 - Cleanup is deterministic, idempotent, and leaves active tenants untouched.
 - Expired tenants are deleted within 5 minutes of lease expiry (best effort SLA).
-- Post-expiry API access before purge returns `410`.
+- Post-expiry API access before the cleanup threshold returns `410`.
 - Post-expiry API access after purge returns `404`.
 
 ## Slice 7: Tenant User Management

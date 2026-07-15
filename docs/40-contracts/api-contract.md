@@ -149,6 +149,7 @@ Notes:
   - Notes:
     - `secondsRemaining` is derived from server time and is never negative in a `200` response.
     - `canExtend` is true only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`, and `extensionCount` is below `maxExtensions`.
+    - Cleanup becomes eligible 5 minutes after expiry, so expired tenant-host requests remain in the `410` window until that threshold is crossed.
   - Idempotency: idempotent.
 
 - `POST /api/tenant/lease/extend`
@@ -179,6 +180,7 @@ Notes:
   - Notes:
     - The handler ignores client-supplied tenant identifiers, duration values, or other business inputs and operates only on the current host-resolved tenant.
     - `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the extension eligibility threshold and the amount added on success.
+    - An expired tenant continues returning `410` until it becomes purge-eligible 5 minutes after expiry.
   - Idempotency: not idempotent.
 
 ### Authentication
@@ -203,6 +205,8 @@ Notes:
     - `401` when credentials are invalid.
     - `410` when the resolved tenant is expired but not yet purged.
     - `429` when the shared pre-auth rate-limit budget is exhausted.
+  - Notes:
+    - Expired tenants remain in the `410` state until cleanup becomes eligible 5 minutes after expiry.
   - Idempotency: effectively idempotent for valid repeated submissions.
 
 - `POST /api/auth/logout`

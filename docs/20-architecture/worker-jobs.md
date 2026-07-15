@@ -7,7 +7,7 @@ Worker jobs enforce bounded lifecycle behavior for demo tenants.
 ## Expiry Cleanup Job (v1)
 
 - Cadence target: every 1 minute via `PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS`.
-- Selection rule: tenants with `ExpiresAt <= now`.
+- Selection rule: tenants with `ExpiresAt <= now - 5 minutes`.
 - Action: hard-delete tenant and all tenant-owned records in explicit system context.
 - Hard delete scope includes the tenant row, user memberships, current tenant-owned user records, binders, binder policies, and documents.
 - Selection and purge order must be deterministic and safe to retry.

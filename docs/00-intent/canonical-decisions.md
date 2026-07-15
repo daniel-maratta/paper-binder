@@ -80,11 +80,11 @@ Binders:
 
 Tenant lease:
 - Hard delete on expiration
-- No grace period
+- No access grace period after expiration
 - Extension allowed only when remaining lease is <= 10 minutes
 - Each extension adds +10 minutes
 - Maximum 3 extensions per tenant
-- Cleanup is eventual and expected within 5 minutes of expiry
+- Cleanup becomes eligible 5 minutes after expiry and is expected to complete within that window
 - Worker runs on a fixed cadence (target: every 1 minute)
 
 Database enforcement:
