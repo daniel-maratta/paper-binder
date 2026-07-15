@@ -456,6 +456,19 @@ Notes:
     - Binder-local policy still applies after endpoint authorization, so callers with `BinderWrite` cannot rename a same-tenant binder hidden behind `restricted_roles` they do not satisfy.
   - Idempotency: idempotent for same normalized name.
 
+- `DELETE /api/binders/{binderId}`
+  - Auth required: Y (`BinderWrite`)
+  - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Response example (`204`): no body.
+  - Failure semantics:
+    - `403` when the caller lacks the `BinderWrite` endpoint policy, binder-local policy denies the caller after endpoint authorization passes, or the request omits a valid CSRF token.
+    - `404` when the binder does not exist in the current tenant or the request host is not a tenant host.
+  - Notes:
+    - Deleting a binder also deletes its tenant-owned documents and binder policy through the existing cascade path.
+    - Binder-local policy still applies after endpoint authorization, so callers with `BinderWrite` cannot delete a same-tenant binder hidden behind `restricted_roles` they do not satisfy.
+  - Idempotency: not idempotent.
+
 - `GET /api/binders/{binderId}/policy`
   - Auth required: Y (`TenantAdmin`)
   - Tenant context source: subdomain plus cookie
@@ -679,6 +692,7 @@ Health payloads must not include dependency internals or version metadata.
 - `POST /api/binders` -> `BinderWrite`.
 - `GET /api/binders/{binderId}` -> `BinderRead`.
 - `PUT /api/binders/{binderId}` -> `BinderWrite` plus binder-local policy enforcement in the binder service.
+- `DELETE /api/binders/{binderId}` -> `BinderWrite` plus binder-local policy enforcement in the binder service.
 - `GET /api/binders/{binderId}/policy` -> `TenantAdmin`.
 - `PUT /api/binders/{binderId}/policy` -> `TenantAdmin`.
 - `GET /api/documents` -> `BinderRead`.

@@ -126,4 +126,11 @@ internal static class BinderSql
         where tenant_id = @TenantId
           and id = @BinderId;
         """;
+
+    public const string DeleteBinder =
+        """
+        delete from binders
+        where tenant_id = @TenantId
+          and id = @BinderId;
+        """;
 }

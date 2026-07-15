@@ -245,6 +245,86 @@ public sealed class DapperBinderService(
         return executionResult.Outcome;
     }
 
+    public async Task<BinderDeleteOutcome> DeleteAsync(
+        BinderDeleteCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        ArgumentNullException.ThrowIfNull(command.Tenant);
+
+        var outcome = await transactionScopeRunner.ExecuteAsync(
+            async (connection, transaction, innerCancellationToken) =>
+            {
+                var record = await connection.QuerySingleOrDefaultAsync<BinderDetailRecord>(
+                    new CommandDefinition(
+                        BinderSql.SelectBinderDetailForUpdate,
+                        new
+                        {
+                            TenantId = command.Tenant.TenantId,
+                            BinderId = command.BinderId
+                        },
+                        transaction,
+                        cancellationToken: innerCancellationToken));
+
+                if (record is null)
+                {
+                    return BinderDeleteOutcome.Failed(
+                        new BinderFailure(
+                            BinderFailureKind.NotFound,
+                            "The requested binder does not exist in the current tenant."));
+                }
+
+                var policy = record.ToPolicy();
+                if (!policyEvaluator.CanAccess(command.CallerRole, policy))
+                {
+                    return BinderDeleteOutcome.Failed(
+                        new BinderFailure(
+                            BinderFailureKind.PolicyDenied,
+                            "The current tenant role is not allowed to access this binder."));
+                }
+
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        BinderSql.DeleteBinder,
+                        new
+                        {
+                            TenantId = command.Tenant.TenantId,
+                            BinderId = command.BinderId
+                        },
+                        transaction,
+                        cancellationToken: innerCancellationToken));
+
+                return BinderDeleteOutcome.Success();
+            },
+            cancellationToken: cancellationToken);
+
+        if (!outcome.Succeeded)
+        {
+            logger.LogWarning(
+                "Binder delete rejected. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id} failure_kind={failure_kind}",
+                "binder_delete_rejected",
+                command.Tenant.TenantId,
+                command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
+                command.BinderId,
+                outcome.Failure!.Kind);
+
+            return outcome;
+        }
+
+        logger.LogInformation(
+            "Binder deleted. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id}",
+            "binder_deleted",
+            command.Tenant.TenantId,
+            command.ActorUserId,
+            command.EffectiveUserId,
+            command.IsImpersonated,
+            command.BinderId);
+
+        return outcome;
+    }
+
     public async Task<BinderPolicyReadOutcome> GetPolicyAsync(
         TenantContext tenant,
         Guid binderId,

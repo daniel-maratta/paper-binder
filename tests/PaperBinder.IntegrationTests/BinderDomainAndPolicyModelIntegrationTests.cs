@@ -448,6 +448,125 @@ public sealed class BinderDomainAndPolicyModelIntegrationTests(PostgresContainer
     }
 
     [Fact]
+    public async Task Should_DeleteBinder_AndCascadeDocuments_When_RequestIsValid()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp9-delete-binder");
+        var writer = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "writer@cp9-delete-binder.local", "checkpoint-9-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, writer, tenant, TenantRole.BinderWrite, isOwner: false);
+
+        var binder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(
+            host,
+            tenant,
+            "Delete Binder",
+            BinderPolicyMode.RestrictedRoles,
+            [TenantRole.TenantAdmin, TenantRole.BinderWrite]);
+        var document = await TenantResolutionIntegrationTestHost.SeedDocumentAsync(host, tenant, binder, "Delete Me", "# delete");
+
+        var session = await AuthIntegrationTestClient.LoginAsync(host, writer.Email, writer.Password);
+        using var deleteRequest = CreateTenantApiRequest(
+            HttpMethod.Delete,
+            tenant,
+            session,
+            $"/api/binders/{binder.Id:D}",
+            csrfToken: session.CsrfCookieValue);
+
+        var deleteResponse = await host.Client.SendAsync(deleteRequest);
+
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        AssertApiProtocolHeaders(deleteResponse);
+
+        using var binderRequest = CreateTenantApiRequest(HttpMethod.Get, tenant, session, $"/api/binders/{binder.Id:D}");
+        var binderResponse = await host.Client.SendAsync(binderRequest);
+        var binderProblem = await binderResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.NotFound, binderResponse.StatusCode);
+        AssertApiProtocolHeaders(binderResponse);
+        Assert.NotNull(binderProblem);
+        Assert.Equal(BinderNotFoundErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(binderProblem!, "errorCode"));
+
+        using var documentRequest = CreateTenantApiRequest(HttpMethod.Get, tenant, session, $"/api/documents/{document.Id:D}");
+        var documentResponse = await host.Client.SendAsync(documentRequest);
+        var documentProblem = await documentResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.NotFound, documentResponse.StatusCode);
+        AssertApiProtocolHeaders(documentResponse);
+        Assert.NotNull(documentProblem);
+        Assert.Equal("DOCUMENT_NOT_FOUND", TenantResolutionIntegrationTestHost.GetRequiredExtension(documentProblem!, "errorCode"));
+    }
+
+    [Fact]
+    public async Task Should_ReturnForbidden_When_BinderDeletePolicyDeniesSameTenantCaller()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp9-delete-denied");
+        var writer = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "writer@cp9-delete-denied.local", "checkpoint-9-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, writer, tenant, TenantRole.BinderWrite, isOwner: false);
+
+        var binder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(
+            host,
+            tenant,
+            "Admin Delete Binder",
+            BinderPolicyMode.RestrictedRoles,
+            [TenantRole.TenantAdmin]);
+
+        var session = await AuthIntegrationTestClient.LoginAsync(host, writer.Email, writer.Password);
+        using var deleteRequest = CreateTenantApiRequest(
+            HttpMethod.Delete,
+            tenant,
+            session,
+            $"/api/binders/{binder.Id:D}",
+            csrfToken: session.CsrfCookieValue);
+
+        var deleteResponse = await host.Client.SendAsync(deleteRequest);
+        var deleteProblem = await deleteResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+        AssertApiProtocolHeaders(deleteResponse);
+        Assert.NotNull(deleteProblem);
+        Assert.Equal(BinderPolicyDeniedErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(deleteProblem!, "errorCode"));
+    }
+
+    [Fact]
+    public async Task Should_ReturnNotFound_When_BinderDeleteTargetsAnotherTenant()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp9-delete-cross-tenant-a");
+        var otherTenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp9-delete-cross-tenant-b");
+        var otherTenantUser = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "writer@cp9-delete-cross-tenant-b.local", "checkpoint-9-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, otherTenantUser, otherTenant, TenantRole.BinderWrite, isOwner: false);
+
+        var binder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(
+            host,
+            tenant,
+            "Tenant A Delete Binder",
+            BinderPolicyMode.RestrictedRoles,
+            [TenantRole.TenantAdmin, TenantRole.BinderWrite]);
+
+        var session = await AuthIntegrationTestClient.LoginAsync(host, otherTenantUser.Email, otherTenantUser.Password);
+        using var deleteRequest = CreateTenantApiRequest(
+            HttpMethod.Delete,
+            otherTenant,
+            session,
+            $"/api/binders/{binder.Id:D}",
+            csrfToken: session.CsrfCookieValue);
+
+        var deleteResponse = await host.Client.SendAsync(deleteRequest);
+        var deleteProblem = await deleteResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+        AssertApiProtocolHeaders(deleteResponse);
+        Assert.NotNull(deleteProblem);
+        Assert.Equal(BinderNotFoundErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(deleteProblem!, "errorCode"));
+    }
+
+    [Fact]
     public async Task Should_RejectBinderCreate_When_CsrfTokenIsMissing()
     {
         await using var database = await postgres.CreateDatabaseAsync();
@@ -540,6 +659,38 @@ public sealed class BinderDomainAndPolicyModelIntegrationTests(PostgresContainer
     }
 
     [Fact]
+    public async Task Should_RejectBinderDelete_When_CsrfTokenIsMissing()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp9-delete-csrf");
+        var writer = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "writer@cp9-delete-csrf.local", "checkpoint-9-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, writer, tenant, TenantRole.BinderWrite, isOwner: false);
+
+        var binder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(
+            host,
+            tenant,
+            "Delete CSRF Binder",
+            BinderPolicyMode.RestrictedRoles,
+            [TenantRole.TenantAdmin, TenantRole.BinderWrite]);
+        var session = await AuthIntegrationTestClient.LoginAsync(host, writer.Email, writer.Password);
+        using var request = CreateTenantApiRequest(
+            HttpMethod.Delete,
+            tenant,
+            session,
+            $"/api/binders/{binder.Id:D}");
+
+        var response = await host.Client.SendAsync(request);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        AssertApiProtocolHeaders(response);
+        Assert.NotNull(problem);
+        Assert.Equal(CsrfTokenInvalidErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+    }
+
+    [Fact]
     public async Task Should_ReturnNotFound_When_RootHostRequestsBinderRenameEndpoint()
     {
         await using var database = await postgres.CreateDatabaseAsync();
@@ -561,6 +712,34 @@ public sealed class BinderDomainAndPolicyModelIntegrationTests(PostgresContainer
         request.Headers.Add("Cookie", session.ToCookieHeader());
         request.Headers.Add(CsrfHeaderName, session.CsrfCookieValue);
         request.Content = JsonContent.Create(new { name = "No Root Host Rename" });
+
+        var response = await host.Client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        AssertApiProtocolHeaders(response);
+    }
+
+    [Fact]
+    public async Task Should_ReturnNotFound_When_RootHostRequestsBinderDeleteEndpoint()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp9-root-host-delete");
+        var writer = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "writer@cp9-root-host-delete.local", "checkpoint-9-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, writer, tenant, TenantRole.BinderWrite, isOwner: false);
+
+        var binder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(
+            host,
+            tenant,
+            "Root Host Delete Binder",
+            BinderPolicyMode.RestrictedRoles,
+            [TenantRole.TenantAdmin, TenantRole.BinderWrite]);
+        var session = await AuthIntegrationTestClient.LoginAsync(host, writer.Email, writer.Password);
+        using var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/binders/{binder.Id:D}");
+        request.Headers.Host = "paperbinder.localhost";
+        request.Headers.Add("Cookie", session.ToCookieHeader());
+        request.Headers.Add(CsrfHeaderName, session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
 

@@ -57,9 +57,11 @@ As a tenant user with permission, I can create and view binders within my tenant
 - `POST /api/binders` defaults new binders to binder policy mode `inherit`.
 - `GET /api/binders` lists only binders for current tenant and omits restricted binders the caller cannot access.
 - `PUT /api/binders/{id}` renames a binder only when it belongs to the current tenant, the caller satisfies `BinderWrite`, and the binder-local policy also allows that caller to access the binder.
+- `DELETE /api/binders/{id}` deletes a binder only when it belongs to the current tenant, the caller satisfies `BinderWrite`, and the binder-local policy also allows that caller to access the binder.
 - Tenant-host `/app/binders` lists visible binders and owns binder creation in the browser.
 - `GET /api/binders/{id}` returns binder only when it belongs to current tenant and returns concrete visible document summaries in `documents`.
 - `GET /api/binders/{id}/policy` and `PUT /api/binders/{id}/policy` enforce tenant-admin policy management.
+- Deleting a binder removes its tenant-owned documents through the existing cascade path.
 - Binder policy payloads use `mode` plus exact-role `allowedRoles`.
 - Unauthorized access returns `403`, while wrong-tenant or unknown binders return `404`.
 
