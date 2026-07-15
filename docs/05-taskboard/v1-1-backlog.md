@@ -31,7 +31,7 @@ Current active execution target: `T-0034`.
 | Backlog item | Canonical owner | Source | Notes |
 | --- | --- | --- | --- |
 | Add tenant-scoped lifecycle endpoints: binder rename, binder delete, tenant-user delete | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | `T-0033`, temp UI backlog | API-authoritative follow-through from the upgraded authenticated surfaces |
-| Decide and implement any in-scope `v1.1.x` document edit or supersede follow-on operations | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | `T-0033`, temp UI backlog | Must remain inside `v1` scope constraints |
+| Close document edit/supersede follow-on scope for `v1.1.x` | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | `T-0033`, temp UI backlog | Closed in canon: keep read-only detail plus create-with-optional-supersedes only; no edit, replace, `PUT`, `PATCH`, or dedicated supersede endpoint |
 | Move document-title uniqueness enforcement fully into the backend contract | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | `T-0033`, temp UI backlog | Do not leave as SPA-only behavior |
 | Ensure admins cannot create binder-policy states that strand admin authority | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | temp UI backlog | Admin manageability must remain authoritative |
 | Ensure generated tenant-user passwords are server-generated, not client-generated | [T-0034](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md) | temp UI backlog | Server-authoritative credential generation rule |
