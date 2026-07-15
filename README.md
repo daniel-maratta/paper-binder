@@ -77,6 +77,8 @@ Canonical workspace commands live in `scripts/`:
   - `powershell -ExecutionPolicy Bypass -File .\scripts\restore.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\test-integration.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\migrate.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-version.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
@@ -89,6 +91,8 @@ Canonical workspace commands live in `scripts/`:
   - `pwsh ./scripts/restore.ps1`
   - `pwsh ./scripts/build.ps1`
   - `pwsh ./scripts/test.ps1`
+  - `pwsh ./scripts/test-frontend.ps1`
+  - `pwsh ./scripts/test-integration.ps1`
   - `pwsh ./scripts/migrate.ps1`
   - `pwsh ./scripts/validate-version.ps1`
   - `pwsh ./scripts/validate-docs.ps1`

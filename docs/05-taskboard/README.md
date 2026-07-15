@@ -2,7 +2,7 @@
 
 ## AI Summary
 
-- This lane contains the repo-native agent taskboard and durable execution-state artifacts.
+- This lane contains the repo-native internal taskboard and durable execution-state artifacts.
 - Use this lane when work needs to persist across checkpoints, PRs, or sessions.
 - Keep product intent in `docs/00-intent/`; keep execution state in this lane.
 
@@ -10,12 +10,14 @@
 
 - `docs/05-taskboard/task-tracking-policy.md`
 - `docs/05-taskboard/work-queue.md`
+- `docs/05-taskboard/v1-1-backlog.md`
 - `docs/05-taskboard/taskboard-intake.md`
 
 ## Artifacts
 
 - `docs/05-taskboard/taskboard-intake.md`
 - `docs/05-taskboard/work-queue.md`
+- `docs/05-taskboard/v1-1-backlog.md`
 - `docs/05-taskboard/tasks/`
 - `docs/05-taskboard/task-log/`
 
@@ -26,3 +28,5 @@ Use the taskboard whenever checkpoint execution, blockers, or discovered follow-
 Task files must capture review-gate outcomes, validation plans, validation evidence, and durable outcomes without turning the repo into a chat transcript.
 
 Default to a single active task in `Now` unless deliberate low-conflict parallel work justifies using the full WIP allowance.
+
+This lane is internal workflow material, not product canon or reviewer-first documentation.

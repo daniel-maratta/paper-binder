@@ -76,7 +76,6 @@ Notes:
 - Lease-extension window violations return `409` ProblemDetails with `errorCode` `TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN`.
 - Lease-extension limit violations return `409` ProblemDetails with `errorCode` `TENANT_LEASE_EXTENSION_LIMIT_REACHED`.
 - Invalid tenant role values return `422` ProblemDetails with `errorCode` `TENANT_ROLE_INVALID`.
-- Invalid tenant-user passwords return `422` ProblemDetails with `errorCode` `TENANT_USER_PASSWORD_INVALID`.
 - Tenant-local impersonation denial returns `403` with `TENANT_IMPERSONATION_NOT_ALLOWED`.
 - Invalid impersonation payloads return `400` with `TENANT_IMPERSONATION_TARGET_INVALID`.
 - Unknown or cross-tenant impersonation targets return `404` with `TENANT_IMPERSONATION_TARGET_NOT_FOUND`.
@@ -89,6 +88,7 @@ Notes:
 - Invalid binder-policy payloads return `422` ProblemDetails with `errorCode` `BINDER_POLICY_INVALID`.
 - Unknown tenant-scoped documents return `404` ProblemDetails with `errorCode` `DOCUMENT_NOT_FOUND`.
 - Document-title validation failures return `400` ProblemDetails with `errorCode` `DOCUMENT_TITLE_INVALID`.
+- Duplicate document titles within the same binder return `409` ProblemDetails with `errorCode` `DOCUMENT_TITLE_CONFLICT` unless the new document supersedes an earlier same-title document in that binder.
 - Missing or whitespace-only document content returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_REQUIRED`.
 - Document content longer than 50,000 characters returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TOO_LARGE`.
 - Unsupported document `contentType` values return `422` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TYPE_INVALID`.
@@ -149,6 +149,7 @@ Notes:
   - Notes:
     - `secondsRemaining` is derived from server time and is never negative in a `200` response.
     - `canExtend` is true only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`, and `extensionCount` is below `maxExtensions`.
+    - Cleanup becomes eligible 5 minutes after expiry, so expired tenant-host requests remain in the `410` window until that threshold is crossed.
   - Idempotency: idempotent.
 
 - `POST /api/tenant/lease/extend`
@@ -179,6 +180,7 @@ Notes:
   - Notes:
     - The handler ignores client-supplied tenant identifiers, duration values, or other business inputs and operates only on the current host-resolved tenant.
     - `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the extension eligibility threshold and the amount added on success.
+    - An expired tenant continues returning `410` until it becomes purge-eligible 5 minutes after expiry.
   - Idempotency: not idempotent.
 
 ### Authentication
@@ -203,6 +205,8 @@ Notes:
     - `401` when credentials are invalid.
     - `410` when the resolved tenant is expired but not yet purged.
     - `429` when the shared pre-auth rate-limit budget is exhausted.
+  - Notes:
+    - Expired tenants remain in the `410` state until cleanup becomes eligible 5 minutes after expiry.
   - Idempotency: effectively idempotent for valid repeated submissions.
 
 - `POST /api/auth/logout`
@@ -312,24 +316,31 @@ Notes:
     ```json
     {
       "email": "writer@acme-demo.local",
-      "password": "<temporary-password>",
       "role": "BinderWrite"
     }
     ```
   - Response example (`201`):
     ```json
     {
-      "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
-      "email": "writer@acme-demo.local",
-      "role": "BinderWrite",
-      "isOwner": false
+      "user": {
+        "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+        "email": "writer@acme-demo.local",
+        "role": "BinderWrite",
+        "isOwner": false
+      },
+      "credentials": {
+        "email": "writer@acme-demo.local",
+        "password": "<generated>"
+      }
     }
     ```
   - Failure semantics:
     - `400` when the email is empty, too long, contains whitespace, or does not contain exactly one `@`.
     - `409` when the requested email already exists.
     - `422` for invalid role values.
-    - `422` for passwords that fail the configured Identity password validators.
+  - Notes:
+    - The request never includes a password; the server generates a one-time password and returns it only in the successful create response.
+    - Clients should treat returned credentials as transient handoff data and should not expect a later read endpoint for the generated password.
   - Idempotency: not idempotent.
 
 - `POST /api/tenant/users/{userId}/role`
@@ -352,6 +363,17 @@ Notes:
     - `404` when the target user does not belong to the current tenant.
     - `409` when change would demote the last tenant admin.
     - `422` for invalid role value.
+  - Idempotency: conditionally idempotent.
+
+- `DELETE /api/tenant/users/{userId}`
+  - Auth required: Y (`TenantAdmin`)
+  - Tenant context source: subdomain plus cookie
+  - Success semantics:
+    - `204` when the target tenant-scoped user is deleted.
+  - Failure semantics:
+    - `404` when the target user does not belong to the current tenant.
+    - `409` when delete would remove the last remaining tenant admin.
+    - `409` when delete would remove the last remaining tenant owner.
   - Idempotency: conditionally idempotent.
 
 ### Binders
@@ -432,6 +454,43 @@ Notes:
     - Archived documents are hidden by default in binder detail responses.
   - Idempotency: idempotent.
 
+- `PUT /api/binders/{binderId}`
+  - Auth required: Y (`BinderWrite`)
+  - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Request example:
+    ```json
+    { "name": "Executive Policies" }
+    ```
+  - Response example (`200`):
+    ```json
+    {
+      "binderId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "name": "Executive Policies",
+      "createdAt": "2026-04-07T15:30:00Z"
+    }
+    ```
+  - Failure semantics:
+    - `400` when the binder name is empty, whitespace-only, or longer than 200 characters after trimming.
+    - `403` when the caller lacks the `BinderWrite` endpoint policy, binder-local policy denies the caller after endpoint authorization passes, or the request omits a valid CSRF token.
+    - `404` when the binder does not exist in the current tenant or the request host is not a tenant host.
+  - Notes:
+    - Binder-local policy still applies after endpoint authorization, so callers with `BinderWrite` cannot rename a same-tenant binder hidden behind `restricted_roles` they do not satisfy.
+  - Idempotency: idempotent for same normalized name.
+
+- `DELETE /api/binders/{binderId}`
+  - Auth required: Y (`BinderWrite`)
+  - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Response example (`204`): no body.
+  - Failure semantics:
+    - `403` when the caller lacks the `BinderWrite` endpoint policy, binder-local policy denies the caller after endpoint authorization passes, or the request omits a valid CSRF token.
+    - `404` when the binder does not exist in the current tenant or the request host is not a tenant host.
+  - Notes:
+    - Deleting a binder also deletes its tenant-owned documents and binder policy through the existing cascade path.
+    - Binder-local policy still applies after endpoint authorization, so callers with `BinderWrite` cannot delete a same-tenant binder hidden behind `restricted_roles` they do not satisfy.
+  - Idempotency: not idempotent.
+
 - `GET /api/binders/{binderId}/policy`
   - Auth required: Y (`TenantAdmin`)
   - Tenant context source: subdomain plus cookie
@@ -457,6 +516,7 @@ Notes:
   - Policy payload rules:
     - `allowedRoles` must be empty when `mode=inherit`.
     - `allowedRoles` must contain one or more exact v1 tenant role values when `mode=restricted_roles`.
+    - `allowedRoles` must include `TenantAdmin` when `mode=restricted_roles` so tenant-admin authority remains authoritative.
   - Request example:
     ```json
     {
@@ -561,11 +621,13 @@ Notes:
     ```
   - Failure semantics:
     - `400` when `binderId` is missing, title is empty/whitespace/overlength after trimming, content is empty/whitespace, or content exceeds 50,000 characters.
+    - `409` when a document with the same trimmed title already exists in the binder and the request is not superseding an earlier same-title document in that binder.
     - `403` when binder-local policy denies the target binder after the `BinderWrite` endpoint policy has already passed, or the request omits a valid CSRF token.
     - `404` when the target binder does not exist in the current tenant or the request host is not a tenant host.
     - `422` when `contentType` is not the exact value `markdown` or `supersedesDocumentId` does not reference an existing document in the same tenant and same binder.
   - Notes:
     - Titles are trimmed and must be 1-200 characters after trimming.
+    - Title uniqueness is binder-local; a reused title is allowed only when `supersedesDocumentId` points at an earlier same-title document in that binder.
     - Stored `content` remains raw markdown; rendered HTML is not stored in CP10.
     - The browser renders document content as HTML-encoded safe source only; v1 does not parse markdown or allow raw HTML.
   - Idempotency: not idempotent.
@@ -651,9 +713,12 @@ Health payloads must not include dependency internals or version metadata.
 - `GET /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users/{userId}/role` -> `TenantAdmin`.
+- `DELETE /api/tenant/users/{userId}` -> `TenantAdmin`.
 - `GET /api/binders` -> `BinderRead`.
 - `POST /api/binders` -> `BinderWrite`.
 - `GET /api/binders/{binderId}` -> `BinderRead`.
+- `PUT /api/binders/{binderId}` -> `BinderWrite` plus binder-local policy enforcement in the binder service.
+- `DELETE /api/binders/{binderId}` -> `BinderWrite` plus binder-local policy enforcement in the binder service.
 - `GET /api/binders/{binderId}/policy` -> `TenantAdmin`.
 - `PUT /api/binders/{binderId}/policy` -> `TenantAdmin`.
 - `GET /api/documents` -> `BinderRead`.

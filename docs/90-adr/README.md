@@ -3,7 +3,8 @@
 ## AI Summary
 
 - This lane records architecture decisions that are expensive to reverse.
-- ADRs are binding unless superseded by newer ADRs.
+- Approved ADRs are binding unless superseded by newer ADRs.
+- Proposed ADRs are candidate canon only and do not bind the repo until approved.
 - Follow repository ADR policy from root and intent constraints when proposing new ADRs.
 
 ## Read First
@@ -17,6 +18,8 @@
 - `docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md`
 - `docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md`
 - `docs/90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md`
+- `docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md`
+- `docs/90-adr/ADR-0014-tenant-host-failure-externalization-and-trusted-expiry-disclosure.md`
 
 ## Key Decision Clusters
 
@@ -28,3 +31,5 @@
 - Deployment distribution and environment indexing: `ADR-0012`
 - Architecture scope constraints: `ADR-0005`
 - Frontend/testing foundation: `ADR-0009`, `ADR-0010`
+- Presentation canon and reviewer-support posture: `ADR-0013`
+- Tenant-host disclosure and trusted expiry posture: `ADR-0014`

@@ -12,7 +12,6 @@ public sealed record TenantUserCreateCommand(
     Guid EffectiveUserId,
     bool IsImpersonated,
     string Email,
-    string Password,
     string Role);
 
 public sealed record TenantUserRoleChangeCommand(
@@ -23,13 +22,20 @@ public sealed record TenantUserRoleChangeCommand(
     Guid TargetUserId,
     string Role);
 
+public sealed record TenantUserDeleteCommand(
+    Guid TenantId,
+    Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
+    Guid TargetUserId);
+
 public enum TenantUserAdministrationFailureKind
 {
     UserNotFound,
     EmailConflict,
     InvalidRole,
-    InvalidPassword,
-    LastTenantAdminRequired
+    LastTenantAdminRequired,
+    LastTenantOwnerRequired
 }
 
 public sealed record TenantUserAdministrationFailure(
@@ -37,13 +43,17 @@ public sealed record TenantUserAdministrationFailure(
     string Detail,
     IReadOnlyList<string>? ValidationMessages = null);
 
+public sealed record CreatedTenantUser(
+    TenantUserSummary User,
+    string GeneratedPassword);
+
 public sealed record TenantUserCreateOutcome(
     bool Succeeded,
-    TenantUserSummary? User,
+    CreatedTenantUser? CreatedUser,
     TenantUserAdministrationFailure? Failure)
 {
-    public static TenantUserCreateOutcome Success(TenantUserSummary user) =>
-        new(true, user, null);
+    public static TenantUserCreateOutcome Success(CreatedTenantUser createdUser) =>
+        new(true, createdUser, null);
 
     public static TenantUserCreateOutcome Failed(TenantUserAdministrationFailure failure) =>
         new(false, null, failure);
@@ -59,4 +69,15 @@ public sealed record TenantUserRoleChangeOutcome(
 
     public static TenantUserRoleChangeOutcome Failed(TenantUserAdministrationFailure failure) =>
         new(false, null, failure);
+}
+
+public sealed record TenantUserDeleteOutcome(
+    bool Succeeded,
+    TenantUserAdministrationFailure? Failure)
+{
+    public static TenantUserDeleteOutcome Success() =>
+        new(true, null);
+
+    public static TenantUserDeleteOutcome Failed(TenantUserAdministrationFailure failure) =>
+        new(false, failure);
 }

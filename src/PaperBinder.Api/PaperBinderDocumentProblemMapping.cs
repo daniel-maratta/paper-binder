@@ -19,6 +19,12 @@ internal static class PaperBinderDocumentProblemMapping
                 failure.Detail,
                 PaperBinderErrorCodes.DocumentTitleInvalid),
 
+            DocumentFailureKind.TitleConflict => new(
+                StatusCodes.Status409Conflict,
+                "Document title already exists.",
+                failure.Detail,
+                PaperBinderErrorCodes.DocumentTitleConflict),
+
             DocumentFailureKind.ContentRequired => new(
                 StatusCodes.Status400BadRequest,
                 "Document content required.",

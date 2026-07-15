@@ -56,10 +56,13 @@ As a tenant user with permission, I can create and view binders within my tenant
 - `POST /api/binders` creates a binder scoped to current tenant.
 - `POST /api/binders` defaults new binders to binder policy mode `inherit`.
 - `GET /api/binders` lists only binders for current tenant and omits restricted binders the caller cannot access.
+- `PUT /api/binders/{id}` renames a binder only when it belongs to the current tenant, the caller satisfies `BinderWrite`, and the binder-local policy also allows that caller to access the binder.
+- `DELETE /api/binders/{id}` deletes a binder only when it belongs to the current tenant, the caller satisfies `BinderWrite`, and the binder-local policy also allows that caller to access the binder.
 - Tenant-host `/app/binders` lists visible binders and owns binder creation in the browser.
 - `GET /api/binders/{id}` returns binder only when it belongs to current tenant and returns concrete visible document summaries in `documents`.
 - `GET /api/binders/{id}/policy` and `PUT /api/binders/{id}/policy` enforce tenant-admin policy management.
-- Binder policy payloads use `mode` plus exact-role `allowedRoles`.
+- Deleting a binder removes its tenant-owned documents through the existing cascade path.
+- Binder policy payloads use `mode` plus exact-role `allowedRoles`, and any `restricted_roles` policy must include `TenantAdmin` so tenant-admin authority cannot be stranded accidentally.
 - Unauthorized access returns `403`, while wrong-tenant or unknown binders return `404`.
 
 ## Slice 5: Documents (Immutable)
@@ -70,6 +73,7 @@ As a tenant user with permission, I can create and read immutable text documents
 ### Acceptance Criteria
 - `POST /api/documents` creates immutable text document in a tenant binder.
 - `POST /api/documents` trims title to 1-200 characters, requires exact `contentType=markdown`, requires non-whitespace content <= 50,000 characters, and accepts optional same-binder `SupersedesDocumentId`.
+- `POST /api/documents` enforces binder-local title uniqueness unless the new document supersedes an earlier same-title document in that binder.
 - Tenant-host `/app/binders/{binderId}` owns document creation, and `/app/documents/{documentId}` owns read-only document detail in the browser.
 - `GET /api/documents` lists documents scoped to current tenant, omits restricted binders on unfiltered requests, and returns `403` when an explicit binder filter targets a same-tenant binder denied by binder-local policy.
 - `GET /api/documents/{id}` returns document only when tenant-scoped access is valid and still allows direct-id reads of archived documents.
@@ -87,11 +91,11 @@ As the platform, expired tenants are removed automatically so demo environments 
 
 ### Acceptance Criteria
 - Worker runs on fixed cadence (target: every minute).
-- Worker selects tenants where `ExpiresAt <= now`.
+- Worker selects tenants where `ExpiresAt <= now - 5 minutes`.
 - Worker hard-deletes expired tenants and tenant-owned data, including the tenant row, user memberships, tenant-owned users, binders, binder policies, and documents.
 - Cleanup is deterministic, idempotent, and leaves active tenants untouched.
 - Expired tenants are deleted within 5 minutes of lease expiry (best effort SLA).
-- Post-expiry API access before purge returns `410`.
+- Post-expiry API access before the cleanup threshold returns `410`.
 - Post-expiry API access after purge returns `404`.
 
 ## Slice 7: Tenant User Management
@@ -101,10 +105,13 @@ As a tenant admin, I can manage tenant users and assign roles without crossing t
 
 ### Acceptance Criteria
 - `GET /api/tenant/users` returns only users for the current tenant.
-- `POST /api/tenant/users` creates a tenant-scoped user with an initial role.
+- `POST /api/tenant/users` creates a tenant-scoped user with an initial role and returns server-generated one-time credentials exactly once in the create response.
 - `POST /api/tenant/users/{userId}/role` changes role only for tenant-scoped users.
-- Tenant-host `/app/users` exposes list, create, and role-change behavior only for `TenantAdmin`.
+- `DELETE /api/tenant/users/{userId}` deletes only tenant-scoped users and removes their current tenant-owned identity record.
+- Tenant-host `/app/users` exposes list, create, role-change, and delete behavior only for `TenantAdmin`, and shows the generated one-time credentials only in the immediate post-create handoff state.
 - Attempting to demote the last remaining tenant admin returns `409`.
+- Attempting to delete the last remaining tenant admin returns `409`.
+- Attempting to delete the last remaining tenant owner returns `409`.
 - Non-admin callers receive `403` for tenant user-management routes.
 
 ## Slice 8: Tenant-Local Impersonation

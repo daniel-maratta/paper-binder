@@ -18,8 +18,8 @@ internal static class PaperBinderErrorCodes
     public const string TenantUserNotFound = "TENANT_USER_NOT_FOUND";
     public const string TenantUserEmailConflict = "TENANT_USER_EMAIL_CONFLICT";
     public const string LastTenantAdminRequired = "LAST_TENANT_ADMIN_REQUIRED";
+    public const string LastTenantOwnerRequired = "LAST_TENANT_OWNER_REQUIRED";
     public const string TenantRoleInvalid = "TENANT_ROLE_INVALID";
-    public const string TenantUserPasswordInvalid = "TENANT_USER_PASSWORD_INVALID";
     public const string TenantImpersonationNotAllowed = "TENANT_IMPERSONATION_NOT_ALLOWED";
     public const string TenantImpersonationTargetInvalid = "TENANT_IMPERSONATION_TARGET_INVALID";
     public const string TenantImpersonationTargetNotFound = "TENANT_IMPERSONATION_TARGET_NOT_FOUND";
@@ -33,6 +33,7 @@ internal static class PaperBinderErrorCodes
     public const string BinderPolicyDenied = "BINDER_POLICY_DENIED";
     public const string DocumentNotFound = "DOCUMENT_NOT_FOUND";
     public const string DocumentTitleInvalid = "DOCUMENT_TITLE_INVALID";
+    public const string DocumentTitleConflict = "DOCUMENT_TITLE_CONFLICT";
     public const string DocumentContentRequired = "DOCUMENT_CONTENT_REQUIRED";
     public const string DocumentContentTooLarge = "DOCUMENT_CONTENT_TOO_LARGE";
     public const string DocumentContentTypeInvalid = "DOCUMENT_CONTENT_TYPE_INVALID";

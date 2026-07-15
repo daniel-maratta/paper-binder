@@ -165,6 +165,7 @@ All entities are tenant-scoped unless explicitly global.
 - Documents are immutable after creation.
 - Changes require creating a new document (optional `SupersedesDocumentId` metadata).
 - Document titles are trimmed and must be 1-200 characters after trimming.
+- Document titles are unique within a binder unless the new document supersedes an earlier same-title document in that binder.
 - Document `contentType` must be the exact contract value `markdown`.
 - Document content must be non-whitespace and no longer than 50,000 characters.
 - `SupersedesDocumentId`, when supplied, must reference another document in the same tenant and same binder.
@@ -184,6 +185,7 @@ All entities are tenant-scoped unless explicitly global.
 
 - Each demo tenant has an expiration timestamp.
 - Background worker checks for expired tenants on a fixed cadence (target: every minute).
+- Expired tenants remain in the expired-but-not-purged `410` state until they reach the 5-minute cleanup threshold.
 - Expired tenants are hard-deleted.
 - Cleanup removes the tenant row, user memberships, tenant-owned user records, binders, binder policies, documents, and other current tenant-owned rows.
 - Cleanup is deterministic and idempotent.

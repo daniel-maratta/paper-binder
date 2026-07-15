@@ -118,6 +118,11 @@ export type TenantUser = {
   isOwner: boolean;
 };
 
+export type TenantUserCredentials = {
+  email: string;
+  password: string;
+};
+
 export type TenantImpersonationUser = {
   userId: string;
   email: string;
@@ -136,8 +141,12 @@ export type ListTenantUsersResponse = {
 
 export type CreateTenantUserRequest = {
   email: string;
-  password: string;
   role: TenantRole;
+};
+
+export type CreateTenantUserResponse = {
+  user: TenantUser;
+  credentials: TenantUserCredentials;
 };
 
 export type UpdateTenantUserRoleRequest = {
@@ -543,8 +552,11 @@ export function createPaperBinderApiClient({
 
       return response.data.users;
     },
-    async createTenantUser(body: CreateTenantUserRequest, signal?: AbortSignal): Promise<TenantUser> {
-      const response = await request<TenantUser>({
+    async createTenantUser(
+      body: CreateTenantUserRequest,
+      signal?: AbortSignal
+    ): Promise<CreateTenantUserResponse> {
+      const response = await request<CreateTenantUserResponse>({
         path: "/api/tenant/users",
         method: "POST",
         body,

@@ -18,6 +18,10 @@ internal static class PaperBinderBinderEndpoints
             .RequireAuthorization(PaperBinderAuthorizationPolicyNames.BinderWrite);
         binders.MapGet("/{binderId:guid}", GetBinderAsync)
             .RequireAuthorization(PaperBinderAuthorizationPolicyNames.BinderRead);
+        binders.MapPut("/{binderId:guid}", RenameBinderAsync)
+            .RequireAuthorization(PaperBinderAuthorizationPolicyNames.BinderWrite);
+        binders.MapDelete("/{binderId:guid}", DeleteBinderAsync)
+            .RequireAuthorization(PaperBinderAuthorizationPolicyNames.BinderWrite);
         binders.MapGet("/{binderId:guid}/policy", GetBinderPolicyAsync)
             .RequireAuthorization(PaperBinderAuthorizationPolicyNames.TenantAdmin);
         binders.MapPut("/{binderId:guid}/policy", UpdateBinderPolicyAsync)
@@ -103,6 +107,72 @@ internal static class PaperBinderBinderEndpoints
         await context.Response.WriteAsJsonAsync(
             PaperBinderBinderResponseMapping.MapDetail(outcome.Binder!, documents),
             cancellationToken);
+    }
+
+    private static async Task RenameBinderAsync(
+        HttpContext context,
+        Guid binderId,
+        IBinderService binderService,
+        IRequestTenantContext tenantContext,
+        IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
+        IProblemDetailsService problemDetailsService,
+        UpdateBinderRequest request,
+        CancellationToken cancellationToken)
+    {
+        var tenant = GetRequiredTenant(tenantContext);
+        var membership = GetRequiredMembership(membershipContext);
+        var outcome = await binderService.RenameAsync(
+            new BinderRenameCommand(
+                tenant,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated,
+                membership.Role,
+                binderId,
+                request.Name),
+            cancellationToken);
+
+        if (!outcome.Succeeded)
+        {
+            await WriteFailureAsync(context, problemDetailsService, outcome.Failure!);
+            return;
+        }
+
+        await context.Response.WriteAsJsonAsync(
+            PaperBinderBinderResponseMapping.MapSummary(outcome.Binder!),
+            cancellationToken);
+    }
+
+    private static async Task DeleteBinderAsync(
+        HttpContext context,
+        Guid binderId,
+        IBinderService binderService,
+        IRequestTenantContext tenantContext,
+        IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
+        IProblemDetailsService problemDetailsService,
+        CancellationToken cancellationToken)
+    {
+        var tenant = GetRequiredTenant(tenantContext);
+        var membership = GetRequiredMembership(membershipContext);
+        var outcome = await binderService.DeleteAsync(
+            new BinderDeleteCommand(
+                tenant,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated,
+                membership.Role,
+                binderId),
+            cancellationToken);
+
+        if (!outcome.Succeeded)
+        {
+            await WriteFailureAsync(context, problemDetailsService, outcome.Failure!);
+            return;
+        }
+
+        context.Response.StatusCode = StatusCodes.Status204NoContent;
     }
 
     private static async Task GetBinderPolicyAsync(

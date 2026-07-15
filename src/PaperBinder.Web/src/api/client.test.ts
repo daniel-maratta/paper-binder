@@ -416,10 +416,16 @@ describe("api client", () => {
       if (url.endsWith("/api/tenant/users") && init?.method === "POST") {
         return new Response(
           JSON.stringify({
-            userId: "user-2",
-            email: "writer@acme-demo.local",
-            role: "BinderWrite",
-            isOwner: false
+            user: {
+              userId: "user-2",
+              email: "writer@acme-demo.local",
+              role: "BinderWrite",
+              isOwner: false
+            },
+            credentials: {
+              email: "writer@acme-demo.local",
+              password: "generated-password"
+            }
           }),
           {
             status: 201,
@@ -480,7 +486,6 @@ describe("api client", () => {
     const tenantUsers = await apiClient.listTenantUsers();
     const createdTenantUser = await apiClient.createTenantUser({
       email: "writer@acme-demo.local",
-      password: "temporary-password",
       role: "BinderWrite"
     });
     const updatedTenantUser = await apiClient.updateTenantUserRole("user-2", {
@@ -501,7 +506,8 @@ describe("api client", () => {
     expect(documentDetail.documentId).toBe("document-1");
     expect(createdDocument.documentId).toBe("document-2");
     expect(tenantUsers).toHaveLength(1);
-    expect(createdTenantUser.role).toBe("BinderWrite");
+    expect(createdTenantUser.user.role).toBe("BinderWrite");
+    expect(createdTenantUser.credentials.password).toBe("generated-password");
     expect(updatedTenantUser.role).toBe("BinderRead");
     expect(fetchMock).toHaveBeenCalledTimes(15);
   });

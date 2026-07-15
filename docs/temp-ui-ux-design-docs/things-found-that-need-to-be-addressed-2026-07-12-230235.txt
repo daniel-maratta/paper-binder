@@ -1,0 +1,100 @@
+Things to address as of July 12th, 2026, 11:35 PM.
+
+Historical note
+- Active `v1.1` backlog tracking now lives in `docs/05-taskboard/v1-1-backlog.md`.
+- This file remains preserved as historical exploratory input and source material.
+
+Status
+- Tighten up the obvious AI funkiness in the implementation and copy.
+  - DONE for the first pass; continue the copy/quality pass later as part of close-out.
+- UI/UX/site copy updates.
+  - IN PROGRESS
+
+Batch 1 - Brand + UI polish only
+- Replace the current visual brand assets with the new set:
+  - `favicon.ico`
+  - `pb-full-logo-color.png`
+  - `pb-full-logo-white.png`
+  - `pb-icon-flat.png`
+  - `pb-icon.png`
+- Update favicon wiring, app/site metadata, and site description to align with the new brand assets.
+- Reduce the landing page's largest headline so it feels closer to the sample site's "big and bold" rather than oversized/heavy.
+- Ensure button contrast is correct everywhere:
+  - dark buttons must use light text
+  - light buttons must use dark text
+- Fix the remaining poor contrast on the `/app` "Review Binders" / "Add your first binder" CTA and keep that CTA in the dark-blue style used by the left-hand menu.
+- Make the tenant name pill and the Log Out button the same height if they still feel mismatched.
+- Make the binder icon bigger on the Binders screen and add it to the dashboard binders list section if that still reads better visually.
+- Add copy-to-clipboard affordances with icon + tooltip where newly created tenant credentials are shown:
+  - email
+  - password
+- Change `Copyright 2026 PaperBinder` to include the copyright symbol.
+- Display the current runtime version somewhere in the app.
+
+Batch 2 - Product copy and UX polish
+- Make sure we clearly tell users that this is a timed, ephemeral demo with periodic tenant cleanup.
+- Align the tenant-creation-page secondary auth buttons:
+  - `"Use sign-in instead"`
+  - `"Go to login"`
+  - fix both contrast and language consistency
+- Identify site copy that feels too specific, too mechanical, or AI-smelling, and rewrite it in a cleaner product voice.
+  - Example targets:
+    - `"The browser could not reach PaperBinder. Check the local stack and retry."`
+    - `"The timer stays visible so expiry is obvious. When the remaining time crosses the server-defined threshold, the extend action will open in the top workspace banner."`
+- Keep the 404 experience stylized for `v1.1.0`.
+  - Defer any game treatment until after `v1.1.0`.
+
+Batch 3 - Interaction and presentation behaviors
+- Have toast/notification auto-dismiss pause when the notification is hovered over.
+- Display documents as Markdown when the content is valid/appropriate to do so.
+- Improve the expired-tenant fallback flow so it is visually consistent and intentionally handled:
+  - when a signed-in tenant expires, the experience should not flip inconsistently between light and dark treatments
+  - the recovery action should be deliberate and stable
+  - include a "Return to main site" path where appropriate
+- Re-think the expired / forbidden / not-found public-facing wording so it does not over-signal whether a tenant exists.
+
+Batch 4 - User/admin UX follow-ups
+- Tenant-user creation should offer the same auto-generated-password option used for initial tenant admin creation.
+- Unauthenticated side
+  - Global
+    - Make the "Stop impersonation" a different color so as to make it much more noticeable when impersonating
+    - All IDs, where displayed in the app, should be copyable when clicked througout the app, just like how it's done on the "Reference Metadata" section of the `documents/[id]` page.
+  - Landing page
+    - Add a phone device preview over the right side of the desktop window preview
+    - Update the screenshots
+    - The countdown box should only change color when there's less than 10 minutes remaining instead of less than 15 minutes remaining.
+  - /start-demo
+- Authenticated side:
+  - Clicking on "About Paperbinder" should open a new tab
+
+API / backend carry-forwards after the UI tranche
+- Do the API-related changes identified by the upgraded UI.
+- Ensure an admin cannot create a binder that nobody with admin authority can manage.
+  - Admin access to binders should remain authoritative and should not be removable through a role-selection mistake.
+- Add the missing tenant-scoped lifecycle endpoints the upgraded authenticated surfaces now want:
+  - binder rename
+  - binder delete
+  - tenant-user delete, including last-admin and owner-safety rules
+  - document edit and document supersede follow-on operations if those remain in scope for `v1.1.x`
+- Move document-title uniqueness enforcement into the backend contract if the product direction remains:
+  - titles must be unique within a binder unless the new document supersedes the same-title predecessor
+- Validate tenant clearing / cleanup timing logic.
+- Consider exposing an explicit terminal-tenant-state contract from the backend so the SPA can handle "demo expired" deliberately rather than inferring only from current error behavior.
+-------> We should be at this point. Previous items should be complete and subsequent items should still be addressed. <-------
+- Revisit tenant-host failure externalization from a competence-signalling perspective:
+  - consider flattening `TENANT_FORBIDDEN` and `TENANT_NOT_FOUND` into a more generic public problem shape/copy
+  - preserve internal auditability and correlation-id usefulness even if the public distinction is flattened
+- Ensure that the "Generate Password" happens on the server, not the client
+- Ensure that the cleanup agent doesn't clean up tenants that are still in their active lease
+
+Deferred until after `v1.1.0`
+- Add a Light / Dark / System theme preference.
+  - Defer cookie or persistence decisions with it.
+- Add a fun 404 game treatment.
+
+Final implementation / close-out items
+- Insert the poison pill implementation item near the end of the implementation sequence, right before the final major review.
+- Do responsive QA.
+- Do the accessibility audit/remediation pass.
+- Do the final staff-level code quality audit across the changed surface area.
+- Do the final controlled copy pass against the forbidden-implication rules.

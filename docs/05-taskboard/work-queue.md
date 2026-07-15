@@ -11,11 +11,12 @@ This is the active PaperBinder task board for agent execution.
 
 ## Now (WIP 1-3)
 
-- (empty)
+- [T-0035: Tenant-Host Failure Externalization And Trusted Expiry Recovery](./tasks/T-0035-tenant-host-failure-externalization-and-trusted-expiry-recovery.md)
 
 ## Next
 
-- (empty)
+- [T-0036: V1.1 Docs And Public-Copy Reconciliation](./tasks/T-0036-v1-1-docs-and-public-copy-reconciliation.md)
+- [T-0037: V1.1 Final Validation And Close-Out](./tasks/T-0037-v1-1-final-validation-and-close-out.md)
 
 ## Later
 
@@ -27,6 +28,8 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0034: V1.1 API And Backend Carry-Forwards](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md)
+- [T-0033: Phase 4.1 V1.1 Presentation Realignment](./tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md)
 - [T-0032: CP17 Release Preparation And Reviewer Snapshot](./tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md)
 - [T-0031: CP16 Hardening And Consistency Pass](./tasks/T-0031-cp16-hardening-and-consistency-pass.md)
 - [T-0030: CP15 Tenant-Local Impersonation And Audit Safety](./tasks/T-0030-cp15-tenant-local-impersonation-and-audit-safety.md)

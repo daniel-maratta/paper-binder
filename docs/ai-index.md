@@ -16,22 +16,35 @@ Start here, then load only the lane docs relevant to the task.
 4. [docs/30-security/tenant-isolation.md](./30-security/tenant-isolation.md)
 5. [docs/40-contracts/api-contract.md](./40-contracts/api-contract.md)
 
+## Active V1.1 Presentation Canon
+
+The approved `v1.1` presentation contract and `ADR-0013` are the active forward presentation canon for this phase. Current V1 presentation docs remain available as historical shipped-surface references, and the redesign packet remains exploratory input only.
+
+- [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) `(Approved)`
+- [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md) `(Approved)`
+
+## Active V1.1 Presentation Planning
+
+- [docs/10-product/presentation-adoption-plan-v1-1.md](./10-product/presentation-adoption-plan-v1-1.md) `(Implementation planning under approved canon)`
+- [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) `(Current canonical backlog and execution order for the remaining v1.1 work)`
+- [docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md](./05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md) `(Completed Phase 4.1 presentation/UI tranche record)`
+
 ## Lane Indexes
 
 - [docs/00-intent/README.md](./00-intent/README.md)
-- [docs/05-taskboard/README.md](./05-taskboard/README.md)
+- [docs/05-taskboard/README.md](./05-taskboard/README.md) `(internal execution state)`
 - [docs/10-product/README.md](./10-product/README.md)
 - [docs/15-feature-definition/README.md](./15-feature-definition/README.md)
 - [docs/20-architecture/README.md](./20-architecture/README.md)
 - [docs/30-security/README.md](./30-security/README.md)
 - [docs/40-contracts/README.md](./40-contracts/README.md)
-- [docs/50-engineering/README.md](./50-engineering/README.md)
-- [docs/55-execution/README.md](./55-execution/README.md)
+- [docs/50-engineering/README.md](./50-engineering/README.md) `(active standards plus historical remediation records)`
+- [docs/55-execution/README.md](./55-execution/README.md) `(internal V1 execution history)`
 - [docs/60-ai/README.md](./60-ai/README.md)
 - [docs/70-operations/README.md](./70-operations/README.md)
 - [docs/80-testing/README.md](./80-testing/README.md)
 - [docs/90-adr/README.md](./90-adr/README.md)
-- [docs/95-delivery/README.md](./95-delivery/README.md)
+- [docs/95-delivery/README.md](./95-delivery/README.md) `(active release guidance plus historical PR artifacts)`
 
 ## Key ADRs
 
@@ -42,12 +55,20 @@ Start here, then load only the lane docs relevant to the task.
 - [docs/90-adr/ADR-0010-playwright-root-host-e2e-runtime.md](./90-adr/ADR-0010-playwright-root-host-e2e-runtime.md)
 - [docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md](./90-adr/ADR-0011-observability-opentelemetry-baseline.md)
 - [docs/90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md](./90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md)
+- [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md)
+- [docs/90-adr/ADR-0014-tenant-host-failure-externalization-and-trusted-expiry-disclosure.md](./90-adr/ADR-0014-tenant-host-failure-externalization-and-trusted-expiry-disclosure.md)
 
 ## Focused Retrieval
 
-- For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md`, `release-checklist.md`, or a specific PR artifact only when needed.
-- For checkpoint history, start with [docs/55-execution/checkpoint-status.md](./55-execution/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on it.
-- For implementation audit or remediation work, start with [docs/50-engineering/code-quality-review.md](./50-engineering/code-quality-review.md), [docs/50-engineering/code-quality-gap-analysis.md](./50-engineering/code-quality-gap-analysis.md), [docs/50-engineering/batch-1a-summary.md](./50-engineering/batch-1a-summary.md), [docs/50-engineering/batch-1a-acceptance-review.md](./50-engineering/batch-1a-acceptance-review.md), [docs/50-engineering/batch-1b-summary.md](./50-engineering/batch-1b-summary.md), [docs/50-engineering/batch-1b-acceptance-review.md](./50-engineering/batch-1b-acceptance-review.md), [docs/50-engineering/batch-1c-summary.md](./50-engineering/batch-1c-summary.md), [docs/50-engineering/batch-1c-acceptance-review.md](./50-engineering/batch-1c-acceptance-review.md), [docs/50-engineering/batch-2-summary.md](./50-engineering/batch-2-summary.md), [docs/50-engineering/batch-2-acceptance-review.md](./50-engineering/batch-2-acceptance-review.md), [docs/50-engineering/batch-3-summary.md](./50-engineering/batch-3-summary.md), [docs/50-engineering/batch-3-acceptance-review.md](./50-engineering/batch-3-acceptance-review.md), [docs/50-engineering/batch-4-summary.md](./50-engineering/batch-4-summary.md), and [docs/50-engineering/batch-4-acceptance-review.md](./50-engineering/batch-4-acceptance-review.md).
+- For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md` or `release-checklist.md`. Open a specific PR artifact only when historical delivery context is needed.
+- For checkpoint history, start with [docs/55-execution/checkpoint-status.md](./55-execution/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on internal V1 execution history.
+- For v1.1 presentation-governance work, start with [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) and [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md). Use current V1 presentation docs, including `docs/10-product/ux-notes.md`, as historical shipped-surface references only, and treat `docs/temp-ui-ux-design-docs/` as exploratory input.
+- For repo-specific `v1.1` presentation adoption work, then load [docs/10-product/presentation-adoption-plan-v1-1.md](./10-product/presentation-adoption-plan-v1-1.md) before changing routes, copy, tokens, or screenshot surfaces.
+- For the current remaining `v1.1` execution lane, then load [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) first and follow the queued successor tasks it points to.
+- For the completed detailed `Phase 4.1` presentation tranche, load [docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md](./05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md) as the execution record.
+- For curated reviewer-support context that the public path should eventually reference, start with `REVIEWERS.md`, then `review/README.md`, then the selected canonical docs those files point to.
+- For implementation guidance, start with [docs/50-engineering/README.md](./50-engineering/README.md), then load the active standards in that lane. Use the code-quality audit and batch documents only when historical remediation context is needed.
+- For local command execution, validation, or git-write workflows, then load [docs/50-engineering/agent-execution-hygiene.md](./50-engineering/agent-execution-hygiene.md) before composing commands.
 - Treat `docs/70-operations/pipeline-setup/` as historical setup analysis, not a default read set.
 
 ## Local-Only Overrides

@@ -70,6 +70,36 @@ public sealed class DocumentDomainAndImmutableDocumentRulesTests
         Assert.Equal(expectedResult, result);
     }
 
+    [Fact]
+    public void DocumentRules_Should_AllowUniqueTitle_When_NoSameTitleDocumentsExist()
+    {
+        var result = DocumentRules.CanCreateWhenSameTitleDocumentsExist(new HashSet<Guid>(), Guid.NewGuid());
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void DocumentRules_Should_RequireSameTitleSupersedesTarget_When_DuplicateTitleExists()
+    {
+        var matchingDocumentId = Guid.NewGuid();
+        var result = DocumentRules.CanCreateWhenSameTitleDocumentsExist(
+            new HashSet<Guid> { matchingDocumentId },
+            Guid.NewGuid());
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void DocumentRules_Should_AllowDuplicateTitle_When_SupersedesMatchesSameTitleDocument()
+    {
+        var matchingDocumentId = Guid.NewGuid();
+        var result = DocumentRules.CanCreateWhenSameTitleDocumentsExist(
+            new HashSet<Guid> { matchingDocumentId },
+            matchingDocumentId);
+
+        Assert.True(result);
+    }
+
     [Theory]
     [InlineData(null, true, null)]
     [InlineData("2026-04-09T12:00:00Z", true, DocumentFailureKind.AlreadyArchived)]
@@ -100,6 +130,19 @@ public sealed class DocumentDomainAndImmutableDocumentRulesTests
         Assert.Equal(StatusCodes.Status409Conflict, problem.StatusCode);
         Assert.Equal("Document already archived.", problem.Title);
         Assert.Equal(PaperBinderErrorCodes.DocumentAlreadyArchived, problem.ErrorCode);
+    }
+
+    [Fact]
+    public void DocumentProblemMapping_Should_MapTitleConflict_ToStableProblemContract()
+    {
+        var problem = PaperBinderDocumentProblemMapping.Map(
+            new DocumentFailure(
+                DocumentFailureKind.TitleConflict,
+                "A document with this title already exists in the binder."));
+
+        Assert.Equal(StatusCodes.Status409Conflict, problem.StatusCode);
+        Assert.Equal("Document title already exists.", problem.Title);
+        Assert.Equal(PaperBinderErrorCodes.DocumentTitleConflict, problem.ErrorCode);
     }
 
     [Fact]

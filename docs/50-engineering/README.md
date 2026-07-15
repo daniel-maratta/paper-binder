@@ -8,6 +8,7 @@
 
 ## Read First
 
+- `docs/50-engineering/agent-execution-hygiene.md`
 - `docs/50-engineering/tech-stack.md`
 - `docs/50-engineering/coding-standards.md`
 - `docs/50-engineering/data-access-standards.md`

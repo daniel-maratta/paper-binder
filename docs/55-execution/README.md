@@ -26,6 +26,8 @@ Workflow files define agent operating procedures for executing the plan.
 - [workflows/task-mapping.md](./workflows/task-mapping.md) - How checkpoints map to the task board under `docs/05-taskboard/`
 - [workflows/pr-workflow.md](./workflows/pr-workflow.md) - PR scope, validation, and merge discipline
 
+For command execution discipline inside those workflows, also load [docs/50-engineering/agent-execution-hygiene.md](../50-engineering/agent-execution-hygiene.md).
+
 ## Alignment
 
 Execution artifacts in this lane must align with:

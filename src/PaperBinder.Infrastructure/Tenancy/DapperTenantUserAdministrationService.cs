@@ -2,6 +2,7 @@ using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using PaperBinder.Application.Identity;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Identity;
@@ -52,11 +53,12 @@ public sealed class DapperTenantUserAdministrationService(
 
         var normalizedEmailInput = command.Email.Trim();
         var user = CreateUser(normalizedEmailInput);
-        var passwordValidationMessages = await ValidatePasswordAsync(user, command.Password);
+        var generatedPassword = OneTimePasswordRules.Generate();
+        var passwordValidationMessages = await ValidatePasswordAsync(user, generatedPassword);
         if (passwordValidationMessages.Count > 0)
         {
-            logger.LogWarning(
-                "Tenant user creation rejected an invalid password. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email} ValidationMessageCount={ValidationMessageCount}",
+            logger.LogError(
+                "Tenant user creation generated a password that failed validation. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email} ValidationMessageCount={ValidationMessageCount}",
                 command.TenantId,
                 command.ActorUserId,
                 command.EffectiveUserId,
@@ -64,14 +66,11 @@ public sealed class DapperTenantUserAdministrationService(
                 normalizedEmailInput,
                 passwordValidationMessages.Count);
 
-            return TenantUserCreateOutcome.Failed(
-                new TenantUserAdministrationFailure(
-                    TenantUserAdministrationFailureKind.InvalidPassword,
-                    BuildValidationDetail(passwordValidationMessages),
-                    passwordValidationMessages));
+            throw new InvalidOperationException(
+                BuildValidationDetail(passwordValidationMessages));
         }
 
-        user.PasswordHash = passwordHasher.HashPassword(user, command.Password);
+        user.PasswordHash = passwordHasher.HashPassword(user, generatedPassword);
 
         try
         {
@@ -98,7 +97,9 @@ public sealed class DapperTenantUserAdministrationService(
                             transaction,
                             cancellationToken: innerCancellationToken));
 
-                    return new TenantUserSummary(user.Id, user.Email, role, IsOwner: false);
+                    return new CreatedTenantUser(
+                        new TenantUserSummary(user.Id, user.Email, role, IsOwner: false),
+                        generatedPassword);
                 },
                 cancellationToken: cancellationToken);
 
@@ -108,8 +109,8 @@ public sealed class DapperTenantUserAdministrationService(
                 command.ActorUserId,
                 command.EffectiveUserId,
                 command.IsImpersonated,
-                createdUser.UserId,
-                createdUser.Role);
+                createdUser.User.UserId,
+                createdUser.User.Role);
 
             return TenantUserCreateOutcome.Success(createdUser);
         }
@@ -184,22 +185,10 @@ public sealed class DapperTenantUserAdministrationService(
                 if (currentRole == TenantRole.TenantAdmin &&
                     requestedRole != TenantRole.TenantAdmin)
                 {
-                    var tenantAdminIds = (await connection.QueryAsync<Guid>(
-                        new CommandDefinition(
-                            TenantUserAdministrationSql.SelectTenantAdminIdsForUpdate,
-                            new
-                            {
-                                TenantId = command.TenantId,
-                                Role = nameof(TenantRole.TenantAdmin)
-                            },
-                            transaction,
-                            cancellationToken: innerCancellationToken)))
-                        .ToArray();
-
                     if (TenantUserAdministrationRules.WouldDemoteLastAdmin(
                             currentRole,
                             requestedRole,
-                            tenantAdminIds.Length))
+                            await CountTenantAdminsForUpdateAsync(connection, transaction, command.TenantId, innerCancellationToken)))
                     {
                         return TenantUserRoleChangeOutcome.Failed(
                             new TenantUserAdministrationFailure(
@@ -240,6 +229,93 @@ public sealed class DapperTenantUserAdministrationService(
         {
             logger.LogWarning(
                 "Tenant user role change rejected. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} TargetUserId={TargetUserId} FailureKind={FailureKind}",
+                command.TenantId,
+                command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
+                command.TargetUserId,
+                outcome.Failure!.Kind);
+        }
+
+        return outcome;
+    }
+
+    public async Task<TenantUserDeleteOutcome> DeleteUserAsync(
+        TenantUserDeleteCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        var outcome = await transactionScopeRunner.ExecuteAsync(
+            async (connection, transaction, innerCancellationToken) =>
+            {
+                var targetUser = await connection.QuerySingleOrDefaultAsync<TenantUserRecord>(
+                    new CommandDefinition(
+                        TenantUserAdministrationSql.SelectTenantUserForUpdate,
+                        new
+                        {
+                            TenantId = command.TenantId,
+                            UserId = command.TargetUserId
+                        },
+                        transaction,
+                        cancellationToken: innerCancellationToken));
+
+                if (targetUser is null)
+                {
+                    return TenantUserDeleteOutcome.Failed(
+                        new TenantUserAdministrationFailure(
+                            TenantUserAdministrationFailureKind.UserNotFound,
+                            "The requested tenant user does not exist."));
+                }
+
+                if (TenantUserAdministrationRules.WouldDeleteLastOwner(
+                        targetUser.IsOwner,
+                        await CountOwnersForUpdateAsync(connection, transaction, command.TenantId, innerCancellationToken)))
+                {
+                    return TenantUserDeleteOutcome.Failed(
+                        new TenantUserAdministrationFailure(
+                            TenantUserAdministrationFailureKind.LastTenantOwnerRequired,
+                            "At least one tenant owner must remain assigned to the tenant."));
+                }
+
+                var currentRole = targetUser.ToSummary().Role;
+                if (TenantUserAdministrationRules.WouldDeleteLastAdmin(
+                        currentRole,
+                        await CountTenantAdminsForUpdateAsync(connection, transaction, command.TenantId, innerCancellationToken)))
+                {
+                    return TenantUserDeleteOutcome.Failed(
+                        new TenantUserAdministrationFailure(
+                            TenantUserAdministrationFailureKind.LastTenantAdminRequired,
+                            "At least one tenant admin must remain assigned to the tenant."));
+                }
+
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        TenantUserAdministrationSql.DeleteTenantUser,
+                        new
+                        {
+                            TenantId = command.TenantId,
+                            UserId = command.TargetUserId
+                        },
+                        transaction,
+                        cancellationToken: innerCancellationToken));
+
+                return TenantUserDeleteOutcome.Success();
+            },
+            cancellationToken: cancellationToken);
+
+        if (outcome.Succeeded)
+        {
+            logger.LogInformation(
+                "Tenant user deleted. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} TargetUserId={TargetUserId}",
+                command.TenantId,
+                command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
+                command.TargetUserId);
+        }
+        else
+        {
+            logger.LogWarning(
+                "Tenant user delete rejected. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} TargetUserId={TargetUserId} FailureKind={FailureKind}",
                 command.TenantId,
                 command.ActorUserId,
                 command.EffectiveUserId,
@@ -305,4 +381,40 @@ public sealed class DapperTenantUserAdministrationService(
             1 => validationMessages[0],
             _ => string.Join(" ", validationMessages)
         };
+
+    private static async Task<int> CountTenantAdminsForUpdateAsync(
+        System.Data.Common.DbConnection connection,
+        System.Data.Common.DbTransaction transaction,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var tenantAdminIds = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                TenantUserAdministrationSql.SelectTenantAdminIdsForUpdate,
+                new
+                {
+                    TenantId = tenantId,
+                    Role = nameof(TenantRole.TenantAdmin)
+                },
+                transaction,
+                cancellationToken: cancellationToken));
+
+        return tenantAdminIds.Count();
+    }
+
+    private static async Task<int> CountOwnersForUpdateAsync(
+        System.Data.Common.DbConnection connection,
+        System.Data.Common.DbTransaction transaction,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var ownerIds = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                TenantUserAdministrationSql.SelectTenantOwnerIdsForUpdate,
+                new { TenantId = tenantId },
+                transaction,
+                cancellationToken: cancellationToken));
+
+        return ownerIds.Count();
+    }
 }

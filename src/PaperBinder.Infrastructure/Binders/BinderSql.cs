@@ -92,6 +92,23 @@ internal static class BinderSql
         for update;
         """;
 
+    public const string SelectBinderDetailForUpdate =
+        """
+        select
+            b.id as BinderId,
+            b.name as Name,
+            b.created_at_utc as CreatedAtUtc,
+            bp.mode as Mode,
+            bp.allowed_roles as AllowedRoles
+        from binders b
+        inner join binder_policies bp
+            on bp.tenant_id = b.tenant_id
+           and bp.binder_id = b.id
+        where b.tenant_id = @TenantId
+          and b.id = @BinderId
+        for update of b, bp;
+        """;
+
     public const string UpdateBinderPolicy =
         """
         update binder_policies
@@ -100,5 +117,20 @@ internal static class BinderSql
             updated_at_utc = @UpdatedAtUtc
         where tenant_id = @TenantId
           and binder_id = @BinderId;
+        """;
+
+    public const string UpdateBinderName =
+        """
+        update binders
+        set name = @Name
+        where tenant_id = @TenantId
+          and id = @BinderId;
+        """;
+
+    public const string DeleteBinder =
+        """
+        delete from binders
+        where tenant_id = @TenantId
+          and id = @BinderId;
         """;
 }

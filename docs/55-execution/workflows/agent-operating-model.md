@@ -74,6 +74,9 @@ Use this document when starting checkpoint work, defining tasks, reviewing chang
 - For relevant behavior changes, implement in vertical slices rather than horizontal batches: write one failing test, make it pass with minimal code, then move to the next slice.
 - Keep contract updates, tests, and documentation propagation in the same change set.
 - Preserve tenant isolation, authorization boundaries, and other checkpoint invariants.
+- Prefer existing `scripts/*.ps1` wrappers over ad hoc shell commands when running build, test, or validation workflows.
+- Do not compose workflow commands with `&&`, `||`, or `;`; use one command per execution step or a checked-in script.
+- When a PaperBinder workflow is known to require elevated access, request escalation immediately instead of spending a first attempt on a sandbox probe.
 
 ### 5. Validate
 
@@ -153,3 +156,4 @@ Detailed critic transcripts, prompt strategies, and model-specific orchestration
 - [checkpoint-lifecycle.md](./checkpoint-lifecycle.md)
 - [task-mapping.md](./task-mapping.md)
 - [pr-workflow.md](./pr-workflow.md)
+- [../../50-engineering/agent-execution-hygiene.md](../../50-engineering/agent-execution-hygiene.md)

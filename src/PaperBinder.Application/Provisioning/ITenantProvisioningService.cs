@@ -1,6 +1,6 @@
 using System.Globalization;
-using System.Security.Cryptography;
 using System.Text;
+using PaperBinder.Application.Identity;
 
 namespace PaperBinder.Application.Provisioning;
 
@@ -54,12 +54,7 @@ public static class TenantProvisioningRules
 {
     public const int MaxTenantNameLength = 200;
     public const int MaxTenantSlugLength = 63;
-    public const int GeneratedPasswordLength = 20;
-
-    private const string LowercaseAlphabet = "abcdefghjkmnpqrstuvwxyz";
-    private const string UppercaseAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-    private const string DigitAlphabet = "23456789";
-    private const string PasswordAlphabet = LowercaseAlphabet + UppercaseAlphabet + DigitAlphabet;
+    public const int GeneratedPasswordLength = OneTimePasswordRules.GeneratedPasswordLength;
 
     public static bool TryNormalizeTenantName(
         string tenantName,
@@ -89,20 +84,7 @@ public static class TenantProvisioningRules
     }
 
     public static string GenerateOneTimePassword()
-    {
-        var characters = new char[GeneratedPasswordLength];
-        characters[0] = Pick(LowercaseAlphabet);
-        characters[1] = Pick(UppercaseAlphabet);
-        characters[2] = Pick(DigitAlphabet);
-
-        for (var index = 3; index < characters.Length; index++)
-        {
-            characters[index] = Pick(PasswordAlphabet);
-        }
-
-        Shuffle(characters);
-        return new string(characters);
-    }
+        => OneTimePasswordRules.Generate();
 
     private static string BuildTenantSlug(string tenantName)
     {
@@ -152,15 +134,4 @@ public static class TenantProvisioningRules
     private static bool IsAsciiLetterOrDigit(char character) =>
         character is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9';
 
-    private static char Pick(string alphabet) =>
-        alphabet[RandomNumberGenerator.GetInt32(alphabet.Length)];
-
-    private static void Shuffle(char[] characters)
-    {
-        for (var index = characters.Length - 1; index > 0; index--)
-        {
-            var swapIndex = RandomNumberGenerator.GetInt32(index + 1);
-            (characters[index], characters[swapIndex]) = (characters[swapIndex], characters[index]);
-        }
-    }
 }

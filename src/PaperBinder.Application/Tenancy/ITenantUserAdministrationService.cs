@@ -13,4 +13,8 @@ public interface ITenantUserAdministrationService
     Task<TenantUserRoleChangeOutcome> ChangeRoleAsync(
         TenantUserRoleChangeCommand command,
         CancellationToken cancellationToken = default);
+
+    Task<TenantUserDeleteOutcome> DeleteUserAsync(
+        TenantUserDeleteCommand command,
+        CancellationToken cancellationToken = default);
 }

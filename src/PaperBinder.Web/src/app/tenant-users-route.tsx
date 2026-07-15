@@ -18,8 +18,13 @@ import {
 } from "./tenant-shell";
 
 type TenantUserFieldErrors = Partial<
-  Record<"tenantUserEmail" | "tenantUserPassword" | "tenantUserRole", string>
+  Record<"tenantUserEmail" | "tenantUserRole", string>
 >;
+
+type TenantUserCredentialsSnapshot = {
+  email: string;
+  password: string;
+};
 
 export function UsersPage() {
   const { apiClient, impersonation, startImpersonation } = useTenantShellContext();
@@ -28,11 +33,10 @@ export function UsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
   const [tenantUserEmail, setTenantUserEmail] = useState("");
-  const [tenantUserPassword, setTenantUserPassword] = useState("");
   const [tenantUserRole, setTenantUserRole] = useState<TenantRole>("BinderRead");
   const [fieldErrors, setFieldErrors] = useState<TenantUserFieldErrors>({});
   const [createError, setCreateError] = useState<TenantHostErrorViewModel | null>(null);
-  const [createSuccess, setCreateSuccess] = useState<string | null>(null);
+  const [createdCredentials, setCreatedCredentials] = useState<TenantUserCredentialsSnapshot | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [roleDrafts, setRoleDrafts] = useState<Record<string, TenantRole>>({});
   const [roleUpdateError, setRoleUpdateError] = useState<TenantHostErrorViewModel | null>(null);
@@ -83,10 +87,6 @@ export function UsersPage() {
       nextFieldErrors.tenantUserEmail = "Email is required.";
     }
 
-    if (!tenantUserPassword.trim()) {
-      nextFieldErrors.tenantUserPassword = "Password is required.";
-    }
-
     if (Object.keys(nextFieldErrors).length > 0) {
       setFieldErrors(nextFieldErrors);
       setCreateError(null);
@@ -95,24 +95,22 @@ export function UsersPage() {
 
     setIsCreating(true);
     setCreateError(null);
-    setCreateSuccess(null);
+    setCreatedCredentials(null);
     setFieldErrors({});
 
     try {
       const createdUser = await apiClient.createTenantUser({
         email: tenantUserEmail.trim(),
-        password: tenantUserPassword,
         role: tenantUserRole
       });
 
-      setUsers((currentUsers) => [...currentUsers, createdUser]);
+      setUsers((currentUsers) => [...currentUsers, createdUser.user]);
       setRoleDrafts((currentDrafts) => ({
         ...currentDrafts,
-        [createdUser.userId]: createdUser.role
+        [createdUser.user.userId]: createdUser.user.role
       }));
-      setCreateSuccess(createdUser.email);
+      setCreatedCredentials(createdUser.credentials);
       setTenantUserEmail("");
-      setTenantUserPassword("");
       setTenantUserRole("BinderRead");
     } catch (error) {
       const mappedError = mapTenantHostError(error);
@@ -120,11 +118,9 @@ export function UsersPage() {
       setFieldErrors(
         mappedError.field === "tenantUserEmail"
           ? { tenantUserEmail: mappedError.detail }
-          : mappedError.field === "tenantUserPassword"
-            ? { tenantUserPassword: mappedError.detail }
-            : mappedError.field === "tenantUserRole"
-              ? { tenantUserRole: mappedError.detail }
-              : {}
+          : mappedError.field === "tenantUserRole"
+            ? { tenantUserRole: mappedError.detail }
+            : {}
       );
     } finally {
       setIsCreating(false);
@@ -259,7 +255,8 @@ export function UsersPage() {
           <CardHeader>
             <CardTitle>Create tenant user</CardTitle>
             <CardDescription>
-              Provide the email, initial password, and role. The browser does not add delete or reset flows in CP14.
+              Provide the email and role. PaperBinder generates the one-time password on the
+              server and shows it once after creation.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -282,26 +279,6 @@ export function UsersPage() {
                   placeholder="member@tenant.local"
                   type="email"
                   value={tenantUserEmail}
-                />
-              </Field>
-              <Field
-                error={fieldErrors.tenantUserPassword}
-                hint="Password validation remains server-authoritative."
-                label="Temporary password"
-              >
-                <input
-                  disabled={isCreating}
-                  onChange={(event) => {
-                    setTenantUserPassword(event.target.value);
-                    setFieldErrors((currentErrors) => ({
-                      ...currentErrors,
-                      tenantUserPassword: undefined
-                    }));
-                    setCreateError(null);
-                  }}
-                  placeholder="Generated-on-request"
-                  type="password"
-                  value={tenantUserPassword}
                 />
               </Field>
               <Field
@@ -329,10 +306,35 @@ export function UsersPage() {
                 </select>
               </Field>
               <TenantHostErrorNotice error={createError} />
-              {createSuccess ? (
+              {createdCredentials ? (
                 <Alert variant="success">
                   <AlertTitle>Tenant user created.</AlertTitle>
-                  <AlertBody>{createSuccess} was added to this tenant.</AlertBody>
+                  <AlertBody>{createdCredentials.email} was added to this tenant.</AlertBody>
+                  <AlertBody>
+                    Record this one-time password now. It is not shown again after this state
+                    clears.
+                  </AlertBody>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <Field hint="Shown once after PaperBinder creates the user." label="Email">
+                      <input
+                        className="font-mono"
+                        readOnly
+                        type="email"
+                        value={createdCredentials.email}
+                      />
+                    </Field>
+                    <Field
+                      hint="Generated on the server for this tenant user."
+                      label="Temporary password"
+                    >
+                      <input
+                        className="font-mono"
+                        readOnly
+                        type="text"
+                        value={createdCredentials.password}
+                      />
+                    </Field>
+                  </div>
                 </Alert>
               ) : null}
               <Button isLoading={isCreating} type="submit">

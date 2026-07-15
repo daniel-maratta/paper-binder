@@ -53,11 +53,26 @@ Use these as authoritative topic guides:
 
 ---
 
+## Execution Hygiene
+
+- Prefer repo-native PowerShell scripts under `scripts/` for build, test, and validation workflows.
+- Do not compose repo workflows with shell separators such as `&&`, `||`, or `;`.
+- Use one command per tool call unless a checked-in script already bundles the workflow.
+- For known elevated workflows in this repo, request escalation immediately instead of probing the sandbox first:
+  - `git add ...`
+  - `git commit -m ...`
+  - frontend Vite/Vitest commands
+  - Docker-backed integration tests
+- If command friction repeats, promote the workflow into `scripts/` and update the workflow docs.
+
+---
+
 ## Load When Relevant
 
 - If task touches tenancy/auth/data access: read `docs/30-security/AGENTS.md` and `docs/20-architecture/tenancy-resolution.md`.
 - If task introduces dependencies or architectural decisions: read `docs/90-adr/README.md`.
 - If task touches tests: read `docs/80-testing/test-strategy.md` and `docs/80-testing/testing-standards.md`.
+- If task involves local command execution, validation workflows, or git write operations: read `docs/50-engineering/agent-execution-hygiene.md`.
 - If task touches config/secrets/operations: read `docs/70-operations/README.md`.
 - If task touches implementation quality, hotspot cleanup, or audit remediation: read `docs/50-engineering/coding-standards.md`, `docs/50-engineering/code-quality-review.md`, and `docs/50-engineering/code-quality-gap-analysis.md`.
 - If task touches product scope or non-goals: read `docs/00-intent/AGENTS.md`, `docs/00-intent/project-scope.md`, and `docs/00-intent/non-goals.md`.

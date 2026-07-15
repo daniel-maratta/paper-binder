@@ -19,6 +19,14 @@ public interface IBinderService
         Guid binderId,
         CancellationToken cancellationToken = default);
 
+    Task<BinderRenameOutcome> RenameAsync(
+        BinderRenameCommand command,
+        CancellationToken cancellationToken = default);
+
+    Task<BinderDeleteOutcome> DeleteAsync(
+        BinderDeleteCommand command,
+        CancellationToken cancellationToken = default);
+
     Task<BinderPolicyReadOutcome> GetPolicyAsync(
         TenantContext tenant,
         Guid binderId,

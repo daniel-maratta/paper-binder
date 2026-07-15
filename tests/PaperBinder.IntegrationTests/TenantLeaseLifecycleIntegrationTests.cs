@@ -25,6 +25,7 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
     private const string TenantNotFoundErrorCode = "TENANT_NOT_FOUND";
     private const string TenantLeaseExtensionWindowNotOpenErrorCode = "TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN";
     private const string TenantLeaseExtensionLimitReachedErrorCode = "TENANT_LEASE_EXTENSION_LIMIT_REACHED";
+    private static readonly TimeSpan CleanupRetentionWindow = TenantLeaseRules.CleanupRetentionWindow;
 
     [Fact]
     public async Task Should_ReturnLeaseState_When_AuthenticatedMemberTargetsActiveTenant()
@@ -279,7 +280,7 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
             host,
             "cp11-cleanup-delete",
             createdAtUtc: now.AddHours(-1),
-            expiresAtUtc: now.AddMinutes(-1),
+            expiresAtUtc: now - CleanupRetentionWindow - TimeSpan.FromMinutes(1),
             leaseExtensionCount: 2);
         var user = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp11-cleanup-delete.local", "checkpoint-11-password");
         await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, user, tenant, TenantRole.TenantAdmin);
@@ -303,7 +304,7 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
     }
 
     [Fact]
-    public async Task Should_NotDeleteActiveTenants_And_Should_BeIdempotent_When_CleanupCycleRunsRepeatedly()
+    public async Task Should_NotDeleteActiveOrRecentlyExpiredTenants_And_Should_BeIdempotent_When_CleanupCycleRunsRepeatedly()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         var now = DateTimeOffset.Parse("2026-04-10T12:00:00Z", System.Globalization.CultureInfo.InvariantCulture);
@@ -314,11 +315,21 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
             host,
             "cp11-cleanup-expired",
             createdAtUtc: now.AddHours(-1),
-            expiresAtUtc: now.AddMinutes(-1));
+            expiresAtUtc: now - CleanupRetentionWindow - TimeSpan.FromMinutes(1));
         var expiredUser = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp11-cleanup-expired.local", "checkpoint-11-password");
         await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, expiredUser, expiredTenant, TenantRole.TenantAdmin);
         var expiredBinder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(host, expiredTenant, "Expired Binder");
         var expiredDocument = await TenantResolutionIntegrationTestHost.SeedDocumentAsync(host, expiredTenant, expiredBinder, "Expired Document", "# expired");
+
+        var recentlyExpiredTenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(
+            host,
+            "cp11-cleanup-recently-expired",
+            createdAtUtc: now.AddHours(-1),
+            expiresAtUtc: now.AddMinutes(-1));
+        var recentlyExpiredUser = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp11-cleanup-recently-expired.local", "checkpoint-11-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, recentlyExpiredUser, recentlyExpiredTenant, TenantRole.TenantAdmin);
+        var recentlyExpiredBinder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(host, recentlyExpiredTenant, "Recently Expired Binder");
+        var recentlyExpiredDocument = await TenantResolutionIntegrationTestHost.SeedDocumentAsync(host, recentlyExpiredTenant, recentlyExpiredBinder, "Recently Expired Document", "# recently expired");
 
         var activeTenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(
             host,
@@ -348,6 +359,19 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
         Assert.Equal(0, expiredCounts.UserCount);
         Assert.Equal(0, expiredCounts.DocumentCount);
 
+        var recentlyExpiredCounts = await GetTenantOwnedRowCountsAsync(
+            host,
+            recentlyExpiredTenant.Id,
+            recentlyExpiredUser.Id,
+            recentlyExpiredBinder.Id,
+            recentlyExpiredDocument.Id);
+        Assert.Equal(1, recentlyExpiredCounts.TenantCount);
+        Assert.Equal(1, recentlyExpiredCounts.MembershipCount);
+        Assert.Equal(1, recentlyExpiredCounts.UserCount);
+        Assert.Equal(1, recentlyExpiredCounts.BinderCount);
+        Assert.Equal(1, recentlyExpiredCounts.BinderPolicyCount);
+        Assert.Equal(1, recentlyExpiredCounts.DocumentCount);
+
         var activeCounts = await GetTenantOwnedRowCountsAsync(host, activeTenant.Id, activeUser.Id, activeBinder.Id, activeDocument.Id);
         Assert.Equal(1, activeCounts.TenantCount);
         Assert.Equal(1, activeCounts.MembershipCount);
@@ -358,7 +382,7 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
     }
 
     [Fact]
-    public async Task Should_ReturnGone_BeforePurge_AndNotFound_AfterPurge()
+    public async Task Should_ReturnGone_UntilCleanupThreshold_AndNotFound_AfterPurge()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         var now = DateTimeOffset.Parse("2026-04-10T12:00:00Z", System.Globalization.CultureInfo.InvariantCulture);
@@ -376,18 +400,37 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
         var session = await AuthIntegrationTestClient.LoginAsync(host, admin.Email, admin.Password);
         clock.Advance(TimeSpan.FromMinutes(2));
 
-        using var expiredRequest = CreateTenantApiRequest(HttpMethod.Get, tenant, session, PaperBinderTenantLeaseRoutes.LeasePath);
-        var expiredResponse = await host.Client.SendAsync(expiredRequest);
-        var expiredProblem = await expiredResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+        using var expiredRequestBeforeCleanup = CreateTenantApiRequest(HttpMethod.Get, tenant, session, PaperBinderTenantLeaseRoutes.LeasePath);
+        var expiredResponseBeforeCleanup = await host.Client.SendAsync(expiredRequestBeforeCleanup);
+        var expiredProblemBeforeCleanup = await expiredResponseBeforeCleanup.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
 
-        Assert.Equal(HttpStatusCode.Gone, expiredResponse.StatusCode);
-        AssertApiProtocolHeaders(expiredResponse);
-        Assert.NotNull(expiredProblem);
-        Assert.Equal(TenantExpiredErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(expiredProblem!, "errorCode"));
+        Assert.Equal(HttpStatusCode.Gone, expiredResponseBeforeCleanup.StatusCode);
+        AssertApiProtocolHeaders(expiredResponseBeforeCleanup);
+        Assert.NotNull(expiredProblemBeforeCleanup);
+        Assert.Equal(TenantExpiredErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(expiredProblemBeforeCleanup!, "errorCode"));
 
-        var cleanupResult = await RunCleanupCycleAsync(host);
-        Assert.Equal(1, cleanupResult.SelectedTenantCount);
-        Assert.Equal(1, cleanupResult.PurgedTenantCount);
+        var cleanupResultBeforeThreshold = await RunCleanupCycleAsync(host);
+        Assert.Equal(0, cleanupResultBeforeThreshold.SelectedTenantCount);
+        Assert.Equal(0, cleanupResultBeforeThreshold.PurgedTenantCount);
+        Assert.Equal(0, cleanupResultBeforeThreshold.SkippedTenantCount);
+        Assert.Equal(0, cleanupResultBeforeThreshold.FailedTenantCount);
+
+        using var expiredRequestAfterEarlyCleanup = CreateTenantApiRequest(HttpMethod.Get, tenant, session, PaperBinderTenantLeaseRoutes.LeasePath);
+        var expiredResponseAfterEarlyCleanup = await host.Client.SendAsync(expiredRequestAfterEarlyCleanup);
+        var expiredProblemAfterEarlyCleanup = await expiredResponseAfterEarlyCleanup.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.Gone, expiredResponseAfterEarlyCleanup.StatusCode);
+        AssertApiProtocolHeaders(expiredResponseAfterEarlyCleanup);
+        Assert.NotNull(expiredProblemAfterEarlyCleanup);
+        Assert.Equal(TenantExpiredErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(expiredProblemAfterEarlyCleanup!, "errorCode"));
+
+        clock.Advance(CleanupRetentionWindow);
+
+        var cleanupResultAfterThreshold = await RunCleanupCycleAsync(host);
+        Assert.Equal(1, cleanupResultAfterThreshold.SelectedTenantCount);
+        Assert.Equal(1, cleanupResultAfterThreshold.PurgedTenantCount);
+        Assert.Equal(0, cleanupResultAfterThreshold.SkippedTenantCount);
+        Assert.Equal(0, cleanupResultAfterThreshold.FailedTenantCount);
 
         using var purgedRequest = CreateTenantApiRequest(HttpMethod.Get, tenant, session, PaperBinderTenantLeaseRoutes.LeasePath);
         var purgedResponse = await host.Client.SendAsync(purgedRequest);

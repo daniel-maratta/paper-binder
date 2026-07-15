@@ -87,6 +87,14 @@ public static class BinderPolicyRules
                 "The `allowedRoles` collection must include at least one valid tenant role when `mode` is `restricted_roles`.");
         }
 
+        if (mode == BinderPolicyMode.RestrictedRoles &&
+            normalizedRoles.Policy is { AllowedRoles: var allowedRoles } &&
+            !allowedRoles.Contains(TenantRole.TenantAdmin))
+        {
+            return BinderPolicyValidationResult.Failed(
+                "The `allowedRoles` collection must include TenantAdmin when `mode` is `restricted_roles` so tenant admins retain authoritative binder access.");
+        }
+
         var normalizedPolicy = new BinderPolicy(mode, normalizedRoles.Policy?.AllowedRoles ?? Array.Empty<TenantRole>());
         return BinderPolicyValidationResult.Success(normalizedPolicy);
     }

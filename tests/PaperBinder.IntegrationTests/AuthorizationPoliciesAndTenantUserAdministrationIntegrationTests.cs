@@ -22,8 +22,8 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
     private const string TenantUserNotFoundErrorCode = "TENANT_USER_NOT_FOUND";
     private const string TenantUserEmailConflictErrorCode = "TENANT_USER_EMAIL_CONFLICT";
     private const string LastTenantAdminRequiredErrorCode = "LAST_TENANT_ADMIN_REQUIRED";
+    private const string LastTenantOwnerRequiredErrorCode = "LAST_TENANT_OWNER_REQUIRED";
     private const string TenantRoleInvalidErrorCode = "TENANT_ROLE_INVALID";
-    private const string TenantUserPasswordInvalidErrorCode = "TENANT_USER_PASSWORD_INVALID";
     private const string CsrfTokenInvalidErrorCode = "CSRF_TOKEN_INVALID";
     private const string TenantForbiddenErrorCode = "TENANT_FORBIDDEN";
 
@@ -134,7 +134,6 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             "owner@cp8-create-user.local");
         var createBody = new TenantUserCreateRequestBody(
             "writer@cp8-create-user.local",
-            "new-user-password",
             nameof(TenantRole.BinderWrite));
 
         using var createRequest = CreateTenantUserRequest(
@@ -144,15 +143,20 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             adminContext.Session.CsrfCookieValue);
 
         var createResponse = await host.Client.SendAsync(createRequest);
-        var createdUser = await createResponse.Content.ReadFromJsonAsync<TenantUserPayload>();
+        var createdUser = await createResponse.Content.ReadFromJsonAsync<CreateTenantUserResponsePayload>();
 
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
         Assert.NotNull(createdUser);
-        Assert.Equal(createBody.Email, createdUser!.Email);
-        Assert.Equal(createBody.Role, createdUser.Role);
-        Assert.False(createdUser.IsOwner);
+        Assert.Equal(createBody.Email, createdUser!.User.Email);
+        Assert.Equal(createBody.Role, createdUser.User.Role);
+        Assert.False(createdUser.User.IsOwner);
+        Assert.Equal(createBody.Email, createdUser.Credentials.Email);
+        Assert.False(string.IsNullOrWhiteSpace(createdUser.Credentials.Password));
 
-        var newUserSession = await AuthIntegrationTestClient.LoginAsync(host, createdUser.Email, createBody.Password);
+        var newUserSession = await AuthIntegrationTestClient.LoginAsync(
+            host,
+            createdUser.Credentials.Email,
+            createdUser.Credentials.Password);
         Assert.Equal($"http://{adminContext.Tenant.Slug}.paperbinder.localhost:8080/app", newUserSession.LoginPayload!.RedirectUrl);
 
         using var probeRequest = CreatePolicyProbeRequest(
@@ -183,7 +187,6 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             isOwner: false);
         var createBody = new TenantUserCreateRequestBody(
             existingUser.Email,
-            "another-password",
             nameof(TenantRole.BinderRead));
 
         using var request = CreateTenantUserRequest(
@@ -216,7 +219,6 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             adminContext.Session,
             new TenantUserCreateRequestBody(
                 "not-an-email",
-                "valid-password",
                 nameof(TenantRole.BinderRead)),
             adminContext.Session.CsrfCookieValue);
 
@@ -244,7 +246,6 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             adminContext.Session,
             new TenantUserCreateRequestBody(
                 "invalid-role@cp8.local",
-                "valid-password",
                 "Nope"),
             adminContext.Session.CsrfCookieValue);
 
@@ -254,34 +255,6 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
         Assert.NotNull(problem);
         Assert.Equal(TenantRoleInvalidErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
-    }
-
-    [Fact]
-    public async Task Should_ReturnUnprocessableEntity_When_TenantUserPasswordIsInvalid()
-    {
-        await using var database = await postgres.CreateDatabaseAsync();
-        await using var host = await StartHostAsync(database.ConnectionString);
-
-        var adminContext = await CreateTenantAdminContextAsync(
-            host,
-            "cp8-invalid-password",
-            "owner@cp8-invalid-password.local");
-
-        using var request = CreateTenantUserRequest(
-            adminContext.Tenant,
-            adminContext.Session,
-            new TenantUserCreateRequestBody(
-                "invalid-password@cp8.local",
-                "short",
-                nameof(TenantRole.BinderRead)),
-            adminContext.Session.CsrfCookieValue);
-
-        var response = await host.Client.SendAsync(request);
-        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
-
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
-        Assert.NotNull(problem);
-        Assert.Equal(TenantUserPasswordInvalidErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
     }
 
     [Fact]
@@ -300,7 +273,6 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             adminContext.Session,
             new TenantUserCreateRequestBody(
                 "missing-csrf@cp8.local",
-                "valid-password",
                 nameof(TenantRole.BinderRead)));
 
         var response = await host.Client.SendAsync(request);
@@ -466,6 +438,150 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.NotNull(problem);
         Assert.Equal(LastTenantAdminRequiredErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+    }
+
+    [Fact]
+    public async Task Should_DeleteTenantUser_AndPreventFutureLogin_When_RequestIsValid()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await StartHostAsync(database.ConnectionString);
+
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-delete-user",
+            "owner@cp8-delete-user.local");
+        var targetUser = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "delete-me@cp8-delete-user.local",
+            TenantRole.BinderRead,
+            isOwner: false);
+
+        using var deleteRequest = CreateTenantUserDeleteRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            targetUser.Id,
+            adminContext.Session.CsrfCookieValue);
+
+        var deleteResponse = await host.Client.SendAsync(deleteRequest);
+
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        using var listRequest = CreateTenantUserListRequest(adminContext.Tenant, adminContext.Session);
+        var listResponse = await host.Client.SendAsync(listRequest);
+        var listPayload = await listResponse.Content.ReadFromJsonAsync<ListTenantUsersResponsePayload>();
+
+        Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+        Assert.NotNull(listPayload);
+        Assert.DoesNotContain(listPayload!.Users, user => user.UserId == targetUser.Id);
+
+        using var loginRequest = AuthIntegrationTestClient.CreateLoginRequest(targetUser.Email, targetUser.Password);
+        var loginResponse = await host.Client.SendAsync(loginRequest);
+        var problem = await loginResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.Unauthorized, loginResponse.StatusCode);
+        Assert.NotNull(problem);
+        Assert.Equal("INVALID_CREDENTIALS", TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+    }
+
+    [Fact]
+    public async Task Should_RejectTenantUserDelete_When_CsrfTokenIsMissing()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await StartHostAsync(database.ConnectionString);
+
+        var adminContext = await CreateTenantAdminContextAsync(
+            host,
+            "cp8-delete-csrf-missing",
+            "owner@cp8-delete-csrf-missing.local");
+        var targetUser = await SeedTenantMemberAsync(
+            host,
+            adminContext.Tenant,
+            "delete-me@cp8-delete-csrf-missing.local",
+            TenantRole.BinderRead,
+            isOwner: false);
+
+        using var request = CreateTenantUserDeleteRequest(
+            adminContext.Tenant,
+            adminContext.Session,
+            targetUser.Id);
+
+        var response = await host.Client.SendAsync(request);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.NotNull(problem);
+        Assert.Equal(CsrfTokenInvalidErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+    }
+
+    [Fact]
+    public async Task Should_ReturnConflict_When_RequestWouldDeleteLastTenantAdmin()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await StartHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-delete-last-admin");
+        await SeedTenantMemberAsync(
+            host,
+            tenant,
+            "owner@cp8-delete-last-admin.local",
+            TenantRole.BinderRead,
+            isOwner: true);
+        var actingAdmin = await SeedTenantMemberAsync(
+            host,
+            tenant,
+            "admin@cp8-delete-last-admin.local",
+            TenantRole.TenantAdmin,
+            isOwner: false);
+        var session = await AuthIntegrationTestClient.LoginAsync(host, actingAdmin.Email, actingAdmin.Password);
+
+        using var request = CreateTenantUserDeleteRequest(
+            tenant,
+            session,
+            actingAdmin.Id,
+            session.CsrfCookieValue);
+
+        var response = await host.Client.SendAsync(request);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.NotNull(problem);
+        Assert.Equal(LastTenantAdminRequiredErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+    }
+
+    [Fact]
+    public async Task Should_ReturnConflict_When_RequestWouldDeleteLastTenantOwner()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await StartHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-delete-last-owner");
+        var owner = await SeedTenantMemberAsync(
+            host,
+            tenant,
+            "owner@cp8-delete-last-owner.local",
+            TenantRole.BinderRead,
+            isOwner: true);
+        var actingAdmin = await SeedTenantMemberAsync(
+            host,
+            tenant,
+            "admin@cp8-delete-last-owner.local",
+            TenantRole.TenantAdmin,
+            isOwner: false);
+        var session = await AuthIntegrationTestClient.LoginAsync(host, actingAdmin.Email, actingAdmin.Password);
+
+        using var request = CreateTenantUserDeleteRequest(
+            tenant,
+            session,
+            owner.Id,
+            session.CsrfCookieValue);
+
+        var response = await host.Client.SendAsync(request);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.NotNull(problem);
+        Assert.Equal(LastTenantOwnerRequiredErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
     }
 
     [Fact]
@@ -654,6 +770,18 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             body,
             csrfToken);
 
+    private static HttpRequestMessage CreateTenantUserDeleteRequest(
+        SeededTenant tenant,
+        AuthenticatedSession session,
+        Guid userId,
+        string? csrfToken = null) =>
+        CreateTenantApiRequest(
+            HttpMethod.Delete,
+            tenant,
+            session,
+            $"{TenantUsersPath}/{userId:D}",
+            csrfToken: csrfToken);
+
     private static HttpRequestMessage CreatePolicyProbeRequest(
         SeededTenant tenant,
         AuthenticatedSession session,
@@ -692,7 +820,6 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
 
     private sealed record TenantUserCreateRequestBody(
         string Email,
-        string Password,
         string Role);
 
     private sealed record TenantUserRoleChangeRequestBody(string Role);
@@ -711,9 +838,17 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
     private sealed record ListTenantUsersResponsePayload(
         [property: JsonPropertyName("users")] IReadOnlyList<TenantUserPayload> Users);
 
+    private sealed record CreateTenantUserResponsePayload(
+        [property: JsonPropertyName("user")] TenantUserPayload User,
+        [property: JsonPropertyName("credentials")] TenantUserCredentialsPayload Credentials);
+
     private sealed record TenantUserPayload(
         [property: JsonPropertyName("userId")] Guid UserId,
         [property: JsonPropertyName("email")] string Email,
         [property: JsonPropertyName("role")] string Role,
         [property: JsonPropertyName("isOwner")] bool IsOwner);
+
+    private sealed record TenantUserCredentialsPayload(
+        [property: JsonPropertyName("email")] string Email,
+        [property: JsonPropertyName("password")] string Password);
 }
