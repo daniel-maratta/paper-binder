@@ -9,9 +9,9 @@ function InvalidHostPage({ hostContext }: { hostContext: InvalidHostContext }) {
       <div className="mx-auto max-w-4xl space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Host context is not recognized</CardTitle>
+            <CardTitle>This PaperBinder address is unavailable</CardTitle>
             <CardDescription>
-              PaperBinder stays host-aware. The SPA only renders root-host or single-label tenant-host route spaces.
+              PaperBinder stays host-aware. The SPA opens only the main site or a single-label workspace address.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
@@ -21,7 +21,7 @@ function InvalidHostPage({ hostContext }: { hostContext: InvalidHostContext }) {
           </CardContent>
         </Card>
         <Alert variant="warning">
-          <AlertTitle>Safe fallback only</AlertTitle>
+          <AlertTitle>Use a known PaperBinder address</AlertTitle>
           <AlertBody>{hostContext.reason}</AlertBody>
         </Alert>
       </div>

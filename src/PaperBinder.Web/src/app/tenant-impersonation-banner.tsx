@@ -32,13 +32,13 @@ export function TenantImpersonationBanner({
     <Alert className="pb-auth-banner" variant="warning">
       <div className="pb-auth-banner__layout">
         <div className="max-w-2xl">
-          <AlertTitle>Impersonation active.</AlertTitle>
+          <AlertTitle>View-as active.</AlertTitle>
           <AlertBody>
-            Authorizing as {impersonation.effective.email} ({formatRole(impersonation.effective.role)}).
+            Actions now use {impersonation.effective.email} ({formatRole(impersonation.effective.role)}).
           </AlertBody>
           <AlertBody>
-            Original actor {impersonation.actor.email} ({formatRole(impersonation.actor.role)}) stays available for
-            stop behavior and audit-safe signaling.
+            You can stop view-as at any time and return to {impersonation.actor.email} (
+            {formatRole(impersonation.actor.role)}).
           </AlertBody>
         </div>
         <div className="pb-auth-banner__metrics">

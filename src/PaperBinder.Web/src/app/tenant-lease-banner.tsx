@@ -48,7 +48,7 @@ export function TenantLeaseBanner({
       ? "This workspace has expired. Existing UI may stay visible, but new actions will fail until an admin extends the lease or cleanup removes the workspace."
       : lease.canExtend
         ? "This workspace can be extended now before it expires."
-        : "This workspace remains active. The extend action appears only after the server opens the final extension window.";
+      : "This workspace remains active. The extend action appears only after the server opens the final extension window.";
 
   return (
     <Alert className="pb-auth-banner" variant={variant}>
@@ -63,7 +63,7 @@ export function TenantLeaseBanner({
             <p className="pb-auth-banner__metric-value">{formatDateTime(lease.expiresAt)}</p>
           </div>
           <div className="pb-auth-banner__metric">
-            <p className="pb-auth-stat-label">Time remaining</p>
+            <p className="pb-auth-stat-label">Demo expires in</p>
             <p className="pb-auth-banner__metric-value">{formatCountdown(countdownSeconds)}</p>
           </div>
           <div className="pb-auth-banner__metric">

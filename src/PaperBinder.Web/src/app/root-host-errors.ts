@@ -35,7 +35,7 @@ function createGenericError(detail: string): RootHostErrorViewModel {
 
 export function mapRootHostError(error: unknown): RootHostErrorViewModel {
   if (!(error instanceof PaperBinderApiError)) {
-    return createGenericError("An unexpected error occurred. Retry the request.");
+    return createGenericError("Something went wrong. Try again.");
   }
 
   const retryAfterLabel = formatRetryAfterLabel(error.retryAfterSeconds);
@@ -67,8 +67,8 @@ export function mapRootHostError(error: unknown): RootHostErrorViewModel {
       };
     case "TENANT_EXPIRED":
       return {
-        title: "Tenant expired.",
-        detail: error.detail ?? "The tenant has expired and can no longer be accessed.",
+        title: "Demo expired.",
+        detail: error.detail ?? "This demo workspace is no longer available.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
@@ -100,8 +100,8 @@ export function mapRootHostError(error: unknown): RootHostErrorViewModel {
     default:
       if (error.status === null) {
         return {
-          title: "Network request failed.",
-          detail: "The browser could not reach PaperBinder. Check the local stack and retry.",
+          title: "PaperBinder is unavailable right now.",
+          detail: "The request did not reach PaperBinder. Check your connection and try again in a moment.",
           field: null,
           correlationId: null,
           retryAfterLabel: null

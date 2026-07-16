@@ -29,6 +29,12 @@ export function tenantHostUrl(tenantSlug: string, pathname = "/app") {
 }
 
 export async function completeChallenge(page: Page, token = challengePassToken) {
+  const localBypassHeading = page.getByRole("heading", { name: "Local challenge bypass enabled" });
+
+  if (await localBypassHeading.isVisible().catch(() => false)) {
+    return;
+  }
+
   await page.evaluate((nextToken) => {
     (window as Window & { __paperbinderTurnstileNextToken?: string | null }).__paperbinderTurnstileNextToken =
       nextToken;
@@ -58,13 +64,13 @@ export async function provisionTenantAndContinue(page: Page, tenantName: string)
   const payload = (await response.json()) as ProvisionPayload;
 
   expect(response.status()).toBe(201);
-  await expect(page.getByRole("button", { name: "Continue to tenant" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open workspace" })).toBeVisible();
 
   const email = payload.credentials.email;
   const password = payload.credentials.password;
   const tenantSlug = payload.tenantSlug;
 
-  await page.getByRole("button", { name: "Continue to tenant" }).click();
+  await page.getByRole("button", { name: "Open workspace" }).click();
 
   return {
     request,
@@ -76,44 +82,12 @@ export async function provisionTenantAndContinue(page: Page, tenantName: string)
   };
 }
 
-export async function provisionTenantViaApi(page: Page, tenantName: string) {
-  const response = await page.context().request.post("/api/provision", {
-    data: {
-      tenantName,
-      challengeToken: challengePassToken
-    }
-  });
-  const payload = (await response.json()) as ProvisionPayload;
-
-  expect(response.status()).toBe(201);
-
-  return {
-    response,
-    email: payload.credentials.email,
-    password: payload.credentials.password,
-    tenantSlug: payload.tenantSlug,
-    tenantUrl: tenantHostUrl(payload.tenantSlug)
-  };
-}
-
 export async function loginFromRootHost(page: Page, credentials: { email: string; password: string }) {
   await page.goto("/login");
   await page.getByLabel("Email").fill(credentials.email);
   await page.getByLabel("Password").fill(credentials.password);
   await completeChallenge(page);
   await page.getByRole("button", { name: "Log in" }).click();
-}
-
-export async function loginViaApi(page: Page, credentials: { email: string; password: string }) {
-  const response = await page.context().request.post("/api/auth/login", {
-    data: {
-      email: credentials.email,
-      password: credentials.password,
-      challengeToken: challengePassToken
-    }
-  });
-
-  expect(response.status()).toBe(200);
 }
 
 export function runTenantSql(sql: string) {

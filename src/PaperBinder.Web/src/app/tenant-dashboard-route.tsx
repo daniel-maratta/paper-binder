@@ -39,6 +39,7 @@ function BinderListIcon() {
     </svg>
   );
 }
+
 export function DashboardPage() {
   const { apiClient, lease, countdownSeconds, impersonation } = useTenantShellContext();
   const [binders, setBinders] = useState<BinderSummary[]>([]);
@@ -110,24 +111,23 @@ export function DashboardPage() {
         <DashboardStat label="Current role" value={formatRole(impersonation.effective.role)} />
         <DashboardStat label="Lease extensions" value={`${lease.extensionCount} of ${lease.maxExtensions} used`} />
         <DashboardStat
-          label="Time remaining"
+          label="Demo expires in"
           tone={countdownSeconds <= 900 ? "warning" : "default"}
           value={formatCountdown(countdownSeconds)}
         />
       </div>
       {!lease.canExtend ? (
         <section className="pb-auth-callout pb-auth-callout--info">
-          <div aria-hidden="true" className="pb-auth-callout__icon">
+          <div className="pb-auth-callout__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24">
               <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5" />
               <path d="M12 7v5l3 2" />
             </svg>
           </div>
           <div>
-            <h3 className="pb-auth-callout__title">Extend becomes available near expiry</h3>
+            <h3 className="pb-auth-callout__title">This demo tenant will be available for an hour after creation</h3>
             <p className="pb-auth-callout__body">
-              When the remaining lease time enters the final extension window, the extend action appears
-              in the top workspace banner. Extension eligibility and limits remain server-authoritative.
+              When less than 10 minutes are left, the opportunity to extend the demo by 10 minutes appears if you need more time. You can extend the tenant demo by up to 3 times (30 minutes).
             </p>
           </div>
         </section>
@@ -172,7 +172,7 @@ export function DashboardPage() {
             </Button>
             {canManageUsers ? (
               <Button asChild className="w-full justify-center sm:w-auto" type="button" variant="secondary">
-                <Link to="/app/users">Manage tenant users</Link>
+                <Link to="/app/users">Manage users</Link>
               </Button>
             ) : (
               <Alert variant="info">

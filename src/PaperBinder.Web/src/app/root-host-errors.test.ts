@@ -54,7 +54,7 @@ describe("root-host error mapping", () => {
     });
 
     expect(mapRootHostError(error)).toMatchObject({
-      title: "Network request failed.",
+      title: "PaperBinder is unavailable right now.",
       field: null,
       correlationId: null
     });

@@ -7,6 +7,7 @@ import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { DataTable, type DataTableColumn, type DataTableRow } from "../components/ui/table";
+import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
 import type { TenantHostErrorViewModel } from "./tenant-host-errors";
 import { mapTenantHostError } from "./tenant-host-errors";
 import {
@@ -18,8 +19,17 @@ import {
 
 type BinderFieldErrors = Partial<Record<"binderName", string>>;
 
+function BinderRowIcon() {
+  return (
+    <svg aria-hidden="true" className="pb-auth-row-icon" viewBox="0 0 24 24">
+      <path d="M3.5 7.5h6l2 2h9v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
+      <path d="M3.5 7.5v-1a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
 export function BindersPage() {
-  const { apiClient, impersonation } = useTenantShellContext();
+  const { apiClient, impersonation, showToast } = useTenantShellContext();
   const [binders, setBinders] = useState<BinderSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
@@ -96,6 +106,24 @@ export function BindersPage() {
     }
   }
 
+  async function copyValue(label: string, value: string) {
+    const copied = await writeClipboardValue(value);
+    if (copied) {
+      showToast({
+        title: `${label} copied.`,
+        body: `${label} is ready to paste.`,
+        variant: "success"
+      });
+      return;
+    }
+
+    showToast({
+      title: `Could not copy ${label.toLowerCase()}.`,
+      body: "Clipboard access is not available in this browser session.",
+      variant: "warning"
+    });
+  }
+
   if (pageError !== null) {
     return <TenantRouteFailureCard error={pageError} />;
   }
@@ -103,11 +131,20 @@ export function BindersPage() {
   const rows: DataTableRow[] = binders.map((binder) => ({
     key: binder.binderId,
     cells: [
-      <div key={`${binder.binderId}-name`}>
-        <p className="font-medium text-[var(--pb-color-text)]">{binder.name}</p>
-        <p className="text-xs uppercase tracking-[0.12em] text-[var(--pb-color-text-subtle)]">
-          {binder.binderId}
-        </p>
+      <div className="pb-auth-row-head" key={`${binder.binderId}-name`}>
+        <BinderRowIcon />
+        <div>
+          <p className="font-medium text-[var(--pb-color-text)]">{binder.name}</p>
+          <CopyValueChip
+            className="mt-2"
+            compact
+            label={`binder id for ${binder.name}`}
+            onCopy={() => {
+              void copyValue("Binder ID", binder.binderId);
+            }}
+            value={binder.binderId}
+          />
+        </div>
       </div>,
       formatDateTime(binder.createdAt),
       <Button asChild key={`${binder.binderId}-action`} type="button" variant="secondary">
@@ -158,7 +195,7 @@ export function BindersPage() {
             <form className="space-y-4" onSubmit={handleCreateBinder}>
               <Field
                 error={fieldErrors.binderName}
-                hint="Provide a reviewer-meaningful name. Server-side validation remains authoritative."
+                hint="Use a clear name people in this workspace can recognize."
                 label="Binder name"
               >
                 <input
@@ -176,12 +213,12 @@ export function BindersPage() {
               <TenantHostErrorNotice error={createError} />
               {createSuccess ? (
                 <Alert variant="success">
-                  <AlertTitle>Binder created.</AlertTitle>
-                  <AlertBody>{createSuccess} is now available in the visible binder list.</AlertBody>
+                  <AlertTitle>Binder added.</AlertTitle>
+                  <AlertBody>{createSuccess} is now available in this workspace.</AlertBody>
                 </Alert>
               ) : null}
-              <Button isLoading={isCreating} type="submit">
-                Create binder
+              <Button disabled={!binderName.trim() || isCreating} isLoading={isCreating} type="submit">
+                Add binder
               </Button>
             </form>
           </div>

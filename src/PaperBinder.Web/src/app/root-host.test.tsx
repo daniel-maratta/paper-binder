@@ -138,6 +138,11 @@ describe("root-host flows", () => {
     ).toHaveAttribute("src", "/presentation/dashboard-proof.png");
     expect(
       screen.getByRole("img", {
+        name: "PaperBinder start-demo flow shown in a handheld preview with one-time credentials and the live workspace handoff."
+      })
+    ).toHaveAttribute("src", "/presentation/start-demo-proof.png");
+    expect(
+      screen.getByRole("img", {
         name: "PaperBinder users and access page showing current users, add-user form, role management, and view-as actions."
       })
     ).toHaveAttribute("src", "/presentation/users-proof.png");
@@ -297,6 +302,14 @@ describe("root-host flows", () => {
   });
 
   it("Should_RenderSafeRootHostErrors_When_ProvisionOrLoginReturnsProblemDetails", async () => {
+    const writeText = vi.fn(async () => undefined);
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText
+      }
+    });
+
     installTurnstileStub();
     const error = new PaperBinderApiError({
       message: "Conflict",
@@ -327,6 +340,10 @@ describe("root-host flows", () => {
     expect(await screen.findByRole("heading", { name: "Tenant name already exists." })).toBeInTheDocument();
     expect(screen.getAllByText("That tenant name is already in use.")).toHaveLength(2);
     expect(screen.getByText(/corr-conflict/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy correlation id" }));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("corr-conflict"));
   });
 
   it("Should_ResetChallengeState_When_PreAuthSubmissionFails_AndRetryIsAllowed", async () => {

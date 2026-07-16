@@ -22,17 +22,17 @@ export const rootRouteDefinitions = [
 export const tenantNavigationItems = [
   {
     path: "/app" as const,
-    label: "Home",
-    description: "Live tenant dashboard, lease visibility, and reviewer quick actions."
+    label: "Dashboard",
+    description: "Lease state, recent binders, and next actions in this workspace."
   },
   {
     path: "/app/binders" as const,
     label: "Binders",
-    description: "Visible binders, inline binder creation, and binder-detail entry."
+    description: "Open binders, add documents, and manage binder access."
   },
   {
     path: "/app/users" as const,
     label: "Users",
-    description: "Tenant-admin user list, user creation, and role-change management."
+    description: "Manage workspace users, roles, and view-as access."
   }
 ] as const;

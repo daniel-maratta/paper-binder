@@ -24,7 +24,7 @@ test("Should_ProvisionAndAutoLogin_FromRootHost_InBrowser_AgainstTheExplicitE2ER
   provisionedTenantSlug = provisionedTenant.tenantSlug;
 
   await expect(page).toHaveURL(tenantHostUrl(provisionedTenant.tenantSlug));
-  await expect(page.getByRole("heading", { name: "Tenant dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Workspace dashboard" })).toBeVisible();
 });
 
 test("Should_SubmitLoginRequest_AndRedirectUsingServerProvidedUrl_When_RootHostLoginSucceeds", async ({
@@ -41,7 +41,7 @@ test("Should_SubmitLoginRequest_AndRedirectUsingServerProvidedUrl_When_RootHostL
   await page.getByRole("button", { name: "Log in" }).click();
 
   await expect(page).toHaveURL(tenantHostUrl(provisionedTenantSlug!));
-  await expect(page.getByRole("heading", { name: "Tenant dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Workspace dashboard" })).toBeVisible();
 });
 
 test("Should_SurfaceChallengeFailureInvalidCredentialsAndRateLimit_InBrowserWithoutLeakingInternals", async ({

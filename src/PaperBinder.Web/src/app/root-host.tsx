@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { cn } from "../lib/cn";
 import { RootHostChallengeWidget } from "./challenge-widget";
+import { writeClipboardValue } from "./copy-value-chip";
 import type { RootHostContext } from "./host-context";
 import { rootRouteDefinitions } from "./route-registry";
 import { mapRootHostError, type RootHostErrorViewModel } from "./root-host-errors";
@@ -33,6 +34,10 @@ const publicValuePillars: PublicValuePillar[] = [
   {
     title: "Visibility",
     body: "Review the product itself instead of a marketing abstraction."
+  },
+  {
+    title: "Disposable demo",
+    body: "Each workspace is temporary and removed during periodic cleanup."
   }
 ];
 
@@ -59,7 +64,7 @@ function isAbsoluteRedirectUrl(redirectUrl: string): boolean {
 function createRedirectError(): RootHostErrorViewModel {
   return {
     title: "Redirect could not be completed.",
-    detail: "The server response did not include a valid redirect target. Retry the request.",
+    detail: "PaperBinder did not return a valid destination for this handoff. Try again.",
     field: null,
     correlationId: null,
     retryAfterLabel: null
@@ -143,8 +148,44 @@ function PublicShellLink({
 }
 
 function RootHostErrorNotice({ error }: { error: RootHostErrorViewModel | null }) {
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [copyFailedField, setCopyFailedField] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (copiedField === null && copyFailedField === null) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCopiedField(null);
+      setCopyFailedField(null);
+    }, 1800);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [copiedField, copyFailedField]);
+
   if (error === null) {
     return null;
+  }
+
+  async function copyValue(fieldKey: string, value: string) {
+    const copied = await writeClipboardValue(value);
+    setCopiedField(copied ? fieldKey : null);
+    setCopyFailedField(copied ? null : fieldKey);
+  }
+
+  function resolveTooltip(fieldKey: string): string {
+    if (copiedField === fieldKey) {
+      return "Copied";
+    }
+
+    if (copyFailedField === fieldKey) {
+      return "Copy unavailable";
+    }
+
+    return "Copy to clipboard";
   }
 
   return (
@@ -154,8 +195,24 @@ function RootHostErrorNotice({ error }: { error: RootHostErrorViewModel | null }
       {error.retryAfterLabel ? <AlertBody>{error.retryAfterLabel}</AlertBody> : null}
       {error.correlationId ? (
         <AlertBody>
-          Correlation id:{" "}
-          <span className="font-mono text-xs uppercase tracking-[0.08em]">{error.correlationId}</span>
+          <span>Correlation id:</span>
+          <span className="mt-2 inline-flex items-center gap-2">
+            <span className="font-mono text-xs uppercase tracking-[0.08em]">{error.correlationId}</span>
+            <button
+              aria-label="Copy correlation id"
+              className="pb-public-copy-button pb-public-copy-button--inline"
+              onClick={() => {
+                void copyValue("correlation-id", error.correlationId!);
+              }}
+              type="button"
+            >
+              <svg aria-hidden="true" className="pb-public-copy-button__icon" viewBox="0 0 20 20">
+                <path d="M7 3.5A2.5 2.5 0 0 0 4.5 6v8A2.5 2.5 0 0 0 7 16.5h7A2.5 2.5 0 0 0 16.5 14V6A2.5 2.5 0 0 0 14 3.5H7Z" />
+                <path d="M4.5 12.5h-1A2.5 2.5 0 0 1 1 10V4A2.5 2.5 0 0 1 3.5 1.5h7A2.5 2.5 0 0 1 13 4v1" />
+              </svg>
+              <span className="pb-public-copy-button__tooltip">{resolveTooltip("correlation-id")}</span>
+            </button>
+          </span>
         </AlertBody>
       ) : null}
     </Alert>
@@ -215,7 +272,7 @@ function RootShell({ hostContext }: { hostContext: RootHostContext }) {
       </main>
 
       <footer className="pb-public-footer">
-        <span>&copy; 2026 PaperBinder demo root host</span>
+        <span>&copy; 2026 PaperBinder</span>
         <span>{hostContext.currentOrigin}</span>
       </footer>
     </div>
@@ -230,7 +287,7 @@ function RootLandingPage() {
           <p className="pb-public-eyebrow">PaperBinder</p>
           <h1 id="public-hero-title">A secure workspace for your documents and your team.</h1>
           <p className="pb-public-hero-body">
-            Multi-tenant by design. Built for review, compliance, and peace of mind.
+            Multi-tenant by design. Review the product in a temporary workspace that stays product-first from the first click.
           </p>
           <div className="pb-public-hero-actions">
             <PublicShellLink className="pb-public-button-link--light" to="/start-demo">
@@ -243,18 +300,30 @@ function RootLandingPage() {
         </section>
 
         <section aria-label="PaperBinder product preview" className="pb-public-product-mockup">
-          <div className="pb-public-mockup-frame">
-            <div aria-hidden="true" className="pb-public-browser-chrome">
-              <span className="pb-public-dot pb-public-dot--red" />
-              <span className="pb-public-dot pb-public-dot--yellow" />
-              <span className="pb-public-dot pb-public-dot--green" />
+          <div className="pb-public-mockup-stage">
+            <div className="pb-public-mockup-frame">
+              <div aria-hidden="true" className="pb-public-browser-chrome">
+                <span className="pb-public-dot pb-public-dot--red" />
+                <span className="pb-public-dot pb-public-dot--yellow" />
+                <span className="pb-public-dot pb-public-dot--green" />
+              </div>
+              <div className="pb-public-proof-window">
+                <img
+                  alt="PaperBinder dashboard showing lease metrics, recent binders, and next actions inside the authenticated workspace."
+                  className="pb-public-proof-image pb-public-proof-image--hero"
+                  src="/presentation/dashboard-proof.png"
+                />
+              </div>
             </div>
-            <div className="pb-public-proof-window">
-              <img
-                alt="PaperBinder dashboard showing lease metrics, recent binders, and next actions inside the authenticated workspace."
-                className="pb-public-proof-image pb-public-proof-image--hero"
-                src="/presentation/dashboard-proof.png"
-              />
+            <div className="pb-public-phone-preview">
+              <div aria-hidden="true" className="pb-public-phone-preview__speaker" />
+              <div className="pb-public-phone-preview__screen">
+                <img
+                  alt="PaperBinder start-demo flow shown in a handheld preview with one-time credentials and the live workspace handoff."
+                  className="pb-public-proof-image pb-public-proof-image--phone"
+                  src="/presentation/start-demo-proof.png"
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -293,9 +362,9 @@ function RootLandingPage() {
           <p className="pb-public-panel-eyebrow">Product-first public path</p>
           <h2>Start with the software, not the setup mechanics.</h2>
           <p>
-            The public experience now leads with real product proof. Provisioning, challenge verification,
-            one-time credentials, and redirect-safe sign in live behind the demo entry path instead of crowding
-            the landing page.
+            The public experience leads with the product itself. Demo provisioning, challenge verification,
+            one-time credentials, and redirect-safe sign in stay behind the entry flow instead of crowding the
+            landing page.
           </p>
         </PublicPanel>
       </section>
@@ -357,14 +426,14 @@ function ProvisionSuccessPanel({
         <p className="pb-public-panel-eyebrow">Workspace ready</p>
         <h2>Workspace ready.</h2>
         <p>
-          PaperBinder already established the signed-in session. One-time credentials are shown now during the
-          root-host handoff and are not stored in browser storage.
+          PaperBinder already established the signed-in session. These one-time credentials appear only during
+          this handoff and are not written into browser storage.
         </p>
       </div>
 
       <Alert variant="warning">
         <AlertTitle>Save these credentials now</AlertTitle>
-        <AlertBody>Open the workspace only after you have recorded the generated email and password.</AlertBody>
+        <AlertBody>Save the generated email and password before you continue. This is the only time they are shown.</AlertBody>
       </Alert>
 
       <dl className="pb-public-stat-grid">
@@ -507,11 +576,11 @@ function RootWelcomePage({
   return (
     <div className="pb-public-page">
       <section className="pb-public-page-intro">
-        <p className="pb-public-eyebrow">Demo entry</p>
+        <p className="pb-public-eyebrow">Start demo</p>
         <h1>Start a live demo workspace</h1>
         <p>
-          Create a disposable PaperBinder workspace, receive one-time credentials, and continue directly into
-          the tenant-host product routes.
+          Start a temporary PaperBinder workspace, receive one-time credentials, and continue directly into the
+          live product.
         </p>
       </section>
 
@@ -524,15 +593,15 @@ function RootWelcomePage({
               <p className="pb-public-panel-eyebrow">New demo workspace</p>
               <h2>Provision a temporary tenant and keep the server in charge.</h2>
               <p>
-                Enter a workspace name and let the root host validate challenge proof, create the tenant, and
-                return the approved redirect target.
+                Choose a workspace name and let the root host verify the challenge, create the demo tenant, and
+                return the approved destination.
               </p>
             </div>
 
             <form className="pb-public-form-stack" onSubmit={handleProvisionSubmit}>
               <Field
                 error={fieldErrors.tenantName}
-                hint="PaperBinder normalizes the workspace name on the server and returns the approved destination."
+                hint="PaperBinder normalizes the workspace name on the server before opening the demo."
                 label="Workspace name"
               >
                 <input
@@ -551,12 +620,12 @@ function RootWelcomePage({
               {challengeLocalBypassEnabled ? (
                 <Alert variant="info">
                   <AlertTitle>Local challenge bypass enabled</AlertTitle>
-                  <AlertBody>Root-host challenge verification is temporarily bypassed for this local runtime.</AlertBody>
+                  <AlertBody>Challenge verification is bypassed for this local demo runtime.</AlertBody>
                 </Alert>
               ) : (
                 <RootHostChallengeWidget
                   error={fieldErrors.challenge}
-                  hint="PaperBinder requires challenge proof before provisioning or login requests are accepted."
+                  hint="Complete the challenge before PaperBinder accepts a provisioning or sign-in request."
                   label="Challenge"
                   onTokenChange={setChallengeToken}
                   resetNonce={challengeResetNonce}
@@ -584,8 +653,8 @@ function RootWelcomePage({
             <p className="pb-public-panel-eyebrow">Use existing credentials</p>
             <h2>Return to a provisioned workspace.</h2>
             <p>
-              Root-host sign in remains available for return trips and continues to use the same
-              server-provided redirect path.
+              Root-host sign in remains available for return visits and still relies on the same
+              server-approved destination.
             </p>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
@@ -600,7 +669,8 @@ function RootWelcomePage({
               <li>Provisioning sends only workspace name plus challenge proof through the SPA client.</li>
               <li>Generated credentials remain transient in memory only and are never written into browser storage.</li>
               <li>Redirect navigation uses only the absolute `redirectUrl` returned by the server.</li>
-              <li>ProblemDetails responses surface safe challenge, credential, rate-limit, and expiry guidance.</li>
+              <li>Failures stay limited to challenge, credential, rate-limit, and expiry guidance.</li>
+              <li>Demo workspaces are temporary and removed during periodic cleanup.</li>
             </ul>
           </PublicPanel>
         </div>
@@ -711,8 +781,8 @@ function RootLoginPage({
         <p className="pb-public-eyebrow">Direct sign in</p>
         <h1>Sign in to a demo workspace</h1>
         <p>
-          Return to a previously provisioned workspace with valid credentials. Redirect resolution stays on
-          the server so the browser never builds tenant URLs from user input.
+          Return to a previously provisioned workspace with valid credentials. Redirect resolution stays on the
+          server so the browser never builds tenant URLs from user input.
         </p>
       </section>
 
@@ -721,11 +791,11 @@ function RootLoginPage({
           <div className="pb-public-panel-heading">
             <p className="pb-public-panel-eyebrow">Root-host login</p>
             <h2>Use existing demo credentials.</h2>
-            <p>Valid credentials continue through the server-provided redirect target into the tenant host.</p>
+            <p>Valid credentials continue through the server-approved destination into the tenant host.</p>
           </div>
 
           <form className="pb-public-form-stack" onSubmit={handleLoginSubmit}>
-            <Field error={fieldErrors.email} hint="Email is the canonical v1 identity label for root-host login." label="Email">
+            <Field error={fieldErrors.email} hint="Use the email issued for this demo workspace." label="Email">
               <input
                 disabled={isSubmitting || redirect !== null}
                 onChange={(event) => {
@@ -760,12 +830,12 @@ function RootLoginPage({
             {challengeLocalBypassEnabled ? (
               <Alert variant="info">
                 <AlertTitle>Local challenge bypass enabled</AlertTitle>
-                <AlertBody>Root-host challenge verification is temporarily bypassed for this local runtime.</AlertBody>
+                <AlertBody>Challenge verification is bypassed for this local demo runtime.</AlertBody>
               </Alert>
             ) : (
               <RootHostChallengeWidget
                 error={fieldErrors.challenge}
-                hint="Challenge proof is required for root-host login and resets after retriable failures."
+                hint="Complete the challenge before PaperBinder accepts a root-host sign-in request."
                 label="Challenge"
                 onTokenChange={setChallengeToken}
                 resetNonce={challengeResetNonce}
@@ -779,7 +849,7 @@ function RootLoginPage({
             {redirect ? (
               <Alert variant="info">
                 <AlertTitle>Redirecting to tenant host</AlertTitle>
-                <AlertBody>The browser is continuing with the server-provided redirect target.</AlertBody>
+                <AlertBody>The browser is continuing with the server-approved destination.</AlertBody>
               </Alert>
             ) : null}
 
@@ -807,7 +877,7 @@ function RootLoginPage({
             <p className="pb-public-panel-eyebrow">Prefer the product-led path?</p>
             <h2>Start with a fresh demo workspace.</h2>
             <p>
-              The default public flow creates a disposable tenant first, then hands off one-time credentials and
+              The default public flow creates a temporary demo tenant, hands off one-time credentials, and then
               sends you into the live product.
             </p>
             <div className="pb-public-action-row">
@@ -838,8 +908,8 @@ function RootAboutPage() {
         <p className="pb-public-eyebrow">About this demo</p>
         <h1>PaperBinder is a constrained multi-tenant document workspace.</h1>
         <p>
-          It is intentionally narrow in scope: enough product surface to feel real, enough architecture to be
-          reviewable, and explicit boundaries around what it is not trying to become.
+          It is intentionally narrow in scope: enough product surface to feel real, enough architecture to
+          review, and explicit boundaries around what it is not trying to become.
         </p>
       </section>
 
@@ -860,7 +930,8 @@ function RootAboutPage() {
           <ul className="pb-public-bullet-list">
             <li>It is a hiring artifact and architecture demonstration, not a broad enterprise suite.</li>
             <li>Tenant isolation, redirect trust, and server-authoritative auth boundaries remain non-negotiable.</li>
-            <li>Reviewer-facing context is available without displacing the product story from the landing page.</li>
+            <li>Reviewer-facing context stays available without displacing the product story from the landing page.</li>
+            <li>Demo tenants are temporary and may be removed during routine cleanup.</li>
           </ul>
         </PublicPanel>
       </div>
@@ -872,13 +943,13 @@ function RootNotFoundPage() {
   return (
     <div className="pb-public-page">
       <section className="pb-public-page-intro">
-        <p className="pb-public-eyebrow">Route not available</p>
-        <h1>This root-host route is not part of the public PaperBinder surface.</h1>
-        <p>Unknown root-host routes stay on the root host instead of inferring tenant identity or route space.</p>
+        <p className="pb-public-eyebrow">Page unavailable</p>
+        <h1>This page is not part of the PaperBinder public site.</h1>
+        <p>Unknown routes stay on the root host instead of guessing tenant identity or crossing into workspace routes.</p>
       </section>
 
       <PublicPanel>
-        <p className="pb-public-panel-eyebrow">Known public routes</p>
+        <p className="pb-public-panel-eyebrow">Start from a known route</p>
         <ul className="pb-public-bullet-list">
           <li>
             <code>/</code> for the product-led public landing page
@@ -911,14 +982,8 @@ export function RootHostRoutes({
     <Fragment>
       <Route element={<RootShell hostContext={hostContext} />}>
         <Route element={<RootLandingPage />} path="/" />
-        <Route
-          element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />}
-          path="/start-demo"
-        />
-        <Route
-          element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />}
-          path="/login"
-        />
+        <Route element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/start-demo" />
+        <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/login" />
         <Route element={<RootAboutPage />} path="/about" />
         <Route element={<RootNotFoundPage />} path="*" />
       </Route>

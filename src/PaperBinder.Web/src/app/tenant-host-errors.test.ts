@@ -27,6 +27,11 @@ describe("tenant-host error mapping", () => {
       field: "documentTitle"
     });
 
+    expect(mapTenantHostError(createApiError("DOCUMENT_TITLE_CONFLICT", 409, "Duplicate title."))).toMatchObject({
+      title: "Document title already exists.",
+      field: "documentTitle"
+    });
+
     expect(mapTenantHostError(createApiError("TENANT_USER_EMAIL_CONFLICT", 409, "Duplicate email."))).toMatchObject({
       title: "Email already exists.",
       field: "tenantUserEmail"
@@ -92,7 +97,7 @@ describe("tenant-host error mapping", () => {
     });
 
     expect(mapTenantHostError(error)).toMatchObject({
-      title: "Network request failed.",
+      title: "PaperBinder is unavailable right now.",
       field: null,
       correlationId: null
     });

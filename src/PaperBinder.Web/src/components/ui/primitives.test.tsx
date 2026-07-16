@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { Alert, AlertBody, AlertTitle } from "./alert";
 import { Banner } from "./banner";
@@ -8,6 +9,7 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTrigger } from 
 import { Field } from "./field";
 import { StatusBadge } from "./status-badge";
 import { DataTable } from "./table";
+import { Toast, ToastViewport } from "./toast";
 
 function PrimitivePlayground() {
   return (
@@ -40,6 +42,14 @@ function PrimitivePlayground() {
         <AlertBody>Safe error messaging.</AlertBody>
       </Alert>
       <StatusBadge variant="warning">warning</StatusBadge>
+      <ToastViewport>
+        <Toast
+          body="Mutation feedback stays visible until the reviewer clears it."
+          onDismiss={() => undefined}
+          title="Toast notification"
+          variant="success"
+        />
+      </ToastViewport>
       <Dialog>
         <DialogTrigger asChild>
           <Button type="button" variant="secondary">
@@ -65,7 +75,7 @@ function PrimitivePlayground() {
 }
 
 describe("ui primitives", () => {
-  it("Should_RenderAccessibleButtonCardBannerFormTableAlertDialogAndStatusBadgePrimitives", async () => {
+  it("Should_RenderAccessibleButtonCardBannerFormTableAlertDialogStatusBadgeAndToastPrimitives", async () => {
     render(<PrimitivePlayground />);
 
     expect(screen.getByRole("button", { name: "Primary action" })).toBeInTheDocument();
@@ -75,11 +85,33 @@ describe("ui primitives", () => {
     expect(screen.getByText("No rows yet.")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("Problem details");
     expect(screen.getByText("warning")).toBeInTheDocument();
+    expect(screen.getByText("Toast notification")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Dismiss notification: Toast notification" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
     expect(await screen.findByRole("dialog")).toHaveTextContent("Dialog title");
 
     fireEvent.click(screen.getByLabelText("Close dialog"));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("Should_ForceReadableTextColorClasses_When_ButtonRendersAsChildLink", () => {
+    render(
+      <MemoryRouter>
+        <div>
+          <Button asChild type="button">
+            <a href="/dark">Dark action</a>
+          </Button>
+          <Button asChild type="button" variant="secondary">
+            <a href="/light">Light action</a>
+          </Button>
+        </div>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("link", { name: "Dark action" }).className).toContain("!text-white");
+    expect(screen.getByRole("link", { name: "Light action" }).className).toContain(
+      "!text-[var(--pb-action-secondary-text)]"
+    );
   });
 });
