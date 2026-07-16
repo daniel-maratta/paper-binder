@@ -25,7 +25,7 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
     private const string LastTenantOwnerRequiredErrorCode = "LAST_TENANT_OWNER_REQUIRED";
     private const string TenantRoleInvalidErrorCode = "TENANT_ROLE_INVALID";
     private const string CsrfTokenInvalidErrorCode = "CSRF_TOKEN_INVALID";
-    private const string TenantForbiddenErrorCode = "TENANT_FORBIDDEN";
+    private const string TenantHostUnavailableErrorCode = "TENANT_HOST_UNAVAILABLE";
 
     [Fact]
     public async Task Should_ListOnlyCurrentTenantUsers_When_CallerIsTenantAdmin()
@@ -645,7 +645,7 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
     }
 
     [Fact]
-    public async Task Should_RejectTestPolicyProbe_When_AuthenticatedUserTargetsDifferentTenantHost()
+    public async Task Should_ReturnGenericUnavailable_When_AuthenticatedUserTargetsDifferentTenantHostPolicyProbe()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
@@ -665,9 +665,9 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
 
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.NotNull(problem);
-        Assert.Equal(TenantForbiddenErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+        Assert.Equal(TenantHostUnavailableErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
     }
 
     private static async Task<PaperBinderApplicationHost> StartHostAsync(string databaseConnection) =>

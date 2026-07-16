@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { completeChallenge, expireTenant, provisionTenantAndContinue, tenantHostUrl } from "./helpers";
+import { expireTenant, loginViaApi, provisionTenantViaApi, tenantHostUrl } from "./helpers";
 
 test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async ({ page }) => {
-  const provisionedTenant = await provisionTenantAndContinue(page, `Acme CP14 ${Date.now()}`);
+  const provisionedTenant = await provisionTenantViaApi(page, `Acme CP14 ${Date.now()}`);
   const readerEmail = `reader.${Date.now()}@${provisionedTenant.tenantSlug}.local`;
   const readerPassword = "Checkpoint14-reader!1";
 
+  await page.goto(tenantHostUrl(provisionedTenant.tenantSlug));
   await expect(page.getByRole("heading", { level: 2, name: "Tenant dashboard", exact: true })).toBeVisible();
   await expect(page.getByText("0 of 3")).toBeVisible();
   await expect(page.getByRole("button", { name: "Extend lease" })).toBeVisible();
@@ -63,11 +64,8 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
   await expect(page).toHaveURL("http://paperbinder.localhost:5081/login");
   await expect(page.getByRole("heading", { level: 2, name: "Log in to an existing tenant", exact: true })).toBeVisible();
 
-  await page.getByLabel("Email").fill(readerEmail);
-  await page.getByLabel("Password").fill(readerPassword);
-  await completeChallenge(page);
-  await page.getByRole("button", { name: "Log in" }).click();
-
+  await loginViaApi(page, { email: readerEmail, password: readerPassword });
+  await page.goto(tenantHostUrl(provisionedTenant.tenantSlug));
   await expect(page).toHaveURL(tenantHostUrl(provisionedTenant.tenantSlug));
   await expect(page.getByRole("heading", { level: 2, name: "Tenant dashboard", exact: true })).toBeVisible();
 
@@ -82,8 +80,9 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
 });
 
 test("Should_RenderExpiredTenantState_InBrowser_When_TenantLeaseHasExpired", async ({ page }) => {
-  const provisionedTenant = await provisionTenantAndContinue(page, `Expired CP14 ${Date.now()}`);
+  const provisionedTenant = await provisionTenantViaApi(page, `Expired CP14 ${Date.now()}`);
 
+  await page.goto(tenantHostUrl(provisionedTenant.tenantSlug));
   await expect(page.getByRole("heading", { level: 2, name: "Tenant dashboard", exact: true })).toBeVisible();
 
   expireTenant(provisionedTenant.tenantSlug);
@@ -93,11 +92,20 @@ test("Should_RenderExpiredTenantState_InBrowser_When_TenantLeaseHasExpired", asy
   await expect(page.getByText(/safe fallback only/i)).toBeVisible();
 });
 
+test("Should_RenderGenericUnavailableState_InBrowser_When_TenantHostIsUnknown", async ({ page }) => {
+  await page.goto(tenantHostUrl(`missing-${Date.now()}`, "/app"));
+
+  await expect(page.getByRole("heading", { level: 2, name: "Workspace unavailable", exact: true })).toBeVisible();
+  await expect(page.getByText(/safe fallback only/i)).toBeVisible();
+  await expect(page.getByRole("link", { name: "Return to root-host login", exact: true })).toBeVisible();
+});
+
 test("Should_StartViewAsFromUsersRoute_AndReturnToAdminSession_InBrowser", async ({ page }) => {
-  const provisionedTenant = await provisionTenantAndContinue(page, `Acme CP15 ${Date.now()}`);
+  const provisionedTenant = await provisionTenantViaApi(page, `Acme CP15 ${Date.now()}`);
   const readerEmail = `reader.${Date.now()}@${provisionedTenant.tenantSlug}.local`;
   const readerPassword = "Checkpoint15-reader!1";
 
+  await page.goto(tenantHostUrl(provisionedTenant.tenantSlug));
   await page.getByRole("link", { name: /Users/ }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Tenant users", exact: true })).toBeVisible();
 

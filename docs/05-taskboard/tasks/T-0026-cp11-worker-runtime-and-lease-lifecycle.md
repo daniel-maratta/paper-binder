@@ -165,3 +165,4 @@ Implement CP11 so tenant lease state becomes a real tenant-host API surface, exp
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.
 Use the taskboard when execution state must persist across checkpoints, PRs, or sessions.
+- Later trust-split work in `T-0035` superseded the public post-purge tenant-host disclosure contract: public tenant-host failures now flatten to `404 TENANT_HOST_UNAVAILABLE` even though CP11 originally shipped `404 TENANT_NOT_FOUND` after purge.

@@ -41,7 +41,7 @@ afterEach(() => {
 });
 
 describe("tenant shell", () => {
-  it("Should_RenderAuthenticationRequired_When_TenantBootstrapReturnsUnauthorized", async () => {
+  it("Should_RenderGenericUnavailableState_When_TenantBootstrapReturnsUnauthorized", async () => {
     const error = new PaperBinderApiError({
       message: "Unauthorized",
       status: 401,
@@ -61,11 +61,11 @@ describe("tenant shell", () => {
       })
     });
 
-    expect(await screen.findByRole("heading", { name: "Authentication required" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Workspace unavailable" })).toBeInTheDocument();
     expect(screen.getByText(/safe fallback only/i)).toBeInTheDocument();
   });
 
-  it("Should_RenderSafeTenantShellStates_When_BootstrapFailsWithoutFeatureData", async () => {
+  it("Should_RenderGenericUnavailableState_When_UntrustedTenantBootstrapFails", async () => {
     const cases = [
       {
         error: new PaperBinderApiError({
@@ -78,33 +78,20 @@ describe("tenant shell", () => {
           traceId: null,
           validationErrors: null
         }),
-        heading: "Tenant access denied"
-      },
-      {
-        error: new PaperBinderApiError({
-          message: "Expired",
-          status: 410,
-          errorCode: "TENANT_EXPIRED",
-          detail: "Expired",
-          correlationId: "corr-410",
-          retryAfterSeconds: null,
-          traceId: null,
-          validationErrors: null
-        }),
-        heading: "Tenant expired"
+        heading: "Workspace unavailable"
       },
       {
         error: new PaperBinderApiError({
           message: "Unknown tenant",
           status: 404,
-          errorCode: "TENANT_NOT_FOUND",
+          errorCode: "TENANT_HOST_UNAVAILABLE",
           detail: "Unknown tenant",
           correlationId: "corr-404",
           retryAfterSeconds: null,
           traceId: null,
           validationErrors: null
         }),
-        heading: "Tenant not found"
+        heading: "Workspace unavailable"
       }
     ];
 
@@ -122,6 +109,30 @@ describe("tenant shell", () => {
 
       view.unmount();
     }
+  });
+
+  it("Should_RenderExplicitExpiredState_When_TrustedTenantBootstrapDetectsExpiry", async () => {
+    const error = new PaperBinderApiError({
+      message: "Expired",
+      status: 410,
+      errorCode: "TENANT_EXPIRED",
+      detail: "Expired",
+      correlationId: "corr-410",
+      retryAfterSeconds: null,
+      traceId: null,
+      validationErrors: null
+    });
+
+    renderTenantRoute({
+      apiClient: createApiClientStub({
+        getTenantLease: vi.fn(async () => {
+          throw error;
+        }) as PaperBinderApiClient["getTenantLease"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Tenant expired" })).toBeInTheDocument();
+    expect(screen.getByText(/safe fallback only/i)).toBeInTheDocument();
   });
 
   it("Should_RenderLiveTenantDashboard_When_TenantBootstrapAndSummaryReadsSucceed", async () => {

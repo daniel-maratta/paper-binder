@@ -22,7 +22,7 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
     private const string CsrfTokenInvalidErrorCode = "CSRF_TOKEN_INVALID";
     private const string RateLimitedErrorCode = "RATE_LIMITED";
     private const string TenantExpiredErrorCode = "TENANT_EXPIRED";
-    private const string TenantNotFoundErrorCode = "TENANT_NOT_FOUND";
+    private const string TenantHostUnavailableErrorCode = "TENANT_HOST_UNAVAILABLE";
     private const string TenantLeaseExtensionWindowNotOpenErrorCode = "TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN";
     private const string TenantLeaseExtensionLimitReachedErrorCode = "TENANT_LEASE_EXTENSION_LIMIT_REACHED";
     private static readonly TimeSpan CleanupRetentionWindow = TenantLeaseRules.CleanupRetentionWindow;
@@ -439,7 +439,7 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
         Assert.Equal(HttpStatusCode.NotFound, purgedResponse.StatusCode);
         AssertApiProtocolHeaders(purgedResponse);
         Assert.NotNull(purgedProblem);
-        Assert.Equal(TenantNotFoundErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(purgedProblem!, "errorCode"));
+        Assert.Equal(TenantHostUnavailableErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(purgedProblem!, "errorCode"));
     }
 
     private static async Task<PaperBinderApplicationHost> StartHostAsync(

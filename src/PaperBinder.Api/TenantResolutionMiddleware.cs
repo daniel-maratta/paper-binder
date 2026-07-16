@@ -20,6 +20,9 @@ internal sealed class TenantResolutionMiddleware(
     IHostEnvironment hostEnvironment,
     ILogger<TenantResolutionMiddleware> logger)
 {
+    private const string TenantHostUnavailableTitle = "Tenant host unavailable.";
+    private const string TenantHostUnavailableDetail = "The requested tenant workspace is unavailable or inaccessible.";
+
     public async Task InvokeAsync(
         HttpContext context,
         PaperBinderRuntimeSettings runtimeSettings,
@@ -36,6 +39,7 @@ internal sealed class TenantResolutionMiddleware(
         PaperBinder.Application.Time.ISystemClock clock,
         IProblemDetailsService problemDetailsService)
     {
+        var isApiRequest = PaperBinderApiRequestClassifier.IsApiRequest(context.Request.Path);
         var hostMatch = PaperBinderTenantHostResolution.Resolve(
             runtimeSettings.AuthCookie.Domain,
             context.Request.Host.Host,
@@ -54,14 +58,17 @@ internal sealed class TenantResolutionMiddleware(
                 var tenant = await tenantLookupService.FindBySlugAsync(hostMatch.TenantSlug!, context.RequestAborted);
                 if (tenant is null)
                 {
-                    await RejectAsync(
-                        context,
-                        problemDetailsService,
-                        StatusCodes.Status404NotFound,
-                        "Tenant not found.",
-                        "The requested tenant host does not map to an active PaperBinder tenant.",
-                        PaperBinderErrorCodes.TenantNotFound,
-                        logger);
+                    if (isApiRequest)
+                    {
+                        await RejectTenantHostUnavailableAsync(
+                            context,
+                            problemDetailsService,
+                            PaperBinderTelemetry.SecurityDenialReasons.TenantNotFound,
+                            logger);
+                        return;
+                    }
+
+                    await next(context);
                     return;
                 }
 
@@ -80,13 +87,34 @@ internal sealed class TenantResolutionMiddleware(
                     {
                         ["tenant_id"] = tenant.Tenant.TenantId
                     });
+
+                    if (isApiRequest)
+                    {
+                        await RejectTenantHostUnavailableAsync(
+                            context,
+                            problemDetailsService,
+                            PaperBinderTelemetry.SecurityDenialReasons.AuthenticationRequired,
+                            logger);
+                        return;
+                    }
+
                     await next(context);
                     return;
                 }
 
                 if (!PaperBinderAuthenticatedUser.TryGetUserId(context.User, out var actorUserId))
                 {
-                    await WriteAuthenticationRequiredAsync(context, problemDetailsService, logger);
+                    if (!isApiRequest)
+                    {
+                        await next(context);
+                        return;
+                    }
+
+                    await RejectTenantHostUnavailableAsync(
+                        context,
+                        problemDetailsService,
+                        PaperBinderTelemetry.SecurityDenialReasons.AuthenticationRequired,
+                        logger);
                     return;
                 }
 
@@ -97,7 +125,17 @@ internal sealed class TenantResolutionMiddleware(
                         identityOptions.Value,
                         csrfCookieService))
                 {
-                    await WriteAuthenticationRequiredAsync(context, problemDetailsService, logger);
+                    if (!isApiRequest)
+                    {
+                        await next(context);
+                        return;
+                    }
+
+                    await RejectTenantHostUnavailableAsync(
+                        context,
+                        problemDetailsService,
+                        PaperBinderTelemetry.SecurityDenialReasons.AuthenticationRequired,
+                        logger);
                     return;
                 }
 
@@ -112,7 +150,17 @@ internal sealed class TenantResolutionMiddleware(
                     {
                         await context.SignOutAsync(IdentityConstants.ApplicationScheme);
                         csrfCookieService.ClearToken(context);
-                        await WriteAuthenticationRequiredAsync(context, problemDetailsService, logger);
+                        if (!isApiRequest)
+                        {
+                            await next(context);
+                            return;
+                        }
+
+                        await RejectTenantHostUnavailableAsync(
+                            context,
+                            problemDetailsService,
+                            PaperBinderTelemetry.SecurityDenialReasons.AuthenticationRequired,
+                            logger);
                         return;
                     }
 
@@ -126,27 +174,37 @@ internal sealed class TenantResolutionMiddleware(
 
                 if (membership is null)
                 {
-                    await RejectAsync(
+                    if (!isApiRequest)
+                    {
+                        await next(context);
+                        return;
+                    }
+
+                    await RejectTenantHostUnavailableAsync(
                         context,
                         problemDetailsService,
-                        StatusCodes.Status403Forbidden,
-                        "Tenant access denied.",
-                        "The authenticated tenant session does not belong to the requested tenant.",
-                        PaperBinderErrorCodes.TenantForbidden,
+                        PaperBinderTelemetry.SecurityDenialReasons.TenantForbidden,
                         logger);
                     return;
                 }
 
                 if (tenant.ExpiresAtUtc <= clock.UtcNow)
                 {
-                    await RejectAsync(
-                        context,
-                        problemDetailsService,
-                        StatusCodes.Status410Gone,
-                        "Tenant expired.",
-                        "The requested tenant has expired and can no longer be accessed.",
-                        PaperBinderErrorCodes.TenantExpired,
-                        logger);
+                    if (isApiRequest)
+                    {
+                        await RejectAsync(
+                            context,
+                            problemDetailsService,
+                            StatusCodes.Status410Gone,
+                            "Tenant expired.",
+                            "The requested tenant has expired and can no longer be accessed.",
+                            PaperBinderErrorCodes.TenantExpired,
+                            PaperBinderTelemetry.SecurityDenialReasons.TenantExpired,
+                            logger);
+                        return;
+                    }
+
+                    await next(context);
                     return;
                 }
 
@@ -180,6 +238,7 @@ internal sealed class TenantResolutionMiddleware(
                     "Invalid tenant host.",
                     "The request host is not a valid PaperBinder root or tenant host.",
                     PaperBinderErrorCodes.TenantHostInvalid,
+                    PaperBinderTelemetry.SecurityDenialReasons.TenantHostInvalid,
                     logger);
                 return;
         }
@@ -237,30 +296,20 @@ internal sealed class TenantResolutionMiddleware(
         return CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
     }
 
-    private static Task WriteAuthenticationRequiredAsync(
+    private static Task RejectTenantHostUnavailableAsync(
         HttpContext context,
         IProblemDetailsService problemDetailsService,
+        string internalReason,
         ILogger logger)
-    {
-        PaperBinderTelemetry.RecordSecurityDenial(
-            PaperBinderTelemetry.SecurityDenialReasons.AuthenticationRequired,
-            PaperBinderTelemetry.SecurityDenialSurfaces.TenantResolution);
-        logger.LogWarning(
-            "Tenant resolution rejected request because authentication context was invalid. event_name={event_name} reason={reason} surface={surface} path={path} host={host} correlation_id={correlation_id}",
-            "security_denial",
-            PaperBinderTelemetry.SecurityDenialReasons.AuthenticationRequired,
-            PaperBinderTelemetry.SecurityDenialSurfaces.TenantResolution,
-            context.Request.Path.Value ?? string.Empty,
-            context.Request.Host.Host,
-            PaperBinderRequestCorrelation.Get(context) ?? string.Empty);
-
-        return PaperBinderProblemDetails.WriteApiProblemAsync(
+        => RejectAsync(
             context,
             problemDetailsService,
-            StatusCodes.Status401Unauthorized,
-            "Authentication required.",
-            "The request requires a valid authenticated session.");
-    }
+            StatusCodes.Status404NotFound,
+            TenantHostUnavailableTitle,
+            TenantHostUnavailableDetail,
+            PaperBinderErrorCodes.TenantHostUnavailable,
+            internalReason,
+            logger);
 
     private static async Task RejectAsync(
         HttpContext context,
@@ -269,14 +318,15 @@ internal sealed class TenantResolutionMiddleware(
         string title,
         string detail,
         string errorCode,
+        string internalReason,
         ILogger logger)
     {
-        var reason = errorCode.ToLowerInvariant();
-        PaperBinderTelemetry.RecordSecurityDenial(reason, PaperBinderTelemetry.SecurityDenialSurfaces.TenantResolution);
+        PaperBinderTelemetry.RecordSecurityDenial(internalReason, PaperBinderTelemetry.SecurityDenialSurfaces.TenantResolution);
         logger.LogWarning(
-            "Tenant resolution rejected request. event_name={event_name} reason={reason} surface={surface} status_code={status_code} path={path} host={host} correlation_id={correlation_id}",
+            "Tenant resolution rejected request. event_name={event_name} reason={reason} public_error_code={public_error_code} surface={surface} status_code={status_code} path={path} host={host} correlation_id={correlation_id}",
             "security_denial",
-            reason,
+            internalReason,
+            errorCode,
             PaperBinderTelemetry.SecurityDenialSurfaces.TenantResolution,
             statusCode,
             context.Request.Path.Value ?? string.Empty,

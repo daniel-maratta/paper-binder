@@ -76,12 +76,44 @@ export async function provisionTenantAndContinue(page: Page, tenantName: string)
   };
 }
 
+export async function provisionTenantViaApi(page: Page, tenantName: string) {
+  const response = await page.context().request.post("/api/provision", {
+    data: {
+      tenantName,
+      challengeToken: challengePassToken
+    }
+  });
+  const payload = (await response.json()) as ProvisionPayload;
+
+  expect(response.status()).toBe(201);
+
+  return {
+    response,
+    email: payload.credentials.email,
+    password: payload.credentials.password,
+    tenantSlug: payload.tenantSlug,
+    tenantUrl: tenantHostUrl(payload.tenantSlug)
+  };
+}
+
 export async function loginFromRootHost(page: Page, credentials: { email: string; password: string }) {
   await page.goto("/login");
   await page.getByLabel("Email").fill(credentials.email);
   await page.getByLabel("Password").fill(credentials.password);
   await completeChallenge(page);
   await page.getByRole("button", { name: "Log in" }).click();
+}
+
+export async function loginViaApi(page: Page, credentials: { email: string; password: string }) {
+  const response = await page.context().request.post("/api/auth/login", {
+    data: {
+      email: credentials.email,
+      password: credentials.password,
+      challengeToken: challengePassToken
+    }
+  });
+
+  expect(response.status()).toBe(200);
 }
 
 export function runTenantSql(sql: string) {

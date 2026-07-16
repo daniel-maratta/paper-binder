@@ -23,6 +23,7 @@ public sealed class TenantImpersonationIntegrationTests(PostgresContainerFixture
     private const string TenantImpersonationSelfTargetRejectedErrorCode = "TENANT_IMPERSONATION_SELF_TARGET_REJECTED";
     private const string TenantImpersonationAlreadyActiveErrorCode = "TENANT_IMPERSONATION_ALREADY_ACTIVE";
     private const string CsrfTokenInvalidErrorCode = "CSRF_TOKEN_INVALID";
+    private const string TenantHostUnavailableErrorCode = "TENANT_HOST_UNAVAILABLE";
 
     [Fact]
     public async Task Should_StartTenantLocalImpersonation_AndApplyEffectiveAuthorization_When_TenantAdminTargetsSameTenantUser()
@@ -360,8 +361,13 @@ public sealed class TenantImpersonationIntegrationTests(PostgresContainerFixture
             "/api/tenant/impersonation");
 
         var expiredResponse = await host.Client.SendAsync(expiredRequest);
+        var expiredProblem = await expiredResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
 
-        Assert.Equal(HttpStatusCode.Unauthorized, expiredResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, expiredResponse.StatusCode);
+        Assert.NotNull(expiredProblem);
+        Assert.Equal(
+            TenantHostUnavailableErrorCode,
+            TenantResolutionIntegrationTestHost.GetRequiredExtension(expiredProblem!, "errorCode"));
 
         var auditEvents = await GetAuditEventsAsync(host, tenant.Id);
         Assert.Collection(
