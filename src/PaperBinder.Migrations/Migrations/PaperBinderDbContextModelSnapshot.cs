@@ -38,6 +38,10 @@ partial class PaperBinderDbContextModelSnapshot : ModelSnapshot
                 .HasColumnName("lease_extension_count")
                 .HasDefaultValue(0);
 
+            builder.Property<DateTimeOffset?>("LastAuthenticatedActivityAtUtc")
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("last_authenticated_activity_at_utc");
+
             builder.Property<string>("Name")
                 .IsRequired()
                 .HasMaxLength(200)

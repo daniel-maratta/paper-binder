@@ -6,6 +6,7 @@ namespace PaperBinder.Api;
 internal static class PaperBinderProblemDetails
 {
     private const string ErrorCodeItemKey = "PaperBinder.Http.ProblemDetails.ErrorCode";
+    private const string ExtensionsItemKey = "PaperBinder.Http.ProblemDetails.Extensions";
 
     public static async Task WriteApiProblemAsync(
         HttpContext context,
@@ -13,7 +14,8 @@ internal static class PaperBinderProblemDetails
         int statusCode,
         string? title = null,
         string? detail = null,
-        string? errorCode = null)
+        string? errorCode = null,
+        IReadOnlyDictionary<string, object?>? extensions = null)
     {
         context.Response.StatusCode = statusCode;
 
@@ -24,6 +26,15 @@ internal static class PaperBinderProblemDetails
         else
         {
             context.Items.Remove(ErrorCodeItemKey);
+        }
+
+        if (extensions is not null)
+        {
+            context.Items[ExtensionsItemKey] = extensions;
+        }
+        else
+        {
+            context.Items.Remove(ExtensionsItemKey);
         }
 
         try
@@ -42,6 +53,7 @@ internal static class PaperBinderProblemDetails
         finally
         {
             context.Items.Remove(ErrorCodeItemKey);
+            context.Items.Remove(ExtensionsItemKey);
         }
     }
 
@@ -66,6 +78,18 @@ internal static class PaperBinderProblemDetails
             errorCode is string errorCodeValue)
         {
             context.ProblemDetails.Extensions["errorCode"] = errorCodeValue;
+        }
+
+        if (context.HttpContext.Items.TryGetValue(ExtensionsItemKey, out var extensions) &&
+            extensions is IReadOnlyDictionary<string, object?> extensionValues)
+        {
+            foreach (var (key, value) in extensionValues)
+            {
+                if (value is not null)
+                {
+                    context.ProblemDetails.Extensions[key] = value;
+                }
+            }
         }
     }
 }

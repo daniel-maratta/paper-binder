@@ -46,6 +46,10 @@ public sealed class PaperBinderDbContext(DbContextOptions<PaperBinderDbContext> 
             .HasColumnName("lease_extension_count")
             .HasDefaultValue(0);
 
+        tenant.Property(record => record.LastAuthenticatedActivityAtUtc)
+            .HasColumnName("last_authenticated_activity_at_utc")
+            .HasColumnType("timestamp with time zone");
+
         tenant.HasIndex(record => record.Slug)
             .HasDatabaseName("ux_tenants_slug")
             .IsUnique();

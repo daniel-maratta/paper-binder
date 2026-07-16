@@ -141,7 +141,7 @@ public sealed class ChallengeAndProvisioningRuleTests
             new AuthCookieSettings(".paperbinder.localhost", "paperbinder.auth", "paperbinder-local-keys"),
             new DataProtectionSettings(null, null, null),
             new ChallengeSettings("local-demo-site-key", "local-demo-secret-key", false),
-            new LeaseSettings(60, 10, 3, 60),
+            new LeaseSettings(60, 10, 3, 60, 180),
             new RateLimitSettings(30, 120, 10),
             new AuditSettings(AuditRetentionMode.RetainTenantPurgedSummary),
             new ObservabilitySettings(null));

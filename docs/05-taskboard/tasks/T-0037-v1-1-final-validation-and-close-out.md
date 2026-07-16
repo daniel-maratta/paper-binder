@@ -16,7 +16,7 @@ agent
 2026-07-15
 
 ## Updated
-2026-07-16
+2026-07-15
 
 ## Checkpoint
 Cross-checkpoint
@@ -56,8 +56,6 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
 
 ## Current State
 - Queued. This is the final execution lane after the remaining implementation and doc/copy carry-forwards land.
-- Known deferred cleanup item: the tenant-host browser suite still has unrelated users-route browser-form drift around the `Temporary password` field label. Address that drift alongside the other known warnings/issues during this close-out lane rather than reopening `T-0035`.
-- Known deferred cleanup item: revisit any remaining build warnings, browser-suite warnings, and dependency or vulnerability advisories during this close-out lane so the final validation record reflects what was fixed, what was accepted, and what remains intentionally deferred.
 
 ## Touch Points
 - `docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md`

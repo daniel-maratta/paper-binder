@@ -282,7 +282,7 @@ public sealed class HardeningConsistencyIntegrationTests(PostgresContainerFixtur
             host,
             "cp16-metrics-expired",
             createdAtUtc: DateTimeOffset.UtcNow.AddHours(-1),
-            expiresAtUtc: DateTimeOffset.UtcNow - TenantLeaseRules.CleanupRetentionWindow - TimeSpan.FromMinutes(1));
+            expiresAtUtc: DateTimeOffset.UtcNow.AddMinutes(-1));
         var activeAdmin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp16-metrics-active.local", "checkpoint-16-password");
         var expiredAdmin = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp16-metrics-expired.local", "checkpoint-16-password");
 
