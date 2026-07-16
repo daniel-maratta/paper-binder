@@ -6,14 +6,6 @@ internal sealed record CreateTenantUserRequest(
     string? Email,
     string? Role);
 
-internal sealed record CreateTenantUserResponse(
-    TenantUserResponse User,
-    TenantUserCredentialsResponse Credentials);
-
-internal sealed record TenantUserCredentialsResponse(
-    string Email,
-    string Password);
-
 internal sealed record ChangeTenantUserRoleRequest(
     string? Role);
 
@@ -26,16 +18,32 @@ internal sealed record TenantUserResponse(
     string Role,
     bool IsOwner);
 
+internal sealed record TenantUserCredentialsResponse(
+    string Email,
+    string Password);
+
+internal sealed record CreatedTenantUserResponse(
+    Guid UserId,
+    string Email,
+    string Role,
+    bool IsOwner,
+    TenantUserCredentialsResponse Credentials);
+
 internal static class PaperBinderTenantUserResponseMapping
 {
     public static ListTenantUsersResponse MapList(IReadOnlyList<TenantUserSummary> users) =>
         new(users.Select(MapSummary).ToArray());
 
-    public static CreateTenantUserResponse MapCreated(CreatedTenantUser createdUser) =>
-        new(
-            MapSummary(createdUser.User),
-            new TenantUserCredentialsResponse(createdUser.User.Email, createdUser.GeneratedPassword));
-
     public static TenantUserResponse MapSummary(TenantUserSummary user) =>
         new(user.UserId, user.Email, user.Role.ToString(), user.IsOwner);
+
+    public static CreatedTenantUserResponse MapCreated(
+        TenantUserSummary user,
+        string generatedPassword) =>
+        new(
+            user.UserId,
+            user.Email,
+            user.Role.ToString(),
+            user.IsOwner,
+            new TenantUserCredentialsResponse(user.Email, generatedPassword));
 }

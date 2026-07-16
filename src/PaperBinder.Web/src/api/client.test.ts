@@ -75,6 +75,45 @@ describe("api client", () => {
     });
   });
 
+  it("Should_PreserveProblemDetailsExtensions_ForTerminalTenantStateHandling", async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      new Response(
+        JSON.stringify({
+          title: "Tenant expired.",
+          status: 410,
+          detail: "The requested tenant has expired and can no longer be accessed.",
+          errorCode: "TENANT_EXPIRED",
+          correlationId: "corr-410",
+          terminalTenantState: "expired_retained_recent_activity"
+        }),
+        {
+          status: 410,
+          headers: {
+            "Content-Type": "application/json",
+            "X-Correlation-Id": "corr-410"
+          }
+        }
+      )
+    );
+
+    const apiClient = createPaperBinderApiClient({
+      apiOrigin: "https://paperbinder.example.test",
+      fetchFn: fetchMock as typeof fetch
+    });
+
+    await expect(
+      apiClient.request({
+        path: "/api/tenant/lease"
+      })
+    ).rejects.toMatchObject({
+      status: 410,
+      errorCode: "TENANT_EXPIRED",
+      extensions: {
+        terminalTenantState: "expired_retained_recent_activity"
+      }
+    });
+  });
+
   it("Should_CallTypedProvisionAndLoginMethods_ThroughSharedApiRequestPath", async () => {
     const fetchMock = vi
       .fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -414,14 +453,17 @@ describe("api client", () => {
       }
 
       if (url.endsWith("/api/tenant/users") && init?.method === "POST") {
+        expect(init?.body).toBe(JSON.stringify({
+          email: "writer@acme-demo.local",
+          role: "BinderWrite"
+        }));
+
         return new Response(
           JSON.stringify({
-            user: {
-              userId: "user-2",
-              email: "writer@acme-demo.local",
-              role: "BinderWrite",
-              isOwner: false
-            },
+            userId: "user-2",
+            email: "writer@acme-demo.local",
+            role: "BinderWrite",
+            isOwner: false,
             credentials: {
               email: "writer@acme-demo.local",
               password: "generated-password"
@@ -506,7 +548,7 @@ describe("api client", () => {
     expect(documentDetail.documentId).toBe("document-1");
     expect(createdDocument.documentId).toBe("document-2");
     expect(tenantUsers).toHaveLength(1);
-    expect(createdTenantUser.user.role).toBe("BinderWrite");
+    expect(createdTenantUser.role).toBe("BinderWrite");
     expect(createdTenantUser.credentials.password).toBe("generated-password");
     expect(updatedTenantUser.role).toBe("BinderRead");
     expect(fetchMock).toHaveBeenCalledTimes(15);

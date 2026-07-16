@@ -118,9 +118,8 @@ export type TenantUser = {
   isOwner: boolean;
 };
 
-export type TenantUserCredentials = {
-  email: string;
-  password: string;
+export type CreatedTenantUser = TenantUser & {
+  credentials: ProvisionCredentials;
 };
 
 export type TenantImpersonationUser = {
@@ -144,11 +143,6 @@ export type CreateTenantUserRequest = {
   role: TenantRole;
 };
 
-export type CreateTenantUserResponse = {
-  user: TenantUser;
-  credentials: TenantUserCredentials;
-};
-
 export type UpdateTenantUserRoleRequest = {
   role: TenantRole;
 };
@@ -161,6 +155,7 @@ type ProblemDetailsLike = {
   correlationId?: string;
   traceId?: string;
   errors?: Record<string, string[]>;
+  [key: string]: unknown;
 };
 
 type PaperBinderApiClientOptions = {
@@ -231,6 +226,7 @@ export class PaperBinderApiError extends Error {
   readonly retryAfterSeconds: number | null;
   readonly traceId: string | null;
   readonly validationErrors: Record<string, string[]> | null;
+  readonly extensions: Record<string, unknown> | null;
 
   constructor({
     message,
@@ -240,7 +236,8 @@ export class PaperBinderApiError extends Error {
     correlationId,
     retryAfterSeconds,
     traceId,
-    validationErrors
+    validationErrors,
+    extensions
   }: {
     message: string;
     status: number | null;
@@ -250,6 +247,7 @@ export class PaperBinderApiError extends Error {
     retryAfterSeconds: number | null;
     traceId: string | null;
     validationErrors: Record<string, string[]> | null;
+    extensions?: Record<string, unknown> | null;
   }) {
     super(message);
     this.name = "PaperBinderApiError";
@@ -260,7 +258,29 @@ export class PaperBinderApiError extends Error {
     this.retryAfterSeconds = retryAfterSeconds;
     this.traceId = traceId;
     this.validationErrors = validationErrors;
+    this.extensions = extensions ?? null;
   }
+}
+
+const knownProblemDetailsKeys = new Set([
+  "title",
+  "status",
+  "detail",
+  "errorCode",
+  "correlationId",
+  "traceId",
+  "errors",
+  "type",
+  "instance"
+]);
+
+function extractProblemDetailsExtensions(problem: ProblemDetailsLike): Record<string, unknown> | null {
+  const entries = Object.entries(problem).filter(([key]) => !knownProblemDetailsKeys.has(key));
+  if (entries.length === 0) {
+    return null;
+  }
+
+  return Object.fromEntries(entries);
 }
 
 function createUnexpectedApiError(response: Response, correlationId: string | null): PaperBinderApiError {
@@ -272,7 +292,8 @@ function createUnexpectedApiError(response: Response, correlationId: string | nu
     correlationId,
     retryAfterSeconds: null,
     traceId: null,
-    validationErrors: null
+    validationErrors: null,
+    extensions: null
   });
 }
 
@@ -296,7 +317,8 @@ async function createApiError(
     correlationId: problem.correlationId ?? correlationId,
     retryAfterSeconds,
     traceId: problem.traceId ?? null,
-    validationErrors: problem.errors ?? null
+    validationErrors: problem.errors ?? null,
+    extensions: extractProblemDetailsExtensions(problem)
   });
 }
 
@@ -311,7 +333,8 @@ function createNetworkError(error: unknown): PaperBinderApiError {
     correlationId: null,
     retryAfterSeconds: null,
     traceId: null,
-    validationErrors: null
+    validationErrors: null,
+    extensions: null
   });
 }
 
@@ -552,11 +575,8 @@ export function createPaperBinderApiClient({
 
       return response.data.users;
     },
-    async createTenantUser(
-      body: CreateTenantUserRequest,
-      signal?: AbortSignal
-    ): Promise<CreateTenantUserResponse> {
-      const response = await request<CreateTenantUserResponse>({
+    async createTenantUser(body: CreateTenantUserRequest, signal?: AbortSignal): Promise<CreatedTenantUser> {
+      const response = await request<CreatedTenantUser>({
         path: "/api/tenant/users",
         method: "POST",
         body,

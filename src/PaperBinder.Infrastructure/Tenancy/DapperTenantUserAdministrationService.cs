@@ -2,8 +2,8 @@ using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Npgsql;
-using PaperBinder.Application.Identity;
 using PaperBinder.Application.Persistence;
+using PaperBinder.Application.Provisioning;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Identity;
 
@@ -53,12 +53,12 @@ public sealed class DapperTenantUserAdministrationService(
 
         var normalizedEmailInput = command.Email.Trim();
         var user = CreateUser(normalizedEmailInput);
-        var generatedPassword = OneTimePasswordRules.Generate();
+        var generatedPassword = TenantProvisioningRules.GenerateOneTimePassword();
         var passwordValidationMessages = await ValidatePasswordAsync(user, generatedPassword);
         if (passwordValidationMessages.Count > 0)
         {
             logger.LogError(
-                "Tenant user creation generated a password that failed validation. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email} ValidationMessageCount={ValidationMessageCount}",
+                "Tenant user creation generated a password that failed the configured password rules. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email} ValidationMessageCount={ValidationMessageCount}",
                 command.TenantId,
                 command.ActorUserId,
                 command.EffectiveUserId,
@@ -67,7 +67,7 @@ public sealed class DapperTenantUserAdministrationService(
                 passwordValidationMessages.Count);
 
             throw new InvalidOperationException(
-                BuildValidationDetail(passwordValidationMessages));
+                $"Generated tenant-user password did not satisfy the configured password rules. {BuildValidationDetail(passwordValidationMessages)}");
         }
 
         user.PasswordHash = passwordHasher.HashPassword(user, generatedPassword);
@@ -97,9 +97,7 @@ public sealed class DapperTenantUserAdministrationService(
                             transaction,
                             cancellationToken: innerCancellationToken));
 
-                    return new CreatedTenantUser(
-                        new TenantUserSummary(user.Id, user.Email, role, IsOwner: false),
-                        generatedPassword);
+                    return new TenantUserSummary(user.Id, user.Email, role, IsOwner: false);
                 },
                 cancellationToken: cancellationToken);
 
@@ -109,10 +107,10 @@ public sealed class DapperTenantUserAdministrationService(
                 command.ActorUserId,
                 command.EffectiveUserId,
                 command.IsImpersonated,
-                createdUser.User.UserId,
-                createdUser.User.Role);
+                createdUser.UserId,
+                createdUser.Role);
 
-            return TenantUserCreateOutcome.Success(createdUser);
+            return TenantUserCreateOutcome.Success(createdUser, generatedPassword);
         }
         catch (PostgresException ex) when (IsEmailConflict(ex))
         {
@@ -185,10 +183,22 @@ public sealed class DapperTenantUserAdministrationService(
                 if (currentRole == TenantRole.TenantAdmin &&
                     requestedRole != TenantRole.TenantAdmin)
                 {
+                    var tenantAdminIds = (await connection.QueryAsync<Guid>(
+                        new CommandDefinition(
+                            TenantUserAdministrationSql.SelectTenantAdminIdsForUpdate,
+                            new
+                            {
+                                TenantId = command.TenantId,
+                                Role = nameof(TenantRole.TenantAdmin)
+                            },
+                            transaction,
+                            cancellationToken: innerCancellationToken)))
+                        .ToArray();
+
                     if (TenantUserAdministrationRules.WouldDemoteLastAdmin(
                             currentRole,
                             requestedRole,
-                            await CountTenantAdminsForUpdateAsync(connection, transaction, command.TenantId, innerCancellationToken)))
+                            tenantAdminIds.Length))
                     {
                         return TenantUserRoleChangeOutcome.Failed(
                             new TenantUserAdministrationFailure(
@@ -266,8 +276,10 @@ public sealed class DapperTenantUserAdministrationService(
                             "The requested tenant user does not exist."));
                 }
 
-                if (TenantUserAdministrationRules.WouldDeleteLastOwner(
-                        targetUser.IsOwner,
+                var currentRole = targetUser.ToSummary().Role;
+                if (targetUser.IsOwner &&
+                    TenantUserAdministrationRules.WouldDeleteLastOwner(
+                        isOwner: true,
                         await CountOwnersForUpdateAsync(connection, transaction, command.TenantId, innerCancellationToken)))
                 {
                     return TenantUserDeleteOutcome.Failed(
@@ -276,8 +288,8 @@ public sealed class DapperTenantUserAdministrationService(
                             "At least one tenant owner must remain assigned to the tenant."));
                 }
 
-                var currentRole = targetUser.ToSummary().Role;
-                if (TenantUserAdministrationRules.WouldDeleteLastAdmin(
+                if (currentRole == TenantRole.TenantAdmin &&
+                    TenantUserAdministrationRules.WouldDeleteLastAdmin(
                         currentRole,
                         await CountTenantAdminsForUpdateAsync(connection, transaction, command.TenantId, innerCancellationToken)))
                 {

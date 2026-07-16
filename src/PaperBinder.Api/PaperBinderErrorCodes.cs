@@ -12,7 +12,6 @@ internal static class PaperBinderErrorCodes
     public const string TenantForbidden = "TENANT_FORBIDDEN";
     public const string TenantExpired = "TENANT_EXPIRED";
     public const string TenantHostInvalid = "TENANT_HOST_INVALID";
-    public const string TenantHostUnavailable = "TENANT_HOST_UNAVAILABLE";
     public const string TenantNotFound = "TENANT_NOT_FOUND";
     public const string TenantLeaseExtensionWindowNotOpen = "TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN";
     public const string TenantLeaseExtensionLimitReached = "TENANT_LEASE_EXTENSION_LIMIT_REACHED";
