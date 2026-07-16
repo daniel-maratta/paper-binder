@@ -1,7 +1,7 @@
 # T-0035: Tenant-Host Failure Externalization And Trusted Expiry Recovery
 
 ## Status
-active
+done
 
 ## Type
 feature
@@ -29,17 +29,17 @@ Implement the trust-aware tenant-host failure policy from `ADR-0014` so public o
 
 ## Context
 - `ADR-0014` now defines the canonical split between public flattening and trusted expired-session clarity.
-- The SPA already has a deliberate trusted expired-retained contract, but public tenant-host failure behavior still needs normalization.
-- Both API ProblemDetails and non-API HTML fallback behavior must follow the same trust rule.
+- The SPA already has a deliberate trusted expired-retained contract, but public tenant-host failure behavior still needed normalization.
+- Both API ProblemDetails and non-API HTML fallback behavior needed to follow the same trust rule.
 
 ## Acceptance Criteria
-- [ ] Public or otherwise untrusted tenant-host failures no longer over-signal the difference between unknown, forbidden, expired, and purged tenants.
-- [ ] Trusted authenticated tenant-member sessions retain explicit expired-workspace recovery behavior.
-- [ ] Tenant-host API ProblemDetails and tenant-host HTML fallback pages follow the same public-versus-trusted policy.
-- [ ] Internal logs, traces, correlation IDs, and audit usefulness remain specific even when the public-facing behavior is flattened.
-- [ ] The SPA’s trusted expired-workspace handling remains deliberate and driven by an explicit machine-readable contract rather than client inference alone.
-- [ ] Integration, frontend, and browser coverage prove both the flattened public path and the explicit trusted recovery path.
-- [ ] A follow-up topology note is recorded if wildcard DNS/certificate posture still needs later operational review to reduce passive tenant discovery.
+- [x] Public or otherwise untrusted tenant-host failures no longer over-signal the difference between unknown, forbidden, expired, and purged tenants.
+- [x] Trusted authenticated tenant-member sessions retain explicit expired-workspace recovery behavior.
+- [x] Tenant-host API ProblemDetails and tenant-host HTML fallback pages follow the same public-versus-trusted policy.
+- [x] Internal logs, traces, correlation IDs, and audit usefulness remain specific even when the public-facing behavior is flattened.
+- [x] The SPA's trusted expired-workspace handling remains deliberate and driven by an explicit machine-readable contract rather than client inference alone.
+- [x] Integration, frontend, and browser coverage prove both the flattened public path and the explicit trusted recovery path.
+- [x] A follow-up topology note is recorded if wildcard DNS/certificate posture still needs later operational review to reduce passive tenant discovery.
 
 ## Dependencies
 - [T-0033](./T-0033-phase-4-1-v1-1-presentation-realignment.md)
@@ -56,7 +56,9 @@ Implement the trust-aware tenant-host failure policy from `ADR-0014` so public o
 - Escalation Notes: If the current deployment topology leaks materially more tenant-existence signal than the application contract intends, record it as an operations follow-up rather than silently widening this task.
 
 ## Current State
-- Active. `T-0034` is now closed, the explicit policy remains documented, and this task is the next execution target for the `v1.1` queue.
+- Done. Tenant-host API failures now flatten to `404 TENANT_HOST_UNAVAILABLE` for public or otherwise untrusted callers, while trusted same-tenant expired sessions retain explicit `410 TENANT_EXPIRED` recovery.
+- The tenant-host SPA bootstrap now treats non-expired failures as one generic unavailable state and preserves explicit expired-workspace handling only for the trusted expired contract.
+- Targeted integration, frontend, and browser validation for the trust split completed on `2026-07-15`.
 
 ## Touch Points
 - `src/PaperBinder.Api/TenantResolutionMiddleware.cs`
@@ -78,7 +80,7 @@ Implement the trust-aware tenant-host failure policy from `ADR-0014` so public o
 - Keep trusted-session explicitness separate from public concealment so the security boundary remains obvious in code and tests.
 
 ## Next Action
-- Start with the public API path: add the narrowest failing integration test that proves untrusted tenant-host failures no longer disclose materially different public results.
+- Closed. `T-0036` remains the next queued `v1.1` slice unless the unrelated tenant-host users-route browser-form drift is promoted into its own follow-up.
 
 ## Validation Plan
 - Targeted integration tests for tenant-host public versus trusted failure behavior
@@ -87,8 +89,12 @@ Implement the trust-aware tenant-host failure policy from `ADR-0014` so public o
 - `scripts/validate-docs.ps1` after contract or ADR-linked docs change
 
 ## Outcome (Fill when done)
-- Not started.
+- Complete. Tenant-resolution now preserves precise internal denial reasons while externalizing public or otherwise untrusted tenant-host API failures as `404 TENANT_HOST_UNAVAILABLE`.
+- Complete. The tenant-host HTML path now follows the same trust split: generic unavailable fallback for public or otherwise untrusted callers and explicit expired-workspace recovery only for trusted same-tenant sessions.
+- Complete. Targeted coverage passed on `2026-07-15` across Docker-backed integration tests, `tenant-shell` Vitest coverage, and scoped Playwright checks for the trusted-expired and generic-unavailable tenant-host browser states.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.
 Use the taskboard when execution state must persist across checkpoints, PRs, or sessions.
+- Wildcard DNS or certificate issuance can still create passive tenant-discovery considerations outside the app response contract. The app-level trust split now flattens tenant-shaped host behavior, but production topology review remains an operations follow-up.
+- The broader tenant-host browser spec still contains unrelated pre-existing failures around the users-route temporary-password field label. The two T-0035 browser assertions now pass independently and remain the authoritative validation for this task.

@@ -83,7 +83,9 @@ public sealed class TenantResolutionDatabaseIntegrationTests(PostgresContainerFi
 {
     private const string ApiVersionHeader = "X-Api-Version";
     private const string CurrentApiVersion = "1";
-    private const string TenantNotFoundErrorCode = "TENANT_NOT_FOUND";
+    private const string TenantHostUnavailableErrorCode = "TENANT_HOST_UNAVAILABLE";
+    private const string TenantHostUnavailableTitle = "Tenant host unavailable.";
+    private const string TenantHostUnavailableDetail = "The requested tenant workspace is unavailable or inaccessible.";
 
     [Fact]
     public async Task Should_NotEstablishTenantContextForAnonymousTenantHostRequests()
@@ -133,25 +135,67 @@ public sealed class TenantResolutionDatabaseIntegrationTests(PostgresContainerFi
     }
 
     [Fact]
-    public async Task Should_ReturnNotFoundForUnknownTenantHost_EvenWhen_ClientSuppliesSpoofedHints()
+    public async Task Should_Flatten_PublicTenantHostLeaseFailures_For_UnknownAnonymousAndWrongTenantRequests()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
 
-        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp5-known-seed");
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/contracts/probe?tenantId=spoofed");
-        request.Headers.Host = "cp5-missing.paperbinder.localhost";
-        request.Headers.Add("X-Tenant-Id", tenant.Id.ToString("D"));
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp5-public-tenant");
+        var otherTenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp5-public-other");
+        var expiredTenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp5-public-expired");
+        var user = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "owner@cp5-public-tenant.local", "checkpoint-5-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, user, tenant);
+        await TenantResolutionIntegrationTestHost.ExpireTenantAsync(host, expiredTenant);
 
-        var response = await host.Client.SendAsync(request);
-        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+        var session = await AuthIntegrationTestClient.LoginAsync(host, user.Email, user.Password);
 
+        using var unknownRequest = CreateTenantLeaseRequest("cp5-missing");
+        var unknownResponse = await host.Client.SendAsync(unknownRequest);
+        var unknownProblem = await unknownResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        using var anonymousRequest = CreateTenantLeaseRequest(tenant.Slug);
+        var anonymousResponse = await host.Client.SendAsync(anonymousRequest);
+        var anonymousProblem = await anonymousResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        using var expiredAnonymousRequest = CreateTenantLeaseRequest(expiredTenant.Slug);
+        var expiredAnonymousResponse = await host.Client.SendAsync(expiredAnonymousRequest);
+        var expiredAnonymousProblem = await expiredAnonymousResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        using var wrongTenantRequest = CreateTenantLeaseRequest(otherTenant.Slug, session.ToCookieHeader());
+        var wrongTenantResponse = await host.Client.SendAsync(wrongTenantRequest);
+        var wrongTenantProblem = await wrongTenantResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        AssertTenantHostUnavailable(unknownResponse, unknownProblem);
+        AssertTenantHostUnavailable(anonymousResponse, anonymousProblem);
+        AssertTenantHostUnavailable(expiredAnonymousResponse, expiredAnonymousProblem);
+        AssertTenantHostUnavailable(wrongTenantResponse, wrongTenantProblem);
+    }
+
+    private static HttpRequestMessage CreateTenantLeaseRequest(string tenantSlug, string? cookieHeader = null)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, PaperBinderTenantLeaseRoutes.LeasePath);
+        request.Headers.Host = $"{tenantSlug}.paperbinder.localhost";
+
+        if (!string.IsNullOrWhiteSpace(cookieHeader))
+        {
+            request.Headers.Add("Cookie", cookieHeader);
+        }
+
+        return request;
+    }
+
+    private static void AssertTenantHostUnavailable(
+        HttpResponseMessage response,
+        ProblemDetailsResponse? problem)
+    {
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         Assert.Equal(CurrentApiVersion, TenantResolutionIntegrationTestHost.GetRequiredHeader(response, ApiVersionHeader));
         Assert.NotNull(problem);
         Assert.Equal(StatusCodes.Status404NotFound, problem!.Status);
-        Assert.Equal(TenantNotFoundErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem, "errorCode"));
+        Assert.Equal(TenantHostUnavailableTitle, problem.Title);
+        Assert.Equal(TenantHostUnavailableDetail, problem.Detail);
+        Assert.Equal(TenantHostUnavailableErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem, "errorCode"));
     }
 }
 

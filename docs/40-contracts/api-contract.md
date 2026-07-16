@@ -13,6 +13,7 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 - The only supported bypass paths are the isolated `PB_ENV=Test` automation runtime and the explicit default-off local-development bypass configuration.
 - The local-development bypass configuration is valid only when the configured public root host is loopback or `.localhost`; non-local root hosts must fail challenge verification normally.
 - Authenticated unsafe tenant-host `/api/*` mutations now share one fixed-window limiter keyed by `(tenant_id, effective_user_id)` after membership is established; `POST /api/auth/logout` and `DELETE /api/tenant/impersonation` stay exempt.
+- Public or otherwise untrusted tenant-host `/api/*` failures now flatten to `404 TENANT_HOST_UNAVAILABLE`; only trusted expired tenant-member sessions retain explicit `410 TENANT_EXPIRED`.
 - Tenant lease uses canonical routes `/api/tenant/lease` and `/api/tenant/lease/extend`.
 - Tenant-local impersonation uses `GET|POST|DELETE /api/tenant/impersonation` with server-issued cookie state only.
 - Documents remain immutable; archive state is visibility metadata only.
@@ -61,15 +62,14 @@ Notes:
 - `correlationId` is required for request/incident correlation.
 - Unsupported API version errors use `errorCode` `API_VERSION_UNSUPPORTED`.
 - Invalid tenant hosts on `/api/*` return `400` ProblemDetails with `errorCode` `TENANT_HOST_INVALID`.
-- Unknown tenant hosts on `/api/*` return `404` ProblemDetails with `errorCode` `TENANT_NOT_FOUND`.
+- Public or otherwise untrusted tenant-host `/api/*` failures return `404` ProblemDetails with `errorCode` `TENANT_HOST_UNAVAILABLE`.
 - Invalid credentials return `401` ProblemDetails with `errorCode` `INVALID_CREDENTIALS`.
 - Missing challenge proof returns `400` ProblemDetails with `errorCode` `CHALLENGE_REQUIRED`.
 - Failed challenge verification returns `403` ProblemDetails with `errorCode` `CHALLENGE_FAILED`.
 - Invalid CSRF tokens return `403` ProblemDetails with `errorCode` `CSRF_TOKEN_INVALID`.
 - Tenant-name validation failures return `400` ProblemDetails with `errorCode` `TENANT_NAME_INVALID`.
 - Tenant-name conflicts return `409` ProblemDetails with `errorCode` `TENANT_NAME_CONFLICT`.
-- Missing or wrong-tenant membership returns `403` ProblemDetails with `errorCode` `TENANT_FORBIDDEN`.
-- Expired-but-not-purged tenants return `410` ProblemDetails with `errorCode` `TENANT_EXPIRED`.
+- Trusted authenticated tenant-member requests against expired-but-not-yet-purged tenant hosts return `410` ProblemDetails with `errorCode` `TENANT_EXPIRED`.
 - Unknown tenant-scoped role-assignment targets return `404` ProblemDetails with `errorCode` `TENANT_USER_NOT_FOUND`.
 - Tenant-user email conflicts return `409` ProblemDetails with `errorCode` `TENANT_USER_EMAIL_CONFLICT`.
 - Last-admin protection failures return `409` ProblemDetails with `errorCode` `LAST_TENANT_ADMIN_REQUIRED`.
@@ -144,8 +144,8 @@ Notes:
     }
     ```
   - Failure semantics:
-    - `410` when tenant is expired but not yet purged.
-    - `404` after tenant purge or when the tenant host does not resolve to a current tenant.
+    - `410` with `TENANT_EXPIRED` when a trusted authenticated tenant-member session targets a tenant that is expired but not yet purge-eligible.
+    - `404` with `TENANT_HOST_UNAVAILABLE` when the tenant host is unavailable or inaccessible to the current caller, including unknown or purged hosts, anonymous tenant-host requests, and wrong-tenant sessions.
   - Notes:
     - `secondsRemaining` is derived from server time and is never negative in a `200` response.
     - `canExtend` is true only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`, and `extensionCount` is below `maxExtensions`.
@@ -175,8 +175,8 @@ Notes:
     - `409` with `TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN` when remaining lease is still above the extension window or is already expired.
     - `409` with `TENANT_LEASE_EXTENSION_LIMIT_REACHED` when the tenant has already used the configured maximum number of extensions.
     - `429` with `RATE_LIMITED` and `Retry-After` when the lease-extend route budget is exhausted.
-    - `410` when tenant is expired but not yet purged.
-    - `404` after tenant purge or when the tenant host does not resolve to a current tenant.
+    - `410` with `TENANT_EXPIRED` when a trusted authenticated tenant-member session targets an expired tenant that is still inside the cleanup-retention window.
+    - `404` with `TENANT_HOST_UNAVAILABLE` after tenant purge or when the tenant host is otherwise unavailable or inaccessible to the current caller.
   - Notes:
     - The handler ignores client-supplied tenant identifiers, duration values, or other business inputs and operates only on the current host-resolved tenant.
     - `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the extension eligibility threshold and the amount added on success.

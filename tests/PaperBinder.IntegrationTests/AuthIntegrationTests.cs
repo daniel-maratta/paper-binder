@@ -14,6 +14,7 @@ public sealed class AuthIntegrationTests(PostgresContainerFixture postgres)
     private const string CsrfTokenInvalidErrorCode = "CSRF_TOKEN_INVALID";
     private const string TenantForbiddenErrorCode = "TENANT_FORBIDDEN";
     private const string TenantExpiredErrorCode = "TENANT_EXPIRED";
+    private const string TenantHostUnavailableErrorCode = "TENANT_HOST_UNAVAILABLE";
     private const string CsrfHeaderName = "X-CSRF-TOKEN";
 
     [Fact]
@@ -189,7 +190,7 @@ public sealed class AuthIntegrationTests(PostgresContainerFixture postgres)
     }
 
     [Fact]
-    public async Task Should_ReturnForbidden_When_AuthenticatedUserTargetsDifferentTenantHost()
+    public async Task Should_ReturnGenericUnavailable_When_AuthenticatedUserTargetsDifferentTenantHost()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
@@ -207,9 +208,9 @@ public sealed class AuthIntegrationTests(PostgresContainerFixture postgres)
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
 
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.NotNull(problem);
-        Assert.Equal(TenantForbiddenErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+        Assert.Equal(TenantHostUnavailableErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
     }
 
     [Fact]
@@ -225,7 +226,7 @@ public sealed class AuthIntegrationTests(PostgresContainerFixture postgres)
         var session = await AuthIntegrationTestClient.LoginAsync(host, user.Email, user.Password);
         await TenantResolutionIntegrationTestHost.ExpireTenantAsync(host, tenant);
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/contracts/probe");
+        using var request = new HttpRequestMessage(HttpMethod.Get, PaperBinderTenantLeaseRoutes.LeasePath);
         request.Headers.Host = $"{tenant.Slug}.paperbinder.localhost";
         request.Headers.Add("Cookie", session.ToCookieHeader());
 

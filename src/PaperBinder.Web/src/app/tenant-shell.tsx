@@ -101,23 +101,23 @@ function toRootLoginUrl(rootUrl: string): string {
   return new URL("/login", rootUrl).toString();
 }
 
+function createUnavailableBootstrapViewModel(
+  error: PaperBinderApiError | null
+): TenantBootstrapViewModel {
+  const mappedError = error === null ? null : mapTenantHostError(error);
+
+  return {
+    title: "Workspace unavailable",
+    detail:
+      "This workspace is unavailable or inaccessible from the current tenant host. Return to the root host and try again.",
+    correlationId: mappedError?.correlationId ?? error?.correlationId ?? null,
+    retryAfterLabel: mappedError?.retryAfterLabel ?? null
+  };
+}
+
 function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
   if (error instanceof PaperBinderApiError) {
     switch (error.errorCode) {
-      case "AUTHENTICATION_REQUIRED":
-        return {
-          title: "Authentication required",
-          detail: error.detail ?? "Log in again from the root host before returning to this tenant.",
-          correlationId: error.correlationId,
-          retryAfterLabel: null
-        };
-      case "TENANT_FORBIDDEN":
-        return {
-          title: "Tenant access denied",
-          detail: error.detail ?? "This tenant session is not allowed to access the requested tenant host.",
-          correlationId: error.correlationId,
-          retryAfterLabel: null
-        };
       case "TENANT_EXPIRED":
         return {
           title: "Tenant expired",
@@ -125,31 +125,12 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           correlationId: error.correlationId,
           retryAfterLabel: null
         };
-      case "TENANT_NOT_FOUND":
-        return {
-          title: "Tenant not found",
-          detail: error.detail ?? "The current tenant host no longer resolves to an active demo tenant.",
-          correlationId: error.correlationId,
-          retryAfterLabel: null
-        };
-      default: {
-        const mappedError = mapTenantHostError(error);
-        return {
-          title: error.status === 401 ? "Authentication required" : "Tenant host could not be loaded",
-          detail: mappedError.detail,
-          correlationId: mappedError.correlationId,
-          retryAfterLabel: mappedError.retryAfterLabel
-        };
-      }
+      default:
+        return createUnavailableBootstrapViewModel(error);
     }
   }
 
-  return {
-    title: "Tenant host could not be loaded",
-    detail: "PaperBinder could not load the tenant shell. Check the local stack and retry.",
-    correlationId: null,
-    retryAfterLabel: null
-  };
+  return createUnavailableBootstrapViewModel(null);
 }
 
 export function useTenantShellContext() {

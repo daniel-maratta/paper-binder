@@ -48,6 +48,14 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
   const retryAfterLabel = formatRetryAfterLabel(error.retryAfterSeconds);
 
   switch (error.errorCode) {
+    case "TENANT_HOST_UNAVAILABLE":
+      return {
+        title: "Workspace unavailable.",
+        detail: error.detail ?? "This workspace is unavailable or inaccessible from the current tenant host.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
     case "TENANT_FORBIDDEN":
       return {
         title: "Access is not allowed.",
