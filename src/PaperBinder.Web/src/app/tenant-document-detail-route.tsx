@@ -1,13 +1,27 @@
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { DocumentDetail } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardMeta, CardTitle } from "../components/ui/card";
 import { StatusBadge } from "../components/ui/status-badge";
 import type { TenantHostErrorViewModel } from "./tenant-host-errors";
 import { mapTenantHostError } from "./tenant-host-errors";
 import { TenantRouteFailureCard, formatDateTime, useTenantShellContext } from "./tenant-shell";
+
+function DetailStat({
+  label,
+  value
+}: {
+  label: string;
+  value: ReactNode;
+}) {
+  return (
+    <article className="pb-auth-stat-card">
+      <p className="pb-auth-stat-label">{label}</p>
+      <div className="pb-auth-stat-value">{value}</div>
+    </article>
+  );
+}
 
 export function DocumentDetailPage() {
   const { documentId = "" } = useParams();
@@ -56,71 +70,82 @@ export function DocumentDetailPage() {
 
   if (isLoading || documentDetail === null) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Loading document</CardTitle>
-          <CardDescription>PaperBinder is resolving the read-only document view.</CardDescription>
-        </CardHeader>
-      </Card>
+      <section className="pb-auth-panel pb-auth-panel--route">
+        <div className="pb-auth-panel-header">
+          <p className="pb-auth-eyebrow">Document detail</p>
+          <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">Loading document</h2>
+          <p className="pb-auth-panel-copy">PaperBinder is resolving the read-only document view.</p>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="space-y-2">
-              <CardTitle>{documentDetail.title}</CardTitle>
-              <CardDescription>
-                Document detail is read-only in v1 and reflects the current server contract directly.
-              </CardDescription>
-            </div>
-            <StatusBadge variant={documentDetail.archivedAt ? "warning" : "success"}>
-              {documentDetail.archivedAt ? "Archived" : "Active"}
-            </StatusBadge>
+    <div className="pb-auth-page">
+      <section className="pb-auth-page-intro">
+        <div className="pb-auth-detail-head">
+          <div>
+            <p className="pb-auth-eyebrow">Document detail</p>
+            <h2 className="pb-auth-page-title">{documentDetail.title}</h2>
+            <p className="pb-auth-page-copy">
+              Document detail is read-only in v1 and reflects the current server contract directly.
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-4">
-          <CardMeta label="Document id" value={<span className="font-mono text-xs">{documentDetail.documentId}</span>} />
-          <CardMeta label="Binder id" value={<span className="font-mono text-xs">{documentDetail.binderId}</span>} />
-          <CardMeta label="Created" value={formatDateTime(documentDetail.createdAt)} />
-          <CardMeta
+          <StatusBadge className="pb-auth-detail-status" variant={documentDetail.archivedAt ? "warning" : "success"}>
+            {documentDetail.archivedAt ? "Archived" : "Active"}
+          </StatusBadge>
+        </div>
+
+        <div className="pb-auth-summary-grid">
+          <DetailStat label="Created" value={formatDateTime(documentDetail.createdAt)} />
+          <DetailStat label="Format" value="Markdown" />
+          <DetailStat
             label="Supersedes"
             value={
               documentDetail.supersedesDocumentId ? (
-                <span className="font-mono text-xs">{documentDetail.supersedesDocumentId}</span>
+                <span className="pb-auth-code">{documentDetail.supersedesDocumentId}</span>
               ) : (
                 "None"
               )
             }
           />
-        </CardContent>
-        {documentDetail.archivedAt ? (
-          <CardFooter>
-            <Alert className="w-full" variant="warning">
-              <AlertTitle>Archived document visible by direct id.</AlertTitle>
-              <AlertBody>
-                Binder detail hides archived documents, but direct reads remain available to allowed callers.
-              </AlertBody>
-            </Alert>
-          </CardFooter>
-        ) : null}
-      </Card>
+          <DetailStat label="Status" value={documentDetail.archivedAt ? "Archived" : "Active"} />
+        </div>
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Markdown source</CardTitle>
-          <CardDescription>
+      {documentDetail.archivedAt ? (
+        <Alert className="w-full" variant="warning">
+          <AlertTitle>Archived document visible by direct id.</AlertTitle>
+          <AlertBody>
+            Binder detail hides archived documents, but direct reads remain available to allowed callers.
+          </AlertBody>
+        </Alert>
+      ) : null}
+
+      <section className="pb-auth-panel">
+        <div className="pb-auth-panel-header">
+          <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Document source</h3>
+          <p className="pb-auth-panel-copy">
             CP14 keeps document rendering dependency-free and avoids raw HTML injection by showing safe markdown source.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <pre className="overflow-x-auto rounded-[var(--pb-radius-md)] bg-[var(--pb-color-panel-muted)] px-4 py-4 text-sm leading-7 whitespace-pre-wrap">
-            {documentDetail.content}
-          </pre>
-        </CardContent>
-      </Card>
+          </p>
+        </div>
+        <div className="pb-auth-panel-body">
+          <pre className="pb-auth-source-block">{documentDetail.content}</pre>
+        </div>
+      </section>
+
+      <section className="pb-auth-panel">
+        <div className="pb-auth-panel-header">
+          <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Reference metadata</h3>
+          <p className="pb-auth-panel-copy">Identifiers stay available here without leading the document view.</p>
+        </div>
+        <div className="pb-auth-panel-body">
+          <div className="pb-auth-summary-grid pb-auth-summary-grid--2">
+            <DetailStat label="Document id" value={<span className="pb-auth-code">{documentDetail.documentId}</span>} />
+            <DetailStat label="Binder id" value={<span className="pb-auth-code">{documentDetail.binderId}</span>} />
+          </div>
+        </div>
+      </section>
 
       <div className="flex flex-wrap gap-3">
         <Button asChild type="button" variant="secondary">

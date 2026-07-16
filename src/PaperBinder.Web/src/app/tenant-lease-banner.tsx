@@ -1,6 +1,5 @@
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import { CardMeta } from "../components/ui/card";
 import type { TenantLeaseSummary } from "../api/client";
 
 function formatDateTime(value: string): string {
@@ -43,28 +42,36 @@ export function TenantLeaseBanner({
       ? "Lease expired."
       : lease.canExtend
         ? "Lease extension window open."
-        : "Lease active.";
+        : "Demo lease active.";
   const detail =
     countdownSeconds <= 0
-      ? "Tenant routes stay visible, but new activity will fail until an admin extends the lease or the tenant is purged."
+      ? "This workspace has expired. Existing UI may stay visible, but new actions will fail until an admin extends the lease or cleanup removes the workspace."
       : lease.canExtend
-        ? "The current tenant session can request a server-authoritative lease extension now."
-        : "Countdown is local presentation only. Extension eligibility remains server-authoritative.";
+        ? "This workspace can be extended now before it expires."
+        : "This workspace remains active. The extend action appears only after the server opens the final extension window.";
 
   return (
-    <Alert className="overflow-hidden" variant={variant}>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <Alert className="pb-auth-banner" variant={variant}>
+      <div className="pb-auth-banner__layout">
         <div className="max-w-2xl">
           <AlertTitle>{title}</AlertTitle>
           <AlertBody>{detail}</AlertBody>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[28rem]">
-          <CardMeta label="Expires" value={formatDateTime(lease.expiresAt)} />
-          <CardMeta label="Countdown" value={formatCountdown(countdownSeconds)} />
-          <CardMeta
-            label="Extensions"
-            value={`${lease.extensionCount} of ${lease.maxExtensions}`}
-          />
+        <div className="pb-auth-banner__metrics">
+          <div className="pb-auth-banner__metric">
+            <p className="pb-auth-stat-label">Expires</p>
+            <p className="pb-auth-banner__metric-value">{formatDateTime(lease.expiresAt)}</p>
+          </div>
+          <div className="pb-auth-banner__metric">
+            <p className="pb-auth-stat-label">Time remaining</p>
+            <p className="pb-auth-banner__metric-value">{formatCountdown(countdownSeconds)}</p>
+          </div>
+          <div className="pb-auth-banner__metric">
+            <p className="pb-auth-stat-label">Extensions</p>
+            <p className="pb-auth-banner__metric-value">
+              {lease.extensionCount} of {lease.maxExtensions}
+            </p>
+          </div>
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-3">

@@ -5,7 +5,6 @@ import type {
 } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Field } from "../components/ui/field";
 import { DataTable, type DataTableColumn, type DataTableRow } from "../components/ui/table";
 import type { TenantHostErrorViewModel } from "./tenant-host-errors";
@@ -123,26 +122,39 @@ export function BindersPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Binders</CardTitle>
-          <CardDescription>
-            Visible binders come directly from the tenant-scoped list endpoint. Empty state is distinct
-            from any forbidden or missing-tenant behavior.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+    <div className="pb-auth-page">
+      <section className="pb-auth-page-intro">
+        <p className="pb-auth-eyebrow">Workspace library</p>
+        <h2 className="pb-auth-page-title">Binders</h2>
+        <p className="pb-auth-page-copy">Create and open the binders currently available to this workspace.</p>
+      </section>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Create binder</CardTitle>
-            <CardDescription>
-              Binder creation stays inline on this route and relies on the existing `BinderWrite` API boundary.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+      <div className="pb-auth-layout-split">
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Available binders</h3>
+            <p className="pb-auth-panel-copy">Only binders visible to this session appear here.</p>
+          </div>
+          <div className="pb-auth-panel-body">
+            <DataTable
+              caption="Workspace binders"
+              columns={columns}
+              emptyMessage="No binders are visible in this workspace yet."
+              isLoading={isLoading}
+              loadingLabel="Loading workspace binders..."
+              rows={rows}
+            />
+          </div>
+        </section>
+
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Add binder</h3>
+            <p className="pb-auth-panel-copy">
+              Create a binder to group immutable source documents in this workspace.
+            </p>
+          </div>
+          <div className="pb-auth-panel-body">
             <form className="space-y-4" onSubmit={handleCreateBinder}>
               <Field
                 error={fieldErrors.binderName}
@@ -172,27 +184,8 @@ export function BindersPage() {
                 Create binder
               </Button>
             </form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Visible binder list</CardTitle>
-            <CardDescription>
-              Server-side omission semantics remain authoritative for which binders appear here.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DataTable
-              caption="Visible binders"
-              columns={columns}
-              emptyMessage="No binders are visible for this tenant session yet."
-              isLoading={isLoading}
-              loadingLabel="Loading visible binders..."
-              rows={rows}
-            />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
     </div>
   );

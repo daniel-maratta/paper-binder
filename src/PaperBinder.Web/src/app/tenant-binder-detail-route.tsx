@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type {
   BinderDetail,
@@ -9,14 +9,6 @@ import type {
 } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardMeta,
-  CardTitle
-} from "../components/ui/card";
 import { Field } from "../components/ui/field";
 import { DataTable, type DataTableColumn, type DataTableRow } from "../components/ui/table";
 import type { TenantHostErrorViewModel } from "./tenant-host-errors";
@@ -34,6 +26,29 @@ type DocumentFieldErrors = Partial<
   Record<"documentTitle" | "documentContent" | "documentSupersedesDocumentId", string>
 >;
 type BinderPolicyFieldErrors = Partial<Record<"binderPolicy", string>>;
+
+function DetailStat({
+  label,
+  value
+}: {
+  label: string;
+  value: ReactNode;
+}) {
+  return (
+    <article className="pb-auth-stat-card">
+      <p className="pb-auth-stat-label">{label}</p>
+      <div className="pb-auth-stat-value">{value}</div>
+    </article>
+  );
+}
+
+function formatContentTypeLabel(contentType: string) {
+  if (contentType === "markdown") {
+    return "Markdown";
+  }
+
+  return contentType;
+}
 
 function BinderPolicyCard({
   binderId
@@ -131,20 +146,20 @@ function BinderPolicyCard({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Binder policy</CardTitle>
-        <CardDescription>
+    <section className="pb-auth-panel">
+      <div className="pb-auth-panel-header">
+        <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Binder access</h3>
+        <p className="pb-auth-panel-copy">
           Tenant admins can switch between inherited access and exact-role allow lists for this binder.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        </p>
+      </div>
+      <div className="pb-auth-panel-body">
         {isLoading ? (
-          <p className="text-sm text-[var(--pb-color-text-muted)]">Loading binder policy...</p>
+          <p className="pb-auth-panel-copy">Loading binder policy...</p>
         ) : loadError ? (
           <TenantHostErrorNotice error={loadError} />
         ) : policy ? (
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="pb-auth-form-stack" onSubmit={handleSubmit}>
             <Field
               error={fieldErrors.binderPolicy}
               hint="Use inherited access for normal behavior, or restrict the binder to exact roles."
@@ -167,15 +182,14 @@ function BinderPolicyCard({
 
             <fieldset className="space-y-3">
               <legend className="text-sm font-medium text-[var(--pb-color-text)]">Allowed roles</legend>
-              <p className="text-sm text-[var(--pb-color-text-muted)]">
+              <p className="pb-auth-panel-copy">
                 Exact role evaluation applies. Restricting a binder does not treat roles as interchangeable.
               </p>
-              <div className="space-y-2">
+              <div className="pb-auth-checkbox-list">
                 {roleOptions.map((role) => (
-                  <label className="flex items-center gap-3 text-sm" key={role}>
+                  <label className="pb-auth-checkbox-item" key={role}>
                     <input
                       checked={allowedRoles.includes(role)}
-                      className="h-4 w-4"
                       disabled={mode === "inherit" || isSubmitting}
                       onChange={(event) => toggleRole(role, event.target.checked)}
                       type="checkbox"
@@ -198,8 +212,8 @@ function BinderPolicyCard({
             </Button>
           </form>
         ) : null}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }
 
@@ -339,12 +353,13 @@ export function BinderDetailPage() {
 
   if (isLoading || binder === null) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Loading binder</CardTitle>
-          <CardDescription>PaperBinder is resolving binder detail and visible documents.</CardDescription>
-        </CardHeader>
-      </Card>
+      <section className="pb-auth-panel pb-auth-panel--route">
+        <div className="pb-auth-panel-header">
+          <p className="pb-auth-eyebrow">Binder detail</p>
+          <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">Loading binder</h2>
+          <p className="pb-auth-panel-copy">PaperBinder is resolving binder detail and visible documents.</p>
+        </div>
+      </section>
     );
   }
 
@@ -358,14 +373,12 @@ export function BinderDetailPage() {
     key: document.documentId,
     cells: [
       <div key={`${document.documentId}-title`}>
-        <p className="font-medium text-[var(--pb-color-text)]">{document.title}</p>
-        <p className="text-sm text-[var(--pb-color-text-muted)]">{document.contentType}</p>
+        <p className="pb-auth-list-title">{document.title}</p>
+        <p className="pb-auth-list-meta">{formatContentTypeLabel(document.contentType)}</p>
       </div>,
       formatDateTime(document.createdAt),
       document.supersedesDocumentId ? (
-        <span className="font-mono text-xs text-[var(--pb-color-text-muted)]">
-          {document.supersedesDocumentId}
-        </span>
+        <span className="pb-auth-code">{document.supersedesDocumentId}</span>
       ) : (
         "None"
       ),
@@ -376,51 +389,52 @@ export function BinderDetailPage() {
   }));
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{binder.name}</CardTitle>
-          <CardDescription>
+    <div className="pb-auth-page">
+      <section className="pb-auth-page-intro">
+        <div>
+          <p className="pb-auth-eyebrow">Binder detail</p>
+          <h2 className="pb-auth-page-title">{binder.name}</h2>
+          <p className="pb-auth-page-copy">
             Binder detail combines live binder metadata with the visible document summaries exposed by the current contract.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          <CardMeta label="Binder id" value={<span className="font-mono text-xs">{binder.binderId}</span>} />
-          <CardMeta label="Created" value={formatDateTime(binder.createdAt)} />
-          <CardMeta label="Visible documents" value={binder.documents.length.toString()} />
-        </CardContent>
-      </Card>
+          </p>
+        </div>
+        <div className="pb-auth-summary-grid pb-auth-summary-grid--3">
+          <DetailStat label="Visible documents" value={binder.documents.length.toString()} />
+          <DetailStat label="Created" value={formatDateTime(binder.createdAt)} />
+          <DetailStat label="Binder id" value={<span className="pb-auth-code">{binder.binderId}</span>} />
+        </div>
+      </section>
 
-      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Visible documents</CardTitle>
-            <CardDescription>
+      <div className="pb-auth-detail-grid">
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Visible documents</h3>
+            <p className="pb-auth-panel-copy">
               Archived documents remain hidden from binder detail and stay readable only by direct document id.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+          </div>
+          <div className="pb-auth-panel-body">
             <DataTable
               caption="Visible binder documents"
               columns={documentColumns}
               emptyMessage="No visible documents exist in this binder yet."
               rows={documentRows}
             />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
         <BinderPolicyCard binderId={binderId} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Create document</CardTitle>
-          <CardDescription>
+      <section className="pb-auth-panel">
+        <div className="pb-auth-panel-header">
+          <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Add document</h3>
+          <p className="pb-auth-panel-copy">
             Document creation stays within the binder route and submits the current route binder id through the shared client.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4" onSubmit={handleCreateDocument}>
+          </p>
+        </div>
+        <div className="pb-auth-panel-body">
+          <form className="pb-auth-form-stack" onSubmit={handleCreateDocument}>
             <Field
               error={fieldErrors.documentTitle}
               hint="PaperBinder v1 keeps document titles between 1 and 200 characters."
@@ -502,8 +516,8 @@ export function BinderDetailPage() {
               Create document
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
     </div>
   );
 }

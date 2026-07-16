@@ -3,16 +3,48 @@ import { Link } from "react-router-dom";
 import type { BinderSummary } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardMeta, CardTitle } from "../components/ui/card";
 import type { TenantHostErrorViewModel } from "./tenant-host-errors";
 import { mapTenantHostError } from "./tenant-host-errors";
-import { TenantHostErrorNotice, formatDateTime, useTenantShellContext } from "./tenant-shell";
+import {
+  TenantHostErrorNotice,
+  formatCountdown,
+  formatDateTime,
+  formatRole,
+  hasUsersDashboardAccess,
+  useTenantShellContext
+} from "./tenant-shell";
 
+function DashboardStat({
+  label,
+  value,
+  tone = "default"
+}: {
+  label: string;
+  value: string;
+  tone?: "default" | "warning";
+}) {
+  return (
+    <article className={`pb-auth-stat-card${tone === "warning" ? " pb-auth-stat-card--warning" : ""}`}>
+      <p className="pb-auth-stat-label">{label}</p>
+      <p className="pb-auth-stat-value">{value}</p>
+    </article>
+  );
+}
+
+function BinderListIcon() {
+  return (
+    <svg aria-hidden="true" className="pb-auth-row-icon pb-auth-row-icon--binder" viewBox="0 0 24 24">
+      <path d="M3.5 7.5h6l2 2h9v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
+      <path d="M3.5 7.5v-1a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
 export function DashboardPage() {
-  const { apiClient, hostContext, lease, countdownSeconds, impersonation } = useTenantShellContext();
+  const { apiClient, lease, countdownSeconds, impersonation } = useTenantShellContext();
   const [binders, setBinders] = useState<BinderSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [summaryError, setSummaryError] = useState<TenantHostErrorViewModel | null>(null);
+  const canManageUsers = hasUsersDashboardAccess(impersonation);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -49,13 +81,13 @@ export function DashboardPage() {
   }, [apiClient, impersonation.effective.userId]);
 
   const visibleBinderRows = binders.slice(0, 5).map((binder) => (
-    <li
-      className="flex items-center justify-between gap-3 rounded-[var(--pb-radius-md)] border border-[var(--pb-color-border)] px-4 py-3"
-      key={binder.binderId}
-    >
-      <div>
-        <p className="font-medium text-[var(--pb-color-text)]">{binder.name}</p>
-        <p className="text-sm text-[var(--pb-color-text-muted)]">{formatDateTime(binder.createdAt)}</p>
+    <li className="pb-auth-list-item" key={binder.binderId}>
+      <div className="pb-auth-row-head">
+        <BinderListIcon />
+        <div>
+          <p className="pb-auth-list-title">{binder.name}</p>
+          <p className="pb-auth-list-meta">{formatDateTime(binder.createdAt)}</p>
+        </div>
       </div>
       <Button asChild type="button" variant="secondary">
         <Link to={`/app/binders/${binder.binderId}`}>Open binder</Link>
@@ -64,67 +96,92 @@ export function DashboardPage() {
   ));
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Tenant dashboard</CardTitle>
-          <CardDescription>
-            Live summary content is composed from the current lease snapshot plus existing binder reads.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-4">
-          <CardMeta label="Tenant slug" value={hostContext.tenantSlug} />
-          <CardMeta
-            label="Lease state"
-            value={lease.canExtend ? "Extension window open" : countdownSeconds > 0 ? "Active" : "Expired"}
-          />
-          <CardMeta label="Visible binders" value={isLoading ? "Loading..." : binders.length.toString()} />
-          <CardMeta label="Return path" value={<code>/login</code>} />
-        </CardContent>
-      </Card>
+    <div className="pb-auth-page">
+      <section className="pb-auth-page-intro">
+        <p className="pb-auth-eyebrow">Overview</p>
+        <h2 className="pb-auth-page-title">Workspace dashboard</h2>
+        <p className="pb-auth-page-copy">
+          See lease status, recent binders, and the next actions available in this workspace.
+        </p>
+      </section>
 
-      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent binders</CardTitle>
-            <CardDescription>
-              The dashboard stays reviewer-useful without introducing a dashboard-specific backend contract.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+      <div className="pb-auth-summary-grid">
+        <DashboardStat label="Visible binders" value={isLoading ? "Loading..." : binders.length.toString()} />
+        <DashboardStat label="Current role" value={formatRole(impersonation.effective.role)} />
+        <DashboardStat label="Lease extensions" value={`${lease.extensionCount} of ${lease.maxExtensions} used`} />
+        <DashboardStat
+          label="Time remaining"
+          tone={countdownSeconds <= 900 ? "warning" : "default"}
+          value={formatCountdown(countdownSeconds)}
+        />
+      </div>
+      {!lease.canExtend ? (
+        <section className="pb-auth-callout pb-auth-callout--info">
+          <div aria-hidden="true" className="pb-auth-callout__icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="pb-auth-callout__title">Extend becomes available near expiry</h3>
+            <p className="pb-auth-callout__body">
+              When the remaining lease time enters the final extension window, the extend action appears
+              in the top workspace banner. Extension eligibility and limits remain server-authoritative.
+            </p>
+          </div>
+        </section>
+      ) : null}
+
+      <div className="pb-auth-layout-split">
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Recent binders</h3>
+            <p className="pb-auth-panel-copy">
+              Return to the binders that are currently visible to this session.
+            </p>
+          </div>
+          <div className="pb-auth-panel-body">
             {summaryError ? (
               <TenantHostErrorNotice error={summaryError} />
             ) : isLoading ? (
-              <p className="text-sm text-[var(--pb-color-text-muted)]">Loading visible binders...</p>
+              <p className="pb-auth-panel-copy">Loading visible binders...</p>
             ) : binders.length === 0 ? (
               <Alert variant="info">
-                <AlertTitle>No visible binders yet.</AlertTitle>
+                <AlertTitle>No binders yet.</AlertTitle>
                 <AlertBody>
-                  The current tenant session has no binders to review yet. Create one from the binders route.
+                  Add a binder from the binders page to start organizing documents in this workspace.
                 </AlertBody>
               </Alert>
             ) : (
-              <ul className="space-y-3">{visibleBinderRows}</ul>
+              <ul className="pb-auth-list">{visibleBinderRows}</ul>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick actions</CardTitle>
-            <CardDescription>
-              Browser routing remains canonical and tenant-host-only actions stay inside these live routes.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button asChild type="button">
-              <Link to="/app/binders">Review binders</Link>
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Next actions</h3>
+            <p className="pb-auth-panel-copy">
+              Move directly to the routes most likely to matter in this workspace.
+            </p>
+          </div>
+          <div className="pb-auth-panel-body pb-auth-action-stack">
+            <Button asChild className="w-full justify-center sm:w-auto" type="button">
+              <Link to="/app/binders">{binders.length === 0 ? "Add your first binder" : "Review binders"}</Link>
             </Button>
-            <Button asChild type="button" variant="secondary">
-              <Link to="/app/users">Manage tenant users</Link>
-            </Button>
-          </CardContent>
-        </Card>
+            {canManageUsers ? (
+              <Button asChild className="w-full justify-center sm:w-auto" type="button" variant="secondary">
+                <Link to="/app/users">Manage tenant users</Link>
+              </Button>
+            ) : (
+              <Alert variant="info">
+                <AlertTitle>Users and access stays role-aware.</AlertTitle>
+                <AlertBody>Workspace admins see user management here when that action is available.</AlertBody>
+              </Alert>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

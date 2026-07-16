@@ -78,7 +78,7 @@ function renderRootRoute({
   navigator = vi.fn<(redirectUrl: string) => void>(),
   challengeLocalBypassEnabled = false
 }: {
-  route?: "/" | "/login";
+  route?: "/" | "/login" | "/start-demo";
   apiClient?: PaperBinderApiClient;
   navigator?: (redirectUrl: string) => void;
   challengeLocalBypassEnabled?: boolean;
@@ -113,25 +113,59 @@ function renderRootRoute({
 
 afterEach(() => {
   delete window.turnstile;
+  vi.restoreAllMocks();
 });
 
 describe("root-host flows", () => {
+  it("Should_RenderProductLedLanding_Without_InlineProvisioningOrLogin_When_PublicHomeLoads", async () => {
+    renderRootRoute({
+      route: "/"
+    });
+
+    expect(screen.getByRole("navigation", { name: "Primary navigation" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Root host navigation")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Product" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Demo" })).toHaveAttribute("href", "/start-demo");
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
+    expect(
+      screen.getByRole("heading", { name: "A secure workspace for your documents and your team." })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start live demo" })).toHaveAttribute("href", "/start-demo");
+    expect(
+      screen.getByRole("img", {
+        name: "PaperBinder dashboard showing lease metrics, recent binders, and next actions inside the authenticated workspace."
+      })
+    ).toHaveAttribute("src", "/presentation/dashboard-proof.png");
+    expect(
+      screen.getByRole("img", {
+        name: "PaperBinder users and access page showing current users, add-user form, role management, and view-as actions."
+      })
+    ).toHaveAttribute("src", "/presentation/users-proof.png");
+    expect(
+      screen.getAllByRole("link", { name: "Start Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
+    ).toBe(true);
+    expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
+    expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
+  });
+
   it("Should_SubmitProvisionRequest_WithTenantNameAndChallengeToken_When_RootHostProvisionFormIsValid", async () => {
     installTurnstileStub();
     const provisionMock = vi.fn(async () => createProvisionResponse());
 
     renderRootRoute({
-      route: "/",
+      route: "/start-demo",
       apiClient: createApiClientStub({
         provision: provisionMock as PaperBinderApiClient["provision"]
       })
     });
 
-    fireEvent.change(screen.getByLabelText("Tenant name"), {
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: " Acme Demo " }
     });
     fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
-    fireEvent.click(screen.getByRole("button", { name: "Provision new demo tenant and log in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
 
     await waitFor(() =>
       expect(provisionMock).toHaveBeenCalledWith({
@@ -148,21 +182,82 @@ describe("root-host flows", () => {
     const navigator = vi.fn();
 
     renderRootRoute({
-      route: "/",
+      route: "/start-demo",
       navigator
     });
 
-    fireEvent.change(screen.getByLabelText("Tenant name"), {
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: "Acme Demo" }
     });
     fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
-    fireEvent.click(screen.getByRole("button", { name: "Provision new demo tenant and log in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
 
-    expect(await screen.findByRole("heading", { name: "Tenant provisioned." })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Workspace ready." })).toBeInTheDocument();
     expect(navigator).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Continue to tenant" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open workspace" }));
     expect(navigator).toHaveBeenCalledWith("https://acme-demo.paperbinder.example.test/app");
+  });
+
+  it("Should_CopyProvisionedTenantValues_When_CopyActionsAreUsed", async () => {
+    installTurnstileStub();
+    const writeText = vi.fn(async () => undefined);
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText
+      }
+    });
+
+    renderRootRoute({
+      route: "/start-demo"
+    });
+
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
+      target: { value: "Acme Demo" }
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
+
+    await screen.findByRole("heading", { name: "Workspace ready." });
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy email" }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("owner@acme-demo.local"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy password" }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("generated-password"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy tenant slug" }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("acme-demo"));
+  });
+
+  it("Should_ProvisionOrLogin_FromStartDemoFlow_When_ChallengeAndServerRedirectsSucceed", async () => {
+    installTurnstileStub();
+    const provisionMock = vi.fn(async () => createProvisionResponse());
+
+    renderRootRoute({
+      route: "/start-demo",
+      apiClient: createApiClientStub({
+        provision: provisionMock as PaperBinderApiClient["provision"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Start a live demo workspace" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Go to sign in" })[0]).toHaveAttribute("href", "/login");
+
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
+      target: { value: "Acme Demo" }
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
+
+    await waitFor(() =>
+      expect(provisionMock).toHaveBeenCalledWith({
+        tenantName: "Acme Demo",
+        challengeToken: "paperbinder-test-challenge-pass"
+      })
+    );
+    expect(await screen.findByRole("heading", { name: "Workspace ready." })).toBeInTheDocument();
   });
 
   it("Should_SubmitLoginRequest_AndRedirectUsingServerProvidedUrl_When_RootHostLoginSucceeds", async () => {
@@ -215,7 +310,7 @@ describe("root-host flows", () => {
     });
 
     renderRootRoute({
-      route: "/",
+      route: "/start-demo",
       apiClient: createApiClientStub({
         provision: vi.fn(async () => {
           throw error;
@@ -223,11 +318,11 @@ describe("root-host flows", () => {
       })
     });
 
-    fireEvent.change(screen.getByLabelText("Tenant name"), {
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: "Acme Demo" }
     });
     fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
-    fireEvent.click(screen.getByRole("button", { name: "Provision new demo tenant and log in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
 
     expect(await screen.findByRole("heading", { name: "Tenant name already exists." })).toBeInTheDocument();
     expect(screen.getAllByText("That tenant name is already in use.")).toHaveLength(2);
@@ -273,19 +368,19 @@ describe("root-host flows", () => {
     const provisionMock = vi.fn(async () => createProvisionResponse());
 
     renderRootRoute({
-      route: "/",
+      route: "/start-demo",
       challengeLocalBypassEnabled: true,
       apiClient: createApiClientStub({
         provision: provisionMock as PaperBinderApiClient["provision"]
       })
     });
 
-    fireEvent.change(screen.getByLabelText("Tenant name"), {
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: " Acme Demo " }
     });
     expect(screen.getByRole("heading", { name: "Local challenge bypass enabled" })).toBeInTheDocument();
     expect(screen.queryByLabelText("Challenge")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Provision new demo tenant and log in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
 
     await waitFor(() =>
       expect(provisionMock).toHaveBeenCalledWith({
@@ -294,6 +389,6 @@ describe("root-host flows", () => {
       })
     );
 
-    expect(await screen.findByRole("heading", { name: "Tenant provisioned." })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Workspace ready." })).toBeInTheDocument();
   });
 });

@@ -48,10 +48,10 @@ export async function provisionTenantAndContinue(page: Page, tenantName: string)
   const provisionRequest = page.waitForRequest((request) => request.url().endsWith("/api/provision"));
   const provisionResponse = page.waitForResponse((response) => response.url().endsWith("/api/provision"));
 
-  await page.goto("/");
-  await page.getByLabel("Tenant name").fill(tenantName);
+  await page.goto("/start-demo");
+  await page.getByLabel("Workspace name").fill(tenantName);
   await completeChallenge(page);
-  await page.getByRole("button", { name: "Provision new demo tenant and log in" }).click();
+  await page.getByRole("button", { name: "Start demo workspace" }).click();
 
   const request = await provisionRequest;
   const response = await provisionResponse;
