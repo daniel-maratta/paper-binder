@@ -18,13 +18,13 @@
 
 1. Validate the request host against the configured root domain and extract a tenant slug when present.
 2. Look up the requested tenant from the extracted host/subdomain.
-3. Record whether the request is targeting the root host or a tenant-shaped subdomain beneath the configured root host.
+3. Record whether the request is targeting the root host or a known tenant host.
 4. Resolve authenticated user identity when a tenant-host request presents an auth cookie.
 5. Validate user membership for the requested tenant.
 6. Validate the tenant is active (not expired).
 7. Materialize immutable tenant context plus authenticated membership context for the request.
 
-Tenant-shaped requests that do not prove a trusted same-tenant session do not materialize tenant request context. Non-API requests continue into the generic tenant-host fallback or SPA bootstrap path, while tenant-host `/api/*` requests flatten to a generic unavailable contract. Only trusted authenticated same-tenant sessions retain explicit `410 TENANT_EXPIRED` disclosure when the tenant is expired but still inside the cleanup-retention window.
+Anonymous tenant-host requests stop after host resolution and continue without an established tenant request context. This preserves tenant-host health checks and lets later authenticated flows fail through normal auth behavior instead of inventing an anonymous tenant context.
 
 ## Trust Model
 
@@ -43,7 +43,8 @@ Development and Test environments may treat loopback hosts as explicit system-co
 ## Failure Behavior
 
 - Invalid host or malformed tenant subdomain: reject request.
-- Tenant-host `/api/*` failures for unknown tenants, wrong-tenant sessions, anonymous callers, and post-purge hosts flatten to `404 TENANT_HOST_UNAVAILABLE`.
-- Trusted authenticated same-tenant sessions targeting expired tenants retain explicit `410 TENANT_EXPIRED` until cleanup becomes eligible.
+- Unknown tenant host: reject request with `404 TENANT_NOT_FOUND`.
+- Missing membership for an authenticated tenant-host request: reject request with `403 TENANT_FORBIDDEN`.
+- Expired tenant for a trusted authenticated same-tenant request: reject request with `410 TENANT_EXPIRED` and the `terminalTenantState` extension when cleanup is still deferring purge due to recent activity.
 - Resolution failure must happen before tenant-scoped data access.
-- Tenant-host health endpoints remain anonymous and non-versioned, and the app-level tenant-shaped host behavior no longer distinguishes known versus unknown tenant subdomains on that non-API surface.
+- Tenant-host health endpoints remain anonymous and non-versioned even though they run on known tenant hosts.

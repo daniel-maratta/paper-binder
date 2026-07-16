@@ -1,5 +1,5 @@
 # Frontend SPA
-Status: V1
+Status: Current (V1.1.0 presentation-aligned)
 
 PaperBinder uses a client-rendered React SPA for root and tenant experiences.
 
@@ -41,13 +41,14 @@ Out of scope:
 ## Host Contexts
 
 - Root host (`paperbinder.danielmaratta.com`):
-  - `/` owns live provisioning plus the one-time credential handoff state.
-  - `/login` owns live login.
+  - `/` owns the product-first public landing experience.
+  - `/start-demo` owns live provisioning, demo-entry login, and the one-time credential handoff state.
+  - `/login` remains the direct-login route and logout return target.
   - challenge/rate-limit handling stays server-authoritative and routes through the shared browser client.
 - Tenant host (`{tenant}.paperbinder.danielmaratta.com`):
   - `/app` dashboard plus lease visibility
   - `/app/binders` and `/app/binders/:binderId` for binder, document-create, and binder-policy flows
-  - `/app/documents/:documentId` for read-only document detail
+  - `/app/documents/:documentId` for read-only document detail with rendered preview plus source toggle
   - `/app/users` for tenant-admin user management and tenant-local view-as start
 
 ## Authentication in Browser
@@ -76,6 +77,7 @@ Out of scope:
 - Lease state is owned once at the tenant-shell level and is the only browser source for expiry, countdown, extension count, and extend affordance state.
 - Impersonation status is also owned once at the tenant-shell level and is the only browser source for actor/effective labels plus stop availability.
 - Countdown is presentation only and is derived from the latest authoritative `expiresAt` value.
+- The browser may use `lease.canExtend` to decide whether the extension window is open; it must not invent its own eligibility rule from local countdown math.
 - CP14 refreshes lease state on bootstrap, successful extend, route changes, focus/visibility return, and a coarse periodic refresh.
 - CP15 refreshes route data when the effective user changes so stop behavior restores the actor's allowed view without a root-host round-trip.
 - Tenant-host logout uses `POST /api/auth/logout` through the shared API client only, consumes the server-provided `redirectUrl`, and returns the browser to the configured root-host `/login`.

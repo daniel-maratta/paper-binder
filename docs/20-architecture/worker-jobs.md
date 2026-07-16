@@ -13,7 +13,7 @@ Worker jobs enforce bounded lifecycle behavior for demo tenants.
 - Hard delete scope includes the tenant row, user memberships, current tenant-owned user records, binders, binder policies, and documents.
 - Selection and purge order must be deterministic and safe to retry.
 - Behavior must be idempotent.
-- SLA target: process expired tenants within 5 minutes of expiry (best effort).
+- SLA target: process expired tenants promptly after expiry (best effort), with brief deferral allowed for the recent-activity retention rule.
 
 ## Safety Rules
 

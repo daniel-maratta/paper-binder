@@ -12,18 +12,20 @@ This document describes the public demo flow shown to reviewers.
 ## User Flow
 
 1. User visits `https://paperbinder.danielmaratta.com/`.
-2. User completes an anti-bot challenge before provisioning.
-3. Landing page offers:
-   - `Provision new demo tenant and log in`
+2. Landing page presents PaperBinder as a product-first public experience and offers `Start Demo` plus secondary supporting context.
+3. User enters the dedicated demo-entry flow on `/start-demo`.
+4. User completes an anti-bot challenge before provisioning or direct login.
+5. Demo-entry page offers:
+   - `Start demo workspace`
    - `Log in` for existing credentials.
-4. Provisioning flow:
+6. Provisioning flow:
    - Create tenant and initial demo user.
    - Display credentials once.
-   - Redirect to `https://{tenant}.paperbinder.danielmaratta.com/` after sign-in.
-5. Tenant flow:
+   - Continue to `https://{tenant}.paperbinder.danielmaratta.com/` using the server-provided redirect after sign-in.
+7. Tenant flow:
    - Access binders and DB-backed text documents.
    - View lease countdown and extension action (when eligible).
-6. Expiration flow:
+8. Expiration flow:
    - Expired tenant becomes inaccessible and is cleaned up.
    - Tenant host shows a safe expired/not-found experience.
 

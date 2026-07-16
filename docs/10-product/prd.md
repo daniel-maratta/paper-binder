@@ -111,7 +111,7 @@ All entities are tenant-scoped unless explicitly global.
 
 ### 6.1 Tenant Provisioning
 
-- A demo tenant can be provisioned from the landing page.
+- A demo tenant can be provisioned from the public `Start Demo` flow reached from the landing page.
 - Credentials are generated.
 - Tenant has a fixed lease duration (1 hour).
 - Tenant expiration timestamp is stored.

@@ -23,7 +23,7 @@ Rules:
 - Each extension adds +10 minutes.
 - Maximum 3 extensions.
 - Hard-deleted by worker when expired.
-- Deletion target is within 5 minutes of expiry (best effort SLA).
+- Cleanup is eventual after expiry and may defer purge while recent authenticated tenant-host activity is still inside the configured retention window.
 
 ---
 
@@ -63,6 +63,7 @@ Rules:
 - Immutable after creation.
 - Content cannot be updated in place.
 - Title is trimmed and must be 1-200 characters after trimming.
+- Titles must be unique within a binder unless the new document supersedes an earlier document with the same title.
 - ContentType is the exact contract value `markdown`.
 - Content must be non-whitespace and at most 50,000 characters.
 - New document may supersede a prior document via metadata.
@@ -73,8 +74,9 @@ Rules:
 - No versioning in v1.
 - No external sharing.
 - Strict tenant ownership.
-- Document rendering HTML-encodes markdown source for safe display only.
-- No markdown parser or sanitizer pipeline exists in v1.
+- Document detail defaults to a read-only rendered markdown preview and allows switching to the stored source.
+- Rendered output stays browser-safe and does not rely on stored HTML.
+- No generic markdown parser or sanitizer pipeline exists in v1.
 - No raw HTML content support.
 
 ---
@@ -131,5 +133,5 @@ Rules:
 - Each extension adds +10 minutes.
 - Maximum 3 extensions.
 - Expired tenants are hard-deleted by worker.
-- Cleanup target is within 5 minutes of expiry (best effort SLA).
+- Cleanup is eventual after expiry and may defer purge while recent authenticated tenant-host activity is still inside the configured retention window.
 - Canonical API routes are `GET /api/tenant/lease` and `POST /api/tenant/lease/extend`.

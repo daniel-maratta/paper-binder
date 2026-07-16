@@ -145,8 +145,9 @@ Notes:
     }
     ```
   - Failure semantics:
+    - `403` when the authenticated session does not belong to the requested tenant host.
     - `410` when tenant is expired but not yet purged.
-    - `404` after tenant purge or when the tenant host does not resolve to a current tenant.
+    - `404` when the tenant host does not resolve to a current tenant.
   - Notes:
     - `secondsRemaining` is derived from server time and is never negative in a `200` response.
     - `canExtend` is true only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`, and `extensionCount` is below `maxExtensions`.
@@ -177,8 +178,9 @@ Notes:
     - `409` with `TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN` when remaining lease is still above the extension window or is already expired.
     - `409` with `TENANT_LEASE_EXTENSION_LIMIT_REACHED` when the tenant has already used the configured maximum number of extensions.
     - `429` with `RATE_LIMITED` and `Retry-After` when the lease-extend route budget is exhausted.
+    - `403` when the authenticated session does not belong to the requested tenant host.
     - `410` when tenant is expired but not yet purged.
-    - `404` after tenant purge or when the tenant host does not resolve to a current tenant.
+    - `404` when the tenant host does not resolve to a current tenant.
   - Notes:
     - The handler ignores client-supplied tenant identifiers, duration values, or other business inputs and operates only on the current host-resolved tenant.
     - `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the extension eligibility threshold and the amount added on success.

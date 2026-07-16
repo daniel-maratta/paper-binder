@@ -1,5 +1,5 @@
 # UI/UX Contract - V1
-Status: V1 (Implementation Contract)
+Status: Historical shipped-reference (V1 implementation contract)
 
 ## AI Summary
 
@@ -9,6 +9,8 @@ Status: V1 (Implementation Contract)
 - Uses the PaperBinder + danielmaratta.com brand palette for cohesion.
 
 This document defines the minimum UI/UX specification required to implement the PaperBinder demo interface.
+
+Do not use this document as forward presentation canon for `v1.1.0` work. Use `docs/10-product/presentation-contract-v1-1.md` and `docs/10-product/presentation-adoption-plan-v1-1.md` instead.
 
 It builds on the following documents:
 

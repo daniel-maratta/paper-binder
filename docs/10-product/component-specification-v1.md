@@ -1,5 +1,5 @@
 # Component Specification - V1
-Status: V1 (Implementation Contract)
+Status: Current V1 implementation contract, narrowed by the V1.1 presentation canon
 
 ## AI Summary
 
@@ -206,6 +206,17 @@ Example error:
 
 Alerts should not auto-dismiss unless informational.
 
+Toast notifications:
+
+- are separate from inline alerts and are used for async success, warning, error, and informational feedback
+- appear as top-center overlays above page content
+- require manual dismissal
+- use conventional status coloring:
+  - success: green
+  - warning: yellow
+  - error: red
+  - info: blue
+
 ---
 
 # 6. Banner
@@ -225,9 +236,11 @@ Example message:
 
 `Tenant expires in 23 minutes.`
 
-Expiration threshold warning:
+Extension-window warning:
 
-Displayed when lease has less than 10 minutes remaining.
+Displayed only when the server-authoritative lease state reports that the extension window is open.
+
+If the UI mentions upcoming eligibility before the window opens, it should stay qualitative unless an explicit contract field is added for that exact message.
 
 Banner variants:
 
@@ -257,6 +270,7 @@ Requirements:
 - column headers always visible
 - rows keyboard navigable
 - accessible markup (`table`, `thead`, `tbody`)
+- search and filter controls are optional and are not required for the V1.1 presentation-alignment work
 
 Columns should be left-aligned.
 
@@ -308,9 +322,11 @@ Structure:
 
 Links:
 
+    Start Demo
     About
+    Reviewer Notes
     Repo
-    Login
+    Login/Logout
 
 ## Tenant Navigation
 

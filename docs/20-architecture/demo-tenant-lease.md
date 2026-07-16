@@ -26,6 +26,8 @@
 
 - The tenant shell always shows the current expiry timestamp, countdown, extension count, and extend affordance state from the latest authoritative lease snapshot.
 - Countdown is presentation only; the browser never derives extension eligibility from local timer math.
+- The extension-window-open state is driven by the authoritative `canExtend` field.
+- If future UI copy needs an exact "window opens at" or threshold explanation, add an explicit contract field rather than deriving public-facing threshold copy only from local timer math.
 - CP14 refreshes lease state on shell bootstrap, successful extend, route changes, focus/visibility return, and a coarse periodic refresh.
 - The extend affordance may be visible based on lease eligibility alone; non-admin attempts must fail safely through the existing API policy boundary.
 

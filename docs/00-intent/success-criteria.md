@@ -3,7 +3,7 @@
 
 This document defines objective completion standards.
 
-Success is defined by architectural correctness and scope discipline — not feature volume.
+Success is defined by architectural correctness and scope discipline, not feature volume.
 
 ---
 
@@ -47,7 +47,8 @@ The following must be demonstrably true:
 - Maximum 3 extensions per tenant.
 - Background job runs on schedule.
 - Expired tenant data is hard-deleted.
-- Expired tenants are deleted within 5 minutes of `ExpiresAt` (best effort SLA).
+- Expired tenants fail closed immediately at `ExpiresAt`.
+- Cleanup is prompt best-effort after expiry and may briefly defer purge while recent authenticated tenant-host activity remains inside the configured retention window.
 - System remains stable after cleanup.
 
 ---

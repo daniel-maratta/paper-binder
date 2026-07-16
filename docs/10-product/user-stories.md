@@ -93,7 +93,8 @@ As the platform, expired tenants are removed automatically so demo environments 
 - Worker selects tenants where `ExpiresAt <= now`.
 - Worker hard-deletes expired tenants and tenant-owned data, including the tenant row, user memberships, tenant-owned users, binders, binder policies, and documents.
 - Cleanup is deterministic, idempotent, leaves active tenants untouched, and skips recently active expired tenants until the configured recent-activity grace window has elapsed.
-- Expired tenants are deleted within 5 minutes of lease expiry (best effort SLA).
+- Expired tenants fail closed immediately at lease expiry and remain in the expired-but-not-purged `410` state until cleanup runs.
+- Cleanup is prompt best-effort after expiry, with brief deferral allowed for the recent-activity retention rule.
 - Post-expiry API access before purge returns `410`.
 - Post-expiry API access after purge returns `404`.
 

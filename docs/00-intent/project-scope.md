@@ -26,14 +26,15 @@ The purpose of PaperBinder is not to build a full document management platform, 
 
 ### Tenancy
 - Multi-tenant (single database).
-- Tenants provisioned from a public landing page.
+- Tenants provisioned from a public start-demo path reached from the landing page.
 - Generated credentials returned at provisioning.
 - Tenant expires after 1 hour.
 - Tenant lease extension is allowed only when remaining lease is <= 10 minutes.
 - Each extension adds +10 minutes.
 - Maximum 3 extensions per tenant.
 - Worker runs periodically and deletes expired tenants and all related data.
-- Expired tenants are hard-deleted within 5 minutes (best-effort SLA).
+- Expired tenants fail closed immediately.
+- Cleanup is eventual after expiry and may defer purge while recent authenticated tenant-host activity remains inside the configured grace window.
 
 ### Identity
 - ASP.NET Core Identity for email/password login.
