@@ -4,8 +4,9 @@
 
 - Tenant `ExpiresAt` is set to provision time + 60 minutes.
 - Expiry is authoritative server-side state.
-- Expired tenants fail closed for access immediately at expiry and become purge-eligible 5 minutes later.
-- Deletion SLA target is within 5 minutes of expiry (best effort).
+- Expired tenants fail closed for access immediately at expiry.
+- Cleanup is eventual after expiry and may defer purge while recent authenticated tenant-host activity is still inside the configured retention window.
+- Deletion SLA target is prompt best-effort cleanup after expiry rather than a fixed hard-threshold purge deadline.
 - Canonical lease endpoints:
   - `GET /api/tenant/lease`
   - `POST /api/tenant/lease/extend`
@@ -18,7 +19,7 @@
 - Maximum 3 extensions per tenant.
 - Requests that violate extension rules are rejected with `409 TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN` or `409 TENANT_LEASE_EXTENSION_LIMIT_REACHED`.
 - Lease-extend throttling returns `429 RATE_LIMITED` with `Retry-After`.
-- Expired-but-not-yet-purge-eligible tenants return `410`.
+- Expired-but-not-yet-purged tenants return `410`.
 - Purged tenants return `404`.
 
 ## Browser Presentation
