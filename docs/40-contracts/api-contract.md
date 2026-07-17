@@ -13,7 +13,6 @@ Use this file for PaperBinder-specific API surface and behavior binding.
 - The only supported bypass paths are the isolated `PB_ENV=Test` automation runtime and the explicit default-off local-development bypass configuration.
 - The local-development bypass configuration is valid only when the configured public root host is loopback or `.localhost`; non-local root hosts must fail challenge verification normally.
 - Authenticated unsafe tenant-host `/api/*` mutations now share one fixed-window limiter keyed by `(tenant_id, effective_user_id)` after membership is established; `POST /api/auth/logout` and `DELETE /api/tenant/impersonation` stay exempt.
-- Public or otherwise untrusted tenant-host `/api/*` failures now flatten to `404 TENANT_HOST_UNAVAILABLE`; only trusted expired tenant-member sessions retain explicit `410 TENANT_EXPIRED`.
 - Tenant lease uses canonical routes `/api/tenant/lease` and `/api/tenant/lease/extend`.
 - Tenant-local impersonation uses `GET|POST|DELETE /api/tenant/impersonation` with server-issued cookie state only.
 - Documents remain immutable; archive state is visibility metadata only.
@@ -60,16 +59,19 @@ Notes:
 - `detail` is safe for client display.
 - `traceId` is required for incident correlation.
 - `correlationId` is required for request/incident correlation.
+- Some errors may include additional RFC 7807 extension fields when the client needs a more precise machine-readable state without changing the primary `errorCode`.
 - Unsupported API version errors use `errorCode` `API_VERSION_UNSUPPORTED`.
 - Invalid tenant hosts on `/api/*` return `400` ProblemDetails with `errorCode` `TENANT_HOST_INVALID`.
-- Public or otherwise untrusted tenant-host `/api/*` failures return `404` ProblemDetails with `errorCode` `TENANT_HOST_UNAVAILABLE`.
+- Unknown tenant hosts on `/api/*` return `404` ProblemDetails with `errorCode` `TENANT_NOT_FOUND`.
 - Invalid credentials return `401` ProblemDetails with `errorCode` `INVALID_CREDENTIALS`.
 - Missing challenge proof returns `400` ProblemDetails with `errorCode` `CHALLENGE_REQUIRED`.
 - Failed challenge verification returns `403` ProblemDetails with `errorCode` `CHALLENGE_FAILED`.
 - Invalid CSRF tokens return `403` ProblemDetails with `errorCode` `CSRF_TOKEN_INVALID`.
 - Tenant-name validation failures return `400` ProblemDetails with `errorCode` `TENANT_NAME_INVALID`.
 - Tenant-name conflicts return `409` ProblemDetails with `errorCode` `TENANT_NAME_CONFLICT`.
-- Trusted authenticated tenant-member requests against expired-but-not-yet-purged tenant hosts return `410` ProblemDetails with `errorCode` `TENANT_EXPIRED`.
+- Missing or wrong-tenant membership returns `403` ProblemDetails with `errorCode` `TENANT_FORBIDDEN`.
+- Expired-but-not-purged tenants return `410` ProblemDetails with `errorCode` `TENANT_EXPIRED`.
+  - Authenticated tenant-host requests that hit an expired tenant while cleanup is still deferring purge due to recent activity also include `terminalTenantState: "expired_retained_recent_activity"`.
 - Unknown tenant-scoped role-assignment targets return `404` ProblemDetails with `errorCode` `TENANT_USER_NOT_FOUND`.
 - Tenant-user email conflicts return `409` ProblemDetails with `errorCode` `TENANT_USER_EMAIL_CONFLICT`.
 - Last-admin protection failures return `409` ProblemDetails with `errorCode` `LAST_TENANT_ADMIN_REQUIRED`.
@@ -88,7 +90,6 @@ Notes:
 - Invalid binder-policy payloads return `422` ProblemDetails with `errorCode` `BINDER_POLICY_INVALID`.
 - Unknown tenant-scoped documents return `404` ProblemDetails with `errorCode` `DOCUMENT_NOT_FOUND`.
 - Document-title validation failures return `400` ProblemDetails with `errorCode` `DOCUMENT_TITLE_INVALID`.
-- Duplicate document titles within the same binder return `409` ProblemDetails with `errorCode` `DOCUMENT_TITLE_CONFLICT` unless the new document supersedes an earlier same-title document in that binder.
 - Missing or whitespace-only document content returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_REQUIRED`.
 - Document content longer than 50,000 characters returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TOO_LARGE`.
 - Unsupported document `contentType` values return `422` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TYPE_INVALID`.
@@ -144,12 +145,14 @@ Notes:
     }
     ```
   - Failure semantics:
-    - `410` with `TENANT_EXPIRED` when a trusted authenticated tenant-member session targets a tenant that is expired but not yet purge-eligible.
-    - `404` with `TENANT_HOST_UNAVAILABLE` when the tenant host is unavailable or inaccessible to the current caller, including unknown or purged hosts, anonymous tenant-host requests, and wrong-tenant sessions.
+    - `403` when the authenticated session does not belong to the requested tenant host.
+    - `410` when tenant is expired but not yet purged.
+    - `404` when the tenant host does not resolve to a current tenant.
   - Notes:
     - `secondsRemaining` is derived from server time and is never negative in a `200` response.
     - `canExtend` is true only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`, and `extensionCount` is below `maxExtensions`.
-    - Cleanup becomes eligible 5 minutes after expiry, so expired tenant-host requests remain in the `410` window until that threshold is crossed.
+    - Cleanup may defer the eventual `404` briefly while an expired tenant still has recent authenticated tenant-host activity inside the configured grace window.
+    - When that defer path is the reason a tenant-host request still resolves to `410`, the ProblemDetails payload includes `terminalTenantState: "expired_retained_recent_activity"` so the SPA can distinguish it from the eventual `404`/not-found state deliberately.
   - Idempotency: idempotent.
 
 - `POST /api/tenant/lease/extend`
@@ -175,12 +178,14 @@ Notes:
     - `409` with `TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN` when remaining lease is still above the extension window or is already expired.
     - `409` with `TENANT_LEASE_EXTENSION_LIMIT_REACHED` when the tenant has already used the configured maximum number of extensions.
     - `429` with `RATE_LIMITED` and `Retry-After` when the lease-extend route budget is exhausted.
-    - `410` with `TENANT_EXPIRED` when a trusted authenticated tenant-member session targets an expired tenant that is still inside the cleanup-retention window.
-    - `404` with `TENANT_HOST_UNAVAILABLE` after tenant purge or when the tenant host is otherwise unavailable or inaccessible to the current caller.
+    - `403` when the authenticated session does not belong to the requested tenant host.
+    - `410` when tenant is expired but not yet purged.
+    - `404` when the tenant host does not resolve to a current tenant.
   - Notes:
     - The handler ignores client-supplied tenant identifiers, duration values, or other business inputs and operates only on the current host-resolved tenant.
     - `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the extension eligibility threshold and the amount added on success.
-    - An expired tenant continues returning `410` until it becomes purge-eligible 5 minutes after expiry.
+    - Cleanup may defer the eventual `404` briefly while an expired tenant still has recent authenticated tenant-host activity inside the configured grace window.
+    - When that defer path is the reason a tenant-host request still resolves to `410`, the ProblemDetails payload includes `terminalTenantState: "expired_retained_recent_activity"` so the SPA can distinguish it from the eventual `404`/not-found state deliberately.
   - Idempotency: not idempotent.
 
 ### Authentication
@@ -205,8 +210,6 @@ Notes:
     - `401` when credentials are invalid.
     - `410` when the resolved tenant is expired but not yet purged.
     - `429` when the shared pre-auth rate-limit budget is exhausted.
-  - Notes:
-    - Expired tenants remain in the `410` state until cleanup becomes eligible 5 minutes after expiry.
   - Idempotency: effectively idempotent for valid repeated submissions.
 
 - `POST /api/auth/logout`
@@ -322,12 +325,10 @@ Notes:
   - Response example (`201`):
     ```json
     {
-      "user": {
-        "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
-        "email": "writer@acme-demo.local",
-        "role": "BinderWrite",
-        "isOwner": false
-      },
+      "userId": "3e7d6ad8-ec43-4d5b-8d35-28f316f8f7de",
+      "email": "writer@acme-demo.local",
+      "role": "BinderWrite",
+      "isOwner": false,
       "credentials": {
         "email": "writer@acme-demo.local",
         "password": "<generated>"
@@ -338,9 +339,6 @@ Notes:
     - `400` when the email is empty, too long, contains whitespace, or does not contain exactly one `@`.
     - `409` when the requested email already exists.
     - `422` for invalid role values.
-  - Notes:
-    - The request never includes a password; the server generates a one-time password and returns it only in the successful create response.
-    - Clients should treat returned credentials as transient handoff data and should not expect a later read endpoint for the generated password.
   - Idempotency: not idempotent.
 
 - `POST /api/tenant/users/{userId}/role`
@@ -363,17 +361,6 @@ Notes:
     - `404` when the target user does not belong to the current tenant.
     - `409` when change would demote the last tenant admin.
     - `422` for invalid role value.
-  - Idempotency: conditionally idempotent.
-
-- `DELETE /api/tenant/users/{userId}`
-  - Auth required: Y (`TenantAdmin`)
-  - Tenant context source: subdomain plus cookie
-  - Success semantics:
-    - `204` when the target tenant-scoped user is deleted.
-  - Failure semantics:
-    - `404` when the target user does not belong to the current tenant.
-    - `409` when delete would remove the last remaining tenant admin.
-    - `409` when delete would remove the last remaining tenant owner.
   - Idempotency: conditionally idempotent.
 
 ### Binders
@@ -516,7 +503,6 @@ Notes:
   - Policy payload rules:
     - `allowedRoles` must be empty when `mode=inherit`.
     - `allowedRoles` must contain one or more exact v1 tenant role values when `mode=restricted_roles`.
-    - `allowedRoles` must include `TenantAdmin` when `mode=restricted_roles` so tenant-admin authority remains authoritative.
   - Request example:
     ```json
     {
@@ -621,13 +607,13 @@ Notes:
     ```
   - Failure semantics:
     - `400` when `binderId` is missing, title is empty/whitespace/overlength after trimming, content is empty/whitespace, or content exceeds 50,000 characters.
-    - `409` when a document with the same trimmed title already exists in the binder and the request is not superseding an earlier same-title document in that binder.
     - `403` when binder-local policy denies the target binder after the `BinderWrite` endpoint policy has already passed, or the request omits a valid CSRF token.
     - `404` when the target binder does not exist in the current tenant or the request host is not a tenant host.
+    - `409` when another document in the same binder already uses the same trimmed title and `supersedesDocumentId` does not reference an earlier document with that same title.
     - `422` when `contentType` is not the exact value `markdown` or `supersedesDocumentId` does not reference an existing document in the same tenant and same binder.
   - Notes:
     - Titles are trimmed and must be 1-200 characters after trimming.
-    - Title uniqueness is binder-local; a reused title is allowed only when `supersedesDocumentId` points at an earlier same-title document in that binder.
+    - Title uniqueness is enforced per binder after trimming; the only duplicate-title exception is creating a new document that supersedes an earlier same-title document in the same binder.
     - Stored `content` remains raw markdown; rendered HTML is not stored in CP10.
     - The browser renders document content as HTML-encoded safe source only; v1 does not parse markdown or allow raw HTML.
   - Idempotency: not idempotent.
@@ -713,7 +699,6 @@ Health payloads must not include dependency internals or version metadata.
 - `GET /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users` -> `TenantAdmin`.
 - `POST /api/tenant/users/{userId}/role` -> `TenantAdmin`.
-- `DELETE /api/tenant/users/{userId}` -> `TenantAdmin`.
 - `GET /api/binders` -> `BinderRead`.
 - `POST /api/binders` -> `BinderWrite`.
 - `GET /api/binders/{binderId}` -> `BinderRead`.

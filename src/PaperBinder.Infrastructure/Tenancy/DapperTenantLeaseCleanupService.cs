@@ -20,7 +20,6 @@ public sealed class DapperTenantLeaseCleanupService(
         CancellationToken cancellationToken = default)
     {
         var now = clock.UtcNow;
-        var purgeEligibilityCutoff = TenantLeaseRules.GetPurgeEligibilityCutoff(now);
         try
         {
             await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
@@ -30,10 +29,10 @@ public sealed class DapperTenantLeaseCleanupService(
                     select
                         id as TenantId
                     from tenants
-                    where expires_at_utc <= @PurgeEligibilityCutoff
+                    where expires_at_utc <= @Now
                     order by expires_at_utc, id;
                     """,
-                    new { PurgeEligibilityCutoff = purgeEligibilityCutoff },
+                    new { Now = now },
                     cancellationToken: cancellationToken)))
                 .ToArray();
 
@@ -45,7 +44,7 @@ public sealed class DapperTenantLeaseCleanupService(
             {
                 try
                 {
-                    var outcome = await PurgeTenantIfExpiredAsync(candidate.TenantId, purgeEligibilityCutoff, cancellationToken);
+                    var outcome = await PurgeTenantIfExpiredAsync(candidate.TenantId, now, cancellationToken);
                     switch (outcome.Kind)
                     {
                         case TenantCleanupOutcomeKind.Purged:
@@ -97,30 +96,36 @@ public sealed class DapperTenantLeaseCleanupService(
 
     private async Task<TenantCleanupOutcome> PurgeTenantIfExpiredAsync(
         Guid tenantId,
-        DateTimeOffset purgeEligibilityCutoff,
+        DateTimeOffset now,
         CancellationToken cancellationToken)
     {
         return await transactionScopeRunner.ExecuteAsync(
             async (connection, transaction, innerCancellationToken) =>
             {
-                var isExpired = await connection.QuerySingleOrDefaultAsync<Guid?>(
+                var candidate = await connection.QuerySingleOrDefaultAsync<TenantCleanupCandidateState>(
                     new CommandDefinition(
                         """
-                        select id
+                        select
+                            id as TenantId,
+                            expires_at_utc as ExpiresAtUtc,
+                            last_authenticated_activity_at_utc as LastAuthenticatedActivityAtUtc
                         from tenants
                         where id = @TenantId
-                          and expires_at_utc <= @PurgeEligibilityCutoff
                         for update;
                         """,
                         new
                         {
-                            TenantId = tenantId,
-                            PurgeEligibilityCutoff = purgeEligibilityCutoff
+                            TenantId = tenantId
                         },
                         transaction,
                         cancellationToken: innerCancellationToken));
 
-                if (isExpired is null)
+                if (candidate is null ||
+                    !TenantLeaseCleanupRules.CanPurgeExpiredTenant(
+                        candidate.ExpiresAtUtc,
+                        candidate.LastAuthenticatedActivityAtUtc,
+                        TimeSpan.FromSeconds(runtimeSettings.Lease.RecentActivityGraceSeconds),
+                        now))
                 {
                     return TenantCleanupOutcome.Skipped();
                 }
@@ -245,6 +250,15 @@ public sealed class DapperTenantLeaseCleanupService(
     }
 
     private sealed record TenantCleanupCandidate(Guid TenantId);
+
+    private sealed class TenantCleanupCandidateState
+    {
+        public Guid TenantId { get; init; }
+
+        public DateTimeOffset ExpiresAtUtc { get; init; }
+
+        public DateTimeOffset? LastAuthenticatedActivityAtUtc { get; init; }
+    }
 
     private sealed record TenantPurgeSummary(
         Guid TenantId,

@@ -2,8 +2,6 @@ namespace PaperBinder.Application.Tenancy;
 
 public static class TenantLeaseRules
 {
-    public static TimeSpan CleanupRetentionWindow => TimeSpan.FromMinutes(5);
-
     public static TenantLeaseState ProjectState(
         TenantLeaseSnapshot snapshot,
         TenantLeasePolicy policy,
@@ -45,12 +43,4 @@ public static class TenantLeaseRules
 
         return (int)remaining.TotalSeconds;
     }
-
-    public static bool IsPurgeEligible(
-        DateTimeOffset expiresAtUtc,
-        DateTimeOffset now) =>
-        expiresAtUtc <= GetPurgeEligibilityCutoff(now);
-
-    public static DateTimeOffset GetPurgeEligibilityCutoff(DateTimeOffset now) =>
-        now - CleanupRetentionWindow;
 }

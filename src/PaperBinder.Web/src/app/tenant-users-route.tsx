@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import type { TenantRole, TenantUser } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Field } from "../components/ui/field";
 import { StatusBadge } from "../components/ui/status-badge";
 import { DataTable, type DataTableColumn, type DataTableRow } from "../components/ui/table";
+import { CredentialDisplayField } from "./credential-display-field";
+import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
 import type { TenantHostErrorViewModel } from "./tenant-host-errors";
 import { mapTenantHostError } from "./tenant-host-errors";
 import {
@@ -21,13 +22,13 @@ type TenantUserFieldErrors = Partial<
   Record<"tenantUserEmail" | "tenantUserRole", string>
 >;
 
-type TenantUserCredentialsSnapshot = {
+type TenantUserCredentialSnapshot = {
   email: string;
   password: string;
 };
 
 export function UsersPage() {
-  const { apiClient, impersonation, startImpersonation } = useTenantShellContext();
+  const { apiClient, impersonation, startImpersonation, showToast } = useTenantShellContext();
   const navigate = useNavigate();
   const [users, setUsers] = useState<TenantUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,13 +37,15 @@ export function UsersPage() {
   const [tenantUserRole, setTenantUserRole] = useState<TenantRole>("BinderRead");
   const [fieldErrors, setFieldErrors] = useState<TenantUserFieldErrors>({});
   const [createError, setCreateError] = useState<TenantHostErrorViewModel | null>(null);
-  const [createdCredentials, setCreatedCredentials] = useState<TenantUserCredentialsSnapshot | null>(null);
+  const [createdCredentials, setCreatedCredentials] = useState<TenantUserCredentialSnapshot | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [roleDrafts, setRoleDrafts] = useState<Record<string, TenantRole>>({});
   const [roleUpdateError, setRoleUpdateError] = useState<TenantHostErrorViewModel | null>(null);
+  const [roleUpdateSuccess, setRoleUpdateSuccess] = useState<string | null>(null);
   const [isRoleUpdatingForUserId, setIsRoleUpdatingForUserId] = useState<string | null>(null);
   const [impersonationError, setImpersonationError] = useState<TenantHostErrorViewModel | null>(null);
   const [isStartingImpersonationForUserId, setIsStartingImpersonationForUserId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -79,6 +82,34 @@ export function UsersPage() {
     };
   }, [apiClient, impersonation.effective.userId]);
 
+  useEffect(() => {
+    if (selectedUserId === null) {
+      return;
+    }
+
+    if (!users.some((user) => user.userId === selectedUserId)) {
+      setSelectedUserId(null);
+    }
+  }, [selectedUserId, users]);
+
+  async function copyValue(label: string, value: string) {
+    const copied = await writeClipboardValue(value);
+    if (copied) {
+      showToast({
+        title: `${label} copied.`,
+        body: `${label} is ready to paste.`,
+        variant: "success"
+      });
+      return;
+    }
+
+    showToast({
+      title: `Could not copy ${label.toLowerCase()}.`,
+      body: "Clipboard access is not available in this browser session.",
+      variant: "warning"
+    });
+  }
+
   async function handleCreateUser(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -99,19 +130,29 @@ export function UsersPage() {
     setFieldErrors({});
 
     try {
+      const submittedEmail = tenantUserEmail.trim();
       const createdUser = await apiClient.createTenantUser({
-        email: tenantUserEmail.trim(),
+        email: submittedEmail,
         role: tenantUserRole
       });
 
-      setUsers((currentUsers) => [...currentUsers, createdUser.user]);
+      setUsers((currentUsers) => [...currentUsers, createdUser]);
       setRoleDrafts((currentDrafts) => ({
         ...currentDrafts,
-        [createdUser.user.userId]: createdUser.user.role
+        [createdUser.userId]: createdUser.role
       }));
-      setCreatedCredentials(createdUser.credentials);
+      setSelectedUserId(createdUser.userId);
+      setCreatedCredentials({
+        email: createdUser.credentials.email,
+        password: createdUser.credentials.password
+      });
       setTenantUserEmail("");
       setTenantUserRole("BinderRead");
+      showToast({
+        title: "User added to workspace.",
+        body: `${createdUser.email} can now be managed from this route.`,
+        variant: "success"
+      });
     } catch (error) {
       const mappedError = mapTenantHostError(error);
       setCreateError(mappedError);
@@ -119,8 +160,8 @@ export function UsersPage() {
         mappedError.field === "tenantUserEmail"
           ? { tenantUserEmail: mappedError.detail }
           : mappedError.field === "tenantUserRole"
-            ? { tenantUserRole: mappedError.detail }
-            : {}
+              ? { tenantUserRole: mappedError.detail }
+              : {}
       );
     } finally {
       setIsCreating(false);
@@ -134,6 +175,7 @@ export function UsersPage() {
     }
 
     setRoleUpdateError(null);
+    setRoleUpdateSuccess(null);
     setIsRoleUpdatingForUserId(userId);
 
     try {
@@ -148,6 +190,12 @@ export function UsersPage() {
         ...currentDrafts,
         [updatedUser.userId]: updatedUser.role
       }));
+      setRoleUpdateSuccess(updatedUser.email);
+      showToast({
+        title: "Role updated.",
+        body: `${updatedUser.email} now uses ${formatRole(updatedUser.role)}.`,
+        variant: "success"
+      });
     } catch (error) {
       setRoleUpdateError(mapTenantHostError(error));
     } finally {
@@ -161,6 +209,11 @@ export function UsersPage() {
 
     try {
       await startImpersonation(userId);
+      showToast({
+        title: "Impersonation started.",
+        body: "The workspace is switching to the selected effective user.",
+        variant: "info"
+      });
       navigate("/app");
     } catch (error) {
       setImpersonationError(mapTenantHostError(error));
@@ -177,93 +230,261 @@ export function UsersPage() {
     { key: "email", header: "Email" },
     { key: "role", header: "Role" },
     { key: "ownership", header: "Ownership" },
-    { key: "actions", header: "Actions" },
-    { key: "impersonation", header: "View as" }
+    { key: "actions", header: "Actions" }
   ];
   const rows: DataTableRow[] = users.map((user) => ({
     key: user.userId,
     cells: [
       <div key={`${user.userId}-email`}>
         <p className="font-medium text-[var(--pb-color-text)]">{user.email}</p>
-        <p className="text-xs uppercase tracking-[0.12em] text-[var(--pb-color-text-subtle)]">
-          {user.userId}
-        </p>
+        <CopyValueChip
+          className="mt-2"
+          compact
+          key={`${user.userId}-id`}
+          label={`user id for ${user.email}`}
+          onCopy={() => {
+            void copyValue("User ID", user.userId);
+          }}
+          value={user.userId}
+        />
       </div>,
-      <select
-        aria-label={`Role for ${user.email}`}
-        disabled={isRoleUpdatingForUserId === user.userId}
-        key={`${user.userId}-role`}
-        onChange={(event) => {
-          setRoleDrafts((currentDrafts) => ({
-            ...currentDrafts,
-            [user.userId]: event.target.value as TenantRole
-          }));
-          setRoleUpdateError(null);
-        }}
-        value={roleDrafts[user.userId] ?? user.role}
-      >
-        {roleOptions.map((role) => (
-          <option key={role} value={role}>
-            {formatRole(role)}
-          </option>
-        ))}
-      </select>,
+      <span key={`${user.userId}-role`} className="font-medium text-[var(--pb-color-text)]">
+        {formatRole(user.role)}
+      </span>,
       user.isOwner ? <StatusBadge key={`${user.userId}-owner`}>Owner</StatusBadge> : "Member",
       <Button
-        isLoading={isRoleUpdatingForUserId === user.userId}
         key={`${user.userId}-action`}
-        onClick={() => void handleRoleChange(user.userId)}
+        aria-label={`Manage user ${user.email}`}
+        onClick={() => {
+          setSelectedUserId(user.userId);
+          setRoleUpdateError(null);
+          setImpersonationError(null);
+        }}
         type="button"
-        variant="secondary"
+        variant={selectedUserId === user.userId ? "primary" : "secondary"}
       >
-        Save role
+        {selectedUserId === user.userId ? "Managing" : "Manage"}
       </Button>,
-      impersonation.isImpersonating || user.userId === impersonation.effective.userId ? (
-        <span
-          className="text-sm text-[var(--pb-color-text-muted)]"
-          key={`${user.userId}-impersonation-disabled`}
-        >
-          Not eligible
-        </span>
-      ) : (
-        <Button
-          isLoading={isStartingImpersonationForUserId === user.userId}
-          key={`${user.userId}-impersonation`}
-          onClick={() => void handleStartImpersonation(user.userId)}
-          type="button"
-          variant="secondary"
-        >
-          View as
-        </Button>
-      )
     ]
   }));
+  const selectedUser = selectedUserId === null ? null : users.find((user) => user.userId === selectedUserId) ?? null;
+  const canStartSelectedUserImpersonation =
+    selectedUser !== null &&
+    !impersonation.isImpersonating &&
+    selectedUser.userId !== impersonation.effective.userId;
+  const selectedUserRoleDraft =
+    selectedUser === null ? null : (roleDrafts[selectedUser.userId] ?? selectedUser.role);
+  const selectedUserRoleIsDirty =
+    selectedUser !== null && selectedUserRoleDraft !== null && selectedUserRoleDraft !== selectedUser.role;
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Tenant users</CardTitle>
-          <CardDescription>
-            Tenant-admin user management stays on this route and submits only the existing user and role contracts.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+    <div className="space-y-5">
+      <section className="px-1">
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-(--pb-color-text-subtle)">
+          Access management
+        </p>
+        <h2 className="mt-2 text-[2rem] font-semibold tracking-[-0.04em] text-(--pb-color-text)">
+          Users and access
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-(--pb-color-text-muted)">
+          Keep the full user list on screen while add-user, role updates, and impersonation actions expand on this route.
+        </p>
+      </section>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Create tenant user</CardTitle>
-            <CardDescription>
-              Provide the email and role. PaperBinder generates the one-time password on the
-              server and shows it once after creation.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Current users</h3>
+            <p className="pb-auth-panel-copy">
+              Role changes, owner visibility, and impersonation eligibility stay server-enforced for this workspace.
+            </p>
+          </div>
+          <div className="pb-auth-panel-body space-y-4">
+            <DataTable
+              caption="Workspace users"
+              columns={columns}
+              emptyMessage="No workspace users are available."
+              isLoading={isLoading}
+              loadingLabel="Loading workspace users..."
+              rows={rows}
+            />
+            <div className="border-t border-[var(--pb-border-subtle)] pt-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-[1.2rem] font-semibold tracking-[-0.03em] text-[var(--pb-color-text)]">
+                    Manage selected user
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-[var(--pb-color-text-muted)]">
+                    Role changes and impersonation start here without leaving the current user list.
+                  </p>
+                </div>
+                {selectedUser !== null ? (
+                  <Button
+                    onClick={() => {
+                      setSelectedUserId(null);
+                      setRoleUpdateError(null);
+                      setRoleUpdateSuccess(null);
+                      setImpersonationError(null);
+                    }}
+                    type="button"
+                    variant="secondary"
+                  >
+                    Close panel
+                  </Button>
+                ) : null}
+              </div>
+
+              {selectedUser === null ? (
+                <div className="pb-auth-selection-empty mt-4">
+                  Select a user from the table to expand the role-change and view-as panels here.
+                </div>
+              ) : (
+                <div className="mt-4 space-y-4">
+                  <div className="pb-auth-meta-grid">
+                    <article className="pb-auth-meta-card">
+                      <p className="pb-auth-stat-label">User</p>
+                      <p className="pb-auth-meta-value">{selectedUser.email}</p>
+                    </article>
+                    <article className="pb-auth-meta-card">
+                      <p className="pb-auth-stat-label">Current role</p>
+                      <p className="pb-auth-meta-value">{formatRole(selectedUser.role)}</p>
+                    </article>
+                    <article className="pb-auth-meta-card">
+                      <p className="pb-auth-stat-label">User ID</p>
+                      <div className="pb-auth-meta-value">
+                        <CopyValueChip
+                          compact
+                          label={`user id for ${selectedUser.email}`}
+                          onCopy={() => {
+                            void copyValue("User ID", selectedUser.userId);
+                          }}
+                          value={selectedUser.userId}
+                        />
+                      </div>
+                    </article>
+                    <article className="pb-auth-meta-card">
+                      <p className="pb-auth-stat-label">Ownership</p>
+                      <div className="pb-auth-meta-value">
+                        {selectedUser.isOwner ? (
+                          <StatusBadge variant="success">Owner</StatusBadge>
+                        ) : (
+                          <StatusBadge>Member</StatusBadge>
+                        )}
+                      </div>
+                    </article>
+                  </div>
+
+                  <div className="pb-auth-inline-panels">
+                    <section className="pb-auth-subpanel">
+                      <div className="pb-auth-subpanel-header">
+                        <h4 className="text-base font-semibold tracking-[-0.02em] text-[var(--pb-color-text)]">
+                          Change role
+                        </h4>
+                        <p className="mt-1 text-sm leading-6 text-[var(--pb-color-text-muted)]">
+                          Update the effective role used when this user signs into the workspace.
+                        </p>
+                      </div>
+                      <div className="mt-4 space-y-4">
+                        <Field
+                          hint="Role changes stay within the tenant-scoped permissions model."
+                          label={`Role for ${selectedUser.email}`}
+                        >
+                          <select
+                            disabled={isRoleUpdatingForUserId === selectedUser.userId}
+                            onChange={(event) => {
+                              setRoleDrafts((currentDrafts) => ({
+                                ...currentDrafts,
+                                [selectedUser.userId]: event.target.value as TenantRole
+                              }));
+                              setRoleUpdateError(null);
+                              setRoleUpdateSuccess(null);
+                            }}
+                            value={roleDrafts[selectedUser.userId] ?? selectedUser.role}
+                          >
+                            {roleOptions.map((role) => (
+                              <option key={role} value={role}>
+                                {formatRole(role)}
+                              </option>
+                            ))}
+                          </select>
+                        </Field>
+                        <TenantHostErrorNotice error={roleUpdateError} />
+                        {roleUpdateSuccess ? (
+                          <Alert variant="success">
+                            <AlertTitle>Role saved.</AlertTitle>
+                            <AlertBody>{roleUpdateSuccess} now uses the selected role.</AlertBody>
+                          </Alert>
+                        ) : null}
+                        <Button
+                          className="w-full justify-center sm:w-auto"
+                          disabled={!selectedUserRoleIsDirty || isRoleUpdatingForUserId === selectedUser.userId}
+                          isLoading={isRoleUpdatingForUserId === selectedUser.userId}
+                          onClick={() => void handleRoleChange(selectedUser.userId)}
+                          type="button"
+                          variant="secondary"
+                        >
+                          Save role
+                        </Button>
+                      </div>
+                    </section>
+
+                    <section className="pb-auth-subpanel">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h4 className="text-base font-semibold tracking-[-0.02em] text-[var(--pb-color-text)]">
+                            Impersonate
+                          </h4>
+                          <p className="mt-1 text-sm leading-6 text-[var(--pb-color-text-muted)]">
+                            Start impersonation from this user-management surface only.
+                          </p>
+                        </div>
+                        {canStartSelectedUserImpersonation ? (
+                          <StatusBadge variant="success">Eligible on this screen</StatusBadge>
+                        ) : (
+                          <StatusBadge variant="warning">Not eligible</StatusBadge>
+                        )}
+                      </div>
+                      <div className="mt-4 space-y-4">
+                        <TenantHostErrorNotice error={impersonationError} />
+                        <p className="text-sm leading-6 text-[var(--pb-color-text-muted)]">
+                          {canStartSelectedUserImpersonation
+                            ? "Use impersonation when you need to confirm the workspace from the selected member role."
+                            : impersonation.isImpersonating
+                              ? "Stop the current impersonation session before starting another one."
+                              : "The current effective user cannot impersonate itself."}
+                        </p>
+                        {canStartSelectedUserImpersonation ? (
+                          <Button
+                            className="w-full justify-center sm:w-auto"
+                            isLoading={isStartingImpersonationForUserId === selectedUser.userId}
+                            onClick={() => void handleStartImpersonation(selectedUser.userId)}
+                            type="button"
+                            variant="secondary"
+                          >
+                            Impersonate this user
+                          </Button>
+                        ) : null}
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Add user</h3>
+            <p className="pb-auth-panel-copy">
+              Create a workspace member with an initial role. PaperBinder issues the temporary password on the server and shows it once after creation.
+            </p>
+          </div>
+          <div className="pb-auth-panel-body">
             <form className="space-y-4" onSubmit={handleCreateUser}>
               <Field
                 error={fieldErrors.tenantUserEmail}
-                hint="Email is the canonical v1 identity label."
+                hint="Use the email this workspace member will sign in with."
                 label="Email"
               >
                 <input
@@ -283,7 +504,7 @@ export function UsersPage() {
               </Field>
               <Field
                 error={fieldErrors.tenantUserRole}
-                hint="Each tenant member has one role in v1."
+                hint="Each workspace member has one role in v1."
                 label="Role"
               >
                 <select
@@ -308,63 +529,73 @@ export function UsersPage() {
               <TenantHostErrorNotice error={createError} />
               {createdCredentials ? (
                 <Alert variant="success">
-                  <AlertTitle>Tenant user created.</AlertTitle>
-                  <AlertBody>{createdCredentials.email} was added to this tenant.</AlertBody>
-                  <AlertBody>
-                    Record this one-time password now. It is not shown again after this state
-                    clears.
-                  </AlertBody>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <Field hint="Shown once after PaperBinder creates the user." label="Email">
-                      <input
-                        className="font-mono"
-                        readOnly
-                        type="email"
-                        value={createdCredentials.email}
-                      />
-                    </Field>
-                    <Field
-                      hint="Generated on the server for this tenant user."
-                      label="Temporary password"
-                    >
-                      <input
-                        className="font-mono"
-                        readOnly
-                        type="text"
-                        value={createdCredentials.password}
-                      />
-                    </Field>
+                  <AlertTitle>User added.</AlertTitle>
+                  <AlertBody>{createdCredentials.email} was added to this workspace.</AlertBody>
+                  <AlertBody>Record these one-time credentials now if you need to hand them to the user.</AlertBody>
+                  <div className="mt-4 space-y-3">
+                    <CredentialDisplayField
+                      copyButtonLabel={`Copy workspace email for ${createdCredentials.email}`}
+                      hint="Shown once after creation for credential handoff."
+                      label="Workspace email"
+                      onCopyResult={(copied) => {
+                        if (!copied) {
+                          showToast({
+                            title: "Could not copy user email.",
+                            body: "Clipboard access is not available in this browser session.",
+                            variant: "warning"
+                          });
+                          return;
+                        }
+
+                        showToast({
+                          title: "User email copied.",
+                          body: "User email is ready to paste.",
+                          variant: "success"
+                        });
+                      }}
+                      value={createdCredentials.email}
+                      variant="auth"
+                    />
+                    <CredentialDisplayField
+                      copyButtonLabel={`Copy workspace password for ${createdCredentials.email}`}
+                      hideButtonLabel="Hide workspace password"
+                      hint="Masked by default and shown once after the server creates the user."
+                      label="Workspace password"
+                      onCopyResult={(copied) => {
+                        if (!copied) {
+                          showToast({
+                            title: "Could not copy temporary password.",
+                            body: "Clipboard access is not available in this browser session.",
+                            variant: "warning"
+                          });
+                          return;
+                        }
+
+                        showToast({
+                          title: "Temporary password copied.",
+                          body: "Temporary password is ready to paste.",
+                          variant: "success"
+                        });
+                      }}
+                      sensitive
+                      showButtonLabel="Show workspace password"
+                      value={createdCredentials.password}
+                      variant="auth"
+                    />
                   </div>
                 </Alert>
               ) : null}
-              <Button isLoading={isCreating} type="submit">
-                Create tenant user
+              <Button
+                className="w-full justify-center sm:w-auto"
+                disabled={!tenantUserEmail.trim() || isCreating}
+                isLoading={isCreating}
+                type="submit"
+              >
+                Add user
               </Button>
             </form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Current tenant users</CardTitle>
-            <CardDescription>
-              Role changes remain subject to the server-side last-admin guard, and view-as start only exposes a safe
-              eligible or not-eligible affordance.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <TenantHostErrorNotice error={roleUpdateError} />
-            <TenantHostErrorNotice error={impersonationError} />
-            <DataTable
-              caption="Tenant users"
-              columns={columns}
-              emptyMessage="No tenant users are available."
-              isLoading={isLoading}
-              loadingLabel="Loading tenant users..."
-              rows={rows}
-            />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
     </div>
   );

@@ -42,20 +42,12 @@ function createGenericError(detail: string): TenantHostErrorViewModel {
 
 export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
   if (!(error instanceof PaperBinderApiError)) {
-    return createGenericError("An unexpected error occurred. Retry the request.");
+    return createGenericError("Something went wrong. Try again.");
   }
 
   const retryAfterLabel = formatRetryAfterLabel(error.retryAfterSeconds);
 
   switch (error.errorCode) {
-    case "TENANT_HOST_UNAVAILABLE":
-      return {
-        title: "Workspace unavailable.",
-        detail: error.detail ?? "This workspace is unavailable or inaccessible from the current tenant host.",
-        field: null,
-        correlationId: error.correlationId,
-        retryAfterLabel
-      };
     case "TENANT_FORBIDDEN":
       return {
         title: "Access is not allowed.",
@@ -74,8 +66,8 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
       };
     case "TENANT_EXPIRED":
       return {
-        title: "Tenant expired.",
-        detail: error.detail ?? "This tenant has expired and can no longer be used.",
+        title: "Demo expired.",
+        detail: error.detail ?? "This demo workspace is no longer available.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
@@ -132,6 +124,16 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
       return {
         title: "Document title is required.",
         detail: error.detail ?? "Provide a document title between 1 and 200 characters.",
+        field: "documentTitle",
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "DOCUMENT_TITLE_CONFLICT":
+      return {
+        title: "Document title already exists.",
+        detail:
+          error.detail ??
+          "Use a unique title in this binder, or supersede an earlier document with the same title.",
         field: "documentTitle",
         correlationId: error.correlationId,
         retryAfterLabel
@@ -291,8 +293,8 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
     default:
       if (error.status === null) {
         return {
-          title: "Network request failed.",
-          detail: "The browser could not reach PaperBinder. Check the local stack and retry.",
+          title: "PaperBinder is unavailable right now.",
+          detail: "PaperBinder is currently unavailable. Check your connection and try again in a moment.",
           field: null,
           correlationId: null,
           retryAfterLabel: null

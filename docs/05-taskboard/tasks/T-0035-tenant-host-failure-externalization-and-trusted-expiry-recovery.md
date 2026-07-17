@@ -56,8 +56,8 @@ Implement the trust-aware tenant-host failure policy from `ADR-0014` so public o
 - Escalation Notes: If the current deployment topology leaks materially more tenant-existence signal than the application contract intends, record it as an operations follow-up rather than silently widening this task.
 
 ## Current State
-- Done. Tenant-host API failures now flatten to `404 TENANT_HOST_UNAVAILABLE` for public or otherwise untrusted callers, while trusted same-tenant expired sessions retain explicit `410 TENANT_EXPIRED` recovery.
-- The tenant-host SPA bootstrap now treats non-expired failures as one generic unavailable state and preserves explicit expired-workspace handling only for the trusted expired contract.
+- Historical slice outcome: this task originally flattened tenant-host API failures to `404 TENANT_HOST_UNAVAILABLE` for public or otherwise untrusted callers while retaining explicit `410 TENANT_EXPIRED` recovery for trusted same-tenant expired sessions.
+- Current repo truth has since been superseded by later tenancy/lease reconciliation work; use the current canonical docs for active behavior, especially `docs/20-architecture/tenancy-resolution.md` and `docs/40-contracts/api-contract.md`.
 - Targeted integration, frontend, and browser validation for the trust split completed on `2026-07-15`.
 
 ## Touch Points
@@ -89,8 +89,8 @@ Implement the trust-aware tenant-host failure policy from `ADR-0014` so public o
 - `scripts/validate-docs.ps1` after contract or ADR-linked docs change
 
 ## Outcome (Fill when done)
-- Complete. Tenant-resolution now preserves precise internal denial reasons while externalizing public or otherwise untrusted tenant-host API failures as `404 TENANT_HOST_UNAVAILABLE`.
-- Complete. The tenant-host HTML path now follows the same trust split: generic unavailable fallback for public or otherwise untrusted callers and explicit expired-workspace recovery only for trusted same-tenant sessions.
+- Complete. At the time this slice closed, tenant-resolution preserved precise internal denial reasons while externalizing public or otherwise untrusted tenant-host API failures as `404 TENANT_HOST_UNAVAILABLE`.
+- Complete. At the time this slice closed, the tenant-host HTML path followed the same trust split: generic unavailable fallback for public or otherwise untrusted callers and explicit expired-workspace recovery only for trusted same-tenant sessions.
 - Complete. Targeted coverage passed on `2026-07-15` across Docker-backed integration tests, `tenant-shell` Vitest coverage, and scoped Playwright checks for the trusted-expired and generic-unavailable tenant-host browser states.
 
 ## Notes

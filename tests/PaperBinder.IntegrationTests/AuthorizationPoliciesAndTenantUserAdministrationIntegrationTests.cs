@@ -25,7 +25,7 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
     private const string LastTenantOwnerRequiredErrorCode = "LAST_TENANT_OWNER_REQUIRED";
     private const string TenantRoleInvalidErrorCode = "TENANT_ROLE_INVALID";
     private const string CsrfTokenInvalidErrorCode = "CSRF_TOKEN_INVALID";
-    private const string TenantHostUnavailableErrorCode = "TENANT_HOST_UNAVAILABLE";
+    private const string TenantForbiddenErrorCode = "TENANT_FORBIDDEN";
 
     [Fact]
     public async Task Should_ListOnlyCurrentTenantUsers_When_CallerIsTenantAdmin()
@@ -143,19 +143,20 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             adminContext.Session.CsrfCookieValue);
 
         var createResponse = await host.Client.SendAsync(createRequest);
-        var createdUser = await createResponse.Content.ReadFromJsonAsync<CreateTenantUserResponsePayload>();
+        var createdUser = await createResponse.Content.ReadFromJsonAsync<TenantUserPayload>();
 
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
         Assert.NotNull(createdUser);
-        Assert.Equal(createBody.Email, createdUser!.User.Email);
-        Assert.Equal(createBody.Role, createdUser.User.Role);
-        Assert.False(createdUser.User.IsOwner);
-        Assert.Equal(createBody.Email, createdUser.Credentials.Email);
+        Assert.Equal(createBody.Email, createdUser!.Email);
+        Assert.Equal(createBody.Role, createdUser.Role);
+        Assert.False(createdUser.IsOwner);
+        Assert.NotNull(createdUser.Credentials);
+        Assert.Equal(createdUser.Email, createdUser.Credentials!.Email);
         Assert.False(string.IsNullOrWhiteSpace(createdUser.Credentials.Password));
 
         var newUserSession = await AuthIntegrationTestClient.LoginAsync(
             host,
-            createdUser.Credentials.Email,
+            createdUser.Email,
             createdUser.Credentials.Password);
         Assert.Equal($"http://{adminContext.Tenant.Slug}.paperbinder.localhost:8080/app", newUserSession.LoginPayload!.RedirectUrl);
 
@@ -521,7 +522,7 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         await using var host = await StartHostAsync(database.ConnectionString);
 
         var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp8-delete-last-admin");
-        await SeedTenantMemberAsync(
+        var owner = await SeedTenantMemberAsync(
             host,
             tenant,
             "owner@cp8-delete-last-admin.local",
@@ -645,7 +646,7 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
     }
 
     [Fact]
-    public async Task Should_ReturnGenericUnavailable_When_AuthenticatedUserTargetsDifferentTenantHostPolicyProbe()
+    public async Task Should_RejectTestPolicyProbe_When_AuthenticatedUserTargetsDifferentTenantHost()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
@@ -665,9 +666,9 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
         var response = await host.Client.SendAsync(request);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         Assert.NotNull(problem);
-        Assert.Equal(TenantHostUnavailableErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+        Assert.Equal(TenantForbiddenErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
     }
 
     private static async Task<PaperBinderApplicationHost> StartHostAsync(string databaseConnection) =>
@@ -838,15 +839,12 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
     private sealed record ListTenantUsersResponsePayload(
         [property: JsonPropertyName("users")] IReadOnlyList<TenantUserPayload> Users);
 
-    private sealed record CreateTenantUserResponsePayload(
-        [property: JsonPropertyName("user")] TenantUserPayload User,
-        [property: JsonPropertyName("credentials")] TenantUserCredentialsPayload Credentials);
-
     private sealed record TenantUserPayload(
         [property: JsonPropertyName("userId")] Guid UserId,
         [property: JsonPropertyName("email")] string Email,
         [property: JsonPropertyName("role")] string Role,
-        [property: JsonPropertyName("isOwner")] bool IsOwner);
+        [property: JsonPropertyName("isOwner")] bool IsOwner,
+        [property: JsonPropertyName("credentials")] TenantUserCredentialsPayload? Credentials = null);
 
     private sealed record TenantUserCredentialsPayload(
         [property: JsonPropertyName("email")] string Email,

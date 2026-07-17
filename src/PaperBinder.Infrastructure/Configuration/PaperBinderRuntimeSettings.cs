@@ -47,6 +47,11 @@ public sealed record PaperBinderRuntimeSettings(
         var extensionMinutes = GetPositiveInt(getValue, PaperBinderConfigurationKeys.LeaseExtensionMinutes, errors);
         var maxExtensions = GetPositiveInt(getValue, PaperBinderConfigurationKeys.LeaseMaxExtensions, errors);
         var cleanupIntervalSeconds = GetPositiveInt(getValue, PaperBinderConfigurationKeys.LeaseCleanupIntervalSeconds, errors);
+        var recentActivityGraceSeconds = GetOptionalPositiveInt(
+            getValue,
+            PaperBinderConfigurationKeys.LeaseRecentActivityGraceSeconds,
+            defaultValue: 180,
+            errors);
         var preAuthPerMinute = GetPositiveInt(getValue, PaperBinderConfigurationKeys.RateLimitPreAuthPerMinute, errors);
         var authenticatedPerMinute = GetPositiveInt(getValue, PaperBinderConfigurationKeys.RateLimitAuthenticatedPerMinute, errors);
         var leaseExtendPerMinute = GetPositiveInt(getValue, PaperBinderConfigurationKeys.RateLimitLeaseExtendPerMinute, errors);
@@ -118,7 +123,7 @@ public sealed record PaperBinderRuntimeSettings(
                 dataProtectionCertificatePath,
                 dataProtectionCertificatePassword),
             new ChallengeSettings(challengeSiteKey!, challengeSecretKey!, challengeLocalBypassEnabled),
-            new LeaseSettings(defaultMinutes, extensionMinutes, maxExtensions, cleanupIntervalSeconds),
+            new LeaseSettings(defaultMinutes, extensionMinutes, maxExtensions, cleanupIntervalSeconds, recentActivityGraceSeconds),
             new RateLimitSettings(preAuthPerMinute, authenticatedPerMinute, leaseExtendPerMinute),
             new AuditSettings(auditRetentionMode!.Value),
             new ObservabilitySettings(otlpEndpoint));
@@ -162,6 +167,27 @@ public sealed record PaperBinderRuntimeSettings(
         if (!int.TryParse(rawValue, out var parsedValue) || parsedValue <= 0)
         {
             errors.Add($"Configuration key `{key}` must be a positive integer.");
+            return 0;
+        }
+
+        return parsedValue;
+    }
+
+    private static int GetOptionalPositiveInt(
+        Func<string, string?> getValue,
+        string key,
+        int defaultValue,
+        ICollection<string> errors)
+    {
+        var rawValue = getValue(key);
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            return defaultValue;
+        }
+
+        if (!int.TryParse(rawValue, out var parsedValue) || parsedValue <= 0)
+        {
+            errors.Add($"Configuration key `{key}` must be a positive integer when provided.");
             return 0;
         }
 
@@ -358,7 +384,8 @@ public sealed record LeaseSettings(
     int DefaultMinutes,
     int ExtensionMinutes,
     int MaxExtensions,
-    int CleanupIntervalSeconds);
+    int CleanupIntervalSeconds,
+    int RecentActivityGraceSeconds);
 
 public sealed record RateLimitSettings(
     int PreAuthPerMinute,
@@ -394,6 +421,7 @@ public static class PaperBinderConfigurationKeys
     public const string LeaseExtensionMinutes = "PAPERBINDER_LEASE_EXTENSION_MINUTES";
     public const string LeaseMaxExtensions = "PAPERBINDER_LEASE_MAX_EXTENSIONS";
     public const string LeaseCleanupIntervalSeconds = "PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS";
+    public const string LeaseRecentActivityGraceSeconds = "PAPERBINDER_LEASE_RECENT_ACTIVITY_GRACE_SECONDS";
     public const string RateLimitPreAuthPerMinute = "PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE";
     public const string RateLimitAuthenticatedPerMinute = "PAPERBINDER_RATE_LIMIT_AUTHENTICATED_PER_MINUTE";
     public const string RateLimitLeaseExtendPerMinute = "PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE";

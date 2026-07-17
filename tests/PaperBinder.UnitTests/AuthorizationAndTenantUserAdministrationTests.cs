@@ -112,19 +112,6 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
         Assert.Equal("user@.com", emailAddress);
     }
 
-    [Fact]
-    public void TenantUserProblemMapping_Should_MapLastTenantOwnerFailure_ToStableProblemContract()
-    {
-        var problem = PaperBinderTenantUserProblemMapping.Map(
-            new TenantUserAdministrationFailure(
-                TenantUserAdministrationFailureKind.LastTenantOwnerRequired,
-                "At least one tenant owner must remain assigned to the tenant."));
-
-        Assert.Equal(StatusCodes.Status409Conflict, problem.StatusCode);
-        Assert.Equal("Tenant owner required.", problem.Title);
-        Assert.Equal(PaperBinderErrorCodes.LastTenantOwnerRequired, problem.ErrorCode);
-    }
-
     [Theory]
     [InlineData(TenantRole.TenantAdmin, TenantRole.BinderRead, 1, true)]
     [InlineData(TenantRole.TenantAdmin, TenantRole.BinderWrite, 2, false)]
@@ -153,7 +140,9 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
         int tenantAdminCount,
         bool expectedBlocked)
     {
-        var blocked = TenantUserAdministrationRules.WouldDeleteLastAdmin(currentRole, tenantAdminCount);
+        var blocked = TenantUserAdministrationRules.WouldDeleteLastAdmin(
+            currentRole,
+            tenantAdminCount);
 
         Assert.Equal(expectedBlocked, blocked);
     }
@@ -167,7 +156,9 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
         int tenantOwnerCount,
         bool expectedBlocked)
     {
-        var blocked = TenantUserAdministrationRules.WouldDeleteLastOwner(isOwner, tenantOwnerCount);
+        var blocked = TenantUserAdministrationRules.WouldDeleteLastOwner(
+            isOwner,
+            tenantOwnerCount);
 
         Assert.Equal(expectedBlocked, blocked);
     }

@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperBinder.Api;
+using PaperBinder.Application.Identity;
 using PaperBinder.Application.Provisioning;
 using PaperBinder.Infrastructure.Configuration;
 
@@ -120,11 +121,11 @@ public sealed class ChallengeAndProvisioningRuleTests
     }
 
     [Fact]
-    public void TenantProvisioningRules_Should_GenerateStrongOneTimePasswords()
+    public void OneTimeCredentialRules_Should_GenerateStrongOneTimePasswords()
     {
-        var password = TenantProvisioningRules.GenerateOneTimePassword();
+        var password = OneTimeCredentialRules.GenerateOneTimePassword();
 
-        Assert.Equal(TenantProvisioningRules.GeneratedPasswordLength, password.Length);
+        Assert.Equal(OneTimeCredentialRules.GeneratedPasswordLength, password.Length);
         Assert.Contains(password, char.IsLower);
         Assert.Contains(password, char.IsUpper);
         Assert.Contains(password, char.IsDigit);
@@ -141,7 +142,7 @@ public sealed class ChallengeAndProvisioningRuleTests
             new AuthCookieSettings(".paperbinder.localhost", "paperbinder.auth", "paperbinder-local-keys"),
             new DataProtectionSettings(null, null, null),
             new ChallengeSettings("local-demo-site-key", "local-demo-secret-key", false),
-            new LeaseSettings(60, 10, 3, 60),
+            new LeaseSettings(60, 10, 3, 60, 180),
             new RateLimitSettings(30, 120, 10),
             new AuditSettings(AuditRetentionMode.RetainTenantPurgedSummary),
             new ObservabilitySettings(null));

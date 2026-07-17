@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Text;
-using PaperBinder.Application.Identity;
 
 namespace PaperBinder.Application.Provisioning;
 
@@ -54,8 +53,6 @@ public static class TenantProvisioningRules
 {
     public const int MaxTenantNameLength = 200;
     public const int MaxTenantSlugLength = 63;
-    public const int GeneratedPasswordLength = OneTimePasswordRules.GeneratedPasswordLength;
-
     public static bool TryNormalizeTenantName(
         string tenantName,
         out NormalizedTenantProvisioningName? normalized)
@@ -82,10 +79,6 @@ public static class TenantProvisioningRules
         normalized = new NormalizedTenantProvisioningName(trimmedTenantName, tenantSlug);
         return true;
     }
-
-    public static string GenerateOneTimePassword()
-        => OneTimePasswordRules.Generate();
-
     private static string BuildTenantSlug(string tenantName)
     {
         var builder = new StringBuilder(MaxTenantSlugLength);
@@ -133,5 +126,4 @@ public static class TenantProvisioningRules
 
     private static bool IsAsciiLetterOrDigit(char character) =>
         character is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9';
-
 }

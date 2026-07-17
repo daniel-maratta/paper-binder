@@ -11,6 +11,7 @@ import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { DataTable, type DataTableColumn, type DataTableRow } from "../components/ui/table";
+import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
 import type { TenantHostErrorViewModel } from "./tenant-host-errors";
 import { mapTenantHostError } from "./tenant-host-errors";
 import {
@@ -50,6 +51,37 @@ function formatContentTypeLabel(contentType: string) {
   return contentType;
 }
 
+function resolveSupersededDocumentLabel(
+  documents: readonly DocumentSummary[],
+  supersedesDocumentId: string | null,
+  onCopyUnknownDocumentId: (documentId: string) => void
+): ReactNode {
+  if (supersedesDocumentId === null) {
+    return "None";
+  }
+
+  const supersededDocument = documents.find((document) => document.documentId === supersedesDocumentId);
+  if (supersededDocument === undefined) {
+    return (
+      <CopyValueChip
+        compact
+        label="superseded document id"
+        onCopy={() => {
+          onCopyUnknownDocumentId(supersedesDocumentId);
+        }}
+        value={supersedesDocumentId}
+      />
+    );
+  }
+
+  return (
+    <div>
+      <p className="pb-auth-list-title">{supersededDocument.title}</p>
+      <p className="pb-auth-list-meta">{formatDateTime(supersededDocument.createdAt)}</p>
+    </div>
+  );
+}
+
 function BinderPolicyCard({
   binderId
 }: {
@@ -65,6 +97,12 @@ function BinderPolicyCard({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mode, setMode] = useState<BinderPolicy["mode"]>("inherit");
   const [allowedRoles, setAllowedRoles] = useState<TenantRole[]>([]);
+  const sortedAllowedRoles = [...allowedRoles].sort();
+  const sortedPolicyRoles = [...(policy?.allowedRoles ?? [])].sort();
+  const isDirty =
+    policy !== null &&
+    (mode !== policy.mode || JSON.stringify(sortedAllowedRoles) !== JSON.stringify(sortedPolicyRoles));
+  const isInvalidRestrictedRoleSelection = mode === "restricted_roles" && allowedRoles.length === 0;
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -150,7 +188,7 @@ function BinderPolicyCard({
       <div className="pb-auth-panel-header">
         <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Binder access</h3>
         <p className="pb-auth-panel-copy">
-          Tenant admins can switch between inherited access and exact-role allow lists for this binder.
+          Choose inherited workspace access or limit this binder to specific roles.
         </p>
       </div>
       <div className="pb-auth-panel-body">
@@ -162,8 +200,8 @@ function BinderPolicyCard({
           <form className="pb-auth-form-stack" onSubmit={handleSubmit}>
             <Field
               error={fieldErrors.binderPolicy}
-              hint="Use inherited access for normal behavior, or restrict the binder to exact roles."
-              label="Policy mode"
+              hint="Keep inherited access for normal behavior, or limit the binder to a specific set of roles."
+              label="Access mode"
             >
               <select
                 disabled={isSubmitting}
@@ -175,15 +213,15 @@ function BinderPolicyCard({
                 }}
                 value={mode}
               >
-                <option value="inherit">Inherit tenant role access</option>
-                <option value="restricted_roles">Restrict to selected roles</option>
+                <option value="inherit">Use workspace role access</option>
+                <option value="restricted_roles">Limit to selected roles</option>
               </select>
             </Field>
 
             <fieldset className="space-y-3">
               <legend className="text-sm font-medium text-[var(--pb-color-text)]">Allowed roles</legend>
               <p className="pb-auth-panel-copy">
-                Exact role evaluation applies. Restricting a binder does not treat roles as interchangeable.
+                Only the selected roles can open this binder.
               </p>
               <div className="pb-auth-checkbox-list">
                 {roleOptions.map((role) => (
@@ -203,11 +241,15 @@ function BinderPolicyCard({
             <TenantHostErrorNotice error={submitError} />
             {submitSuccess ? (
               <Alert variant="success">
-                <AlertTitle>Binder policy saved.</AlertTitle>
-                <AlertBody>The binder now reflects the latest server-confirmed policy.</AlertBody>
+                <AlertTitle>Binder access saved.</AlertTitle>
+                <AlertBody>The binder now reflects the latest confirmed access rules.</AlertBody>
               </Alert>
             ) : null}
-            <Button isLoading={isSubmitting} type="submit">
+            <Button
+              disabled={!isDirty || isInvalidRestrictedRoleSelection || isSubmitting}
+              isLoading={isSubmitting}
+              type="submit"
+            >
               Save policy
             </Button>
           </form>
@@ -219,7 +261,7 @@ function BinderPolicyCard({
 
 export function BinderDetailPage() {
   const { binderId = "" } = useParams();
-  const { apiClient, impersonation } = useTenantShellContext();
+  const { apiClient, impersonation, showToast } = useTenantShellContext();
   const [binder, setBinder] = useState<BinderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
@@ -230,6 +272,10 @@ export function BinderDetailPage() {
   const [createError, setCreateError] = useState<TenantHostErrorViewModel | null>(null);
   const [createdDocument, setCreatedDocument] = useState<DocumentDetail | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const documentTitleLength = documentTitle.length;
+  const isDocumentTitleTooLong = documentTitleLength > 200;
+  const canSubmitDocument =
+    documentTitle.trim().length > 0 && documentContent.trim().length > 0 && !isDocumentTitleTooLong;
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -271,6 +317,8 @@ export function BinderDetailPage() {
     const nextFieldErrors: DocumentFieldErrors = {};
     if (!documentTitle.trim()) {
       nextFieldErrors.documentTitle = "Document title is required.";
+    } else if (documentTitle.trim().length > 200) {
+      nextFieldErrors.documentTitle = "Document title must stay at or below 200 characters.";
     }
 
     if (!documentContent.trim()) {
@@ -338,6 +386,24 @@ export function BinderDetailPage() {
     }
   }
 
+  async function copyValue(label: string, value: string) {
+    const copied = await writeClipboardValue(value);
+    if (copied) {
+      showToast({
+        title: `${label} copied.`,
+        body: `${label} is ready to paste.`,
+        variant: "success"
+      });
+      return;
+    }
+
+    showToast({
+      title: `Could not copy ${label.toLowerCase()}.`,
+      body: "Clipboard access is not available in this browser session.",
+      variant: "warning"
+    });
+  }
+
   if (pageError !== null) {
     return (
       <TenantRouteFailureCard
@@ -357,7 +423,7 @@ export function BinderDetailPage() {
         <div className="pb-auth-panel-header">
           <p className="pb-auth-eyebrow">Binder detail</p>
           <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">Loading binder</h2>
-          <p className="pb-auth-panel-copy">PaperBinder is resolving binder detail and visible documents.</p>
+          <p className="pb-auth-panel-copy">PaperBinder is loading binder details and visible documents.</p>
         </div>
       </section>
     );
@@ -374,14 +440,14 @@ export function BinderDetailPage() {
     cells: [
       <div key={`${document.documentId}-title`}>
         <p className="pb-auth-list-title">{document.title}</p>
-        <p className="pb-auth-list-meta">{formatContentTypeLabel(document.contentType)}</p>
+        <p className="pb-auth-list-meta">
+          {formatContentTypeLabel(document.contentType)}
+        </p>
       </div>,
       formatDateTime(document.createdAt),
-      document.supersedesDocumentId ? (
-        <span className="pb-auth-code">{document.supersedesDocumentId}</span>
-      ) : (
-        "None"
-      ),
+      resolveSupersededDocumentLabel(binder.documents, document.supersedesDocumentId, (documentId) => {
+        void copyValue("Document ID", documentId);
+      }),
       <Button asChild key={`${document.documentId}-action`} type="button" variant="secondary">
         <Link to={`/app/documents/${document.documentId}`}>Open document</Link>
       </Button>
@@ -390,34 +456,48 @@ export function BinderDetailPage() {
 
   return (
     <div className="pb-auth-page">
+      <div className="flex flex-wrap gap-3">
+        <Button asChild type="button" variant="secondary">
+          <Link to="/app/binders">Back to binders</Link>
+        </Button>
+      </div>
+
       <section className="pb-auth-page-intro">
         <div>
           <p className="pb-auth-eyebrow">Binder detail</p>
           <h2 className="pb-auth-page-title">{binder.name}</h2>
-          <p className="pb-auth-page-copy">
-            Binder detail combines live binder metadata with the visible document summaries exposed by the current contract.
-          </p>
+          <p className="pb-auth-page-copy">Work with the documents currently available in this binder.</p>
         </div>
         <div className="pb-auth-summary-grid pb-auth-summary-grid--3">
           <DetailStat label="Visible documents" value={binder.documents.length.toString()} />
           <DetailStat label="Created" value={formatDateTime(binder.createdAt)} />
-          <DetailStat label="Binder id" value={<span className="pb-auth-code">{binder.binderId}</span>} />
+          <DetailStat
+            label="Binder id"
+            value={
+              <CopyValueChip
+                compact
+                label={`binder id for ${binder.name}`}
+                onCopy={() => {
+                  void copyValue("Binder ID", binder.binderId);
+                }}
+                value={binder.binderId}
+              />
+            }
+          />
         </div>
       </section>
 
       <div className="pb-auth-detail-grid">
         <section className="pb-auth-panel">
           <div className="pb-auth-panel-header">
-            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Visible documents</h3>
-            <p className="pb-auth-panel-copy">
-              Archived documents remain hidden from binder detail and stay readable only by direct document id.
-            </p>
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Documents</h3>
+            <p className="pb-auth-panel-copy">Open the documents currently visible in this binder.</p>
           </div>
           <div className="pb-auth-panel-body">
             <DataTable
-              caption="Visible binder documents"
+              caption="Binder documents"
               columns={documentColumns}
-              emptyMessage="No visible documents exist in this binder yet."
+              emptyMessage="No documents are visible in this binder yet."
               rows={documentRows}
             />
           </div>
@@ -429,18 +509,17 @@ export function BinderDetailPage() {
       <section className="pb-auth-panel">
         <div className="pb-auth-panel-header">
           <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Add document</h3>
-          <p className="pb-auth-panel-copy">
-            Document creation stays within the binder route and submits the current route binder id through the shared client.
-          </p>
+          <p className="pb-auth-panel-copy">Save a new immutable source document in this binder.</p>
         </div>
         <div className="pb-auth-panel-body">
           <form className="pb-auth-form-stack" onSubmit={handleCreateDocument}>
             <Field
               error={fieldErrors.documentTitle}
-              hint="PaperBinder v1 keeps document titles between 1 and 200 characters."
+              hint="Up to 200 characters."
               label="Document title"
             >
               <input
+                aria-invalid={isDocumentTitleTooLong}
                 disabled={isCreating}
                 onChange={(event) => {
                   setDocumentTitle(event.target.value);
@@ -455,10 +534,13 @@ export function BinderDetailPage() {
                 value={documentTitle}
               />
             </Field>
+            <p className={`pb-auth-character-count${isDocumentTitleTooLong ? " pb-auth-character-count--invalid" : ""}`}>
+              {documentTitleLength}/200
+            </p>
             <Field
               error={fieldErrors.documentContent}
-              hint="Markdown only. Content stays immutable after creation in v1."
-              label="Markdown content"
+              hint="Markdown supported."
+              label="Document source"
             >
               <textarea
                 className="min-h-48"
@@ -477,7 +559,7 @@ export function BinderDetailPage() {
             </Field>
             <Field
               error={fieldErrors.documentSupersedesDocumentId}
-              hint="Optional. Choose a visible document that this new version supersedes."
+              hint="Optional. Link this document to an earlier visible document in the same binder."
               label="Supersedes"
             >
               <select
@@ -503,7 +585,7 @@ export function BinderDetailPage() {
             <TenantHostErrorNotice error={createError} />
             {createdDocument ? (
               <Alert variant="success">
-                <AlertTitle>Document created.</AlertTitle>
+                <AlertTitle>Document added.</AlertTitle>
                 <AlertBody>{createdDocument.title} is now available in this binder.</AlertBody>
                 <div className="mt-3">
                   <Button asChild type="button" variant="secondary">
@@ -512,8 +594,8 @@ export function BinderDetailPage() {
                 </div>
               </Alert>
             ) : null}
-            <Button isLoading={isCreating} type="submit">
-              Create document
+            <Button disabled={!canSubmitDocument || isCreating} isLoading={isCreating} type="submit">
+              Add document
             </Button>
           </form>
         </div>

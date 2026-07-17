@@ -1,5 +1,5 @@
 # Accessibility
-Status: V1 (Basic)
+Status: Current baseline with required post-upgrade audit
 
 V1 targets baseline accessibility for primary demo flows.
 
@@ -10,6 +10,7 @@ V1 targets baseline accessibility for primary demo flows.
 - Proper labels for form fields.
 - Meaningful button and link text.
 - Error messaging that is not color-only.
+- Toast notifications that remain keyboard reachable and manually dismissible.
 
 ## Validation Approach
 
@@ -24,10 +25,15 @@ V1 targets baseline accessibility for primary demo flows.
   - logout
 - Quick screen-reader sanity check (best effort).
 
+## Upgrade Posture
+
+- During the UI/UX upgrade, preserve this baseline rather than widening scope mid-slice.
+- After the visual/content upgrade is complete, run a broader accessibility audit and remediation pass across the changed public and authenticated surfaces.
+
 ## Non-goals
 
 - Formal WCAG certification in V1.
-- Full accessibility audit program.
+- Full accessibility audit program before the UI/UX upgrade lands.
 
 ## Alternatives Considered
 

@@ -13,11 +13,11 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    "border-[var(--pb-action-primary)] bg-[var(--pb-action-primary)] text-white hover:-translate-y-px hover:border-[var(--pb-action-primary-hover)] hover:bg-[var(--pb-action-primary-hover)] active:translate-y-0 active:border-[var(--pb-action-primary-active)] active:bg-[var(--pb-action-primary-active)]",
+    "!text-white border-[var(--pb-action-primary)] bg-[var(--pb-action-primary)] shadow-[0_4px_10px_rgba(15,23,42,0.18)] hover:border-[var(--pb-action-primary-hover)] hover:bg-[var(--pb-action-primary-hover)] active:border-[var(--pb-action-primary-active)] active:bg-[var(--pb-action-primary-active)] disabled:border-[#40506a] disabled:bg-[#40506a] disabled:!text-white",
   secondary:
-    "border-[var(--pb-border-subtle)] bg-[var(--pb-action-secondary)] text-[var(--pb-action-secondary-text)] hover:-translate-y-px hover:border-[var(--pb-border-strong)] hover:bg-[var(--pb-action-secondary-hover)] active:translate-y-0",
+    "!text-[var(--pb-action-secondary-text)] border-[var(--pb-border-subtle)] bg-[var(--pb-action-secondary)] hover:border-[var(--pb-border-strong)] hover:bg-[var(--pb-action-secondary-hover)] disabled:border-[#d5dee8] disabled:bg-[#f8fafc] disabled:!text-[#51657f]",
   danger:
-    "border-[var(--pb-status-danger)] bg-[var(--pb-status-danger)] text-white hover:-translate-y-px hover:border-[var(--pb-status-danger-text)] hover:bg-[var(--pb-status-danger-text)] active:translate-y-0"
+    "!text-white border-[var(--pb-status-danger)] bg-[var(--pb-status-danger)] hover:border-[var(--pb-status-danger-text)] hover:bg-[var(--pb-status-danger-text)] disabled:border-[#b96b69] disabled:bg-[#b96b69] disabled:!text-white"
 };
 
 export function Button({
@@ -32,7 +32,8 @@ export function Button({
   const Comp = asChild ? Slot : "button";
   const isDisabled = disabled || isLoading;
   const baseClassName = cn(
-    "inline-flex items-center justify-center gap-2 rounded-[calc(var(--pb-radius-md)-2px)] border px-4 py-2.5 text-sm font-semibold shadow-[0_18px_36px_-28px_rgba(20,34,53,0.48)] transition duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-focus-ring)] disabled:cursor-not-allowed disabled:opacity-60",
+    "inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] border px-4 py-2 text-sm font-semibold no-underline transition duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-focus-ring)] disabled:cursor-not-allowed disabled:shadow-none",
+    isDisabled ? "cursor-not-allowed" : null,
     buttonVariants[variant],
     className
   );

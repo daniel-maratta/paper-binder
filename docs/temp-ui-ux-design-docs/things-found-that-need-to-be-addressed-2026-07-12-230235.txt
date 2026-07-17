@@ -3,12 +3,14 @@ Things to address as of July 12th, 2026, 11:35 PM.
 Historical note
 - Active `v1.1` backlog tracking now lives in `docs/05-taskboard/v1-1-backlog.md`.
 - This file remains preserved as historical exploratory input and source material.
+- Do not use this file for current status, active sequencing, or task completion updates.
 
 Status
+- Historical snapshot only; current truth now lives in the canonical taskboard docs.
 - Tighten up the obvious AI funkiness in the implementation and copy.
-  - DONE for the first pass; continue the copy/quality pass later as part of close-out.
+  - DONE for the first pass; continue the broader final copy/quality pass later as part of close-out.
 - UI/UX/site copy updates.
-  - IN PROGRESS
+  - CLOSED in canon via `T-0036`.
 
 Batch 1 - Brand + UI polish only
 - Replace the current visual brand assets with the new set:

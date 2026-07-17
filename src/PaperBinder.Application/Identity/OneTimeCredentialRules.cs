@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 
 namespace PaperBinder.Application.Identity;
 
-public static class OneTimePasswordRules
+public static class OneTimeCredentialRules
 {
     public const int GeneratedPasswordLength = 20;
 
@@ -11,7 +11,7 @@ public static class OneTimePasswordRules
     private const string DigitAlphabet = "23456789";
     private const string PasswordAlphabet = LowercaseAlphabet + UppercaseAlphabet + DigitAlphabet;
 
-    public static string Generate()
+    public static string GenerateOneTimePassword()
     {
         var characters = new char[GeneratedPasswordLength];
         characters[0] = Pick(LowercaseAlphabet);

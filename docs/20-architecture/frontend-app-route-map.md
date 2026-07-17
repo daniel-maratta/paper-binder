@@ -1,5 +1,5 @@
 # Frontend App Route Map
-Status: V1 (Implementation Contract)
+Status: Current (V1.1.0 presentation-aligned implementation contract)
 
 ## AI Summary
 
@@ -31,8 +31,9 @@ Root-host flows are live in CP13, tenant-host routes are live in CP14, and CP15 
 
 | Route | View Purpose | Primary API Calls | Auth Expectation | Notes |
 | --- | --- | --- | --- | --- |
-| `/` | Welcome/About + provision | `POST /api/provision` | Anonymous allowed | Live in CP13. Successful provision shows one-time generated credentials in a short-lived root-host handoff state, then navigates only after an explicit user action that uses the server-provided `redirectUrl`. |
-| `/login` | Dedicated login view | `POST /api/auth/login` | Anonymous allowed | Live in CP13. Login uses `email`, password, and challenge proof only; redirect uses the server-provided `redirectUrl`. |
+| `/` | Product-first public landing | none | Anonymous allowed | The landing page leads with product proof, public context, and the `Start Demo` entry. Supporting reviewer-facing material may be linked here as secondary content. |
+| `/start-demo` | Dedicated demo-entry flow for provision, login, and handoff | `POST /api/provision`; `POST /api/auth/login` | Anonymous allowed | Owns challenge-protected provisioning, direct-login affordances, and the one-time generated-credentials handoff state. Successful provision or login still navigates only through the server-provided `redirectUrl`. |
+| `/login` | Dedicated direct-login view | `POST /api/auth/login` | Anonymous allowed | Remains the direct login route and logout return target. Login uses `email`, password, and challenge proof only; redirect uses the server-provided `redirectUrl`. |
 | `/about` | Static product/repo context | none | Anonymous allowed | May be a route or in-page section. |
 
 ## Tenant Host Route Map
@@ -42,11 +43,11 @@ CP14 bootstraps the tenant shell through `GET /api/tenant/lease`, then layers pe
 
 | Route | View Purpose | Primary API Calls | Auth/Policy Expectation | Notes |
 | --- | --- | --- | --- | --- |
-| `/app` | Tenant home dashboard + lease visibility | `GET /api/tenant/lease`, `GET /api/tenant/impersonation`, `GET /api/binders` | Authenticated tenant member | Lease banner and active-impersonation banner are both shell-owned; dashboard shows reviewer-useful recent binders without a new backend aggregator endpoint. |
+| `/app` | Tenant home dashboard + lease visibility | `GET /api/tenant/lease`, `GET /api/tenant/impersonation`, `GET /api/binders` | Authenticated tenant member | Lease banner and active-impersonation banner are both shell-owned; dashboard shows product-first recent binder context without a new backend aggregator endpoint. |
 | `/app/binders` | Binders list + inline create | `GET /api/binders`, `POST /api/binders` | `BinderRead` for reads, `BinderWrite` for create | List is tenant-scoped only and omits restricted binders the caller cannot access. Binder creation lives on this route rather than on a separate create page. |
-| `/app/binders/:binderId` | Binder detail + document summaries + document create + binder policy | `GET /api/binders/{binderId}`, `POST /api/documents`, `GET /api/binders/{binderId}/policy`, `PUT /api/binders/{binderId}/policy` | `BinderRead` for reads, `TenantAdmin` for binder-policy management | Returns binder metadata plus visible `DocumentSummary[]`; archived documents stay hidden by default; document creation stays within the binder route. |
-| `/app/documents/:documentId` | Read-only document view | `GET /api/documents/{documentId}` | `BinderRead` | No in-place editing route in V1; archived documents remain directly readable by id; CP14 renders HTML-encoded safe markdown source rather than parsed or raw HTML. |
-| `/app/users` | Tenant user management + view-as start | `GET /api/tenant/users`, `POST /api/tenant/users`, `POST /api/tenant/users/{userId}/role`, `POST /api/tenant/impersonation` | `TenantAdmin` for user management, actor-side `TenantAdmin` for view-as start | Start affordance uses safe eligible/not-eligible copy only; non-admin effective sessions must receive safe forbidden behavior inside the current tenant shell. |
+| `/app/binders/:binderId` | Binder detail + document summaries + document create + binder lifecycle + binder policy | `GET /api/binders/{binderId}`, `PUT /api/binders/{binderId}`, `DELETE /api/binders/{binderId}`, `POST /api/documents`, `GET /api/binders/{binderId}/policy`, `PUT /api/binders/{binderId}/policy` | `BinderRead` for reads, `BinderWrite` for rename/delete, `TenantAdmin` for binder-policy management | Returns binder metadata plus visible `DocumentSummary[]`; archived documents stay hidden by default; document creation stays within the binder route; rename/delete remain tenant-scoped and still respect binder-local policy after endpoint authorization passes. |
+| `/app/documents/:documentId` | Read-only document view | `GET /api/documents/{documentId}` | `BinderRead` | No in-place editing route in V1; archived documents remain directly readable by id; the route defaults to a rendered markdown preview and allows switching to the stored source without introducing raw HTML support. |
+| `/app/users` | Tenant user management + view-as start | `GET /api/tenant/users`, `POST /api/tenant/users`, `POST /api/tenant/users/{userId}/role`, `DELETE /api/tenant/users/{userId}`, `POST /api/tenant/impersonation` | `TenantAdmin` for user management, actor-side `TenantAdmin` for view-as start | Users remain on this single route. Create-user, role-change, delete, owner-badge context, and `View as` work appear as same-route panels rather than separate management routes. User creation sends only email plus role and receives a one-time server-generated password handoff in the `201` response. Start affordance uses safe eligible/not-eligible copy only; non-admin effective sessions must receive safe forbidden behavior inside the current tenant shell. |
 
 ## Route-Linked Actions (Non-Route Endpoints)
 
@@ -63,6 +64,7 @@ These are action endpoints triggered from multiple views rather than dedicated p
 - Successful provisioning keeps the authenticated cookie flow, but generated credentials stay in transient in-memory root-host UI state only until the user explicitly continues to the tenant host.
 - Tenant context is server-resolved from host + membership; client tenant hints are ignored for authorization.
 - Root-host challenge wrapper markup is browser-owned and must provide label, helper/error association, keyboard reachability, and visible state messaging around the provider surface.
+- Public route composition may change for presentation reasons, but redirect trust, challenge ownership, and the underlying auth/provision API boundaries remain server-authoritative.
 - Tenant-host route access failure behavior:
   - `403`: tenant membership/policy failure
   - `404`: unknown or already-purged tenant/resource

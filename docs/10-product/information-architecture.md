@@ -1,19 +1,21 @@
 # Information Architecture
-Status: V1
+Status: Current (V1.1.0 presentation-aligned)
 
 This document defines top-level pages and navigation for the demo.
 
 ## Root Host (`paperbinder.danielmaratta.com`)
 
 Primary views:
-- Welcome/About
-- Challenge widget
+- Product-first landing
+- Start Demo flow
 - Login
-- Provision tenant
-- Provisioning handoff (one-time credentials + continue to tenant)
+- About
+- Reviewer-support content (secondary public path or section)
 
 Navigation:
+- Start Demo
 - About
+- Reviewer Notes (secondary)
 - Repo (external link)
 - Login/Logout (contextual)
 
@@ -23,18 +25,20 @@ Primary views:
 - Home dashboard (includes lease status)
 - Binders list
 - Binder detail (documents list)
-- Document view (read-only)
-- Tenant users (admin-only)
+- Document details with rendered preview + source toggle (read-only)
+- Users and access (admin-only)
 
 Navigation:
 - Home
 - Binders
+- Users
 - Account/Logout
 
 ## Cross-Cutting UI Elements
 
-- Always-visible lease indicator in tenant shell.
-- Expiration warning threshold near end of lease.
+- Always-visible time-remaining indicator in tenant shell.
+- Top-of-page lease-extension banner only when the server reports the extension window is open.
+- Users management actions stay on `/app/users` through same-route expandable panels.
 - Safe expired/not-found page for invalid or expired tenant host.
 
 ## Alternatives Considered

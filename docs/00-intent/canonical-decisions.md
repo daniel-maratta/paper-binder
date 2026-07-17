@@ -84,7 +84,7 @@ Tenant lease:
 - Extension allowed only when remaining lease is <= 10 minutes
 - Each extension adds +10 minutes
 - Maximum 3 extensions per tenant
-- Cleanup becomes eligible 5 minutes after expiry and is expected to complete within that window
+- Cleanup is eventual after expiry and may defer purge while recent authenticated tenant-host activity is still inside the configured retention window
 - Worker runs on a fixed cadence (target: every 1 minute)
 
 Database enforcement:

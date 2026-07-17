@@ -19,6 +19,7 @@ internal static class TestRuntimeConfiguration
             [PaperBinderConfigurationKeys.LeaseExtensionMinutes] = "10",
             [PaperBinderConfigurationKeys.LeaseMaxExtensions] = "3",
             [PaperBinderConfigurationKeys.LeaseCleanupIntervalSeconds] = "60",
+            [PaperBinderConfigurationKeys.LeaseRecentActivityGraceSeconds] = "180",
             [PaperBinderConfigurationKeys.RateLimitPreAuthPerMinute] = "30",
             [PaperBinderConfigurationKeys.RateLimitAuthenticatedPerMinute] = "120",
             [PaperBinderConfigurationKeys.RateLimitLeaseExtendPerMinute] = "10",

@@ -18,17 +18,18 @@ function TenantNotFoundPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Route not available on this tenant host</CardTitle>
+        <CardTitle>This workspace page is unavailable</CardTitle>
         <CardDescription>
-          Unknown tenant-host routes stay inside the current tenant shell and do not infer new tenant identity.
+          Unknown tenant routes stay inside the current workspace shell and never infer a different tenant.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Alert variant="warning">
-          <AlertTitle>Known tenant routes</AlertTitle>
+          <AlertTitle>Use a known workspace route</AlertTitle>
           <AlertBody>
             <code>/app</code>, <code>/app/binders</code>, <code>/app/binders/:binderId</code>,{" "}
-            <code>/app/documents/:documentId</code>, and <code>/app/users</code> are the canonical tenant-host routes.
+            <code>/app/documents/:documentId</code>, and <code>/app/users</code> are the available workspace routes in
+            this demo.
           </AlertBody>
         </Alert>
       </CardContent>

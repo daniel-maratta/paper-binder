@@ -33,6 +33,7 @@
 - `PAPERBINDER_LEASE_DEFAULT_MINUTES=60`
 - `PAPERBINDER_LEASE_EXTENSION_MINUTES=10`
 - `PAPERBINDER_LEASE_MAX_EXTENSIONS=3`
+- `PAPERBINDER_LEASE_RECENT_ACTIVITY_GRACE_SECONDS=180`
 - `PAPERBINDER_CHALLENGE_SITE_KEY=<public-site-key>`
 - `PAPERBINDER_CHALLENGE_SECRET_KEY=<secret>`
 - `PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE=30`
@@ -67,6 +68,7 @@ Production is indexable by default. Shared test remains intentionally non-indexa
 
 `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the lease-extension eligibility threshold and the number of minutes added on success.
 No separate `PAPERBINDER_LEASE_EXTENSION_WINDOW_*` key exists in v1.
+`PAPERBINDER_LEASE_RECENT_ACTIVITY_GRACE_SECONDS` controls how long cleanup defers purging an already-expired tenant after the latest authenticated tenant-host activity is observed.
 
 `PAPERBINDER_AUDIT_RETENTION_MODE` must be exactly one supported mode:
 - `PurgeTenantAudit`

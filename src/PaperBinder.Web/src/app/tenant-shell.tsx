@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useEffectEvent, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useOutletContext } from "react-router-dom";
+import packageJson from "../../package.json";
 import {
   PaperBinderApiError,
   type PaperBinderApiClient,
@@ -9,14 +10,15 @@ import {
 } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
+import { Toast, ToastViewport } from "../components/ui/toast";
 import { cn } from "../lib/cn";
+import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
 import type { TenantHostContext } from "./host-context";
 import { tenantNavigationItems } from "./route-registry";
 import {
   mapTenantHostError,
   type TenantHostErrorViewModel
 } from "./tenant-host-errors";
-import { TenantImpersonationBanner } from "./tenant-impersonation-banner";
 import { TenantLeaseBanner } from "./tenant-lease-banner";
 
 export type TenantShellOutletContext = {
@@ -27,6 +29,26 @@ export type TenantShellOutletContext = {
   impersonation: TenantImpersonationStatus;
   startImpersonation: (userId: string) => Promise<TenantImpersonationStatus>;
   stopImpersonation: () => Promise<TenantImpersonationStatus>;
+  showToast: (toast: TenantShellToastInput) => void;
+};
+
+type TenantShellToastVariant = "info" | "success" | "warning" | "danger";
+
+export type TenantShellToastInput = {
+  title: string;
+  body: string;
+  variant?: TenantShellToastVariant;
+};
+
+type TenantShellToast = TenantShellToastInput & {
+  id: string;
+  variant: TenantShellToastVariant;
+};
+
+type ToastDismissState = {
+  timeoutId: number | null;
+  remainingMs: number;
+  startedAt: number | null;
 };
 
 type TenantBootstrapViewModel = {
@@ -34,9 +56,11 @@ type TenantBootstrapViewModel = {
   detail: string;
   correlationId: string | null;
   retryAfterLabel: string | null;
+  showSignInAction: boolean;
 };
 
 export const roleOptions: readonly TenantRole[] = ["TenantAdmin", "BinderWrite", "BinderRead"];
+const toastAutoDismissMs = 5000;
 
 export type TenantHostNavigator = (redirectUrl: string) => void;
 
@@ -88,53 +112,156 @@ export function hasUsersDashboardAccess(impersonation: TenantImpersonationStatus
   return canManageWorkspaceUsers(impersonation.effective.role);
 }
 
-function calculateCountdownSeconds(expiresAt: string): number {
-  const millisecondsRemaining = Date.parse(expiresAt) - Date.now();
-  if (!Number.isFinite(millisecondsRemaining)) {
+function normalizeCountdownSeconds(secondsRemaining: number): number {
+  if (!Number.isFinite(secondsRemaining)) {
     return 0;
   }
 
-  return Math.max(0, Math.ceil(millisecondsRemaining / 1000));
+  return Math.max(0, Math.ceil(secondsRemaining));
 }
 
 function toRootLoginUrl(rootUrl: string): string {
   return new URL("/login", rootUrl).toString();
 }
 
-function createUnavailableBootstrapViewModel(
-  error: PaperBinderApiError | null
-): TenantBootstrapViewModel {
-  const mappedError = error === null ? null : mapTenantHostError(error);
+function toRootHomeUrl(rootUrl: string): string {
+  return new URL("/", rootUrl).toString();
+}
 
-  return {
-    title: "Workspace unavailable",
-    detail:
-      "This workspace is unavailable or inaccessible from the current tenant host. Return to the root host and try again.",
-    correlationId: mappedError?.correlationId ?? error?.correlationId ?? null,
-    retryAfterLabel: mappedError?.retryAfterLabel ?? null
-  };
+function isToastAutoDismissable(variant: TenantShellToastVariant): boolean {
+  return variant === "info" || variant === "success";
+}
+
+function isTerminalShellFailure(error: unknown): boolean {
+  if (!(error instanceof PaperBinderApiError)) {
+    return false;
+  }
+
+  return (
+    error.errorCode === "AUTHENTICATION_REQUIRED" ||
+    error.errorCode === "TENANT_FORBIDDEN" ||
+    error.errorCode === "TENANT_EXPIRED" ||
+    error.errorCode === "TENANT_NOT_FOUND"
+  );
+}
+
+function getStringProblemExtension(error: PaperBinderApiError, key: string): string | null {
+  const value = error.extensions?.[key];
+  return typeof value === "string" ? value : null;
 }
 
 function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
   if (error instanceof PaperBinderApiError) {
     switch (error.errorCode) {
-      case "TENANT_EXPIRED":
+      case "AUTHENTICATION_REQUIRED":
         return {
-          title: "Tenant expired",
-          detail: error.detail ?? "This demo tenant has expired and can no longer serve tenant-host requests.",
+          title: "Authentication required",
+          detail: error.detail ?? "Sign in again from the main site before returning to this workspace.",
           correlationId: error.correlationId,
-          retryAfterLabel: null
+          retryAfterLabel: null,
+          showSignInAction: true
         };
-      default:
-        return createUnavailableBootstrapViewModel(error);
+      case "TENANT_FORBIDDEN":
+        return {
+          title: "Workspace access denied",
+          detail: error.detail ?? "This session is not allowed to open the requested workspace.",
+          correlationId: error.correlationId,
+          retryAfterLabel: null,
+          showSignInAction: false
+        };
+      case "TENANT_EXPIRED":
+        if (getStringProblemExtension(error, "terminalTenantState") === "expired_retained_recent_activity") {
+          return {
+            title: "Demo expired",
+            detail:
+              "This demo workspace has expired. PaperBinder is keeping it briefly because there was recent activity, but access is already closed and cleanup will remove it soon.",
+            correlationId: error.correlationId,
+            retryAfterLabel: null,
+            showSignInAction: false
+          };
+        }
+
+        return {
+          title: "Demo expired",
+          detail: error.detail ?? "This demo workspace has expired and is no longer available.",
+          correlationId: error.correlationId,
+          retryAfterLabel: null,
+          showSignInAction: false
+        };
+      case "TENANT_NOT_FOUND":
+        return {
+          title: "Workspace unavailable",
+          detail: error.detail ?? "This workspace is not available from the current address.",
+          correlationId: error.correlationId,
+          retryAfterLabel: null,
+          showSignInAction: false
+        };
+      default: {
+        const mappedError = mapTenantHostError(error);
+        return {
+          title: error.status === 401 ? "Authentication required" : "Workspace could not be loaded",
+          detail: mappedError.detail,
+          correlationId: mappedError.correlationId,
+          retryAfterLabel: mappedError.retryAfterLabel,
+          showSignInAction: error.status === 401
+        };
+      }
     }
   }
 
-  return createUnavailableBootstrapViewModel(null);
+  return {
+    title: "Workspace could not be loaded",
+    detail: "PaperBinder could not load this workspace. Check your connection and try again in a moment.",
+    correlationId: null,
+    retryAfterLabel: null,
+    showSignInAction: false
+  };
 }
 
 export function useTenantShellContext() {
   return useOutletContext<TenantShellOutletContext>();
+}
+
+function CopyableCorrelationId({
+  correlationId
+}: {
+  correlationId: string;
+}) {
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "unavailable">("idle");
+
+  useEffect(() => {
+    if (copyState === "idle") {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCopyState("idle");
+    }, 1800);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [copyState]);
+
+  async function handleCopy() {
+    const copied = await writeClipboardValue(correlationId);
+    setCopyState(copied ? "copied" : "unavailable");
+  }
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-3">
+      <CopyValueChip
+        compact
+        label="correlation id"
+        onCopy={() => {
+          void handleCopy();
+        }}
+        value={correlationId}
+      />
+      {copyState === "copied" ? <span className="pb-auth-note">Copied.</span> : null}
+      {copyState === "unavailable" ? <span className="pb-auth-note">Clipboard unavailable.</span> : null}
+    </div>
+  );
 }
 
 export function TenantHostErrorNotice({ error }: { error: TenantHostErrorViewModel | null }) {
@@ -148,10 +275,10 @@ export function TenantHostErrorNotice({ error }: { error: TenantHostErrorViewMod
       <AlertBody>{error.detail}</AlertBody>
       {error.retryAfterLabel ? <AlertBody>{error.retryAfterLabel}</AlertBody> : null}
       {error.correlationId ? (
-        <AlertBody>
-          Correlation id:{" "}
-          <span className="font-mono text-xs uppercase tracking-[0.08em]">{error.correlationId}</span>
-        </AlertBody>
+        <div className="mt-1.5 text-sm leading-6">
+          <span>Correlation id:</span>
+          <CopyableCorrelationId correlationId={error.correlationId} />
+        </div>
       ) : null}
     </Alert>
   );
@@ -159,10 +286,12 @@ export function TenantHostErrorNotice({ error }: { error: TenantHostErrorViewMod
 
 function TenantBootstrapFailurePage({
   error,
-  rootLoginUrl
+  rootLoginUrl,
+  rootHomeUrl
 }: {
   error: TenantBootstrapViewModel;
   rootLoginUrl: string;
+  rootHomeUrl: string;
 }) {
   return (
     <div className="pb-auth-boot">
@@ -171,26 +300,31 @@ function TenantBootstrapFailurePage({
           <p className="pb-auth-eyebrow">Workspace routing</p>
           <h1 className="pb-auth-page-title">{error.title}</h1>
           <p className="pb-auth-panel-copy">
-            Tenant-host requests remain host-derived and server-authoritative even when bootstrap fails.
+            PaperBinder keeps workspace routing host-derived even when this workspace cannot be opened.
           </p>
         </div>
         <div className="pb-auth-panel-body">
           <Alert variant="danger">
-            <AlertTitle>Safe fallback only</AlertTitle>
+            <AlertTitle>Return to a safe starting point</AlertTitle>
             <AlertBody>{error.detail}</AlertBody>
             {error.retryAfterLabel ? <AlertBody>{error.retryAfterLabel}</AlertBody> : null}
             {error.correlationId ? (
-              <AlertBody>
-                Correlation id:{" "}
-                <span className="font-mono text-xs uppercase tracking-[0.08em]">{error.correlationId}</span>
-              </AlertBody>
+              <div className="mt-1.5 text-sm leading-6">
+                <span>Correlation id:</span>
+                <CopyableCorrelationId correlationId={error.correlationId} />
+              </div>
             ) : null}
           </Alert>
         </div>
         <div className="pb-auth-panel-actions">
           <Button asChild type="button">
-            <a href={rootLoginUrl}>Return to root-host login</a>
+            <a href={rootHomeUrl}>Return to main site</a>
           </Button>
+          {error.showSignInAction ? (
+            <Button asChild type="button" variant="secondary">
+              <a href={rootLoginUrl}>Return to sign in</a>
+            </Button>
+          ) : null}
         </div>
       </section>
     </div>
@@ -204,9 +338,7 @@ function TenantShellLoadingPage() {
         <div className="pb-auth-panel-header">
           <p className="pb-auth-eyebrow">Workspace loading</p>
           <h1 className="pb-auth-page-title">Loading tenant workspace</h1>
-          <p className="pb-auth-panel-copy">
-            PaperBinder is reloading the current tenant shell with the current host-derived context.
-          </p>
+          <p className="pb-auth-panel-copy">PaperBinder is loading the current workspace context.</p>
         </div>
       </section>
     </div>
@@ -225,7 +357,7 @@ export function TenantRouteFailureCard({
       <div className="pb-auth-panel-header">
         <p className="pb-auth-eyebrow">Route status</p>
         <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">{error.title}</h2>
-        <p className="pb-auth-panel-copy">PaperBinder kept the route inside the current tenant host.</p>
+        <p className="pb-auth-panel-copy">PaperBinder kept this route inside the current workspace.</p>
       </div>
       <div className="pb-auth-panel-body">
         <TenantHostErrorNotice error={error} />
@@ -233,6 +365,46 @@ export function TenantRouteFailureCard({
       {action ? <div className="pb-auth-panel-actions">{action}</div> : null}
     </section>
   );
+}
+
+function PaperBinderWordmark({ href }: { href: string }) {
+  return (
+    <a aria-label="PaperBinder home" href={href}>
+      <img alt="PaperBinder" className="pb-auth-brand-image" src="/brand/pb-full-logo-white.png" />
+    </a>
+  );
+}
+
+function TenantNavigationIcon({ path }: { path: string }) {
+  switch (path) {
+    case "/app":
+      return (
+        <svg aria-hidden="true" className="pb-auth-nav-icon" viewBox="0 0 24 24">
+          <rect height="6" rx="1.5" width="6" x="3" y="3" />
+          <rect height="6" rx="1.5" width="6" x="15" y="3" />
+          <rect height="6" rx="1.5" width="6" x="3" y="15" />
+          <rect height="6" rx="1.5" width="6" x="15" y="15" />
+        </svg>
+      );
+    case "/app/binders":
+      return (
+        <svg aria-hidden="true" className="pb-auth-nav-icon" viewBox="0 0 24 24">
+          <path d="M3.5 7.5h6l2 2h9v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
+          <path d="M3.5 7.5v-1a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v1" />
+        </svg>
+      );
+    case "/app/users":
+      return (
+        <svg aria-hidden="true" className="pb-auth-nav-icon" viewBox="0 0 24 24">
+          <circle cx="9" cy="8" r="3" />
+          <circle cx="17" cy="10" r="2.5" />
+          <path d="M4 18a5 5 0 0 1 10 0" />
+          <path d="M14 18a4 4 0 0 1 6 0" />
+        </svg>
+      );
+    default:
+      return null;
+  }
 }
 
 export function TenantShell({
@@ -253,9 +425,87 @@ export function TenantShell({
   const [isExtending, setIsExtending] = useState(false);
   const [isStoppingImpersonation, setIsStoppingImpersonation] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [toasts, setToasts] = useState<TenantShellToast[]>([]);
+  const [pausedToastIds, setPausedToastIds] = useState<string[]>([]);
   const location = useLocation();
   const previousPathRef = useRef(location.pathname);
+  const nextToastIdRef = useRef(0);
+  const toastDismissStateRef = useRef(new Map<string, ToastDismissState>());
+  const expiryRefreshAttemptedRef = useRef(false);
   const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl);
+  const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl);
+
+  function showToast({ title, body, variant = "info" }: TenantShellToastInput) {
+    setToasts((currentToasts) => [
+      ...currentToasts,
+      {
+        id: `tenant-toast-${nextToastIdRef.current++}`,
+        title,
+        body,
+        variant
+      }
+    ]);
+  }
+
+  function dismissToast(toastId: string) {
+    setToasts((currentToasts) => currentToasts.filter((toast) => toast.id !== toastId));
+    const dismissState = toastDismissStateRef.current.get(toastId);
+    if (dismissState !== undefined && dismissState.timeoutId !== null) {
+      window.clearTimeout(dismissState.timeoutId);
+    }
+
+    toastDismissStateRef.current.delete(toastId);
+    setPausedToastIds((currentIds) => currentIds.filter((currentId) => currentId !== toastId));
+  }
+
+  function scheduleToastDismiss(toastId: string) {
+    const dismissState = toastDismissStateRef.current.get(toastId);
+    if (dismissState === undefined) {
+      return;
+    }
+
+    if (dismissState.timeoutId !== null) {
+      window.clearTimeout(dismissState.timeoutId);
+    }
+
+    dismissState.startedAt = Date.now();
+    dismissState.timeoutId = window.setTimeout(() => {
+      setToasts((currentToasts) => currentToasts.filter((currentToast) => currentToast.id !== toastId));
+      toastDismissStateRef.current.delete(toastId);
+      setPausedToastIds((currentIds) => currentIds.filter((currentId) => currentId !== toastId));
+    }, dismissState.remainingMs);
+  }
+
+  function pauseToastDismiss(toastId: string) {
+    const dismissState = toastDismissStateRef.current.get(toastId);
+    if (dismissState === undefined || dismissState.timeoutId === null) {
+      return;
+    }
+
+    window.clearTimeout(dismissState.timeoutId);
+    dismissState.timeoutId = null;
+    dismissState.remainingMs = Math.max(
+      0,
+      dismissState.remainingMs - (Date.now() - (dismissState.startedAt ?? Date.now()))
+    );
+    dismissState.startedAt = null;
+    setPausedToastIds((currentIds) => (currentIds.includes(toastId) ? currentIds : [...currentIds, toastId]));
+  }
+
+  function resumeToastDismiss(toastId: string) {
+    const dismissState = toastDismissStateRef.current.get(toastId);
+    if (dismissState === undefined || dismissState.timeoutId !== null) {
+      return;
+    }
+
+    if (dismissState.remainingMs <= 0) {
+      dismissToast(toastId);
+      return;
+    }
+
+    setPausedToastIds((currentIds) => currentIds.filter((currentId) => currentId !== toastId));
+    scheduleToastDismiss(toastId);
+  }
 
   const refreshShellState = useEffectEvent(
     async ({ bootstrap = false, signal }: { bootstrap?: boolean; signal?: AbortSignal } = {}) => {
@@ -270,7 +520,7 @@ export function TenantShell({
 
         setLease(nextLease);
         setImpersonation(nextImpersonation);
-        setCountdownSeconds(calculateCountdownSeconds(nextLease.expiresAt));
+        setCountdownSeconds(normalizeCountdownSeconds(nextLease.secondsRemaining));
         setBootstrapError(null);
       } catch (error) {
         if (signal?.aborted) {
@@ -278,6 +528,12 @@ export function TenantShell({
         }
 
         if (bootstrap || lease === null || impersonation === null) {
+          setBootstrapError(createBootstrapViewModel(error));
+          return;
+        }
+
+        if (isTerminalShellFailure(error)) {
+          setShellError(null);
           setBootstrapError(createBootstrapViewModel(error));
           return;
         }
@@ -308,15 +564,73 @@ export function TenantShell({
       return;
     }
 
-    setCountdownSeconds(calculateCountdownSeconds(lease.expiresAt));
     const intervalId = window.setInterval(() => {
-      setCountdownSeconds(calculateCountdownSeconds(lease.expiresAt));
+      setCountdownSeconds((currentSeconds) => (currentSeconds > 0 ? currentSeconds - 1 : 0));
     }, 1000);
 
     return () => {
       window.clearInterval(intervalId);
     };
   }, [lease]);
+
+  useEffect(() => {
+    if (lease === null || bootstrapError !== null) {
+      return;
+    }
+
+    if (countdownSeconds > 0) {
+      expiryRefreshAttemptedRef.current = false;
+      return;
+    }
+
+    if (expiryRefreshAttemptedRef.current) {
+      return;
+    }
+
+    expiryRefreshAttemptedRef.current = true;
+    void refreshShellState();
+  }, [bootstrapError, countdownSeconds, lease, refreshShellState]);
+
+  useEffect(() => {
+    const activeToastIds = new Set(toasts.slice(0, 3).map((toast) => toast.id));
+
+    for (const [toastId, dismissState] of toastDismissStateRef.current.entries()) {
+      if (!activeToastIds.has(toastId)) {
+        if (dismissState.timeoutId !== null) {
+          window.clearTimeout(dismissState.timeoutId);
+        }
+
+        toastDismissStateRef.current.delete(toastId);
+      }
+    }
+
+    setPausedToastIds((currentIds) => currentIds.filter((toastId) => activeToastIds.has(toastId)));
+
+    for (const toast of toasts.slice(0, 3)) {
+      if (!isToastAutoDismissable(toast.variant) || toastDismissStateRef.current.has(toast.id)) {
+        continue;
+      }
+
+      toastDismissStateRef.current.set(toast.id, {
+        timeoutId: null,
+        remainingMs: toastAutoDismissMs,
+        startedAt: null
+      });
+      scheduleToastDismiss(toast.id);
+    }
+  }, [toasts]);
+
+  useEffect(() => {
+    return () => {
+      for (const dismissState of toastDismissStateRef.current.values()) {
+        if (dismissState.timeoutId !== null) {
+          window.clearTimeout(dismissState.timeoutId);
+        }
+      }
+
+      toastDismissStateRef.current.clear();
+    };
+  }, []);
 
   useEffect(() => {
     if (lease === null || impersonation === null || isBootstrapping) {
@@ -366,8 +680,14 @@ export function TenantShell({
     try {
       const nextLease = await apiClient.extendTenantLease();
       setLease(nextLease);
-      setCountdownSeconds(calculateCountdownSeconds(nextLease.expiresAt));
+      setCountdownSeconds(normalizeCountdownSeconds(nextLease.secondsRemaining));
     } catch (error) {
+      if (isTerminalShellFailure(error)) {
+        setShellError(null);
+        setBootstrapError(createBootstrapViewModel(error));
+        return;
+      }
+
       setShellError(mapTenantHostError(error));
     } finally {
       setIsExtending(false);
@@ -383,6 +703,12 @@ export function TenantShell({
       setImpersonation(nextImpersonation);
       return nextImpersonation;
     } catch (error) {
+      if (isTerminalShellFailure(error)) {
+        setShellError(null);
+        setBootstrapError(createBootstrapViewModel(error));
+        throw error;
+      }
+
       setShellError(mapTenantHostError(error));
       throw error;
     } finally {
@@ -420,22 +746,46 @@ export function TenantShell({
     return (
       <TenantBootstrapFailurePage
         error={bootstrapError ?? createBootstrapViewModel(null)}
+        rootHomeUrl={rootHomeUrl}
         rootLoginUrl={rootLoginUrl}
       />
     );
   }
 
+  const visibleToasts = toasts.slice(0, 3);
+  const queuedToastCount = Math.max(0, toasts.length - visibleToasts.length);
+  const isViewingAs = impersonation.isImpersonating;
+  const aboutUrl = new URL("/about", hostContext.environment.rootUrl).toString();
+
   return (
     <div className="pb-auth-shell">
+      {visibleToasts.length > 0 ? (
+        <ToastViewport hiddenCount={queuedToastCount}>
+          {visibleToasts.map((toast) => (
+            <Toast
+              body={toast.body}
+              key={toast.id}
+              onDismiss={() => dismissToast(toast.id)}
+              onDismissPause={() => pauseToastDismiss(toast.id)}
+              onDismissResume={() => resumeToastDismiss(toast.id)}
+              showTimeoutBar={isToastAutoDismissable(toast.variant)}
+              timeoutBarDurationMs={toastAutoDismissMs}
+              timeoutBarPaused={pausedToastIds.includes(toast.id)}
+              title={toast.title}
+              variant={toast.variant}
+            />
+          ))}
+        </ToastViewport>
+      ) : null}
       <div className="pb-auth-grid">
         <aside className="pb-auth-sidebar">
-          <div className="pb-auth-sidebar-panel">
-            <p className="pb-auth-sidebar-brand">PaperBinder</p>
-            <p className="pb-auth-sidebar-title">Workspace</p>
-            <p className="pb-auth-sidebar-copy">
-              Binders, immutable source documents, role-aware access, and live lease state.
-            </p>
+          <div className="pb-auth-sidebar-brandlockup">
+            <div className="pb-auth-sidebar-brand">
+              <PaperBinderWordmark href={rootHomeUrl} />
+            </div>
           </div>
+
+          <div className="pb-auth-sidebar-separator" />
 
           <nav aria-label="Workspace navigation" className="pb-auth-nav">
             {tenantNavigationItems.map((route) => (
@@ -450,43 +800,57 @@ export function TenantShell({
                 key={route.path}
                 to={route.path}
               >
+                <TenantNavigationIcon path={route.path} />
                 <span className="pb-auth-nav-label">{route.label}</span>
-                <span className="pb-auth-sidebar-nav-copy">{route.description}</span>
               </NavLink>
             ))}
           </nav>
 
-          <div className="pb-auth-sidebar-panel pb-auth-sidebar-panel--context">
-            <div className="pb-auth-sidebar-context-row">
-              <p className="pb-auth-sidebar-context-label">Workspace context</p>
+          <div className="pb-auth-sidebar-footer">
+            <div className="pb-auth-sidebar-footer-row">
+              <p className="pb-auth-sidebar-context-label">Copyright</p>
+              <p className="pb-auth-sidebar-context-value">&copy; 2026 PaperBinder</p>
             </div>
-            <div className="pb-auth-sidebar-context-row">
-              <p className="pb-auth-sidebar-context-label">Tenant slug</p>
-              <p className="pb-auth-sidebar-context-value">{hostContext.tenantSlug}</p>
-            </div>
-            <div className="pb-auth-sidebar-context-row">
-              <p className="pb-auth-sidebar-context-label">Current host</p>
+            <div className="pb-auth-sidebar-footer-row">
+              <p className="pb-auth-sidebar-context-label">Version</p>
               <p className="pb-auth-sidebar-context-value pb-auth-sidebar-context-value--host">
-                {hostContext.currentOrigin}
+                v{packageJson.version}
               </p>
             </div>
+            <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
+              About PaperBinder
+            </a>
           </div>
         </aside>
 
         <main className="pb-auth-main">
           <header className="pb-auth-header">
-            <div>
-              <p className="pb-auth-eyebrow">Current workspace</p>
-              <h1 className="pb-auth-header-title">Workspace</h1>
-              <p className="pb-auth-page-copy">
-                Review binders, immutable source documents, workspace access, and lease state inside the
-                current isolated tenant workspace.
-              </p>
+            <div className="pb-auth-header-account">
+              <div className="pb-auth-header-account-copy">
+                <p className="pb-auth-header-account-label">{isViewingAs ? "Viewing as" : "Logged in as"}</p>
+                <p className="pb-auth-header-account-value">
+                  {isViewingAs ? impersonation.effective.email : impersonation.actor.email}
+                </p>
+                {isViewingAs ? (
+                  <p className="pb-auth-header-account-meta">Signed in as {impersonation.actor.email}</p>
+                ) : null}
+              </div>
+              {isViewingAs ? (
+                <Button
+                  isLoading={isStoppingImpersonation}
+                  onClick={() => {
+                    void handleStopImpersonation();
+                  }}
+                  type="button"
+                  variant="danger"
+                >
+                  Stop impersonation
+                </Button>
+              ) : null}
             </div>
-
             <div className="pb-auth-header-actions">
               <div className="pb-auth-header-pill">
-                <p className="pb-auth-eyebrow">Tenant slug</p>
+                <p className="pb-auth-header-pill-label">Tenant</p>
                 <p className="pb-auth-header-pill-value">{hostContext.tenantSlug}</p>
               </div>
               <Button isLoading={isLoggingOut} onClick={() => void handleLogout()} type="button" variant="secondary">
@@ -496,11 +860,6 @@ export function TenantShell({
           </header>
 
           <div className="pb-auth-shell-body">
-            <TenantImpersonationBanner
-              impersonation={impersonation}
-              isStopping={isStoppingImpersonation}
-              onStop={handleStopImpersonation}
-            />
             {lease.canExtend ? (
               <TenantLeaseBanner
                 countdownSeconds={countdownSeconds}
@@ -519,7 +878,8 @@ export function TenantShell({
                   countdownSeconds,
                   impersonation,
                   startImpersonation: handleStartImpersonation,
-                  stopImpersonation: handleStopImpersonation
+                  stopImpersonation: handleStopImpersonation,
+                  showToast
                 } satisfies TenantShellOutletContext
               }
             />

@@ -68,19 +68,40 @@ public sealed class TenantLeaseLifecycleTests
         Assert.True(projected.CanExtend);
     }
 
-    [Theory]
-    [InlineData("2026-04-10T11:55:01Z", false)]
-    [InlineData("2026-04-10T11:55:00Z", true)]
-    [InlineData("2026-04-10T11:50:00Z", true)]
-    public void TenantLeaseRules_Should_AllowPurgeOnlyAfterCleanupRetentionWindow(
-        string expiresAtUtc,
-        bool expectedPurgeEligible)
+    [Fact]
+    public void TenantLeaseCleanupRules_Should_AllowPurge_When_TenantIsExpiredAndInactive()
     {
-        var purgeEligible = TenantLeaseRules.IsPurgeEligible(
-            DateTimeOffset.Parse(expiresAtUtc, System.Globalization.CultureInfo.InvariantCulture),
+        var canPurge = TenantLeaseCleanupRules.CanPurgeExpiredTenant(
+            DateTimeOffset.Parse("2026-04-10T11:59:00Z", System.Globalization.CultureInfo.InvariantCulture),
+            DateTimeOffset.Parse("2026-04-10T11:55:00Z", System.Globalization.CultureInfo.InvariantCulture),
+            TimeSpan.FromMinutes(3),
             DateTimeOffset.Parse("2026-04-10T12:00:00Z", System.Globalization.CultureInfo.InvariantCulture));
 
-        Assert.Equal(expectedPurgeEligible, purgeEligible);
+        Assert.True(canPurge);
+    }
+
+    [Fact]
+    public void TenantLeaseCleanupRules_Should_SkipPurge_When_TenantHasRecentAuthenticatedActivity()
+    {
+        var canPurge = TenantLeaseCleanupRules.CanPurgeExpiredTenant(
+            DateTimeOffset.Parse("2026-04-10T11:59:00Z", System.Globalization.CultureInfo.InvariantCulture),
+            DateTimeOffset.Parse("2026-04-10T11:58:30Z", System.Globalization.CultureInfo.InvariantCulture),
+            TimeSpan.FromMinutes(3),
+            DateTimeOffset.Parse("2026-04-10T12:00:00Z", System.Globalization.CultureInfo.InvariantCulture));
+
+        Assert.False(canPurge);
+    }
+
+    [Fact]
+    public void TenantLeaseCleanupRules_Should_SkipPurge_When_TenantIsNotExpired()
+    {
+        var canPurge = TenantLeaseCleanupRules.CanPurgeExpiredTenant(
+            DateTimeOffset.Parse("2026-04-10T12:01:00Z", System.Globalization.CultureInfo.InvariantCulture),
+            null,
+            TimeSpan.FromMinutes(3),
+            DateTimeOffset.Parse("2026-04-10T12:00:00Z", System.Globalization.CultureInfo.InvariantCulture));
+
+        Assert.False(canPurge);
     }
 
     [Fact]

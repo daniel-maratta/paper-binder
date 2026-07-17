@@ -1,5 +1,7 @@
 # UX Notes
-Status: V1
+Status: Historical shipped-reference (V1)
+
+This document remains useful for understanding the shipped V1 surface, but it is not forward direction for `v1.1.0` presentation work.
 
 ## Principles
 

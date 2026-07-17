@@ -29,7 +29,8 @@ Tenant identifiers in query/body/headers are not trusted for scoping.
 - Each extension adds 10 minutes.
 - Maximum 3 extensions.
 - Cleanup worker cadence target is every 1 minute.
-- Expired tenant data is hard-deleted with best-effort completion within 5 minutes of `expires_at`.
+- Expired tenants fail closed immediately at `expires_at`.
+- Expired tenant data is then hard-deleted by worker on a prompt best-effort basis, with brief deferral allowed while recent authenticated tenant-host activity remains inside the configured retention window.
 
 ## Cross-Tenant Access Policy
 

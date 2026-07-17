@@ -138,6 +138,11 @@ describe("root-host flows", () => {
     ).toHaveAttribute("src", "/presentation/dashboard-proof.png");
     expect(
       screen.getByRole("img", {
+        name: "PaperBinder start-demo flow shown in a handheld preview with one-time credentials and the live workspace handoff."
+      })
+    ).toHaveAttribute("src", "/presentation/start-demo-proof.png");
+    expect(
+      screen.getByRole("img", {
         name: "PaperBinder users and access page showing current users, add-user form, role management, and view-as actions."
       })
     ).toHaveAttribute("src", "/presentation/users-proof.png");
@@ -231,6 +236,32 @@ describe("root-host flows", () => {
     await waitFor(() => expect(writeText).toHaveBeenCalledWith("acme-demo"));
   });
 
+  it("Should_MaskProvisionedPasswordUntilReveal_When_PublicCredentialHandoffRenders", async () => {
+    installTurnstileStub();
+
+    renderRootRoute({
+      route: "/start-demo"
+    });
+
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
+      target: { value: "Acme Demo" }
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
+
+    await screen.findByRole("heading", { name: "Workspace ready." });
+
+    const passwordField = screen.getByLabelText("Password") as HTMLInputElement;
+    expect(passwordField).toHaveAttribute("type", "password");
+    expect(passwordField).toHaveValue("generated-password");
+
+    fireEvent.click(screen.getByRole("button", { name: "Show password" }));
+    expect(passwordField).toHaveAttribute("type", "text");
+
+    fireEvent.click(screen.getByRole("button", { name: "Hide password" }));
+    expect(passwordField).toHaveAttribute("type", "password");
+  });
+
   it("Should_ProvisionOrLogin_FromStartDemoFlow_When_ChallengeAndServerRedirectsSucceed", async () => {
     installTurnstileStub();
     const provisionMock = vi.fn(async () => createProvisionResponse());
@@ -297,6 +328,14 @@ describe("root-host flows", () => {
   });
 
   it("Should_RenderSafeRootHostErrors_When_ProvisionOrLoginReturnsProblemDetails", async () => {
+    const writeText = vi.fn(async () => undefined);
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText
+      }
+    });
+
     installTurnstileStub();
     const error = new PaperBinderApiError({
       message: "Conflict",
@@ -327,6 +366,10 @@ describe("root-host flows", () => {
     expect(await screen.findByRole("heading", { name: "Tenant name already exists." })).toBeInTheDocument();
     expect(screen.getAllByText("That tenant name is already in use.")).toHaveLength(2);
     expect(screen.getByText(/corr-conflict/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy correlation id" }));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith("corr-conflict"));
   });
 
   it("Should_ResetChallengeState_When_PreAuthSubmissionFails_AndRetryIsAllowed", async () => {

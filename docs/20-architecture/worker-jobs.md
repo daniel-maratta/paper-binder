@@ -7,16 +7,18 @@ Worker jobs enforce bounded lifecycle behavior for demo tenants.
 ## Expiry Cleanup Job (v1)
 
 - Cadence target: every 1 minute via `PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS`.
-- Selection rule: tenants with `ExpiresAt <= now - 5 minutes`.
+- Selection rule: tenants with `ExpiresAt <= now`.
+- Purge guard: expired tenants are skipped while `PAPERBINDER_LEASE_RECENT_ACTIVITY_GRACE_SECONDS` has not yet elapsed since the latest authenticated tenant-host activity.
 - Action: hard-delete tenant and all tenant-owned records in explicit system context.
 - Hard delete scope includes the tenant row, user memberships, current tenant-owned user records, binders, binder policies, and documents.
 - Selection and purge order must be deterministic and safe to retry.
 - Behavior must be idempotent.
-- SLA target: process expired tenants within 5 minutes of expiry (best effort).
+- SLA target: process expired tenants promptly after expiry (best effort), with brief deferral allowed for the recent-activity retention rule.
 
 ## Safety Rules
 
 - Cleanup must not delete active tenants.
+- Cleanup must not purge expired tenants that still show recent authenticated activity inside the configured grace window.
 - Cleanup queries must be deterministic and safe to retry.
 - Cross-tenant reads are allowed only for system-level expiry scanning.
 - Per-tenant purge work must use explicit transaction boundaries and FK-safe delete ordering.

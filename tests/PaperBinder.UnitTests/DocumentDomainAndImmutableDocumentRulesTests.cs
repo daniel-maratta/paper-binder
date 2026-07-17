@@ -120,19 +120,6 @@ public sealed class DocumentDomainAndImmutableDocumentRulesTests
     }
 
     [Fact]
-    public void DocumentProblemMapping_Should_MapAlreadyArchivedFailure_ToStableProblemContract()
-    {
-        var problem = PaperBinderDocumentProblemMapping.Map(
-            new DocumentFailure(
-                DocumentFailureKind.AlreadyArchived,
-                "The document is already archived."));
-
-        Assert.Equal(StatusCodes.Status409Conflict, problem.StatusCode);
-        Assert.Equal("Document already archived.", problem.Title);
-        Assert.Equal(PaperBinderErrorCodes.DocumentAlreadyArchived, problem.ErrorCode);
-    }
-
-    [Fact]
     public void DocumentProblemMapping_Should_MapTitleConflict_ToStableProblemContract()
     {
         var problem = PaperBinderDocumentProblemMapping.Map(
@@ -143,6 +130,19 @@ public sealed class DocumentDomainAndImmutableDocumentRulesTests
         Assert.Equal(StatusCodes.Status409Conflict, problem.StatusCode);
         Assert.Equal("Document title already exists.", problem.Title);
         Assert.Equal(PaperBinderErrorCodes.DocumentTitleConflict, problem.ErrorCode);
+    }
+
+    [Fact]
+    public void DocumentProblemMapping_Should_MapAlreadyArchivedFailure_ToStableProblemContract()
+    {
+        var problem = PaperBinderDocumentProblemMapping.Map(
+            new DocumentFailure(
+                DocumentFailureKind.AlreadyArchived,
+                "The document is already archived."));
+
+        Assert.Equal(StatusCodes.Status409Conflict, problem.StatusCode);
+        Assert.Equal("Document already archived.", problem.Title);
+        Assert.Equal(PaperBinderErrorCodes.DocumentAlreadyArchived, problem.ErrorCode);
     }
 
     [Fact]

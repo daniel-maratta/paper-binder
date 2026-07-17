@@ -158,12 +158,10 @@ export function createApiClientStub(overrides: Partial<PaperBinderApiClient> = {
     })) as PaperBinderApiClient["createDocument"],
     listTenantUsers: vi.fn(async () => []) as PaperBinderApiClient["listTenantUsers"],
     createTenantUser: vi.fn(async () => ({
-      user: {
-        userId: "user-1",
-        email: "owner@acme-demo.local",
-        role: "TenantAdmin",
-        isOwner: true
-      },
+      userId: "user-1",
+      email: "owner@acme-demo.local",
+      role: "TenantAdmin",
+      isOwner: true,
       credentials: {
         email: "owner@acme-demo.local",
         password: "generated-password"

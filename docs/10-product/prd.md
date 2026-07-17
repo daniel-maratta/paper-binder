@@ -111,7 +111,7 @@ All entities are tenant-scoped unless explicitly global.
 
 ### 6.1 Tenant Provisioning
 
-- A demo tenant can be provisioned from the landing page.
+- A demo tenant can be provisioned from the public `Start Demo` flow reached from the landing page.
 - Credentials are generated.
 - Tenant has a fixed lease duration (1 hour).
 - Tenant expiration timestamp is stored.
@@ -179,17 +179,19 @@ All entities are tenant-scoped unless explicitly global.
 ### 6.6 Tenant User Management
 
 - Tenant-admin browser flows expose tenant user list, create, and role-change behavior on tenant-host `/app/users`.
+- Tenant-admin user creation sends only email plus role; the server generates the temporary password and returns it once in the create response.
 - Non-admin callers must fail safely for tenant-admin-only user-management actions.
 
 ### 6.7 Lease and Cleanup
 
 - Each demo tenant has an expiration timestamp.
 - Background worker checks for expired tenants on a fixed cadence (target: every minute).
-- Expired tenants remain in the expired-but-not-purged `410` state until they reach the 5-minute cleanup threshold.
+- Expired tenants fail closed immediately and remain in the expired-but-not-purged `410` state until cleanup runs.
+- Cleanup may defer purging an expired tenant while recent authenticated tenant-host activity is still inside the configured retention window.
 - Expired tenants are hard-deleted.
 - Cleanup removes the tenant row, user memberships, tenant-owned user records, binders, binder policies, documents, and other current tenant-owned rows.
 - Cleanup is deterministic and idempotent.
-- SLA target: expired tenants are deleted within 5 minutes (best effort).
+- SLA target: expired tenants are deleted promptly after expiry (best effort), with brief deferral allowed for the recent-activity retention rule.
 
 ---
 

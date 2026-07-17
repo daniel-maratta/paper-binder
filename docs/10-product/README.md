@@ -14,9 +14,11 @@
 
 ## UX and Interaction Docs
 
+- `docs/10-product/presentation-contract-v1-1.md` `(Approved v1.1 presentation canon)`
+- `docs/10-product/presentation-adoption-plan-v1-1.md` `(Active planning under approved v1.1 canon)`
 - `docs/10-product/information-architecture.md`
-- `docs/10-product/ux-notes.md`
-- `docs/10-product/ui-style.md`
+- `docs/10-product/ux-notes.md` `(Historical shipped V1 UX reference during v1.1 implementation)`
+- `docs/10-product/ui-style.md` `(Historical shipped V1 presentation reference)`
 - `docs/10-product/accessibility.md`
-- `docs/10-product/ui-ux-contract-v1.md`
+- `docs/10-product/ui-ux-contract-v1.md` `(Historical shipped V1 presentation reference)`
 - `docs/10-product/component-specification-v1.md`

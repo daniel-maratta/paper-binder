@@ -9,7 +9,7 @@ As a visitor, I can provision a demo tenant and receive generated credentials so
 
 ### Acceptance Criteria
 - Given a valid provisioning request, `POST /api/provision` returns `201` and includes generated credentials, tenant subdomain, and redirect URL.
-- Root-host `/` owns the provisioning form and submits only `tenantName` plus `challengeToken` through the shared SPA client.
+- Root-host `/start-demo` owns the provisioning form and submits only `tenantName` plus `challengeToken` through the shared SPA client.
 - After provisioning succeeds, generated credentials are shown exactly once in a root-host handoff state and remain transient in memory only.
 - The handoff state keeps the user signed in and continues to the tenant host only when the user activates the explicit continue action that uses the server-provided `redirectUrl`.
 - Provision response includes `expiresAt` set to approximately 1 hour from provision time.
@@ -25,7 +25,7 @@ As a visitor, I can provision a demo tenant and receive generated credentials so
 ## Slice 2: Authentication
 
 ### User Story
-As a tenant user, I can log in from the landing page and be routed into my tenant context.
+As a tenant user, I can log in from the public demo-entry flow and be routed into my tenant context.
 
 ### Acceptance Criteria
 - Login succeeds with generated credentials from provisioning.
@@ -62,7 +62,7 @@ As a tenant user with permission, I can create and view binders within my tenant
 - `GET /api/binders/{id}` returns binder only when it belongs to current tenant and returns concrete visible document summaries in `documents`.
 - `GET /api/binders/{id}/policy` and `PUT /api/binders/{id}/policy` enforce tenant-admin policy management.
 - Deleting a binder removes its tenant-owned documents through the existing cascade path.
-- Binder policy payloads use `mode` plus exact-role `allowedRoles`, and any `restricted_roles` policy must include `TenantAdmin` so tenant-admin authority cannot be stranded accidentally.
+- Binder policy payloads use `mode` plus exact-role `allowedRoles`.
 - Unauthorized access returns `403`, while wrong-tenant or unknown binders return `404`.
 
 ## Slice 5: Documents (Immutable)
@@ -72,8 +72,7 @@ As a tenant user with permission, I can create and read immutable text documents
 
 ### Acceptance Criteria
 - `POST /api/documents` creates immutable text document in a tenant binder.
-- `POST /api/documents` trims title to 1-200 characters, requires exact `contentType=markdown`, requires non-whitespace content <= 50,000 characters, and accepts optional same-binder `SupersedesDocumentId`.
-- `POST /api/documents` enforces binder-local title uniqueness unless the new document supersedes an earlier same-title document in that binder.
+- `POST /api/documents` trims title to 1-200 characters, requires exact `contentType=markdown`, requires non-whitespace content <= 50,000 characters, accepts optional same-binder `SupersedesDocumentId`, and rejects duplicate binder-local titles unless the new document supersedes an earlier same-title document.
 - Tenant-host `/app/binders/{binderId}` owns document creation, and `/app/documents/{documentId}` owns read-only document detail in the browser.
 - `GET /api/documents` lists documents scoped to current tenant, omits restricted binders on unfiltered requests, and returns `403` when an explicit binder filter targets a same-tenant binder denied by binder-local policy.
 - `GET /api/documents/{id}` returns document only when tenant-scoped access is valid and still allows direct-id reads of archived documents.
@@ -91,11 +90,12 @@ As the platform, expired tenants are removed automatically so demo environments 
 
 ### Acceptance Criteria
 - Worker runs on fixed cadence (target: every minute).
-- Worker selects tenants where `ExpiresAt <= now - 5 minutes`.
+- Worker selects tenants where `ExpiresAt <= now`.
 - Worker hard-deletes expired tenants and tenant-owned data, including the tenant row, user memberships, tenant-owned users, binders, binder policies, and documents.
-- Cleanup is deterministic, idempotent, and leaves active tenants untouched.
-- Expired tenants are deleted within 5 minutes of lease expiry (best effort SLA).
-- Post-expiry API access before the cleanup threshold returns `410`.
+- Cleanup is deterministic, idempotent, leaves active tenants untouched, and skips recently active expired tenants until the configured recent-activity grace window has elapsed.
+- Expired tenants fail closed immediately at lease expiry and remain in the expired-but-not-purged `410` state until cleanup runs.
+- Cleanup is prompt best-effort after expiry, with brief deferral allowed for the recent-activity retention rule.
+- Post-expiry API access before purge returns `410`.
 - Post-expiry API access after purge returns `404`.
 
 ## Slice 7: Tenant User Management
@@ -105,13 +105,10 @@ As a tenant admin, I can manage tenant users and assign roles without crossing t
 
 ### Acceptance Criteria
 - `GET /api/tenant/users` returns only users for the current tenant.
-- `POST /api/tenant/users` creates a tenant-scoped user with an initial role and returns server-generated one-time credentials exactly once in the create response.
+- `POST /api/tenant/users` creates a tenant-scoped user with an initial role and returns one-time server-generated credentials.
 - `POST /api/tenant/users/{userId}/role` changes role only for tenant-scoped users.
-- `DELETE /api/tenant/users/{userId}` deletes only tenant-scoped users and removes their current tenant-owned identity record.
-- Tenant-host `/app/users` exposes list, create, role-change, and delete behavior only for `TenantAdmin`, and shows the generated one-time credentials only in the immediate post-create handoff state.
+- Tenant-host `/app/users` exposes list, create, and role-change behavior only for `TenantAdmin`.
 - Attempting to demote the last remaining tenant admin returns `409`.
-- Attempting to delete the last remaining tenant admin returns `409`.
-- Attempting to delete the last remaining tenant owner returns `409`.
 - Non-admin callers receive `403` for tenant user-management routes.
 
 ## Slice 8: Tenant-Local Impersonation

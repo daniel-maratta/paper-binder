@@ -13,4 +13,6 @@ internal sealed class TenantStorageModel
     public DateTimeOffset ExpiresAtUtc { get; set; }
 
     public int LeaseExtensionCount { get; set; }
+
+    public DateTimeOffset? LastAuthenticatedActivityAtUtc { get; set; }
 }

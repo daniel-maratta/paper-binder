@@ -70,7 +70,10 @@ internal static class PaperBinderTenantUserEndpoints
 
         context.Response.StatusCode = StatusCodes.Status201Created;
         await context.Response.WriteAsJsonAsync(
-            PaperBinderTenantUserResponseMapping.MapCreated(outcome.CreatedUser!),
+            PaperBinderTenantUserResponseMapping.MapCreated(
+                outcome.User!,
+                outcome.GeneratedPassword
+                ?? throw new InvalidOperationException("Created tenant-user responses require a generated password.")),
             cancellationToken);
     }
 

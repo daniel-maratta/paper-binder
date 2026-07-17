@@ -105,7 +105,8 @@ Worker:
 - Runs on a fixed cadence from `PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS`.
 - Selects expired tenants in deterministic order and deletes the tenant row, user memberships, tenant-owned user records, binders, binder policies, and documents.
 - Must be idempotent and retry-safe.
-- SLA target: expired tenants are hard-deleted within 5 minutes (best effort).
+- Expired tenants fail closed immediately at expiry.
+- Cleanup is prompt best-effort after expiry and may briefly defer purge while recent authenticated tenant-host activity remains inside the configured retention window.
 
 Operational probes:
 - `GET /health/live` (anonymous, minimal payload)

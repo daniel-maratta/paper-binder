@@ -54,8 +54,8 @@ describe("app router", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("heading", { name: "Host context is not recognized" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Safe fallback only" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "This PaperBinder address is unavailable" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Use a known PaperBinder address" })).toBeInTheDocument();
     expect(screen.getByText("unexpected.example.net")).toBeInTheDocument();
     expect(apiClient.getTenantLease).not.toHaveBeenCalled();
   });

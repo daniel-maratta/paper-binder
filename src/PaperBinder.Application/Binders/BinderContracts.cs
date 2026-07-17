@@ -87,25 +87,6 @@ public sealed record BinderDetailOutcome(
     public static BinderDetailOutcome Failed(BinderFailure failure) => new(false, null, failure);
 }
 
-public sealed record BinderRenameOutcome(
-    bool Succeeded,
-    BinderSummary? Binder,
-    BinderFailure? Failure)
-{
-    public static BinderRenameOutcome Success(BinderSummary binder) => new(true, binder, null);
-
-    public static BinderRenameOutcome Failed(BinderFailure failure) => new(false, null, failure);
-}
-
-public sealed record BinderDeleteOutcome(
-    bool Succeeded,
-    BinderFailure? Failure)
-{
-    public static BinderDeleteOutcome Success() => new(true, null);
-
-    public static BinderDeleteOutcome Failed(BinderFailure failure) => new(false, failure);
-}
-
 public sealed record BinderPolicyReadOutcome(
     bool Succeeded,
     BinderPolicy? Policy,
@@ -124,4 +105,23 @@ public sealed record BinderPolicyUpdateOutcome(
     public static BinderPolicyUpdateOutcome Success(BinderPolicy policy) => new(true, policy, null);
 
     public static BinderPolicyUpdateOutcome Failed(BinderFailure failure) => new(false, null, failure);
+}
+
+public sealed record BinderRenameOutcome(
+    bool Succeeded,
+    BinderSummary? Binder,
+    BinderFailure? Failure)
+{
+    public static BinderRenameOutcome Success(BinderSummary binder) => new(true, binder, null);
+
+    public static BinderRenameOutcome Failed(BinderFailure failure) => new(false, null, failure);
+}
+
+public sealed record BinderDeleteOutcome(
+    bool Succeeded,
+    BinderFailure? Failure)
+{
+    public static BinderDeleteOutcome Success() => new(true, null);
+
+    public static BinderDeleteOutcome Failed(BinderFailure failure) => new(false, failure);
 }

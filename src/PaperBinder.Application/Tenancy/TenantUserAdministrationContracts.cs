@@ -43,20 +43,19 @@ public sealed record TenantUserAdministrationFailure(
     string Detail,
     IReadOnlyList<string>? ValidationMessages = null);
 
-public sealed record CreatedTenantUser(
-    TenantUserSummary User,
-    string GeneratedPassword);
-
 public sealed record TenantUserCreateOutcome(
     bool Succeeded,
-    CreatedTenantUser? CreatedUser,
+    TenantUserSummary? User,
+    string? GeneratedPassword,
     TenantUserAdministrationFailure? Failure)
 {
-    public static TenantUserCreateOutcome Success(CreatedTenantUser createdUser) =>
-        new(true, createdUser, null);
+    public static TenantUserCreateOutcome Success(
+        TenantUserSummary user,
+        string generatedPassword) =>
+        new(true, user, generatedPassword, null);
 
     public static TenantUserCreateOutcome Failed(TenantUserAdministrationFailure failure) =>
-        new(false, null, failure);
+        new(false, null, null, failure);
 }
 
 public sealed record TenantUserRoleChangeOutcome(

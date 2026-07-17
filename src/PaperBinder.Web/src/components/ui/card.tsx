@@ -8,7 +8,7 @@ export function Card({
   return (
     <section
       className={cn(
-        "rounded-[var(--pb-radius-lg)] border border-[var(--pb-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(249,252,255,0.96))] p-5 shadow-[var(--pb-shadow-card)] sm:p-6",
+        "rounded-[12px] border border-[var(--pb-border-subtle)] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.08)] sm:p-6",
         className
       )}
       {...props}
@@ -17,7 +17,7 @@ export function Card({
 }
 
 export function CardHeader({ className, ...props }: ComponentPropsWithoutRef<"header">) {
-  return <header className={cn("space-y-1.5", className)} {...props} />;
+  return <header className={cn("space-y-2", className)} {...props} />;
 }
 
 export function CardTitle({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
@@ -39,7 +39,7 @@ export function CardDescription({
 }
 
 export function CardContent({ className, ...props }: ComponentPropsWithoutRef<"div">) {
-  return <div className={cn("mt-4 space-y-4", className)} {...props} />;
+  return <div className={cn("mt-5 space-y-4", className)} {...props} />;
 }
 
 export function CardFooter({ className, ...props }: ComponentPropsWithoutRef<"footer">) {
@@ -58,7 +58,7 @@ export function CardMeta({
   return (
     <div
       className={cn(
-        "rounded-[var(--pb-radius-md)] border border-[var(--pb-border-subtle)] bg-[linear-gradient(180deg,rgba(244,248,252,0.96),rgba(235,242,249,0.9))] px-4 py-3.5",
+        "rounded-[10px] border border-[var(--pb-border-subtle)] bg-[var(--pb-surface)] px-4 py-3.5",
         className
       )}
     >
