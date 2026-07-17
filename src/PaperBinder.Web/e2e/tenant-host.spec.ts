@@ -12,9 +12,7 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
 
   await page.getByRole("button", { name: "Extend lease" }).click();
   await expect(page.getByText(/1 of 3/)).toBeVisible();
-  await expect(
-    page.getByText(/when the remaining lease time enters the final extension window/i)
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Extend lease" })).not.toBeVisible();
 
   await page.getByRole("link", { name: /Binders/ }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Binders", exact: true })).toBeVisible();
@@ -42,7 +40,7 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
   await expect(page.getByText("Document added.")).toBeVisible();
   await page.getByRole("link", { name: "Open document" }).last().click();
   await expect(page.getByRole("heading", { level: 2, name: "Runbook", exact: true })).toBeVisible();
-  await expect(page.getByText("# Runbook")).toBeVisible();
+  await expect(page.getByText("Tenant-host browser path")).toBeVisible();
   await page.getByRole("link", { name: "Back to binder" }).click();
 
   await page.getByRole("link", { name: /Users/ }).click();
@@ -52,16 +50,13 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
   await page.getByLabel("Role", { exact: true }).selectOption("BinderRead");
   await page.getByRole("button", { name: "Add user" }).click();
   await expect(page.getByText("User added.")).toBeVisible();
-  readerPassword = (
-    await page
-      .getByRole("button", { name: `Copy workspace password for ${readerEmail}` })
-      .textContent()
-  )?.trim() ?? "";
+  readerPassword = await page.getByRole("textbox", { name: "Workspace password", exact: true }).inputValue();
   expect(readerPassword).not.toBe("");
 
   await page.goto(tenantHostUrl(provisionedTenant.tenantSlug, "/app/binders"));
   await page.getByRole("link", { name: "Open binder", exact: true }).click();
   await page.getByLabel("Access mode").selectOption("restricted_roles");
+  await page.getByLabel("Tenant admin").check();
   await page.getByLabel("Binder read").check();
   await page.getByRole("button", { name: "Save policy" }).click();
   await expect(page.getByText("Binder access saved.")).toBeVisible();
@@ -96,8 +91,12 @@ test("Should_RenderExpiredTenantState_InBrowser_When_TenantLeaseHasExpired", asy
   expireTenant(provisionedTenant.tenantSlug);
   await page.goto(tenantHostUrl(provisionedTenant.tenantSlug, "/app"));
 
-  await expect(page.getByRole("heading", { level: 1, name: "Tenant expired", exact: true })).toBeVisible();
-  await expect(page.getByText(/safe fallback only/i)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Demo expired", exact: true })).toBeVisible();
+  await expect(
+    page.getByText(
+      /paperbinder is keeping it briefly because there was recent activity, but access is already closed and cleanup will remove it soon/i
+    )
+  ).toBeVisible();
 });
 
 test("Should_StartViewAsFromUsersRoute_AndReturnToAdminSession_InBrowser", async ({ page }) => {
