@@ -58,6 +58,7 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
 ## Current State
 - Active. `T-0034`, `T-0035`, and `T-0036` are complete enough that the remaining `v1.1` work is now the final validation and close-out lane.
 - Known carry-in items for this task already include the unrelated tenant-host users-route browser-form drift plus the broader build/browser/dependency warning review noted during the earlier slices.
+- Inventory refreshed on `2026-07-17`: Release build is currently clean (`0` warnings), the scripted frontend/unit/integration bundle passed, the browser E2E suite passed without reproducing tenant-host drift, NuGet vulnerability checks returned clean, and `npm audit` still reports one remaining frontend advisory cluster (`7` findings total: `4` high, `1` moderate, `2` low).
 
 ## Touch Points
 - `docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md`
@@ -76,7 +77,7 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
   6. release/merge/tag/deploy close-out preparation
 
 ## Next Action
-- Start with the close-out inventory: confirm whether the poison-pill item still applies, capture the remaining warning/advisory set, and then run the responsive plus accessibility passes before the final code/copy audit.
+- Confirm whether the poison-pill item still applies, then run the responsive plus accessibility passes and decide whether the remaining `npm audit` advisory cluster is remediated inside `T-0037` or split into explicit follow-up tracking before close-out.
 
 ## Validation Plan
 - Canonical build/test/browser/docs validation bundle
