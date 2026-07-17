@@ -1,7 +1,7 @@
 # T-0034: V1.1 API And Backend Carry-Forwards
 
 ## Status
-active
+done
 
 ## Type
 feature
@@ -16,7 +16,7 @@ agent
 2026-07-15
 
 ## Updated
-2026-07-15
+2026-07-17
 
 ## Checkpoint
 Cross-checkpoint
@@ -33,15 +33,15 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - Tenant isolation, tenant-host lifecycle safety, and admin-authoritative behavior remain non-negotiable.
 
 ## Acceptance Criteria
-- [ ] Binder rename exists as a tenant-scoped, server-authoritative endpoint and supporting application/infrastructure slice.
-- [ ] Binder delete exists as a tenant-scoped, server-authoritative endpoint and supporting application/infrastructure slice.
-- [ ] Tenant-user delete exists with last-admin and owner-safety rules that keep the API authoritative.
-- [ ] Admin authority over binders cannot be removed accidentally through binder-policy or role-selection mistakes.
-- [ ] Document-title uniqueness is enforced in the backend contract when the product rule remains "unique within a binder unless superseding the same-title predecessor."
-- [ ] Any in-scope `v1.1.x` document edit or supersede follow-on operations are either implemented or explicitly ruled out in canon/taskboard docs before work starts.
-- [ ] Generated tenant-user passwords come from the server, not from client-side generation logic.
-- [ ] Cleanup validation proves that active-lease tenants are never purged early and that the cleanup path still respects the intended expiry timing.
-- [ ] Targeted automated coverage exists for every behavior-changing slice landed under this task.
+- [x] Binder rename exists as a tenant-scoped, server-authoritative endpoint and supporting application/infrastructure slice.
+- [x] Binder delete exists as a tenant-scoped, server-authoritative endpoint and supporting application/infrastructure slice.
+- [x] Tenant-user delete exists with last-admin and owner-safety rules that keep the API authoritative.
+- [x] Admin authority over binders cannot be removed accidentally through binder-policy or role-selection mistakes.
+- [x] Document-title uniqueness is enforced in the backend contract when the product rule remains "unique within a binder unless superseding the same-title predecessor."
+- [x] Any in-scope `v1.1.x` document edit or supersede follow-on operations are either implemented or explicitly ruled out in canon/taskboard docs before work starts.
+- [x] Generated tenant-user passwords come from the server, not from client-side generation logic.
+- [x] Cleanup validation proves that active-lease tenants are never purged early and that the cleanup path still respects the intended expiry timing.
+- [x] Targeted automated coverage exists for every behavior-changing slice landed under this task.
 
 ## Dependencies
 - [T-0033](./T-0033-phase-4-1-v1-1-presentation-realignment.md)
@@ -58,7 +58,9 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - Escalation Notes: If document edit or supersede operations prove out of scope for `v1.1.x`, close that decision explicitly in canon/taskboard docs instead of leaving a vague placeholder.
 
 ## Current State
-- Active. The presentation tranche is complete enough that these backend seams are now the next product-facing gap and the current execution target for `v1.1`.
+- Historical slice outcome: the `v1.1` backend carry-forwards landed and were validated before merge.
+- Server-authoritative lifecycle endpoints, binder-policy admin-safety rules, backend document-title uniqueness, server-issued one-time credentials, and lease-cleanup retention validation are now part of current repo truth.
+- The remaining `v1.1` execution lane is `T-0037` final validation and close-out.
 
 ## Touch Points
 - `src/PaperBinder.Api/`
@@ -81,8 +83,7 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - Reconcile contracts and docs in the same change set as each behavior slice.
 
 ## Next Action
-- Start with the narrowest server-authoritative slice that the upgraded UI now clearly wants: binder rename or binder delete, depending on which public seam has the cleaner test-first path.
-- Confirm the document edit and supersede follow-on scope decision before those operations are allowed to expand the task.
+- Closed. Use `T-0037` for the remaining `v1.1` validation, audit, warning-review, and close-out work.
 
 ## Validation Plan
 - Targeted `dotnet test` runs for each new integration slice
@@ -90,7 +91,10 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 - `scripts/validate-docs.ps1` after contract/taskboard updates
 
 ## Outcome (Fill when done)
-- Not started.
+- Complete. The authenticated-surface backend carry-forwards landed: tenant-scoped binder rename/delete, tenant-user delete, admin-manageability safeguards for binder policy state, and backend-authoritative document-title uniqueness.
+- Complete. Temporary tenant-user credentials are now generated server-side and only disclosed as one-time handoff values after the server creates the user.
+- Complete. Integration coverage now proves active-lease tenants are not purged early, retained-expiry tenants remain in the `410` window until the intended cleanup threshold, and recent-activity retention still protects already-provisioned PaperBinder tenants.
+- Complete. The slice was validated through the merged backend/frontend/integration change sets, including Docker-backed integration coverage and the broader release validation bundle that accompanied closure.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

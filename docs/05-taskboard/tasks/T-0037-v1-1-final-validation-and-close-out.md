@@ -1,7 +1,7 @@
 # T-0037: V1.1 Final Validation And Close-Out
 
 ## Status
-queued
+active
 
 ## Type
 feature
@@ -16,7 +16,7 @@ agent
 2026-07-15
 
 ## Updated
-2026-07-15
+2026-07-17
 
 ## Checkpoint
 Cross-checkpoint
@@ -38,6 +38,7 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
 - [ ] The accessibility audit/remediation pass is completed and recorded.
 - [ ] The final staff-level code-quality audit across the changed surface area is completed and recorded.
 - [ ] The final controlled copy pass against the forbidden-implication rules is completed and recorded.
+- [ ] Remaining non-blocking browser-suite drift, build warnings, and dependency or vulnerability advisories are either remediated or explicitly triaged with durable follow-up tracking.
 - [ ] Final validation evidence is recorded in the owning taskboard docs and ready to be mirrored into the release-facing artifact set.
 - [ ] The `v1.1.0` close-out strategy is documented clearly enough that merge-to-`main`, tagging, and deployment can proceed without ad hoc reconstruction.
 
@@ -47,7 +48,7 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
 - [T-0036](./T-0036-v1-1-docs-and-public-copy-reconciliation.md)
 
 ## Blocked By
-- The upstream `v1.1` carry-forward tasks must be implemented enough to make final validation meaningful.
+- (none)
 
 ## Review Gates
 - Scope Lock: Keep this task to validation, audit, and close-out preparation. Do not absorb unrelated feature work discovered during final review unless it is truly release-blocking.
@@ -55,7 +56,9 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
 - Escalation Notes: Any newly discovered non-blocking work should be promoted into explicit follow-up tracking rather than silently folded into close-out.
 
 ## Current State
-- Queued. This is the final execution lane after the remaining implementation and doc/copy carry-forwards land.
+- Active. `T-0034`, `T-0035`, and `T-0036` are complete enough that the remaining `v1.1` work is now the final validation and close-out lane.
+- Known carry-in items for this task already include the unrelated tenant-host users-route browser-form drift plus the broader build/browser/dependency warning review noted during the earlier slices.
+- Inventory refreshed on `2026-07-17`: Release build is currently clean (`0` warnings), the scripted frontend/unit/integration bundle passed, the browser E2E suite passed without reproducing tenant-host drift, NuGet vulnerability checks returned clean, and `npm audit` still reports one remaining frontend advisory cluster (`7` findings total: `4` high, `1` moderate, `2` low).
 
 ## Touch Points
 - `docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md`
@@ -74,7 +77,7 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
   6. release/merge/tag/deploy close-out preparation
 
 ## Next Action
-- Do not start this task until the remaining queued `v1.1` carry-forward tasks are complete enough to produce stable validation evidence.
+- Confirm whether the poison-pill item still applies, then run the responsive plus accessibility passes and decide whether the remaining `npm audit` advisory cluster is remediated inside `T-0037` or split into explicit follow-up tracking before close-out.
 
 ## Validation Plan
 - Canonical build/test/browser/docs validation bundle

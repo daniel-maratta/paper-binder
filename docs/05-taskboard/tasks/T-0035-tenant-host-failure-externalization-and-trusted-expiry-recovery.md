@@ -16,7 +16,7 @@ agent
 2026-07-15
 
 ## Updated
-2026-07-15
+2026-07-17
 
 ## Checkpoint
 Cross-checkpoint
@@ -80,7 +80,7 @@ Implement the trust-aware tenant-host failure policy from `ADR-0014` so public o
 - Keep trusted-session explicitness separate from public concealment so the security boundary remains obvious in code and tests.
 
 ## Next Action
-- Closed. `T-0036` remains the next queued `v1.1` slice unless the unrelated tenant-host users-route browser-form drift is promoted into its own follow-up.
+- Closed. `T-0037` is now the remaining `v1.1` close-out slice, including the broader warning-review pass that still owns the unrelated tenant-host users-route browser-form drift.
 
 ## Validation Plan
 - Targeted integration tests for tenant-host public versus trusted failure behavior
