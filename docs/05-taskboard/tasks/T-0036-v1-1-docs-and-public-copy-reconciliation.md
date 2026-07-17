@@ -1,7 +1,7 @@
 # T-0036: V1.1 Docs And Public-Copy Reconciliation
 
 ## Status
-queued
+done
 
 ## Type
 docs
@@ -16,7 +16,7 @@ agent
 2026-07-15
 
 ## Updated
-2026-07-15
+2026-07-17
 
 ## Checkpoint
 Cross-checkpoint
@@ -33,12 +33,12 @@ Reconcile the remaining `v1.1` planning and copy surfaces so active work no long
 - `T-0033` now closes as the completed presentation tranche, so its successor docs should become the durable active source again.
 
 ## Acceptance Criteria
-- [ ] No active `v1.1` to-do lives only in `docs/temp-ui-ux-design-docs/`.
-- [ ] The temp UI backlog file is preserved as historical input but clearly marked as non-canonical active tracking.
-- [ ] Canonical docs that still describe stale pre-`v1.1` planning or wording are updated to reflect current branch truth.
-- [ ] The unauthenticated/public-side copy pass removes obvious AI-smelling, over-mechanical, or over-specific wording while staying truthful to the shipped product.
-- [ ] Taskboard, planning, and navigation docs point readers at the canonical backlog/tasks rather than the temp override path.
-- [ ] Any deferred-after-`v1.1` items that should remain visible are preserved in a canonical taskboard location.
+- [x] No active `v1.1` to-do lives only in `docs/temp-ui-ux-design-docs/`.
+- [x] The temp UI backlog file is preserved as historical input but clearly marked as non-canonical active tracking.
+- [x] Canonical docs that still describe stale pre-`v1.1` planning or wording are updated to reflect current branch truth.
+- [x] The unauthenticated/public-side copy pass removes obvious AI-smelling, over-mechanical, or over-specific wording while staying truthful to the shipped product.
+- [x] Taskboard, planning, and navigation docs point readers at the canonical backlog/tasks rather than the temp override path.
+- [x] Any deferred-after-`v1.1` items that should remain visible are preserved in a canonical taskboard location.
 
 ## Dependencies
 - [T-0033](./T-0033-phase-4-1-v1-1-presentation-realignment.md)
@@ -54,7 +54,9 @@ Reconcile the remaining `v1.1` planning and copy surfaces so active work no long
 - Escalation Notes: If any copy change depends on unresolved backend behavior, defer that exact line until the owning task lands rather than guessing.
 
 ## Current State
-- Queued. The active backlog is now canonicalized in `docs/05-taskboard/v1-1-backlog.md`, but the broader doc and copy reconciliation still remains.
+- Historical slice outcome: the `v1.1` doc and public-copy reconciliation landed and canonical docs now reflect the current branch truth.
+- The temp UI design docs remain preserved as historical inputs, but they no longer act as the canonical active backlog.
+- Remaining close-out work now lives under `T-0037`, including the final controlled copy pass and broader warning/audit follow-through.
 
 ## Touch Points
 - `docs/temp-ui-ux-design-docs/`
@@ -74,7 +76,7 @@ Reconcile the remaining `v1.1` planning and copy surfaces so active work no long
   4. reconcile tests and navigation metadata
 
 ## Next Action
-- Start with the docs seams, then move to the public-copy pass once the canonical planning text is stable again.
+- Closed. Use `T-0037` for the remaining final validation, final copy audit, and close-out work.
 
 ## Validation Plan
 - Focused frontend tests for any copy-coupled assertions touched
@@ -82,7 +84,9 @@ Reconcile the remaining `v1.1` planning and copy surfaces so active work no long
 - Manual review of the public root-host paths for tone and truthfulness
 
 ## Outcome (Fill when done)
-- Not started.
+- Complete. Canonical planning, product, architecture, security/config, contracts, and taskboard docs were reconciled to current repo truth, including the `v1.1` route model, lease-cleanup retention behavior, server-issued credential flow, and current tenant-host behavior.
+- Complete. The unauthenticated/public copy surface was rewritten into the shipped product voice, and stale or over-mechanical wording from older pre-`v1.1` surfaces was removed where it no longer matched the product.
+- Complete. Active `v1.1` tracking was moved fully back onto the canonical taskboard, while temp UI docs were preserved as historical reference material rather than live execution state.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.
