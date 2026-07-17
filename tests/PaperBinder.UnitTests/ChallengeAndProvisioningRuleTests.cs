@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging.Abstractions;
 using PaperBinder.Api;
+using PaperBinder.Application.Identity;
 using PaperBinder.Application.Provisioning;
 using PaperBinder.Infrastructure.Configuration;
 
@@ -120,11 +121,11 @@ public sealed class ChallengeAndProvisioningRuleTests
     }
 
     [Fact]
-    public void TenantProvisioningRules_Should_GenerateStrongOneTimePasswords()
+    public void OneTimeCredentialRules_Should_GenerateStrongOneTimePasswords()
     {
-        var password = TenantProvisioningRules.GenerateOneTimePassword();
+        var password = OneTimeCredentialRules.GenerateOneTimePassword();
 
-        Assert.Equal(TenantProvisioningRules.GeneratedPasswordLength, password.Length);
+        Assert.Equal(OneTimeCredentialRules.GeneratedPasswordLength, password.Length);
         Assert.Contains(password, char.IsLower);
         Assert.Contains(password, char.IsUpper);
         Assert.Contains(password, char.IsDigit);

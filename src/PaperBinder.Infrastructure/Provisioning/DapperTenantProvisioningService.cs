@@ -2,6 +2,7 @@ using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using PaperBinder.Application.Identity;
 using PaperBinder.Application.Persistence;
 using PaperBinder.Application.Provisioning;
 using PaperBinder.Application.Tenancy;
@@ -35,7 +36,7 @@ public sealed class DapperTenantProvisioningService(
 
         var tenantId = Guid.NewGuid();
         var ownerUserId = Guid.NewGuid();
-        var generatedPassword = TenantProvisioningRules.GenerateOneTimePassword();
+        var generatedPassword = OneTimeCredentialRules.GenerateOneTimePassword();
         var ownerEmail = $"owner@{normalized!.TenantSlug}.local";
         var createdAtUtc = clock.UtcNow;
         var expiresAtUtc = createdAtUtc.AddMinutes(runtimeSettings.Lease.DefaultMinutes);

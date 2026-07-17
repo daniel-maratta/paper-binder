@@ -2,8 +2,8 @@ using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using PaperBinder.Application.Identity;
 using PaperBinder.Application.Persistence;
-using PaperBinder.Application.Provisioning;
 using PaperBinder.Application.Tenancy;
 using PaperBinder.Infrastructure.Identity;
 
@@ -53,7 +53,7 @@ public sealed class DapperTenantUserAdministrationService(
 
         var normalizedEmailInput = command.Email.Trim();
         var user = CreateUser(normalizedEmailInput);
-        var generatedPassword = TenantProvisioningRules.GenerateOneTimePassword();
+        var generatedPassword = OneTimeCredentialRules.GenerateOneTimePassword();
         var passwordValidationMessages = await ValidatePasswordAsync(user, generatedPassword);
         if (passwordValidationMessages.Count > 0)
         {
