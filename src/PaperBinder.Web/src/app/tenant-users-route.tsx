@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { StatusBadge } from "../components/ui/status-badge";
 import { DataTable, type DataTableColumn, type DataTableRow } from "../components/ui/table";
+import { CredentialDisplayField } from "./credential-display-field";
 import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
 import type { TenantHostErrorViewModel } from "./tenant-host-errors";
 import { mapTenantHostError } from "./tenant-host-errors";
@@ -532,19 +533,54 @@ export function UsersPage() {
                   <AlertBody>{createdCredentials.email} was added to this workspace.</AlertBody>
                   <AlertBody>Record these one-time credentials now if you need to hand them to the user.</AlertBody>
                   <div className="mt-4 space-y-3">
-                    <CopyValueChip
-                      label={`workspace email for ${createdCredentials.email}`}
-                      onCopy={() => {
-                        void copyValue("User email", createdCredentials.email);
+                    <CredentialDisplayField
+                      copyButtonLabel={`Copy workspace email for ${createdCredentials.email}`}
+                      hint="Shown once after creation for credential handoff."
+                      label="Workspace email"
+                      onCopyResult={(copied) => {
+                        if (!copied) {
+                          showToast({
+                            title: "Could not copy user email.",
+                            body: "Clipboard access is not available in this browser session.",
+                            variant: "warning"
+                          });
+                          return;
+                        }
+
+                        showToast({
+                          title: "User email copied.",
+                          body: "User email is ready to paste.",
+                          variant: "success"
+                        });
                       }}
                       value={createdCredentials.email}
+                      variant="auth"
                     />
-                    <CopyValueChip
-                      label={`workspace password for ${createdCredentials.email}`}
-                      onCopy={() => {
-                        void copyValue("Temporary password", createdCredentials.password);
+                    <CredentialDisplayField
+                      copyButtonLabel={`Copy workspace password for ${createdCredentials.email}`}
+                      hideButtonLabel="Hide workspace password"
+                      hint="Masked by default and shown once after the server creates the user."
+                      label="Workspace password"
+                      onCopyResult={(copied) => {
+                        if (!copied) {
+                          showToast({
+                            title: "Could not copy temporary password.",
+                            body: "Clipboard access is not available in this browser session.",
+                            variant: "warning"
+                          });
+                          return;
+                        }
+
+                        showToast({
+                          title: "Temporary password copied.",
+                          body: "Temporary password is ready to paste.",
+                          variant: "success"
+                        });
                       }}
+                      sensitive
+                      showButtonLabel="Show workspace password"
                       value={createdCredentials.password}
+                      variant="auth"
                     />
                   </div>
                 </Alert>

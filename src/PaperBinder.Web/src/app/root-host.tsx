@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { cn } from "../lib/cn";
 import { RootHostChallengeWidget } from "./challenge-widget";
+import { CredentialDisplayField } from "./credential-display-field";
 import { writeClipboardValue } from "./copy-value-chip";
 import type { RootHostContext } from "./host-context";
 import { rootRouteDefinitions } from "./route-registry";
@@ -89,44 +90,6 @@ function PublicStat({
     <div className="pb-public-stat">
       <dt>{label}</dt>
       <dd>{value}</dd>
-    </div>
-  );
-}
-
-function PublicReadOnlyField({
-  hint,
-  label,
-  onCopy,
-  tooltip,
-  value
-}: {
-  hint: string;
-  label: string;
-  onCopy: () => void;
-  tooltip: string;
-  value: string;
-}) {
-  return (
-    <div className="pb-public-readonly-field">
-      <div className="pb-public-readonly-field__header">
-        <span className="pb-public-readonly-field__label">{label}</span>
-        <button
-          aria-label={`Copy ${label.toLowerCase()}`}
-          className="pb-public-copy-button"
-          onClick={onCopy}
-          type="button"
-        >
-          <svg aria-hidden="true" className="pb-public-copy-button__icon" viewBox="0 0 20 20">
-            <path d="M7 3.5A2.5 2.5 0 0 0 4.5 6v8A2.5 2.5 0 0 0 7 16.5h7A2.5 2.5 0 0 0 16.5 14V6A2.5 2.5 0 0 0 14 3.5H7Z" />
-            <path d="M4.5 12.5h-1A2.5 2.5 0 0 1 1 10V4A2.5 2.5 0 0 1 3.5 1.5h7A2.5 2.5 0 0 1 13 4v1" />
-          </svg>
-          <span className="pb-public-copy-button__tooltip">{tooltip}</span>
-        </button>
-      </div>
-      <div className="pb-public-readonly-field__control">
-        <input className="font-mono" readOnly type="text" value={value} />
-      </div>
-      <p className="pb-public-readonly-field__hint">{hint}</p>
     </div>
   );
 }
@@ -464,23 +427,23 @@ function ProvisionSuccessPanel({
       </dl>
 
       <div className="pb-public-form-stack">
-        <PublicReadOnlyField
+        <CredentialDisplayField
+          copyButtonLabel="Copy email"
           hint="Generated for this disposable workspace."
           label="Email"
-          onCopy={() => {
-            void copyValue("email", provisionedTenant.credentials.email);
-          }}
-          tooltip={resolveTooltip("email")}
+          sensitive={false}
           value={provisionedTenant.credentials.email}
+          variant="public"
         />
-        <PublicReadOnlyField
+        <CredentialDisplayField
+          copyButtonLabel="Copy password"
+          hideButtonLabel="Hide password"
           hint="Shown once during this root-host handoff."
           label="Password"
-          onCopy={() => {
-            void copyValue("password", provisionedTenant.credentials.password);
-          }}
-          tooltip={resolveTooltip("password")}
+          sensitive
+          showButtonLabel="Show password"
           value={provisionedTenant.credentials.password}
+          variant="public"
         />
       </div>
 

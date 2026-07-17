@@ -236,6 +236,32 @@ describe("root-host flows", () => {
     await waitFor(() => expect(writeText).toHaveBeenCalledWith("acme-demo"));
   });
 
+  it("Should_MaskProvisionedPasswordUntilReveal_When_PublicCredentialHandoffRenders", async () => {
+    installTurnstileStub();
+
+    renderRootRoute({
+      route: "/start-demo"
+    });
+
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
+      target: { value: "Acme Demo" }
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
+
+    await screen.findByRole("heading", { name: "Workspace ready." });
+
+    const passwordField = screen.getByLabelText("Password") as HTMLInputElement;
+    expect(passwordField).toHaveAttribute("type", "password");
+    expect(passwordField).toHaveValue("generated-password");
+
+    fireEvent.click(screen.getByRole("button", { name: "Show password" }));
+    expect(passwordField).toHaveAttribute("type", "text");
+
+    fireEvent.click(screen.getByRole("button", { name: "Hide password" }));
+    expect(passwordField).toHaveAttribute("type", "password");
+  });
+
   it("Should_ProvisionOrLogin_FromStartDemoFlow_When_ChallengeAndServerRedirectsSucceed", async () => {
     installTurnstileStub();
     const provisionMock = vi.fn(async () => createProvisionResponse());

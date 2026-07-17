@@ -702,6 +702,58 @@ describe("tenant shell", () => {
     ).toBeInTheDocument();
   });
 
+  it("Should_MaskTenantUserPasswordUntilReveal_When_ServerIssuedCredentialsAreShown", async () => {
+    const createTenantUser = vi.fn(async () => ({
+      userId: "user-2",
+      email: "member@acme-demo.local",
+      role: "BinderRead" as const,
+      isOwner: false,
+      credentials: {
+        email: "member@acme-demo.local",
+        password: "generated-password"
+      }
+    }));
+
+    renderTenantRoute({
+      route: "/app/users",
+      apiClient: createApiClientStub({
+        listTenantUsers: vi.fn(async () => [
+          {
+            userId: "user-1",
+            email: "owner@acme-demo.local",
+            role: "TenantAdmin",
+            isOwner: true
+          }
+        ]) as PaperBinderApiClient["listTenantUsers"],
+        createTenantUser: createTenantUser as PaperBinderApiClient["createTenantUser"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Users and access" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "member@acme-demo.local" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Add user" }));
+
+    await waitFor(() =>
+      expect(createTenantUser).toHaveBeenCalledWith({
+        email: "member@acme-demo.local",
+        role: "BinderRead"
+      })
+    );
+
+    const passwordField = await screen.findByLabelText("Workspace password") as HTMLInputElement;
+    expect(passwordField).toHaveAttribute("type", "password");
+    expect(passwordField).toHaveValue("generated-password");
+
+    fireEvent.click(screen.getByRole("button", { name: "Show workspace password" }));
+    expect(passwordField).toHaveAttribute("type", "text");
+
+    fireEvent.click(screen.getByRole("button", { name: "Hide workspace password" }));
+    expect(passwordField).toHaveAttribute("type", "password");
+  });
+
   it("Should_CopyIdentifiers_FromBinderAndUsersSurfaces_When_CopyChipsAreUsed", async () => {
     const writeText = vi.fn(async () => undefined);
     Object.defineProperty(window.navigator, "clipboard", {

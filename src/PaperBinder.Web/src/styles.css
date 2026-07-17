@@ -645,41 +645,163 @@ a {
   gap: 18px;
 }
 
-.pb-public-readonly-field {
+.pb-credential-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-.pb-public-readonly-field__header {
+.pb-credential-field__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.pb-public-readonly-field__label {
-  color: var(--pb-color-text);
+.pb-credential-field__label {
   font-size: 0.875rem;
   font-weight: 600;
 }
 
-.pb-public-readonly-field__control input {
-  width: 100%;
-  border: 1px solid var(--pb-border-strong);
-  border-radius: 8px;
-  background: #ffffff;
-  padding: 10px 14px;
+.pb-credential-field--public .pb-credential-field__label {
+  color: var(--pb-color-text);
+}
+
+.pb-credential-field--auth .pb-credential-field__label {
   color: var(--pb-text-strong);
+}
+
+.pb-credential-field__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pb-credential-field__control input {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 8px;
+  padding: 10px 14px;
   font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   outline: none;
 }
 
-.pb-public-readonly-field__hint {
+.pb-credential-field--public .pb-credential-field__control input {
+  border: 1px solid var(--pb-border-strong);
+  background: #ffffff;
+  color: var(--pb-text-strong);
+}
+
+.pb-credential-field--auth .pb-credential-field__control input {
+  border: 1px solid var(--pb-border-subtle);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(241, 245, 249, 0.98));
+  color: var(--pb-text-strong);
+}
+
+.pb-credential-field__control input:focus-visible {
+  border-color: var(--pb-focus-ring);
+  box-shadow: 0 0 0 3px rgba(111, 149, 198, 0.18);
+}
+
+.pb-credential-field__hint {
   margin: 0;
-  color: var(--pb-color-text-muted);
   font-size: 0.82rem;
   line-height: 1.5;
+}
+
+.pb-credential-field--public .pb-credential-field__hint {
+  color: var(--pb-color-text-muted);
+}
+
+.pb-credential-field--auth .pb-credential-field__hint {
+  color: var(--pb-text-muted);
+}
+
+.pb-credential-icon-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.pb-credential-icon-button:hover,
+.pb-credential-icon-button:focus-visible {
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.pb-credential-icon-button--public {
+  border: 1px solid #d7e1eb;
+  background: #ffffff;
+  color: #28405f;
+}
+
+.pb-credential-icon-button--public:hover,
+.pb-credential-icon-button--public:focus-visible {
+  border-color: #b4c6da;
+  background: #f8fbff;
+}
+
+.pb-credential-icon-button--auth {
+  border: 1px solid var(--pb-border-subtle);
+  background: #ffffff;
+  color: #28405f;
+}
+
+.pb-credential-icon-button--auth:hover,
+.pb-credential-icon-button--auth:focus-visible {
+  border-color: var(--pb-border-strong);
+  background: #f8fafc;
+}
+
+.pb-credential-icon-button__icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+}
+
+.pb-credential-icon-button__tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(4px);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 14px 30px -18px rgba(2, 15, 31, 0.72);
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.pb-credential-icon-button:hover .pb-credential-icon-button__tooltip,
+.pb-credential-icon-button:focus-visible .pb-credential-icon-button__tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.pb-credential-icon-button--public .pb-credential-icon-button__tooltip {
+  background: #07172a;
+  color: #f8fafc;
+}
+
+.pb-credential-icon-button--auth .pb-credential-icon-button__tooltip {
+  background: #0f172a;
+  color: #f8fafc;
 }
 
 .pb-public-stat-copy {
