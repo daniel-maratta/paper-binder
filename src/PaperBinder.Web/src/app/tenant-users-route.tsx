@@ -287,7 +287,7 @@ export function UsersPage() {
           Users and access
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-(--pb-color-text-muted)">
-          Keep the full user list on screen while add-user, role updates, and impersonation actions expand on this route.
+          Keep the full user list visible while you add users, change roles, and start view as.
         </p>
       </section>
 
@@ -296,7 +296,7 @@ export function UsersPage() {
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Current users</h3>
             <p className="pb-auth-panel-copy">
-              Role changes, owner visibility, and impersonation eligibility stay server-enforced for this workspace.
+              Manage roles and view as actions for this workspace from one page.
             </p>
           </div>
           <div className="pb-auth-panel-body space-y-4">
@@ -315,7 +315,7 @@ export function UsersPage() {
                     Manage selected user
                   </h3>
                   <p className="mt-1 text-sm leading-6 text-[var(--pb-color-text-muted)]">
-                    Role changes and impersonation start here without leaving the current user list.
+                    Update roles and start view as without leaving the current user list.
                   </p>
                 </div>
                 {selectedUser !== null ? (
@@ -336,7 +336,7 @@ export function UsersPage() {
 
               {selectedUser === null ? (
                 <div className="pb-auth-selection-empty mt-4">
-                  Select a user from the table to expand the role-change and view-as panels here.
+                  Select a user to open role and view as actions here.
                 </div>
               ) : (
                 <div className="mt-4 space-y-4">
@@ -386,7 +386,7 @@ export function UsersPage() {
                       </div>
                       <div className="mt-4 space-y-4">
                         <Field
-                          hint="Role changes stay within the tenant-scoped permissions model."
+                          hint="Choose the role this user should have in the workspace."
                           label={`Role for ${selectedUser.email}`}
                         >
                           <select
@@ -432,10 +432,10 @@ export function UsersPage() {
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <h4 className="text-base font-semibold tracking-[-0.02em] text-[var(--pb-color-text)]">
-                            Impersonate
+                            View as
                           </h4>
                           <p className="mt-1 text-sm leading-6 text-[var(--pb-color-text-muted)]">
-                            Start impersonation from this user-management surface only.
+                            Start view as from this user-management page.
                           </p>
                         </div>
                         {canStartSelectedUserImpersonation ? (
@@ -448,10 +448,10 @@ export function UsersPage() {
                         <TenantHostErrorNotice error={impersonationError} />
                         <p className="text-sm leading-6 text-[var(--pb-color-text-muted)]">
                           {canStartSelectedUserImpersonation
-                            ? "Use impersonation when you need to confirm the workspace from the selected member role."
+                            ? "Use view as to confirm the workspace experience for the selected member."
                             : impersonation.isImpersonating
-                              ? "Stop the current impersonation session before starting another one."
-                              : "The current effective user cannot impersonate itself."}
+                              ? "Stop the current view as session before starting another one."
+                              : "You cannot start view as for the current effective user."}
                         </p>
                         {canStartSelectedUserImpersonation ? (
                           <Button
@@ -461,7 +461,7 @@ export function UsersPage() {
                             type="button"
                             variant="secondary"
                           >
-                            Impersonate this user
+                            View as this user
                           </Button>
                         ) : null}
                       </div>

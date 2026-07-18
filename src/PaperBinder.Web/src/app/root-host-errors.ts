@@ -76,7 +76,7 @@ export function mapRootHostError(error: unknown): RootHostErrorViewModel {
     case "TENANT_NAME_INVALID":
       return {
         title: "Tenant name is not available.",
-        detail: error.detail ?? "Provide a tenant name that can be normalized into a valid tenant slug.",
+        detail: error.detail ?? "Choose a workspace name that can be used for this demo.",
         field: "tenantName",
         correlationId: error.correlationId,
         retryAfterLabel
@@ -92,7 +92,7 @@ export function mapRootHostError(error: unknown): RootHostErrorViewModel {
     case "RATE_LIMITED":
       return {
         title: "Too many attempts.",
-        detail: error.detail ?? "The root-host pre-auth request limit was exceeded.",
+        detail: error.detail ?? "Too many requests were submitted from this page. Wait a moment and try again.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel

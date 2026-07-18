@@ -138,7 +138,7 @@ export function DashboardPage() {
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Recent binders</h3>
             <p className="pb-auth-panel-copy">
-              Return to the binders that are currently visible to this session.
+              Return to the binders available in this workspace.
             </p>
           </div>
           <div className="pb-auth-panel-body">
@@ -163,7 +163,7 @@ export function DashboardPage() {
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Next actions</h3>
             <p className="pb-auth-panel-copy">
-              Move directly to the routes most likely to matter in this workspace.
+              Jump to the pages most likely to matter in this workspace.
             </p>
           </div>
           <div className="pb-auth-panel-body pb-auth-action-stack">
@@ -174,12 +174,12 @@ export function DashboardPage() {
               <Button asChild className="w-full justify-center sm:w-auto" type="button" variant="secondary">
                 <Link to="/app/users">Manage users</Link>
               </Button>
-            ) : (
-              <Alert variant="info">
-                <AlertTitle>Users and access stays role-aware.</AlertTitle>
-                <AlertBody>Workspace admins see user management here when that action is available.</AlertBody>
-              </Alert>
-            )}
+              ) : (
+                <Alert variant="info">
+                  <AlertTitle>User management is available to workspace admins.</AlertTitle>
+                  <AlertBody>If your role allows it, the Users page appears here.</AlertBody>
+                </Alert>
+              )}
           </div>
         </section>
       </div>

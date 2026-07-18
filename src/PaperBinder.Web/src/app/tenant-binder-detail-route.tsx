@@ -184,13 +184,11 @@ function BinderPolicyCard({
   }
 
   return (
-    <section className="pb-auth-panel">
-      <div className="pb-auth-panel-header">
-        <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Binder access</h3>
-        <p className="pb-auth-panel-copy">
-          Choose inherited workspace access or limit this binder to specific roles.
-        </p>
-      </div>
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Binder access</h3>
+            <p className="pb-auth-panel-copy">Use workspace access or limit this binder to specific roles.</p>
+          </div>
       <div className="pb-auth-panel-body">
         {isLoading ? (
           <p className="pb-auth-panel-copy">Loading binder policy...</p>
@@ -200,7 +198,7 @@ function BinderPolicyCard({
           <form className="pb-auth-form-stack" onSubmit={handleSubmit}>
             <Field
               error={fieldErrors.binderPolicy}
-              hint="Keep inherited access for normal behavior, or limit the binder to a specific set of roles."
+              hint="Use workspace access for the default behavior, or limit the binder to selected roles."
               label="Access mode"
             >
               <select
@@ -239,12 +237,12 @@ function BinderPolicyCard({
             </fieldset>
 
             <TenantHostErrorNotice error={submitError} />
-            {submitSuccess ? (
-              <Alert variant="success">
-                <AlertTitle>Binder access saved.</AlertTitle>
-                <AlertBody>The binder now reflects the latest confirmed access rules.</AlertBody>
-              </Alert>
-            ) : null}
+              {submitSuccess ? (
+                <Alert variant="success">
+                  <AlertTitle>Binder access saved.</AlertTitle>
+                  <AlertBody>The binder now uses the updated access rules.</AlertBody>
+                </Alert>
+              ) : null}
             <Button
               disabled={!isDirty || isInvalidRestrictedRoleSelection || isSubmitting}
               isLoading={isSubmitting}
@@ -418,15 +416,15 @@ export function BinderDetailPage() {
   }
 
   if (isLoading || binder === null) {
-    return (
-      <section className="pb-auth-panel pb-auth-panel--route">
-        <div className="pb-auth-panel-header">
-          <p className="pb-auth-eyebrow">Binder detail</p>
-          <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">Loading binder</h2>
-          <p className="pb-auth-panel-copy">PaperBinder is loading binder details and visible documents.</p>
-        </div>
-      </section>
-    );
+      return (
+        <section className="pb-auth-panel pb-auth-panel--route">
+          <div className="pb-auth-panel-header">
+            <p className="pb-auth-eyebrow">Binder detail</p>
+            <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">Loading binder</h2>
+            <p className="pb-auth-panel-copy">Loading the binder and its available documents.</p>
+          </div>
+        </section>
+      );
   }
 
   const documentColumns: readonly DataTableColumn[] = [
@@ -491,7 +489,7 @@ export function BinderDetailPage() {
         <section className="pb-auth-panel">
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Documents</h3>
-            <p className="pb-auth-panel-copy">Open the documents currently visible in this binder.</p>
+            <p className="pb-auth-panel-copy">Open the documents available in this binder.</p>
           </div>
           <div className="pb-auth-panel-body">
             <DataTable

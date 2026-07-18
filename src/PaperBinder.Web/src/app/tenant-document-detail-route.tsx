@@ -354,15 +354,15 @@ export function DocumentDetailPage() {
   }
 
   if (isLoading || documentDetail === null) {
-    return (
-      <section className="pb-auth-panel pb-auth-panel--route">
-        <div className="pb-auth-panel-header">
-          <p className="pb-auth-eyebrow">Document detail</p>
-          <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">Loading document</h2>
-          <p className="pb-auth-panel-copy">PaperBinder is loading the current document.</p>
-        </div>
-      </section>
-    );
+      return (
+        <section className="pb-auth-panel pb-auth-panel--route">
+          <div className="pb-auth-panel-header">
+            <p className="pb-auth-eyebrow">Document detail</p>
+            <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">Loading document</h2>
+            <p className="pb-auth-panel-copy">Loading the current document.</p>
+          </div>
+        </section>
+      );
   }
 
   return (
@@ -373,7 +373,7 @@ export function DocumentDetailPage() {
             <p className="pb-auth-eyebrow">Document detail</p>
             <h2 className="pb-auth-page-title">{documentDetail.title}</h2>
             <p className="pb-auth-page-copy">
-              Read the rendered markdown by default, or switch to source when you need the stored document body.
+              Read the rendered markdown by default, or switch to source when you need the original text.
             </p>
           </div>
           <StatusBadge className="pb-auth-detail-status" variant={documentDetail.archivedAt ? "warning" : "success"}>
@@ -412,9 +412,9 @@ export function DocumentDetailPage() {
 
       {documentDetail.archivedAt ? (
         <Alert className="w-full" variant="warning">
-          <AlertTitle>Archived document visible by direct id.</AlertTitle>
+          <AlertTitle>Archived document opened by direct link.</AlertTitle>
           <AlertBody>
-            Binder lists hide archived documents, but direct reads remain available to allowed users.
+            Archived documents do not appear in binder lists, but direct links still work for allowed users.
           </AlertBody>
         </Alert>
       ) : null}
@@ -428,8 +428,8 @@ export function DocumentDetailPage() {
               </h3>
               <p className="pb-auth-panel-copy">
                 {isViewingSource
-                  ? "Read-only markdown source is shown exactly as stored for this workspace."
-                  : "Rendered markdown is shown by default so the document reads like a finished page."}
+                  ? "Read-only markdown source is shown exactly as stored."
+                  : "Rendered markdown is shown by default for easier reading."}
               </p>
             </div>
             <Button
@@ -454,7 +454,7 @@ export function DocumentDetailPage() {
 
       <section className="pb-auth-panel">
         <div className="pb-auth-panel-header">
-          <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Reference metadata</h3>
+          <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Document metadata</h3>
         </div>
         <div className="pb-auth-panel-body">
           <div className="pb-auth-summary-grid pb-auth-summary-grid--2">

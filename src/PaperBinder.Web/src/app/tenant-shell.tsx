@@ -300,7 +300,7 @@ function TenantBootstrapFailurePage({
           <p className="pb-auth-eyebrow">Workspace routing</p>
           <h1 className="pb-auth-page-title">{error.title}</h1>
           <p className="pb-auth-panel-copy">
-            PaperBinder keeps workspace routing host-derived even when this workspace cannot be opened.
+            This workspace address could not be opened, but you can safely return to the public site or sign in again.
           </p>
         </div>
         <div className="pb-auth-panel-body">
@@ -338,7 +338,7 @@ function TenantShellLoadingPage() {
         <div className="pb-auth-panel-header">
           <p className="pb-auth-eyebrow">Workspace loading</p>
           <h1 className="pb-auth-page-title">Loading tenant workspace</h1>
-          <p className="pb-auth-panel-copy">PaperBinder is loading the current workspace context.</p>
+          <p className="pb-auth-panel-copy">Loading the current workspace.</p>
         </div>
       </section>
     </div>
@@ -844,7 +844,7 @@ export function TenantShell({
                   type="button"
                   variant="danger"
                 >
-                  Stop impersonation
+                  Stop view as
                 </Button>
               ) : null}
             </div>

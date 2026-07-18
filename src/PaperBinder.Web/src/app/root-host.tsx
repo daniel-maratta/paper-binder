@@ -30,11 +30,11 @@ const publicValuePillars: PublicValuePillar[] = [
   },
   {
     title: "Access control",
-    body: "Binders, documents, and users remain role-aware."
+    body: "Access changes with each user's role."
   },
   {
     title: "Visibility",
-    body: "Review the product itself instead of a marketing abstraction."
+    body: "See the product in a live workspace."
   },
   {
     title: "Disposable demo",
@@ -250,7 +250,7 @@ function RootLandingPage() {
           <p className="pb-public-eyebrow">PaperBinder</p>
           <h1 id="public-hero-title">A secure workspace for your documents and your team.</h1>
           <p className="pb-public-hero-body">
-            Multi-tenant by design. Review the product in a temporary workspace that stays product-first from the first click.
+            Start a temporary workspace, move straight into the product, and manage documents with the same flows used inside the app.
           </p>
           <div className="pb-public-hero-actions">
             <PublicShellLink className="pb-public-button-link--light" to="/start-demo">
@@ -272,7 +272,7 @@ function RootLandingPage() {
               </div>
               <div className="pb-public-proof-window">
                 <img
-                  alt="PaperBinder dashboard showing lease metrics, recent binders, and next actions inside the authenticated workspace."
+                  alt="PaperBinder dashboard with lease details, recent binders, and next actions."
                   className="pb-public-proof-image pb-public-proof-image--hero"
                   src="/presentation/dashboard-proof.png"
                 />
@@ -282,7 +282,7 @@ function RootLandingPage() {
               <div aria-hidden="true" className="pb-public-phone-preview__speaker" />
               <div className="pb-public-phone-preview__screen">
                 <img
-                  alt="PaperBinder start-demo flow shown in a handheld preview with one-time credentials and the live workspace handoff."
+                  alt="PaperBinder start-demo screen with one-time credentials for a new workspace."
                   className="pb-public-proof-image pb-public-proof-image--phone"
                   src="/presentation/start-demo-proof.png"
                 />
@@ -307,14 +307,13 @@ function RootLandingPage() {
       <section className="pb-public-secondary-grid">
         <PublicPanel className="pb-public-panel--soft pb-public-panel--proof">
           <p className="pb-public-panel-eyebrow">Users and access</p>
-          <h2>Admin actions stay on the workspace route.</h2>
+          <h2>Manage users without leaving the workspace.</h2>
           <p>
-            Tenant admins add users, adjust roles, and start view-as from one product surface without leaving
-            the workspace context.
+            Workspace admins add users, update roles, and start view as from one page.
           </p>
           <div className="pb-public-proof-card">
             <img
-              alt="PaperBinder users and access page showing current users, add-user form, role management, and view-as actions."
+              alt="PaperBinder users page with current users, role changes, and view as actions."
               className="pb-public-proof-image pb-public-proof-image--supporting"
               src="/presentation/users-proof.png"
             />
@@ -322,12 +321,11 @@ function RootLandingPage() {
         </PublicPanel>
 
         <PublicPanel className="pb-public-panel--soft">
-          <p className="pb-public-panel-eyebrow">Product-first public path</p>
-          <h2>Start with the software, not the setup mechanics.</h2>
+          <p className="pb-public-panel-eyebrow">Demo path</p>
+          <h2>Start with the product, not a setup checklist.</h2>
           <p>
-            The public experience leads with the product itself. Demo provisioning, challenge verification,
-            one-time credentials, and redirect-safe sign in stay behind the entry flow instead of crowding the
-            landing page.
+            Create a temporary workspace, complete the challenge, and continue with one-time credentials when
+            the workspace is ready.
           </p>
         </PublicPanel>
       </section>
@@ -389,8 +387,8 @@ function ProvisionSuccessPanel({
         <p className="pb-public-panel-eyebrow">Workspace ready</p>
         <h2>Workspace ready.</h2>
         <p>
-          PaperBinder already established the signed-in session. These one-time credentials appear only during
-          this handoff and are not written into browser storage.
+          You are already signed in to this workspace. Save these credentials now if you want to return to it
+          later.
         </p>
       </div>
 
@@ -429,7 +427,7 @@ function ProvisionSuccessPanel({
       <div className="pb-public-form-stack">
         <CredentialDisplayField
           copyButtonLabel="Copy email"
-          hint="Generated for this disposable workspace."
+          hint="Use this email if you sign in again later."
           label="Email"
           sensitive={false}
           value={provisionedTenant.credentials.email}
@@ -438,7 +436,7 @@ function ProvisionSuccessPanel({
         <CredentialDisplayField
           copyButtonLabel="Copy password"
           hideButtonLabel="Hide password"
-          hint="Shown once during this root-host handoff."
+          hint="Shown once on this screen."
           label="Password"
           sensitive
           showButtonLabel="Show password"
@@ -538,14 +536,14 @@ function RootWelcomePage({
 
   return (
     <div className="pb-public-page">
-      <section className="pb-public-page-intro">
-        <p className="pb-public-eyebrow">Start demo</p>
-        <h1>Start a live demo workspace</h1>
-        <p>
-          Start a temporary PaperBinder workspace, receive one-time credentials, and continue directly into the
-          live product.
-        </p>
-      </section>
+        <section className="pb-public-page-intro">
+          <p className="pb-public-eyebrow">Start demo</p>
+          <h1>Start a live demo workspace</h1>
+          <p>
+            Create a temporary PaperBinder workspace, receive one-time credentials, and continue into the
+            product.
+          </p>
+        </section>
 
       <div className="pb-public-page-grid">
         {provisionedTenant ? (
@@ -554,17 +552,17 @@ function RootWelcomePage({
           <PublicPanel className="pb-public-panel--form">
             <div className="pb-public-panel-heading">
               <p className="pb-public-panel-eyebrow">New demo workspace</p>
-              <h2>Provision a temporary tenant and keep the server in charge.</h2>
+              <h2>Create a temporary workspace.</h2>
               <p>
-                Choose a workspace name and let the root host verify the challenge, create the demo tenant, and
-                return the approved destination.
+                Choose a workspace name. PaperBinder verifies the challenge, creates the workspace, and signs
+                you in.
               </p>
             </div>
 
             <form className="pb-public-form-stack" onSubmit={handleProvisionSubmit}>
               <Field
                 error={fieldErrors.tenantName}
-                hint="PaperBinder normalizes the workspace name on the server before opening the demo."
+                hint="Choose a name for this demo workspace."
                 label="Workspace name"
               >
                 <input
@@ -588,7 +586,7 @@ function RootWelcomePage({
               ) : (
                 <RootHostChallengeWidget
                   error={fieldErrors.challenge}
-                  hint="Complete the challenge before PaperBinder accepts a provisioning or sign-in request."
+                  hint="Complete the challenge before starting a workspace or signing in."
                   label="Challenge"
                   onTokenChange={setChallengeToken}
                   resetNonce={challengeResetNonce}
@@ -614,11 +612,8 @@ function RootWelcomePage({
         <div className="pb-public-side-stack">
           <PublicPanel>
             <p className="pb-public-panel-eyebrow">Use existing credentials</p>
-            <h2>Return to a provisioned workspace.</h2>
-            <p>
-              Root-host sign in remains available for return visits and still relies on the same
-              server-approved destination.
-            </p>
+            <h2>Sign in to an existing workspace.</h2>
+            <p>If you already have demo credentials, go straight to sign in.</p>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
                 <NavLink to="/login">Go to sign in</NavLink>
@@ -629,10 +624,10 @@ function RootWelcomePage({
           <PublicPanel>
             <p className="pb-public-panel-eyebrow">What stays true</p>
             <ul className="pb-public-bullet-list">
-              <li>Provisioning sends only workspace name plus challenge proof through the SPA client.</li>
-              <li>Generated credentials remain transient in memory only and are never written into browser storage.</li>
-              <li>Redirect navigation uses only the absolute `redirectUrl` returned by the server.</li>
-              <li>Failures stay limited to challenge, credential, rate-limit, and expiry guidance.</li>
+              <li>Only the workspace name and challenge proof are submitted here.</li>
+              <li>The generated credentials are shown once and are not stored in the browser.</li>
+              <li>PaperBinder sends you to the workspace after it is ready.</li>
+              <li>Failures stay focused on challenge, credentials, rate limits, and expiry.</li>
               <li>Demo workspaces are temporary and removed during periodic cleanup.</li>
             </ul>
           </PublicPanel>
@@ -740,21 +735,18 @@ function RootLoginPage({
 
   return (
     <div className="pb-public-page">
-      <section className="pb-public-page-intro">
-        <p className="pb-public-eyebrow">Direct sign in</p>
-        <h1>Sign in to a demo workspace</h1>
-        <p>
-          Return to a previously provisioned workspace with valid credentials. Redirect resolution stays on the
-          server so the browser never builds tenant URLs from user input.
-        </p>
-      </section>
+        <section className="pb-public-page-intro">
+          <p className="pb-public-eyebrow">Direct sign in</p>
+          <h1>Sign in to a demo workspace</h1>
+          <p>Return to a workspace you already created with the email and password issued for it.</p>
+        </section>
 
       <div className="pb-public-page-grid">
         <PublicPanel className="pb-public-panel--form">
           <div className="pb-public-panel-heading">
-            <p className="pb-public-panel-eyebrow">Root-host login</p>
+            <p className="pb-public-panel-eyebrow">Workspace sign in</p>
             <h2>Use existing demo credentials.</h2>
-            <p>Valid credentials continue through the server-approved destination into the tenant host.</p>
+            <p>Enter the email and password from your workspace setup.</p>
           </div>
 
           <form className="pb-public-form-stack" onSubmit={handleLoginSubmit}>
@@ -774,7 +766,7 @@ function RootLoginPage({
 
             <Field
               error={fieldErrors.password}
-              hint="PaperBinder uses the existing cookie-auth session model after successful login."
+              hint="Use the password shown when the workspace was created."
               label="Password"
             >
               <input
@@ -798,7 +790,7 @@ function RootLoginPage({
             ) : (
               <RootHostChallengeWidget
                 error={fieldErrors.challenge}
-                hint="Complete the challenge before PaperBinder accepts a root-host sign-in request."
+                hint="Complete the challenge before signing in."
                 label="Challenge"
                 onTokenChange={setChallengeToken}
                 resetNonce={challengeResetNonce}
@@ -811,8 +803,8 @@ function RootLoginPage({
 
             {redirect ? (
               <Alert variant="info">
-                <AlertTitle>Redirecting to tenant host</AlertTitle>
-                <AlertBody>The browser is continuing with the server-approved destination.</AlertBody>
+                <AlertTitle>Opening workspace</AlertTitle>
+                <AlertBody>Your workspace is opening now.</AlertBody>
               </Alert>
             ) : null}
 
@@ -837,11 +829,10 @@ function RootLoginPage({
 
         <div className="pb-public-side-stack">
           <PublicPanel>
-            <p className="pb-public-panel-eyebrow">Prefer the product-led path?</p>
+            <p className="pb-public-panel-eyebrow">Need a new workspace?</p>
             <h2>Start with a fresh demo workspace.</h2>
             <p>
-              The default public flow creates a temporary demo tenant, hands off one-time credentials, and then
-              sends you into the live product.
+              Create a temporary workspace and continue into the product with one-time credentials.
             </p>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
@@ -853,9 +844,9 @@ function RootLoginPage({
           <PublicPanel>
             <p className="pb-public-panel-eyebrow">Security posture</p>
             <ul className="pb-public-bullet-list">
-              <li>Challenge proof is required before login requests are accepted unless local bypass is enabled.</li>
-              <li>Retryable failures reset the challenge requirement rather than reusing stale proof.</li>
-              <li>The client consumes only the absolute redirect target returned by the server.</li>
+              <li>Complete the challenge before signing in, unless local bypass is enabled.</li>
+              <li>If sign in fails, the challenge must be completed again before retrying.</li>
+              <li>After sign in, PaperBinder sends you to the matching workspace.</li>
             </ul>
           </PublicPanel>
         </div>
@@ -868,33 +859,32 @@ function RootAboutPage() {
   return (
     <div className="pb-public-page">
       <section className="pb-public-page-intro">
-        <p className="pb-public-eyebrow">About this demo</p>
-        <h1>PaperBinder is a constrained multi-tenant document workspace.</h1>
+        <p className="pb-public-eyebrow">About PaperBinder</p>
+        <h1>PaperBinder is a multi-tenant document workspace demo.</h1>
         <p>
-          It is intentionally narrow in scope: enough product surface to feel real, enough architecture to
-          review, and explicit boundaries around what it is not trying to become.
+          It focuses on binders, immutable documents, and role-based access inside temporary demo workspaces.
         </p>
       </section>
 
       <div className="pb-public-secondary-grid">
         <PublicPanel>
           <p className="pb-public-panel-eyebrow">Core product truth</p>
-          <h2>Binders, immutable documents, and role-aware access.</h2>
+          <h2>Binders, documents, and workspace access.</h2>
           <dl className="pb-public-stat-grid">
             <PublicStat label="Core objects" value="Binders and immutable text documents" />
             <PublicStat label="Access model" value="Role-aware and tenant-isolated" />
-            <PublicStat label="Live demo path" value="Product first, then disposable workspace entry" />
+            <PublicStat label="Demo path" value="Temporary workspace with one-time credentials" />
           </dl>
         </PublicPanel>
 
         <PublicPanel>
           <p className="pb-public-panel-eyebrow">Intentional constraints</p>
-          <h2>This demo favors clarity over breadth.</h2>
+          <h2>This demo stays intentionally narrow.</h2>
           <ul className="pb-public-bullet-list">
-            <li>It is a hiring artifact and architecture demonstration, not a broad enterprise suite.</li>
-            <li>Tenant isolation, redirect trust, and server-authoritative auth boundaries remain non-negotiable.</li>
-            <li>Reviewer-facing context stays available without displacing the product story from the landing page.</li>
+            <li>The product centers on binders, immutable documents, and workspace administration.</li>
+            <li>Each workspace is isolated and access stays role-based.</li>
             <li>Demo tenants are temporary and may be removed during routine cleanup.</li>
+            <li>Repository documentation covers the demo scope and implementation details.</li>
           </ul>
         </PublicPanel>
       </div>
@@ -908,23 +898,23 @@ function RootNotFoundPage() {
       <section className="pb-public-page-intro">
         <p className="pb-public-eyebrow">Page unavailable</p>
         <h1>This page is not part of the PaperBinder public site.</h1>
-        <p>Unknown routes stay on the root host instead of guessing tenant identity or crossing into workspace routes.</p>
+        <p>Use one of the known public pages below.</p>
       </section>
 
       <PublicPanel>
-        <p className="pb-public-panel-eyebrow">Start from a known route</p>
+        <p className="pb-public-panel-eyebrow">Known public pages</p>
         <ul className="pb-public-bullet-list">
           <li>
-            <code>/</code> for the product-led public landing page
+            <code>/</code> for the product overview
           </li>
           <li>
-            <code>/start-demo</code> for provisioning and one-time credential handoff
+            <code>/start-demo</code> for creating a demo workspace
           </li>
           <li>
-            <code>/login</code> for direct sign in with existing demo credentials
+            <code>/login</code> for signing in with existing demo credentials
           </li>
           <li>
-            <code>/about</code> for scope and supporting context
+            <code>/about</code> for product and scope notes
           </li>
         </ul>
       </PublicPanel>

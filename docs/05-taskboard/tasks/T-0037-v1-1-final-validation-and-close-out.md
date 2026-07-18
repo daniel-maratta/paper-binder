@@ -16,7 +16,7 @@ agent
 2026-07-15
 
 ## Updated
-2026-07-17
+2026-07-18
 
 ## Checkpoint
 Cross-checkpoint
@@ -58,7 +58,9 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
 ## Current State
 - Active. `T-0034`, `T-0035`, and `T-0036` are complete enough that the remaining `v1.1` work is now the final validation and close-out lane.
 - Known carry-in items for this task already include the unrelated tenant-host users-route browser-form drift plus the broader build/browser/dependency warning review noted during the earlier slices.
-- Inventory refreshed on `2026-07-17`: Release build is currently clean (`0` warnings), the scripted frontend/unit/integration bundle passed, the browser E2E suite passed without reproducing tenant-host drift, NuGet vulnerability checks returned clean, and `npm audit` still reports one remaining frontend advisory cluster (`7` findings total: `4` high, `1` moderate, `2` low).
+- Controlled-copy working artifacts now exist under `docs/95-delivery/` (`t-0037-controlled-copy-pass-inventory.md` and `t-0037-copy-strategy.md`), and the current public plus authenticated frontend copy pass has landed with matching component/E2E expectation updates.
+- Validation refreshed on `2026-07-18`: `validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` passed, `run-browser-e2e.ps1` passed both root-host and tenant-host suites, release build remains clean (`0` warnings), and NuGet vulnerability checks remain clean. The unresolved advisory surface is still the frontend `npm audit` cluster (`7` findings total: `4` high, `1` moderate, `2` low).
+- Local reviewer-path defaults are now aligned with the checkpoint contract again: the challenge bypass stays off by default, and `scripts/set-local-challenge-bypass.ps1` provides the supported local-only opt-in toggle.
 
 ## Touch Points
 - `docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md`
@@ -77,7 +79,7 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
   6. release/merge/tag/deploy close-out preparation
 
 ## Next Action
-- Confirm whether the poison-pill item still applies, then run the responsive plus accessibility passes and decide whether the remaining `npm audit` advisory cluster is remediated inside `T-0037` or split into explicit follow-up tracking before close-out.
+- Confirm whether the poison-pill item still applies, then run the remaining responsive, accessibility, and final code-quality passes and decide whether the unresolved `npm audit` advisory cluster and users-route browser-form drift are remediated inside `T-0037` or promoted into explicit follow-up tracking before close-out.
 
 ## Validation Plan
 - Canonical build/test/browser/docs validation bundle

@@ -11,13 +11,13 @@ function InvalidHostPage({ hostContext }: { hostContext: InvalidHostContext }) {
           <CardHeader>
             <CardTitle>This PaperBinder address is unavailable</CardTitle>
             <CardDescription>
-              PaperBinder stays host-aware. The SPA opens only the main site or a single-label workspace address.
+              Use the main PaperBinder site or a supported workspace address.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <CardMeta label="Current host" value={hostContext.currentHost} />
-            <CardMeta label="Configured root host" value={hostContext.environment.rootHost} />
-            <CardMeta label="Tenant base domain" value={hostContext.environment.tenantBaseDomain} />
+            <CardMeta label="Main site host" value={hostContext.environment.rootHost} />
+            <CardMeta label="Workspace base domain" value={hostContext.environment.tenantBaseDomain} />
           </CardContent>
         </Card>
         <Alert variant="warning">

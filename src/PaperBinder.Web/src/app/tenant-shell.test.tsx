@@ -317,7 +317,7 @@ describe("tenant shell", () => {
 
     expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Manage users" })).not.toBeInTheDocument();
-    expect(screen.getByText(/workspace admins see user management here/i)).toBeInTheDocument();
+    expect(screen.getByText(/user management is available to workspace admins/i)).toBeInTheDocument();
   });
 
   it("Should_RenderActiveImpersonationStatus_AndStopFromTenantShell_When_ImpersonationIsActive", async () => {
@@ -342,11 +342,11 @@ describe("tenant shell", () => {
     expect(await screen.findByText("Viewing as")).toBeInTheDocument();
     expect(screen.getByText("reader@acme-demo.local")).toBeInTheDocument();
     expect(screen.getByText(/signed in as owner@acme-demo.local/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Stop impersonation" }).className).toContain(
+    expect(screen.getByRole("button", { name: "Stop view as" }).className).toContain(
       "border-[var(--pb-status-danger)]"
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Stop impersonation" }));
+    fireEvent.click(screen.getByRole("button", { name: "Stop view as" }));
 
     await waitFor(() => expect(stopImpersonation).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.queryByText("Viewing as")).not.toBeInTheDocument());
@@ -565,14 +565,14 @@ describe("tenant shell", () => {
 
     expect(await screen.findByRole("heading", { name: "Archived handbook" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Document preview" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Reference metadata" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Document metadata" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Archived detail" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Review checklist" })).toBeInTheDocument();
     expect(screen.getByText("Confirm retention policy")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "View Source" })).toBeInTheDocument();
     expect(screen.getAllByText("Archived")).toHaveLength(2);
     expect(screen.queryByText("# Archived detail")).not.toBeInTheDocument();
-    expect(screen.getByText(/direct reads remain available/i)).toBeInTheDocument();
+    expect(screen.getByText(/direct links still work for allowed users/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "View Source" }));
 
@@ -841,10 +841,10 @@ describe("tenant shell", () => {
     expect(await screen.findByRole("heading", { name: "Users and access" })).toBeInTheDocument();
     fireEvent.click(await screen.findByRole("button", { name: "Manage user owner@acme-demo.local" }));
     expect(await screen.findByText("Not eligible")).toBeInTheDocument();
-    expect(screen.getByText(/cannot impersonate itself/i)).toBeInTheDocument();
+    expect(screen.getByText(/cannot start view as for the current effective user/i)).toBeInTheDocument();
 
     fireEvent.click(await screen.findByRole("button", { name: "Manage user member@acme-demo.local" }));
-    fireEvent.click(await screen.findByRole("button", { name: "Impersonate this user" }));
+    fireEvent.click(await screen.findByRole("button", { name: "View as this user" }));
 
     await waitFor(() => expect(startImpersonation).toHaveBeenCalledWith("user-2"));
     expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();

@@ -133,17 +133,17 @@ describe("root-host flows", () => {
     expect(screen.getByRole("link", { name: "Start live demo" })).toHaveAttribute("href", "/start-demo");
     expect(
       screen.getByRole("img", {
-        name: "PaperBinder dashboard showing lease metrics, recent binders, and next actions inside the authenticated workspace."
+        name: "PaperBinder dashboard with lease details, recent binders, and next actions."
       })
     ).toHaveAttribute("src", "/presentation/dashboard-proof.png");
     expect(
       screen.getByRole("img", {
-        name: "PaperBinder start-demo flow shown in a handheld preview with one-time credentials and the live workspace handoff."
+        name: "PaperBinder start-demo screen with one-time credentials for a new workspace."
       })
     ).toHaveAttribute("src", "/presentation/start-demo-proof.png");
     expect(
       screen.getByRole("img", {
-        name: "PaperBinder users and access page showing current users, add-user form, role management, and view-as actions."
+        name: "PaperBinder users page with current users, role changes, and view as actions."
       })
     ).toHaveAttribute("src", "/presentation/users-proof.png");
     expect(
