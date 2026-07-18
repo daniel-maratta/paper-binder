@@ -34,10 +34,9 @@ Current active execution target: `T-0037`.
 | Run responsive QA | [T-0037](./tasks/T-0037-v1-1-final-validation-and-close-out.md) | `T-0033`, temp UI backlog | Representative desktop plus mobile/tablet |
 | Run the accessibility audit and remediation pass | [T-0037](./tasks/T-0037-v1-1-final-validation-and-close-out.md) | `T-0033`, temp UI backlog | Record findings and remediation |
 | Run the final staff-level code-quality audit | [T-0037](./tasks/T-0037-v1-1-final-validation-and-close-out.md) | `T-0033`, temp UI backlog | Changed-surface hotspot review |
-| Run the final controlled copy pass against the forbidden-implication rules | [T-0037](./tasks/T-0037-v1-1-final-validation-and-close-out.md) | `T-0033`, temp UI backlog | Final cross-surface wording pass |
 | Revisit the unrelated tenant-host users-route browser-form drift | [T-0037](./tasks/T-0037-v1-1-final-validation-and-close-out.md) | `2026-W10` task log note | Handle it with the broader close-out warning/issues pass rather than reopening `T-0035` |
 | Revisit remaining build warnings, browser-suite warnings, and dependency or vulnerability advisories | [T-0037](./tasks/T-0037-v1-1-final-validation-and-close-out.md) | `2026-W10` task log note | Either remediate or leave durable follow-up tracking before `v1.1` close-out |
-| Record final validation evidence and complete `v1.1.0` close-out planning | [T-0037](./tasks/T-0037-v1-1-final-validation-and-close-out.md) | `T-0033` | Merge/tag/deploy follow-through planning |
+| Mirror the recorded validation evidence into the release-facing artifact set and complete `v1.1.0` close-out planning | [T-0037](./tasks/T-0037-v1-1-final-validation-and-close-out.md) | `T-0033` | Merge/tag/deploy follow-through planning |
 
 ## Deferred Until After V1.1
 

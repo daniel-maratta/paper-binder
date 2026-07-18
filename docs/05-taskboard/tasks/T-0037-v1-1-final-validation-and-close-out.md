@@ -37,9 +37,9 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
 - [ ] Responsive verification is completed and recorded for representative desktop and mobile/tablet public and authenticated surfaces.
 - [ ] The accessibility audit/remediation pass is completed and recorded.
 - [ ] The final staff-level code-quality audit across the changed surface area is completed and recorded.
-- [ ] The final controlled copy pass against the forbidden-implication rules is completed and recorded.
+- [x] The final controlled copy pass against the forbidden-implication rules is completed and recorded.
 - [ ] Remaining non-blocking browser-suite drift, build warnings, and dependency or vulnerability advisories are either remediated or explicitly triaged with durable follow-up tracking.
-- [ ] Final validation evidence is recorded in the owning taskboard docs and ready to be mirrored into the release-facing artifact set.
+- [x] Final validation evidence is recorded in the owning taskboard docs and ready to be mirrored into the release-facing artifact set.
 - [ ] The `v1.1.0` close-out strategy is documented clearly enough that merge-to-`main`, tagging, and deployment can proceed without ad hoc reconstruction.
 
 ## Dependencies
