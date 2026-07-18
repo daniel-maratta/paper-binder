@@ -85,6 +85,7 @@ Canonical workspace commands live in `scripts/`:
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\set-local-challenge-bypass.ps1 -Mode Status`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
   - `pwsh ./scripts/preflight.ps1 -Profile Full`
@@ -99,6 +100,7 @@ Canonical workspace commands live in `scripts/`:
   - `pwsh ./scripts/validate-launch-profiles.ps1`
   - `pwsh ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - `pwsh ./scripts/run-browser-e2e.ps1`
+  - `pwsh ./scripts/set-local-challenge-bypass.ps1 -Mode Status`
   - `pwsh ./scripts/start-local.ps1`
 - Visual Studio:
   - Open `PaperBinder.sln`.
@@ -128,7 +130,7 @@ Policy:
 - `App + Worker (Process)` is the fast engineering path when you only want the compiled SPA on `http://localhost:5080` and a separate worker process.
 - `API Only` launches in Development indicate process liveness only, while `UI Only` serves the compiled SPA through the same API host.
 - VS Code keeps the separate `Launch Frontend Dev Server` path as an extra focused frontend-debug surface.
-- The explicit local challenge bypass is a supported local-development aid, but it remains opt-in and should stay off for the canonical reviewer path.
+- The explicit local challenge bypass is a supported local-development aid, but it remains opt-in and should stay off for the canonical reviewer path. Use `scripts/set-local-challenge-bypass.ps1 -Mode Enable` only for intentional local challenge-bypass sessions, and return it to `Disable` afterward.
 - Interactive API documentation can be introduced later when real endpoint contracts exist and authorization policy is in place.
 - `scripts/test.ps1` always runs unit tests plus the non-Docker integration bucket; Docker-backed integration tests run automatically when Docker is available and can be required explicitly via `-DockerIntegrationMode Require` for checkpoint or CI validation.
 

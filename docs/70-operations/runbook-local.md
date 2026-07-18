@@ -165,7 +165,9 @@ Shared test and production use separate public hostnames plus `docker-compose.te
 The checked-in `.env.example` values are fake/demo-safe and are intended to work for the local Docker topology without exposing real secrets.
 The commented Namecheap values in `.env.example` exist only to document the shared-test wildcard-TLS contract; leave them unset for ordinary local work.
 `PAPERBINDER_PUBLIC_ROOT_URL` should stay aligned with the root host URL exposed by the local reverse proxy.
-If you need to test past the root-host challenge locally, set both `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=true` and `VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=true` in `.env`, then rebuild/restart the relevant app surface. Leave both flags `false` for the normal reviewer path.
+Leave both local challenge-bypass flags `false` for the normal reviewer path.
+If you need to test past the root-host challenge locally, run `powershell -ExecutionPolicy Bypass -File .\scripts\set-local-challenge-bypass.ps1 -Mode Enable`, then rebuild/restart the relevant app surface.
+Run `powershell -ExecutionPolicy Bypass -File .\scripts\set-local-challenge-bypass.ps1 -Mode Disable` when you are done so checkpoint validation and reviewer-path manual testing return to the expected default.
 The bypass is accepted only when the configured root host is loopback or `.localhost`; enabling it against a non-local root URL now fails fast.
 `Reviewer Full Stack`, release validation, and any reviewer-facing manual walkthrough should treat bypass-off as the default expected state.
 
