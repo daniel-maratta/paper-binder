@@ -153,7 +153,7 @@ describe("root-host flows", () => {
     expect(
       screen.getByText("PaperBinder is a portfolio SaaS demo designed and built by Daniel Maratta.")
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Canonical demo: paperbinder.danielmaratta.com" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "paperbinder.danielmaratta.com" })).toHaveAttribute(
       "href",
       "https://paperbinder.danielmaratta.com"
     );

@@ -649,10 +649,67 @@ a {
   max-width: 980px;
 }
 
+.pb-public-story-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pb-public-story-section {
+  display: grid;
+  gap: 24px;
+  padding: 32px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.pb-public-story-section--split {
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  align-items: center;
+}
+
+.pb-public-story-section--accent {
+  padding: 32px;
+  border: 1px solid rgba(200, 215, 232, 0.14);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(16, 33, 58, 0.82), rgba(7, 20, 35, 0.66)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+}
+
+.pb-public-story-copy h2,
+.pb-public-side-section h2 {
+  margin-top: 14px;
+  color: #f8fbff;
+}
+
+.pb-public-story-copy p,
+.pb-public-side-section p,
+.pb-public-story-section .pb-public-bullet-list,
+.pb-public-side-section .pb-public-bullet-list,
+.pb-public-story-section .pb-public-step-list,
+.pb-public-story-section .pb-public-link-list,
+.pb-public-story-section .pb-public-article-list {
+  margin-top: 14px;
+}
+
+.pb-public-story-media {
+  min-width: 0;
+}
+
 .pb-public-side-stack {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.pb-public-side-section {
+  padding: 0 0 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pb-public-side-section:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
 }
 
 .pb-public-bullet-list {
@@ -666,10 +723,42 @@ a {
   line-height: 1.65;
 }
 
+.pb-public-story-section .pb-public-bullet-list,
+.pb-public-side-section .pb-public-bullet-list {
+  color: rgba(228, 236, 246, 0.86);
+}
+
 .pb-public-form-stack {
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.pb-public-step-list,
+.pb-public-link-list,
+.pb-public-article-list {
+  margin: 0;
+  padding-left: 20px;
+  color: rgba(228, 236, 246, 0.86);
+  line-height: 1.8;
+}
+
+.pb-public-article-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pb-public-link-list a {
+  color: #f8fbff;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.16em;
+}
+
+.pb-public-link-list a:hover,
+.pb-public-link-list a:focus-visible {
+  color: #ffffff;
 }
 
 .pb-credential-field {
@@ -1927,6 +2016,10 @@ a {
     grid-template-columns: 1fr;
     gap: 18px;
     padding: 24px;
+  }
+
+  .pb-public-story-section--split {
+    grid-template-columns: 1fr;
   }
 
   .pb-public-feature + .pb-public-feature {

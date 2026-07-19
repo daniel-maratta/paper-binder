@@ -80,6 +80,20 @@ function PublicPanel({
   return <section className={cn("pb-public-panel", className)} {...props} />;
 }
 
+function PublicAsideSection({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"section">) {
+  return <section className={cn("pb-public-side-section", className)} {...props} />;
+}
+
+function PublicStorySection({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"section">) {
+  return <section className={cn("pb-public-story-section", className)} {...props} />;
+}
+
 function PublicStat({
   label,
   value
@@ -247,7 +261,7 @@ function RootShell({ hostContext }: { hostContext: RootHostContext }) {
             rel="noreferrer"
             target="_blank"
           >
-            Canonical demo: {productIdentity.canonicalDemoHost}
+            {productIdentity.canonicalDemoHost}
           </a>
           <a
             className="pb-public-footer-link"
@@ -257,7 +271,6 @@ function RootShell({ hostContext }: { hostContext: RootHostContext }) {
           >
             {productIdentity.authorName}
           </a>
-          <span>Current host: {hostContext.currentOrigin}</span>
         </div>
       </footer>
     </div>
@@ -326,31 +339,48 @@ function RootLandingPage() {
         ))}
       </section>
 
-      <section className="pb-public-secondary-grid">
-        <PublicPanel className="pb-public-panel--soft pb-public-panel--proof">
-          <p className="pb-public-panel-eyebrow">Users and access</p>
-          <h2>Manage users without leaving the workspace.</h2>
-          <p>
-            Workspace admins add users, update roles, and start view as from one page.
-          </p>
-          <div className="pb-public-proof-card">
-            <img
-              alt="PaperBinder users page with current users, role changes, and view as actions."
-              className="pb-public-proof-image pb-public-proof-image--supporting"
-              src="/presentation/users-proof.png"
-            />
+      <div className="pb-public-story-stack">
+        <PublicStorySection className="pb-public-story-section--split">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">Users and access</p>
+            <h2>Manage the workspace without hopping between admin screens.</h2>
+            <p>
+              Workspace admins can keep the full user list in view, adjust roles, hand off one-time
+              credentials, and use view as from the same route.
+            </p>
+            <ul className="pb-public-bullet-list">
+              <li>Owner and access context stay visible while reviewers move through the workspace.</li>
+              <li>User creation and credential handoff happen in the same flow.</li>
+              <li>Role changes and view as stay in one place instead of fragmenting the demo.</li>
+            </ul>
           </div>
-        </PublicPanel>
+          <div className="pb-public-story-media">
+            <div className="pb-public-proof-card">
+              <img
+                alt="PaperBinder users page with current users, role changes, and view as actions."
+                className="pb-public-proof-image pb-public-proof-image--supporting"
+                src="/presentation/users-proof.png"
+              />
+            </div>
+          </div>
+        </PublicStorySection>
 
-        <PublicPanel className="pb-public-panel--soft">
-          <p className="pb-public-panel-eyebrow">Demo path</p>
-          <h2>Start with the product, not a setup checklist.</h2>
-          <p>
-            Create a temporary workspace, complete the challenge, and continue with one-time credentials when
-            the workspace is ready.
-          </p>
-        </PublicPanel>
-      </section>
+        <PublicStorySection className="pb-public-story-section--accent">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">Demo path</p>
+            <h2>Start with the product, not a setup checklist.</h2>
+            <p>
+              The public flow is intentionally short: create a temporary workspace, save the one-time
+              credentials, and continue straight into the tenant experience.
+            </p>
+          </div>
+          <ol className="pb-public-step-list">
+            <li>Choose a workspace name and complete the challenge.</li>
+            <li>Save the generated credentials before continuing.</li>
+            <li>Review binders, documents, and tenant access from the live workspace.</li>
+          </ol>
+        </PublicStorySection>
+      </div>
     </div>
   );
 }
@@ -414,7 +444,7 @@ function ProvisionSuccessPanel({
         </p>
       </div>
 
-      <Alert variant="warning">
+      <Alert className="mt-4 pt-6" variant="info">
         <AlertTitle>Save these credentials now</AlertTitle>
         <AlertBody>Save the generated email and password before you continue. This is the only time they are shown.</AlertBody>
       </Alert>
@@ -458,7 +488,7 @@ function ProvisionSuccessPanel({
         <CredentialDisplayField
           copyButtonLabel="Copy password"
           hideButtonLabel="Hide password"
-          hint="Shown once on this screen."
+          hint="This password won't be shown again."
           label="Password"
           sensitive
           showButtonLabel="Show password"
@@ -632,7 +662,7 @@ function RootWelcomePage({
         )}
 
         <div className="pb-public-side-stack">
-          <PublicPanel>
+          <PublicAsideSection>
             <p className="pb-public-panel-eyebrow">Use existing credentials</p>
             <h2>Sign in to an existing workspace.</h2>
             <p>If you already have demo credentials, go straight to sign in.</p>
@@ -641,9 +671,9 @@ function RootWelcomePage({
                 <NavLink to="/login">Go to sign in</NavLink>
               </Button>
             </div>
-          </PublicPanel>
+          </PublicAsideSection>
 
-          <PublicPanel>
+          <PublicAsideSection>
             <p className="pb-public-panel-eyebrow">What stays true</p>
             <ul className="pb-public-bullet-list">
               <li>Only the workspace name and challenge proof are submitted here.</li>
@@ -652,7 +682,7 @@ function RootWelcomePage({
               <li>Failures stay focused on challenge, credentials, rate limits, and expiry.</li>
               <li>Demo workspaces are temporary and removed during periodic cleanup.</li>
             </ul>
-          </PublicPanel>
+          </PublicAsideSection>
         </div>
       </div>
     </div>
@@ -850,7 +880,7 @@ function RootLoginPage({
         </PublicPanel>
 
         <div className="pb-public-side-stack">
-          <PublicPanel>
+          <PublicAsideSection>
             <p className="pb-public-panel-eyebrow">Need a new workspace?</p>
             <h2>Start with a fresh demo workspace.</h2>
             <p>
@@ -861,16 +891,16 @@ function RootLoginPage({
                 <NavLink to="/start-demo">Start demo instead</NavLink>
               </Button>
             </div>
-          </PublicPanel>
+          </PublicAsideSection>
 
-          <PublicPanel>
+          <PublicAsideSection>
             <p className="pb-public-panel-eyebrow">Security posture</p>
             <ul className="pb-public-bullet-list">
               <li>Complete the challenge before signing in, unless local bypass is enabled.</li>
               <li>If sign in fails, the challenge must be completed again before retrying.</li>
               <li>After sign in, PaperBinder sends you to the matching workspace.</li>
             </ul>
-          </PublicPanel>
+          </PublicAsideSection>
         </div>
       </div>
     </div>
@@ -888,41 +918,69 @@ function RootAboutPage() {
         </p>
       </section>
 
-      <div className="pb-public-secondary-grid">
-        <PublicPanel>
-          <p className="pb-public-panel-eyebrow">Core product truth</p>
-          <h2>Binders, documents, and workspace access.</h2>
+      <div className="pb-public-story-stack">
+        <PublicStorySection className="pb-public-story-section--accent">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">About PaperBinder</p>
+            <h2>A deliberately narrow SaaS demo built for technical review.</h2>
+            <p>
+              PaperBinder is a scoped artifact rather than a broad content platform. The product surface stays
+              focused on tenant isolation, binder-level access, immutable text documents, and a reviewer-friendly
+              demo path.
+            </p>
+          </div>
           <dl className="pb-public-stat-grid">
             <PublicStat label="Core objects" value="Binders and immutable text documents" />
             <PublicStat label="Access model" value="Role-aware and tenant-isolated" />
             <PublicStat label="Demo path" value="Temporary workspace with one-time credentials" />
           </dl>
-        </PublicPanel>
+        </PublicStorySection>
 
-        <PublicPanel>
-          <p className="pb-public-panel-eyebrow">Intentional constraints</p>
-          <h2>This demo stays intentionally narrow.</h2>
+        <PublicStorySection>
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">Intentional constraints</p>
+            <h2>The demo stays narrow on purpose.</h2>
+          </div>
           <ul className="pb-public-bullet-list">
             <li>The product centers on binders, immutable documents, and workspace administration.</li>
             <li>Each workspace is isolated and access stays role-based.</li>
             <li>Demo tenants are temporary and may be removed during routine cleanup.</li>
-            <li>Repository documentation covers the demo scope and implementation details.</li>
+            <li>Repository documentation covers the scope and implementation decisions behind the demo.</li>
           </ul>
-        </PublicPanel>
+        </PublicStorySection>
 
-        <PublicPanel>
-          <p className="pb-public-panel-eyebrow">Project provenance</p>
-          <h2>Designed and built by Daniel Maratta.</h2>
-          <p>{productIdentity.provenanceSummary}</p>
-          <ul className="pb-public-bullet-list">
+        <PublicStorySection>
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">Articles</p>
+            <h2>Supporting write-ups are in progress.</h2>
+            <p>
+              The first article slot is reserved for a deeper walkthrough of the product architecture,
+              implementation choices, and reviewer tradeoffs.
+            </p>
+          </div>
+          <ul className="pb-public-article-list">
+            <li>
+              <strong>Architecture walkthrough</strong>
+              <span>In progress.</span>
+            </li>
+          </ul>
+        </PublicStorySection>
+
+        <PublicStorySection>
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">Links</p>
+            <h2>Canonical project references.</h2>
+            <p>{productIdentity.provenanceSummary}</p>
+          </div>
+          <ul className="pb-public-link-list">
             <li>
               <a href={productIdentity.canonicalDemoUrl} rel="noreferrer" target="_blank">
-                Canonical demo: {productIdentity.canonicalDemoHost}
+                {productIdentity.canonicalDemoHost}
               </a>
             </li>
             <li>
               <a href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
-                Author site: {productIdentity.authorUrl}
+                {productIdentity.authorUrl}
               </a>
             </li>
             <li>
@@ -931,7 +989,7 @@ function RootAboutPage() {
               </a>
             </li>
           </ul>
-        </PublicPanel>
+        </PublicStorySection>
       </div>
     </div>
   );
