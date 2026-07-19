@@ -14,6 +14,8 @@ public static class BackendLandingPage
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Daniel Maratta">
+  <meta name="description" content="PaperBinder API host for the Daniel Maratta portfolio SaaS demo.">
   <title>PaperBinder API</title>
   <style>
     :root {
@@ -68,6 +70,10 @@ public static class BackendLandingPage
       font-family: Consolas, "Courier New", monospace;
       font-size: 0.95em;
     }
+
+    a {
+      color: #17324d;
+    }
   </style>
 </head>
 <body>
@@ -79,10 +85,16 @@ public static class BackendLandingPage
         This endpoint is a backend-process live-state page. In ordinary local development,
         the SPA runs separately on <code>http://localhost:5173</code>.
       </p>
+      <p>
+        PaperBinder is a portfolio SaaS demo designed and built by Daniel Maratta.
+      </p>
       <ul>
         <li>Environment: <code>{{encodedEnvironmentName}}</code></li>
         <li>Purpose: confirm that the API process launched successfully</li>
         <li>Policy: CP1 does not expose interactive API documentation from the backend host</li>
+        <li>Canonical demo: <a href="https://paperbinder.danielmaratta.com">paperbinder.danielmaratta.com</a></li>
+        <li>Author site: <a href="https://danielmaratta.com">danielmaratta.com</a></li>
+        <li>Canonical repository: <a href="https://github.com/daniel-maratta/paper-binder.git">GitHub history</a></li>
       </ul>
     </section>
   </main>

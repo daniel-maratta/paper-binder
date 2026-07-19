@@ -204,6 +204,14 @@ describe("tenant shell", () => {
       "https://paperbinder.example.test/about"
     );
     expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute("target", "_blank");
+    expect(screen.getByRole("link", { name: "Canonical demo: paperbinder.danielmaratta.com" })).toHaveAttribute(
+      "href",
+      "https://paperbinder.danielmaratta.com"
+    );
+    expect(screen.getAllByRole("link", { name: "Daniel Maratta" })[0]).toHaveAttribute(
+      "href",
+      "https://danielmaratta.com"
+    );
     expect(screen.getByText("acme")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Copy tenant slug" })).not.toBeInTheDocument();
   });

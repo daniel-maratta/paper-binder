@@ -14,6 +14,7 @@ import { Toast, ToastViewport } from "../components/ui/toast";
 import { cn } from "../lib/cn";
 import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
 import type { TenantHostContext } from "./host-context";
+import { productIdentity } from "./product-identity";
 import { tenantNavigationItems } from "./route-registry";
 import {
   mapTenantHostError,
@@ -756,6 +757,7 @@ export function TenantShell({
   const queuedToastCount = Math.max(0, toasts.length - visibleToasts.length);
   const isViewingAs = impersonation.isImpersonating;
   const aboutUrl = new URL("/about", hostContext.environment.rootUrl).toString();
+  const canonicalDemoLabel = `Canonical demo: ${productIdentity.canonicalDemoHost}`;
 
   return (
     <div className="pb-auth-shell">
@@ -817,6 +819,26 @@ export function TenantShell({
                 v{packageJson.version}
               </p>
             </div>
+            <div className="pb-auth-sidebar-footer-row">
+              <p className="pb-auth-sidebar-context-label">Designed by</p>
+              <p className="pb-auth-sidebar-context-value">{productIdentity.authorName}</p>
+            </div>
+            <a
+              className="pb-auth-sidebar-footer-link"
+              href={productIdentity.canonicalDemoUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {canonicalDemoLabel}
+            </a>
+            <a
+              className="pb-auth-sidebar-footer-link"
+              href={productIdentity.authorUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {productIdentity.authorName}
+            </a>
             <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
               About PaperBinder
             </a>

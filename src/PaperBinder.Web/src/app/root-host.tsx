@@ -7,6 +7,7 @@ import { Field } from "../components/ui/field";
 import { cn } from "../lib/cn";
 import { RootHostChallengeWidget } from "./challenge-widget";
 import { CredentialDisplayField } from "./credential-display-field";
+import { productIdentity } from "./product-identity";
 import { writeClipboardValue } from "./copy-value-chip";
 import type { RootHostContext } from "./host-context";
 import { rootRouteDefinitions } from "./route-registry";
@@ -235,8 +236,29 @@ function RootShell({ hostContext }: { hostContext: RootHostContext }) {
       </main>
 
       <footer className="pb-public-footer">
-        <span>&copy; 2026 PaperBinder</span>
-        <span>{hostContext.currentOrigin}</span>
+        <div className="pb-public-footer-copy">
+          <span>&copy; 2026 {productIdentity.productName}</span>
+          <span>{productIdentity.provenanceSummary}</span>
+        </div>
+        <div className="pb-public-footer-links">
+          <a
+            className="pb-public-footer-link"
+            href={productIdentity.canonicalDemoUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Canonical demo: {productIdentity.canonicalDemoHost}
+          </a>
+          <a
+            className="pb-public-footer-link"
+            href={productIdentity.authorUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {productIdentity.authorName}
+          </a>
+          <span>Current host: {hostContext.currentOrigin}</span>
+        </div>
       </footer>
     </div>
   );
@@ -885,6 +907,29 @@ function RootAboutPage() {
             <li>Each workspace is isolated and access stays role-based.</li>
             <li>Demo tenants are temporary and may be removed during routine cleanup.</li>
             <li>Repository documentation covers the demo scope and implementation details.</li>
+          </ul>
+        </PublicPanel>
+
+        <PublicPanel>
+          <p className="pb-public-panel-eyebrow">Project provenance</p>
+          <h2>Designed and built by Daniel Maratta.</h2>
+          <p>{productIdentity.provenanceSummary}</p>
+          <ul className="pb-public-bullet-list">
+            <li>
+              <a href={productIdentity.canonicalDemoUrl} rel="noreferrer" target="_blank">
+                Canonical demo: {productIdentity.canonicalDemoHost}
+              </a>
+            </li>
+            <li>
+              <a href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
+                Author site: {productIdentity.authorUrl}
+              </a>
+            </li>
+            <li>
+              <a href={productIdentity.canonicalRepositoryUrl} rel="noreferrer" target="_blank">
+                Canonical repository history
+              </a>
+            </li>
           </ul>
         </PublicPanel>
       </div>
