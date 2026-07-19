@@ -210,6 +210,14 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
         correlationId: error.correlationId,
         retryAfterLabel
       };
+    case "LAST_TENANT_OWNER_REQUIRED":
+      return {
+        title: "The workspace owner cannot be removed.",
+        detail: error.detail ?? "PaperBinder cannot remove the workspace owner.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
     case "TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN":
       return {
         title: "Lease extension is not available yet.",

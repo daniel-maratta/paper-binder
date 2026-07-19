@@ -1,5 +1,5 @@
-import { type FormEvent, type ReactNode, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import type {
   BinderDetail,
   BinderPolicy,
@@ -9,6 +9,7 @@ import type {
 } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
+import { Dialog, DialogContent, DialogFooter } from "../components/ui/dialog";
 import { Field } from "../components/ui/field";
 import { DataTable, type DataTableColumn, type DataTableRow } from "../components/ui/table";
 import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
@@ -49,6 +50,20 @@ function formatContentTypeLabel(contentType: string) {
   }
 
   return contentType;
+}
+
+function resolveMostRecentMatchingDocument(
+  documents: readonly DocumentSummary[],
+  title: string
+): DocumentSummary | null {
+  const trimmedTitle = title.trim();
+  if (trimmedTitle.length === 0) {
+    return null;
+  }
+
+  return documents
+    .filter((document) => document.title === trimmedTitle)
+    .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))[0] ?? null;
 }
 
 function resolveSupersededDocumentLabel(
@@ -259,6 +274,7 @@ function BinderPolicyCard({
 
 export function BinderDetailPage() {
   const { binderId = "" } = useParams();
+  const navigate = useNavigate();
   const { apiClient, impersonation, showToast } = useTenantShellContext();
   const [binder, setBinder] = useState<BinderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -270,10 +286,13 @@ export function BinderDetailPage() {
   const [createError, setCreateError] = useState<TenantHostErrorViewModel | null>(null);
   const [createdDocument, setCreatedDocument] = useState<DocumentDetail | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isDeleteBinderDialogOpen, setIsDeleteBinderDialogOpen] = useState(false);
+  const [binderDeleteConfirmationName, setBinderDeleteConfirmationName] = useState("");
+  const [deleteBinderError, setDeleteBinderError] = useState<TenantHostErrorViewModel | null>(null);
+  const [isDeletingBinder, setIsDeletingBinder] = useState(false);
   const documentTitleLength = documentTitle.length;
   const isDocumentTitleTooLong = documentTitleLength > 200;
-  const canSubmitDocument =
-    documentTitle.trim().length > 0 && documentContent.trim().length > 0 && !isDocumentTitleTooLong;
+  const canMutateBinder = impersonation.effective.role !== "BinderRead";
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -309,6 +328,37 @@ export function BinderDetailPage() {
     };
   }, [apiClient, binderId, impersonation.effective.userId]);
 
+  const matchingTitleDocument = useMemo(
+    () => (binder === null ? null : resolveMostRecentMatchingDocument(binder.documents, documentTitle)),
+    [binder, documentTitle]
+  );
+  const requiresMatchingTitleSupersede = matchingTitleDocument !== null;
+  const hasValidMatchingTitleSupersedeSelection =
+    !requiresMatchingTitleSupersede || documentSupersedesDocumentId === matchingTitleDocument.documentId;
+  const canSubmitDocument =
+    canMutateBinder &&
+    documentTitle.trim().length > 0 &&
+    documentContent.trim().length > 0 &&
+    !isDocumentTitleTooLong &&
+    hasValidMatchingTitleSupersedeSelection;
+
+  useEffect(() => {
+    if (matchingTitleDocument === null) {
+      if (documentSupersedesDocumentId !== "") {
+        setDocumentSupersedesDocumentId("");
+      }
+
+      return;
+    }
+
+    if (
+      documentSupersedesDocumentId.length > 0 &&
+      documentSupersedesDocumentId !== matchingTitleDocument.documentId
+    ) {
+      setDocumentSupersedesDocumentId("");
+    }
+  }, [documentSupersedesDocumentId, matchingTitleDocument]);
+
   async function handleCreateDocument(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -321,6 +371,14 @@ export function BinderDetailPage() {
 
     if (!documentContent.trim()) {
       nextFieldErrors.documentContent = "Document content is required.";
+    }
+
+    if (
+      matchingTitleDocument !== null &&
+      documentSupersedesDocumentId !== matchingTitleDocument.documentId
+    ) {
+      nextFieldErrors.documentSupersedesDocumentId =
+        "A document with this title already exists. Rename this document or supersede the current document with the same name.";
     }
 
     if (Object.keys(nextFieldErrors).length > 0) {
@@ -381,6 +439,29 @@ export function BinderDetailPage() {
       );
     } finally {
       setIsCreating(false);
+    }
+  }
+
+  async function handleDeleteBinder() {
+    if (binder === null) {
+      return;
+    }
+
+    setIsDeletingBinder(true);
+    setDeleteBinderError(null);
+
+    try {
+      await apiClient.deleteBinder(binder.binderId);
+      showToast({
+        title: "Binder deleted.",
+        body: `${binder.name} and its documents were removed from this workspace.`,
+        variant: "success"
+      });
+      navigate("/app/binders");
+    } catch (error) {
+      setDeleteBinderError(mapTenantHostError(error));
+    } finally {
+      setIsDeletingBinder(false);
     }
   }
 
@@ -504,100 +585,166 @@ export function BinderDetailPage() {
         <BinderPolicyCard binderId={binderId} />
       </div>
 
-      <section className="pb-auth-panel">
-        <div className="pb-auth-panel-header">
-          <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Add document</h3>
-          <p className="pb-auth-panel-copy">Save a new immutable source document in this binder.</p>
-        </div>
-        <div className="pb-auth-panel-body">
-          <form className="pb-auth-form-stack" onSubmit={handleCreateDocument}>
-            <Field
-              error={fieldErrors.documentTitle}
-              hint="Up to 200 characters."
-              label="Document title"
-            >
-              <input
-                aria-invalid={isDocumentTitleTooLong}
-                disabled={isCreating}
-                onChange={(event) => {
-                  setDocumentTitle(event.target.value);
-                  setFieldErrors((currentErrors) => ({
-                    ...currentErrors,
-                    documentTitle: undefined
-                  }));
-                  setCreateError(null);
-                }}
-                placeholder="Security handbook"
-                type="text"
-                value={documentTitle}
-              />
-            </Field>
-            <p className={`pb-auth-character-count${isDocumentTitleTooLong ? " pb-auth-character-count--invalid" : ""}`}>
-              {documentTitleLength}/200
-            </p>
-            <Field
-              error={fieldErrors.documentContent}
-              hint="Markdown supported."
-              label="Document source"
-            >
-              <textarea
-                className="min-h-48"
-                disabled={isCreating}
-                onChange={(event) => {
-                  setDocumentContent(event.target.value);
-                  setFieldErrors((currentErrors) => ({
-                    ...currentErrors,
-                    documentContent: undefined
-                  }));
-                  setCreateError(null);
-                }}
-                placeholder="# Operations handbook"
-                value={documentContent}
-              />
-            </Field>
-            <Field
-              error={fieldErrors.documentSupersedesDocumentId}
-              hint="Optional. Link this document to an earlier visible document in the same binder."
-              label="Supersedes"
-            >
-              <select
-                disabled={isCreating}
-                onChange={(event) => {
-                  setDocumentSupersedesDocumentId(event.target.value);
-                  setFieldErrors((currentErrors) => ({
-                    ...currentErrors,
-                    documentSupersedesDocumentId: undefined
-                  }));
-                  setCreateError(null);
-                }}
-                value={documentSupersedesDocumentId}
+      {canMutateBinder ? (
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Add document</h3>
+            <p className="pb-auth-panel-copy">Save a new immutable source document in this binder.</p>
+          </div>
+          <div className="pb-auth-panel-body">
+            <form className="pb-auth-form-stack" onSubmit={handleCreateDocument}>
+              <Field
+                error={fieldErrors.documentTitle}
+                hint="Up to 200 characters."
+                label="Document title"
               >
-                <option value="">No superseded document</option>
-                {binder.documents.map((document) => (
-                  <option key={document.documentId} value={document.documentId}>
-                    {document.title}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <TenantHostErrorNotice error={createError} />
-            {createdDocument ? (
-              <Alert variant="success">
-                <AlertTitle>Document added.</AlertTitle>
-                <AlertBody>{createdDocument.title} is now available in this binder.</AlertBody>
-                <div className="mt-3">
-                  <Button asChild type="button" variant="secondary">
-                    <Link to={`/app/documents/${createdDocument.documentId}`}>Open document</Link>
-                  </Button>
-                </div>
-              </Alert>
-            ) : null}
-            <Button disabled={!canSubmitDocument || isCreating} isLoading={isCreating} type="submit">
-              Add document
+                <input
+                  aria-invalid={isDocumentTitleTooLong}
+                  disabled={isCreating}
+                  onChange={(event) => {
+                    setDocumentTitle(event.target.value);
+                    setFieldErrors((currentErrors) => ({
+                      ...currentErrors,
+                      documentTitle: undefined,
+                      documentSupersedesDocumentId: undefined
+                    }));
+                    setCreateError(null);
+                  }}
+                  placeholder="Security handbook"
+                  type="text"
+                  value={documentTitle}
+                />
+              </Field>
+              <p className={`pb-auth-character-count${isDocumentTitleTooLong ? " pb-auth-character-count--invalid" : ""}`}>
+                {documentTitleLength}/200
+              </p>
+              <Field
+                error={fieldErrors.documentContent}
+                hint="Markdown supported."
+                label="Document source"
+              >
+                <textarea
+                  className="min-h-48"
+                  disabled={isCreating}
+                  onChange={(event) => {
+                    setDocumentContent(event.target.value);
+                    setFieldErrors((currentErrors) => ({
+                      ...currentErrors,
+                      documentContent: undefined
+                    }));
+                    setCreateError(null);
+                  }}
+                  placeholder="# Operations handbook"
+                  value={documentContent}
+                />
+              </Field>
+              <Field
+                error={fieldErrors.documentSupersedesDocumentId}
+                hint={
+                  matchingTitleDocument === null
+                    ? "Optional. Link this document to an earlier visible document in the same binder."
+                    : `A document named "${matchingTitleDocument.title}" already exists. Rename this document or supersede that document.`
+                }
+                label="Supersedes"
+              >
+                <select
+                  disabled={isCreating}
+                  onChange={(event) => {
+                    setDocumentSupersedesDocumentId(event.target.value);
+                    setFieldErrors((currentErrors) => ({
+                      ...currentErrors,
+                      documentSupersedesDocumentId: undefined
+                    }));
+                    setCreateError(null);
+                  }}
+                  value={documentSupersedesDocumentId}
+                >
+                  <option value="">No superseded document</option>
+                  {matchingTitleDocument !== null ? (
+                    <option value={matchingTitleDocument.documentId}>{matchingTitleDocument.title}</option>
+                  ) : null}
+                </select>
+              </Field>
+              <TenantHostErrorNotice error={createError} />
+              {createdDocument ? (
+                <Alert variant="success">
+                  <AlertTitle>Document added.</AlertTitle>
+                  <AlertBody>{createdDocument.title} is now available in this binder.</AlertBody>
+                  <div className="mt-3">
+                    <Button asChild type="button" variant="secondary">
+                      <Link to={`/app/documents/${createdDocument.documentId}`}>Open document</Link>
+                    </Button>
+                  </div>
+                </Alert>
+              ) : null}
+              <Button disabled={!canSubmitDocument || isCreating} isLoading={isCreating} type="submit">
+                Add document
+              </Button>
+            </form>
+          </div>
+        </section>
+      ) : null}
+
+      {canMutateBinder ? (
+        <section className="pb-auth-panel">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Delete binder</h3>
+            <p className="pb-auth-panel-copy">
+              Remove this binder and every document currently stored in it after confirming the binder name.
+            </p>
+          </div>
+          <div className="pb-auth-panel-body space-y-4">
+            <TenantHostErrorNotice error={deleteBinderError} />
+            <Button
+              onClick={() => {
+                setDeleteBinderError(null);
+                setBinderDeleteConfirmationName("");
+                setIsDeleteBinderDialogOpen(true);
+              }}
+              type="button"
+              variant="danger"
+            >
+              Delete binder
             </Button>
-          </form>
-        </div>
-      </section>
+          </div>
+        </section>
+      ) : null}
+
+      <Dialog onOpenChange={setIsDeleteBinderDialogOpen} open={isDeleteBinderDialogOpen}>
+        <DialogContent
+          description={`Type ${binder.name} to confirm permanent removal of this binder and its documents.`}
+          title={`Delete ${binder.name}?`}
+        >
+          <Field hint="This action removes the binder and all of its current documents." label="Confirm binder name">
+            <input
+              autoComplete="off"
+              disabled={isDeletingBinder}
+              onChange={(event) => {
+                setBinderDeleteConfirmationName(event.target.value);
+                setDeleteBinderError(null);
+              }}
+              placeholder={binder.name}
+              type="text"
+              value={binderDeleteConfirmationName}
+            />
+          </Field>
+          <TenantHostErrorNotice error={deleteBinderError} />
+          <DialogFooter>
+            <Button onClick={() => setIsDeleteBinderDialogOpen(false)} type="button" variant="secondary">
+              Cancel
+            </Button>
+            <Button
+              disabled={binderDeleteConfirmationName.trim() !== binder.name || isDeletingBinder}
+              isLoading={isDeletingBinder}
+              onClick={() => void handleDeleteBinder()}
+              type="button"
+              variant="danger"
+            >
+              Delete binder
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

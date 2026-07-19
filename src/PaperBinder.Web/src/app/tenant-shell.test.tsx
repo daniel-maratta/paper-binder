@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppRouter } from "../App";
@@ -204,14 +204,10 @@ describe("tenant shell", () => {
       "https://paperbinder.example.test/about"
     );
     expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute("target", "_blank");
-    expect(screen.getByRole("link", { name: "Canonical demo: paperbinder.danielmaratta.com" })).toHaveAttribute(
-      "href",
-      "https://paperbinder.danielmaratta.com"
-    );
-    expect(screen.getAllByRole("link", { name: "Daniel Maratta" })[0]).toHaveAttribute(
-      "href",
-      "https://danielmaratta.com"
-    );
+    expect(screen.getByText("Designed by")).toBeInTheDocument();
+    expect(screen.getByText("Daniel Maratta")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "paperbinder.danielmaratta.com" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Daniel Maratta" })).not.toBeInTheDocument();
     expect(screen.getByText("acme")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Copy tenant slug" })).not.toBeInTheDocument();
   });
@@ -469,7 +465,7 @@ describe("tenant shell", () => {
     const createDocument = vi.fn(async () => ({
       documentId: "document-2",
       binderId: "binder-1",
-      title: "Replacement handbook",
+      title: "Incident handbook",
       contentType: "markdown",
       content: "# Replacement",
       supersedesDocumentId: "document-1",
@@ -527,7 +523,7 @@ describe("tenant shell", () => {
     expect(await screen.findByText("Binder access saved.")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Document title"), {
-      target: { value: "Replacement handbook" }
+      target: { value: "Incident handbook" }
     });
     fireEvent.change(screen.getByLabelText("Document source"), {
       target: { value: "# Replacement" }
@@ -540,7 +536,7 @@ describe("tenant shell", () => {
     await waitFor(() =>
       expect(createDocument).toHaveBeenCalledWith({
         binderId: "binder-1",
-        title: "Replacement handbook",
+        title: "Incident handbook",
         contentType: "markdown",
         content: "# Replacement",
         supersedesDocumentId: "document-1"
@@ -552,6 +548,65 @@ describe("tenant shell", () => {
         .getAllByRole("link", { name: "Open document" })
         .some((link) => link.getAttribute("href") === "/app/documents/document-2")
     ).toBe(true);
+  });
+
+  it("Should_RestrictSameNameSupersedesChoices_AndDeleteBinder_When_ConfirmationMatches", async () => {
+    const deleteBinder = vi.fn(async () => undefined);
+
+    renderTenantRoute({
+      route: "/app/binders/binder-1",
+      apiClient: createApiClientStub({
+        getBinderDetail: vi.fn(async () => ({
+          binderId: "binder-1",
+          name: "Operations",
+          createdAt: "2026-04-16T11:00:00Z",
+          documents: [
+            {
+              documentId: "document-1",
+              binderId: "binder-1",
+              title: "Incident handbook",
+              contentType: "markdown",
+              supersedesDocumentId: null,
+              createdAt: "2026-04-16T11:10:00Z",
+              archivedAt: null
+            },
+            {
+              documentId: "document-2",
+              binderId: "binder-1",
+              title: "Runbook",
+              contentType: "markdown",
+              supersedesDocumentId: null,
+              createdAt: "2026-04-16T11:20:00Z",
+              archivedAt: null
+            }
+          ]
+        })) as PaperBinderApiClient["getBinderDetail"],
+        getBinderPolicy: vi.fn(async () => ({
+          mode: "inherit",
+          allowedRoles: []
+        })) as PaperBinderApiClient["getBinderPolicy"],
+        deleteBinder: deleteBinder as PaperBinderApiClient["deleteBinder"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Operations" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Document title"), {
+      target: { value: "Incident handbook" }
+    });
+
+    const supersedesSelect = screen.getByLabelText("Supersedes");
+    const options = Array.from(supersedesSelect.querySelectorAll("option")).map((option) => option.textContent);
+    expect(options).toEqual(["No superseded document", "Incident handbook"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete binder" }));
+    fireEvent.change(screen.getByLabelText("Confirm binder name"), {
+      target: { value: "Operations" }
+    });
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Delete binder" }));
+
+    await waitFor(() => expect(deleteBinder).toHaveBeenCalledWith("binder-1"));
+    expect(await screen.findByRole("heading", { name: "Binders" })).toBeInTheDocument();
   });
 
   it("Should_RenderReadOnlyArchivedDocument_When_DocumentDetailSucceeds", async () => {
@@ -592,6 +647,28 @@ describe("tenant shell", () => {
 
     expect(screen.getByRole("heading", { name: "Document preview" })).toBeInTheDocument();
     expect(screen.queryByText("# Archived detail")).not.toBeInTheDocument();
+  });
+
+  it("Should_DeleteDocument_When_ConfirmationMatches", async () => {
+    const deleteDocument = vi.fn(async () => undefined);
+
+    renderTenantRoute({
+      route: "/app/documents/document-1",
+      apiClient: createApiClientStub({
+        deleteDocument: deleteDocument as PaperBinderApiClient["deleteDocument"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { level: 2, name: "Security Handbook" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete document" }));
+    fireEvent.change(screen.getByLabelText("Confirm document name"), {
+      target: { value: "Security Handbook" }
+    });
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Delete document" }));
+
+    await waitFor(() => expect(deleteDocument).toHaveBeenCalledWith("document-1"));
+    expect(await screen.findByRole("heading", { name: "Operations" })).toBeInTheDocument();
   });
 
   it("Should_RenderTenantUsersAndApplyMutations_When_AdminActionsSucceed", async () => {
@@ -661,6 +738,47 @@ describe("tenant shell", () => {
     expect(await screen.findByText("Role updated.")).toBeInTheDocument();
   });
 
+  it("Should_KeepOwnerFirst_AndDeleteSelectedWorkspaceUser_When_ConfirmationMatches", async () => {
+    const deleteTenantUser = vi.fn(async () => undefined);
+
+    renderTenantRoute({
+      route: "/app/users",
+      apiClient: createApiClientStub({
+        listTenantUsers: vi.fn(async () => [
+          {
+            userId: "user-2",
+            email: "member@acme-demo.local",
+            role: "BinderRead",
+            isOwner: false
+          },
+          {
+            userId: "user-1",
+            email: "owner@acme-demo.local",
+            role: "TenantAdmin",
+            isOwner: true
+          }
+        ]) as PaperBinderApiClient["listTenantUsers"],
+        deleteTenantUser: deleteTenantUser as PaperBinderApiClient["deleteTenantUser"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Users and access" })).toBeInTheDocument();
+
+    const manageButtons = await screen.findAllByRole("button", { name: /Manage user /i });
+    expect(manageButtons[0]).toHaveAttribute("aria-label", "Manage user owner@acme-demo.local");
+
+    fireEvent.click(screen.getByRole("button", { name: "Manage user member@acme-demo.local" }));
+    fireEvent.click(screen.getByRole("button", { name: "Delete user" }));
+    fireEvent.change(screen.getByLabelText("Confirm email"), {
+      target: { value: "member@acme-demo.local" }
+    });
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Delete user" }));
+
+    await waitFor(() => expect(deleteTenantUser).toHaveBeenCalledWith("user-2"));
+    expect(await screen.findByText("User deleted.")).toBeInTheDocument();
+    expect(screen.queryByText("member@acme-demo.local")).not.toBeInTheDocument();
+  });
+
   it("Should_ShowServerIssuedCredentials_When_TenantUserIsCreated", async () => {
     const createTenantUser = vi.fn(async () => ({
       userId: "user-2",
@@ -701,7 +819,7 @@ describe("tenant shell", () => {
         role: "BinderRead"
       })
     );
-    expect(await screen.findByText(/record these one-time credentials now/i)).toBeInTheDocument();
+    expect(await screen.findByText(/save these credentials now/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Copy workspace email for member@acme-demo.local" })
     ).toBeInTheDocument();
