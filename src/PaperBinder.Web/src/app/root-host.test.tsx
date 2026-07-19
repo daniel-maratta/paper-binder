@@ -147,12 +147,13 @@ describe("root-host flows", () => {
       })
     ).toHaveAttribute("src", "/presentation/users-proof.png");
     expect(
-      screen.getAllByRole("link", { name: "Start Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
+      screen.getAllByRole("link", { name: "Access Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
     ).toBe(true);
     expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
     expect(
       screen.getByText("PaperBinder is a portfolio SaaS demo designed and built by Daniel Maratta.")
     ).toBeInTheDocument();
+    expect(document.title).toBe("PaperBinder product overview | PaperBinder");
     expect(screen.getByRole("link", { name: "paperbinder.danielmaratta.com" })).toHaveAttribute(
       "href",
       "https://paperbinder.danielmaratta.com"
@@ -271,6 +272,55 @@ describe("root-host flows", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Hide password" }));
     expect(passwordField).toHaveAttribute("type", "password");
+  });
+
+  it("Should_ClearProvisionedCredentials_When_PageIsRestoredFromBackForwardCache", async () => {
+    installTurnstileStub();
+
+    renderRootRoute({
+      route: "/start-demo"
+    });
+
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
+      target: { value: "Acme Demo" }
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
+
+    await screen.findByRole("heading", { name: "Workspace ready." });
+
+    const pageShowEvent = new Event("pageshow");
+    Object.defineProperty(pageShowEvent, "persisted", {
+      configurable: true,
+      value: true
+    });
+    window.dispatchEvent(pageShowEvent);
+
+    expect(await screen.findByRole("heading", { name: "Start a live demo workspace" })).toBeInTheDocument();
+    expect(screen.queryByDisplayValue("generated-password")).not.toBeInTheDocument();
+  });
+
+  it("Should_ClearLoginPassword_When_PageIsRestoredFromBackForwardCache", async () => {
+    renderRootRoute({
+      route: "/login",
+      challengeLocalBypassEnabled: true
+    });
+
+    const passwordField = screen.getByLabelText("Password") as HTMLInputElement;
+    fireEvent.change(passwordField, {
+      target: { value: "generated-password" }
+    });
+
+    const pageShowEvent = new Event("pageshow");
+    Object.defineProperty(pageShowEvent, "persisted", {
+      configurable: true,
+      value: true
+    });
+    window.dispatchEvent(pageShowEvent);
+
+    await waitFor(() => {
+      expect((screen.getByLabelText("Password") as HTMLInputElement).value).toBe("");
+    });
   });
 
   it("Should_ProvisionOrLogin_FromStartDemoFlow_When_ChallengeAndServerRedirectsSucceed", async () => {

@@ -73,6 +73,23 @@ function createRedirectError(): RootHostErrorViewModel {
   };
 }
 
+function setDocumentTitle(pageTitle: string) {
+  document.title = `${pageTitle} | ${productIdentity.productName}`;
+}
+
+function resolveRootPageTitle(pathname: string): string {
+  if (pathname === "/login") {
+    return "Sign in to a demo workspace";
+  }
+
+  const matchingRoute = rootRouteDefinitions.find((route) => route.path === pathname);
+  if (matchingRoute !== undefined) {
+    return matchingRoute.title;
+  }
+
+  return "PaperBinder public site";
+}
+
 function PublicPanel({
   className,
   ...props
@@ -227,7 +244,7 @@ function PublicTopbar({ hostContext }: { hostContext: RootHostContext }) {
           <span className="pb-public-debug-chip">Loopback alias</span>
         ) : null}
         <PublicShellLink className="pb-public-header-cta" to="/start-demo">
-          Start Demo
+          Access Demo
         </PublicShellLink>
       </div>
     </header>
@@ -237,6 +254,10 @@ function PublicTopbar({ hostContext }: { hostContext: RootHostContext }) {
 function RootShell({ hostContext }: { hostContext: RootHostContext }) {
   const location = useLocation();
   const isLandingRoute = location.pathname === "/";
+
+  useEffect(() => {
+    setDocumentTitle(resolveRootPageTitle(location.pathname));
+  }, [location.pathname]);
 
   return (
     <div className="pb-public-site">
@@ -527,6 +548,25 @@ function RootWelcomePage({
   const [provisionedTenant, setProvisionedTenant] = useState<ProvisionResponse | null>(null);
   const challengeLocalBypassEnabled = hostContext.environment.challengeLocalBypassEnabled;
 
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (!event.persisted) {
+        return;
+      }
+
+      setProvisionedTenant(null);
+      setChallengeToken(null);
+      setFieldErrors({});
+      setError(null);
+      setChallengeResetNonce((value) => value + 1);
+    }
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
+
   async function handleProvisionSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -707,6 +747,26 @@ function RootLoginPage({
   const [challengeResetNonce, setChallengeResetNonce] = useState(0);
   const [redirect, setRedirect] = useState<LoginResponse | null>(null);
   const challengeLocalBypassEnabled = hostContext.environment.challengeLocalBypassEnabled;
+
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (!event.persisted) {
+        return;
+      }
+
+      setPassword("");
+      setChallengeToken(null);
+      setFieldErrors({});
+      setError(null);
+      setRedirect(null);
+      setChallengeResetNonce((value) => value + 1);
+    }
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
 
   useEffect(() => {
     if (redirect === null) {
