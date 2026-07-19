@@ -63,7 +63,7 @@ Rules:
 - Immutable after creation.
 - Content cannot be updated in place.
 - Title is trimmed and must be 1-200 characters after trimming.
-- Titles must be unique within a binder unless the new document supersedes an earlier document with the same title.
+- Titles must be unique within a binder using trimmed, case-insensitive comparison unless the new document supersedes an earlier document with the same title.
 - ContentType is the exact contract value `markdown`.
 - Content must be non-whitespace and at most 50,000 characters.
 - New document may supersede a prior document via metadata.

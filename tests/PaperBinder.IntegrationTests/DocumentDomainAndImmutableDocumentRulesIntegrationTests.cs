@@ -550,7 +550,7 @@ public sealed class DocumentDomainAndImmutableDocumentRulesIntegrationTests(Post
             body: new
             {
                 binderId = binder.Id,
-                title = "Operations handbook",
+                title = "operations handbook",
                 contentType = MarkdownContentType,
                 content = "# duplicate"
             },
@@ -572,7 +572,7 @@ public sealed class DocumentDomainAndImmutableDocumentRulesIntegrationTests(Post
             body: new
             {
                 binderId = binder.Id,
-                title = "Operations handbook",
+                title = "OPERATIONS HANDBOOK",
                 contentType = MarkdownContentType,
                 content = "# duplicate",
                 supersedesDocumentId = differentTitleDocument.Id

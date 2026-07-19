@@ -61,8 +61,9 @@ function resolveMostRecentMatchingDocument(
     return null;
   }
 
+  const comparableTitle = trimmedTitle.toLowerCase();
   return documents
-    .filter((document) => document.title === trimmedTitle)
+    .filter((document) => document.title.trim().toLowerCase() === comparableTitle)
     .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))[0] ?? null;
 }
 

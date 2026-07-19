@@ -146,7 +146,7 @@ public sealed class DapperDocumentService(
                                 from documents
                                 where tenant_id = @TenantId
                                   and binder_id = @BinderId
-                                  and title = @Title;
+                                  and lower(title) = lower(@Title);
                                 """,
                                 new
                                 {
