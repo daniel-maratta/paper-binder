@@ -277,15 +277,12 @@ public sealed class DapperTenantUserAdministrationService(
                 }
 
                 var currentRole = targetUser.ToSummary().Role;
-                if (targetUser.IsOwner &&
-                    TenantUserAdministrationRules.WouldDeleteLastOwner(
-                        isOwner: true,
-                        await CountOwnersForUpdateAsync(connection, transaction, command.TenantId, innerCancellationToken)))
+                if (TenantUserAdministrationRules.WouldDeleteOwner(targetUser.IsOwner))
                 {
                     return TenantUserDeleteOutcome.Failed(
                         new TenantUserAdministrationFailure(
                             TenantUserAdministrationFailureKind.LastTenantOwnerRequired,
-                            "At least one tenant owner must remain assigned to the tenant."));
+                            "The workspace owner cannot be deleted."));
                 }
 
                 if (currentRole == TenantRole.TenantAdmin &&
@@ -414,19 +411,4 @@ public sealed class DapperTenantUserAdministrationService(
         return tenantAdminIds.Count();
     }
 
-    private static async Task<int> CountOwnersForUpdateAsync(
-        System.Data.Common.DbConnection connection,
-        System.Data.Common.DbTransaction transaction,
-        Guid tenantId,
-        CancellationToken cancellationToken)
-    {
-        var ownerIds = await connection.QueryAsync<Guid>(
-            new CommandDefinition(
-                TenantUserAdministrationSql.SelectTenantOwnerIdsForUpdate,
-                new { TenantId = tenantId },
-                transaction,
-                cancellationToken: cancellationToken));
-
-        return ownerIds.Count();
-    }
 }

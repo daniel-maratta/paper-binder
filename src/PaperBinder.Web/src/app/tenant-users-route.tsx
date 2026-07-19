@@ -551,13 +551,13 @@ export function UsersPage() {
                       </div>
                     </section>
 
-                    <section className="pb-auth-subpanel">
+                    <section className="pb-auth-subpanel pb-auth-subpanel--warning">
                       <div className="pb-auth-subpanel-header">
                         <h4 className="text-base font-semibold tracking-[-0.02em] text-[var(--pb-color-text)]">
                           Delete user
                         </h4>
                         <p className="mt-1 text-sm leading-6 text-[var(--pb-color-text-muted)]">
-                          Remove this workspace user after confirming the exact email address.
+                          Remove this workspace user.
                         </p>
                       </div>
                       <div className="mt-4 space-y-4">
@@ -565,19 +565,14 @@ export function UsersPage() {
                         {selectedUser.isOwner ? (
                           <Alert variant="info">
                             <AlertTitle>Owner deletion is disabled.</AlertTitle>
-                            <AlertBody>The workspace owner cannot be deleted from this screen.</AlertBody>
+                            <AlertBody>The workspace owner cannot be deleted.</AlertBody>
                           </Alert>
                         ) : isSelectedUserSelf ? (
                           <Alert variant="info">
                             <AlertTitle>Self-deletion is disabled.</AlertTitle>
                             <AlertBody>You cannot remove the current effective user from this screen.</AlertBody>
                           </Alert>
-                        ) : (
-                          <Alert variant="warning">
-                            <AlertTitle>Confirm before removing this user.</AlertTitle>
-                            <AlertBody>Type the exact email address in the confirmation dialog before removal.</AlertBody>
-                          </Alert>
-                        )}
+                        ) : null}
                         <Button
                           className="w-full justify-center sm:w-auto"
                           disabled={!canDeleteSelectedUser}

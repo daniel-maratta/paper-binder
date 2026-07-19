@@ -165,7 +165,7 @@ All entities are tenant-scoped unless explicitly global.
 - Documents are immutable after creation.
 - Changes require creating a new document (optional `SupersedesDocumentId` metadata).
 - Document titles are trimmed and must be 1-200 characters after trimming.
-- Document titles are unique within a binder unless the new document supersedes an earlier same-title document in that binder.
+- Document titles are unique within a binder using trimmed, case-insensitive comparison unless the new document supersedes an earlier same-title document in that binder.
 - Document `contentType` must be the exact contract value `markdown`.
 - Document content must be non-whitespace and no longer than 50,000 characters.
 - `SupersedesDocumentId`, when supplied, must reference another document in the same tenant and same binder.
@@ -180,6 +180,7 @@ All entities are tenant-scoped unless explicitly global.
 
 - Tenant-admin browser flows expose tenant user list, create, and role-change behavior on tenant-host `/app/users`.
 - Tenant-admin user creation sends only email plus role; the server generates the temporary password and returns it once in the create response.
+- Tenant-admin deletion removes non-owner workspace users only; workspace owner deletion is reserved for full tenant cleanup.
 - Non-admin callers must fail safely for tenant-admin-only user-management actions.
 
 ### 6.7 Lease and Cleanup

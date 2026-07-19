@@ -399,6 +399,12 @@ export function DocumentDetailPage() {
 
   return (
     <div className="pb-auth-page">
+      <div className="flex flex-wrap gap-3">
+        <Button asChild type="button" variant="secondary">
+          <Link to={`/app/binders/${documentDetail.binderId}`}>Back to binder</Link>
+        </Button>
+      </div>
+
       <section className="pb-auth-page-intro">
         <div className="pb-auth-detail-head">
           <div>
@@ -542,12 +548,6 @@ export function DocumentDetailPage() {
           </div>
         </section>
       ) : null}
-
-      <div className="flex flex-wrap gap-3">
-        <Button asChild type="button" variant="secondary">
-          <Link to={`/app/binders/${documentDetail.binderId}`}>Back to binder</Link>
-        </Button>
-      </div>
 
       <Dialog onOpenChange={setIsDeleteDialogOpen} open={isDeleteDialogOpen}>
         <DialogContent

@@ -363,6 +363,18 @@ Notes:
     - `422` for invalid role value.
   - Idempotency: conditionally idempotent.
 
+- `DELETE /api/tenant/users/{userId}`
+  - Auth required: Y (`TenantAdmin`)
+  - Tenant context source: subdomain plus cookie
+  - CSRF required: Y
+  - Response example (`204`): empty body.
+  - Failure semantics:
+    - `404` when the target user does not belong to the current tenant.
+    - `409` when the target user is the workspace owner or deletion would remove the last tenant admin.
+  - Notes:
+    - Workspace owner deletion is not available through tenant-user administration APIs; tenant cleanup jobs remove owner rows only as part of full tenant cleanup.
+  - Idempotency: not idempotent.
+
 ### Binders
 
 - `GET /api/binders`
@@ -609,11 +621,11 @@ Notes:
     - `400` when `binderId` is missing, title is empty/whitespace/overlength after trimming, content is empty/whitespace, or content exceeds 50,000 characters.
     - `403` when binder-local policy denies the target binder after the `BinderWrite` endpoint policy has already passed, or the request omits a valid CSRF token.
     - `404` when the target binder does not exist in the current tenant or the request host is not a tenant host.
-    - `409` when another document in the same binder already uses the same trimmed title and `supersedesDocumentId` does not reference an earlier document with that same title.
+    - `409` when another document in the same binder already uses the same trimmed, case-insensitive title and `supersedesDocumentId` does not reference an earlier document with that same title.
     - `422` when `contentType` is not the exact value `markdown` or `supersedesDocumentId` does not reference an existing document in the same tenant and same binder.
   - Notes:
     - Titles are trimmed and must be 1-200 characters after trimming.
-    - Title uniqueness is enforced per binder after trimming; the only duplicate-title exception is creating a new document that supersedes an earlier same-title document in the same binder.
+    - Title uniqueness is enforced per binder after trimming and case-folding; the only duplicate-title exception is creating a new document that supersedes an earlier same-title document in the same binder.
     - Stored `content` remains raw markdown; rendered HTML is not stored in CP10.
     - The browser renders document content as HTML-encoded safe source only; v1 does not parse markdown or allow raw HTML.
   - Idempotency: not idempotent.

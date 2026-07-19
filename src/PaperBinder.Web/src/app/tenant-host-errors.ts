@@ -212,8 +212,8 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
       };
     case "LAST_TENANT_OWNER_REQUIRED":
       return {
-        title: "The workspace owner cannot be removed.",
-        detail: error.detail ?? "PaperBinder cannot remove the workspace owner.",
+        title: "The workspace owner cannot be deleted.",
+        detail: error.detail ?? "The workspace owner cannot be deleted.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel

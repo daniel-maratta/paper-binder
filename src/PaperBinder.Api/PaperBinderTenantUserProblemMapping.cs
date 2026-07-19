@@ -33,7 +33,7 @@ internal static class PaperBinderTenantUserProblemMapping
 
             TenantUserAdministrationFailureKind.LastTenantOwnerRequired => new(
                 StatusCodes.Status409Conflict,
-                "Tenant owner required.",
+                "The workspace owner cannot be deleted.",
                 failure.Detail,
                 PaperBinderErrorCodes.LastTenantOwnerRequired),
 

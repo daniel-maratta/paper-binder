@@ -189,7 +189,7 @@ describe("tenant shell", () => {
     expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
     expect(await screen.findByText("Operations")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Review binders" })).toBeInTheDocument();
-    expect(document.title).toBe("Workspace dashboard | PaperBinder");
+    expect(document.title).toBe("Dashboard | PaperBinder");
   });
 
   it("Should_LinkLogoToLandingPage_AndOpenAboutInNewTab_When_HeaderActionsRender", async () => {
@@ -198,7 +198,7 @@ describe("tenant shell", () => {
     expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "PaperBinder home" })).toHaveAttribute(
       "href",
-      "https://paperbinder.example.test/"
+      "https://paperbinder.example.test/?workspace=acme"
     );
     expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute(
       "href",
@@ -593,7 +593,7 @@ describe("tenant shell", () => {
     expect(await screen.findByRole("heading", { name: "Operations" })).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Document title"), {
-      target: { value: "Incident handbook" }
+      target: { value: "incident HANDBOOK" }
     });
 
     const supersedesSelect = screen.getByLabelText("Supersedes");
@@ -604,7 +604,7 @@ describe("tenant shell", () => {
         "A document with this title already exists. Rename this document or supersede the current document with the same name."
       )
     ).toBeInTheDocument();
-    expect(document.title).toBe("Binder detail | PaperBinder");
+    expect(document.title).toBe("Binder | PaperBinder");
 
     fireEvent.click(screen.getByRole("button", { name: "Delete binder" }));
     fireEvent.change(screen.getByLabelText("Confirm binder name"), {
@@ -634,6 +634,9 @@ describe("tenant shell", () => {
     });
 
     expect(await screen.findByRole("heading", { name: "Archived handbook" })).toBeInTheDocument();
+    const backToBinderLink = screen.getByRole("link", { name: "Back to binder" });
+    const pageTitle = screen.getByRole("heading", { name: "Archived handbook" });
+    expect(backToBinderLink.compareDocumentPosition(pageTitle) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
     expect(screen.getByRole("heading", { name: "Document preview" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Document metadata" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Archived detail" })).toBeInTheDocument();
@@ -818,7 +821,7 @@ describe("tenant shell", () => {
     });
 
     expect(await screen.findByRole("heading", { name: "Users and access" })).toBeInTheDocument();
-    expect(document.title).toBe("Users and access | PaperBinder");
+    expect(document.title).toBe("Users | PaperBinder");
 
     fireEvent.click(await screen.findByRole("button", { name: "Manage user admin@acme-demo.local" }));
 
@@ -1019,6 +1022,9 @@ describe("tenant shell", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Manage user owner@acme-demo.local" }));
     expect(await screen.findByText("Not eligible")).toBeInTheDocument();
     expect(screen.getByText(/cannot start view as for the current effective user/i)).toBeInTheDocument();
+    expect(screen.getByText("Remove this workspace user.")).toBeInTheDocument();
+    expect(screen.getByText("The workspace owner cannot be deleted.")).toBeInTheDocument();
+    expect(screen.queryByText("Confirm before removing this user.")).not.toBeInTheDocument();
 
     fireEvent.click(await screen.findByRole("button", { name: "Manage user member@acme-demo.local" }));
     fireEvent.click(await screen.findByRole("button", { name: "View as this user" }));

@@ -74,15 +74,6 @@ internal static class TenantUserAdministrationSql
         for update;
         """;
 
-    public const string SelectTenantOwnerIdsForUpdate =
-        """
-        select user_id
-        from user_tenants
-        where tenant_id = @TenantId
-          and is_owner = true
-        for update;
-        """;
-
     public const string UpdateTenantUserRole =
         """
         update user_tenants

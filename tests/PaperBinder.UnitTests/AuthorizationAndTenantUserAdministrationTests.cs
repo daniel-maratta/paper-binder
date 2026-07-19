@@ -148,17 +148,13 @@ public sealed class AuthorizationAndTenantUserAdministrationTests
     }
 
     [Theory]
-    [InlineData(true, 1, true)]
-    [InlineData(true, 2, false)]
-    [InlineData(false, 1, false)]
-    public void TenantUserAdministrationRules_Should_ApplyLastOwnerDeleteGuard(
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    public void TenantUserAdministrationRules_Should_ApplyOwnerDeleteGuard(
         bool isOwner,
-        int tenantOwnerCount,
         bool expectedBlocked)
     {
-        var blocked = TenantUserAdministrationRules.WouldDeleteLastOwner(
-            isOwner,
-            tenantOwnerCount);
+        var blocked = TenantUserAdministrationRules.WouldDeleteOwner(isOwner);
 
         Assert.Equal(expectedBlocked, blocked);
     }
