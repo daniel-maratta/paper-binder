@@ -31,4 +31,8 @@ public interface IDocumentService
     Task<DocumentDetailOutcome> UnarchiveAsync(
         DocumentArchiveCommand command,
         CancellationToken cancellationToken = default);
+
+    Task<DocumentDeleteOutcome> DeleteAsync(
+        DocumentDeleteCommand command,
+        CancellationToken cancellationToken = default);
 }

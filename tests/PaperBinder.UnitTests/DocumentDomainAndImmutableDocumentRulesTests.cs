@@ -146,6 +146,19 @@ public sealed class DocumentDomainAndImmutableDocumentRulesTests
     }
 
     [Fact]
+    public void DocumentProblemMapping_Should_MapNotFoundFailure_ToStableProblemContract()
+    {
+        var problem = PaperBinderDocumentProblemMapping.Map(
+            new DocumentFailure(
+                DocumentFailureKind.NotFound,
+                "The requested document does not exist in the current tenant."));
+
+        Assert.Equal(StatusCodes.Status404NotFound, problem.StatusCode);
+        Assert.Equal("Document not found.", problem.Title);
+        Assert.Equal(PaperBinderErrorCodes.DocumentNotFound, problem.ErrorCode);
+    }
+
+    [Fact]
     public void DocumentProblemMapping_Should_MapBinderPolicyDenied_ToExistingBinderErrorCode()
     {
         var problem = PaperBinderDocumentProblemMapping.Map(

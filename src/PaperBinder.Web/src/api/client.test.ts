@@ -326,6 +326,15 @@ describe("api client", () => {
         );
       }
 
+      if (url.endsWith("/api/binders/binder-2") && init?.method === "DELETE") {
+        return new Response(null, {
+          status: 204,
+          headers: {
+            "X-Correlation-Id": "corr-binder-delete"
+          }
+        });
+      }
+
       if (url.endsWith("/api/binders/binder-2")) {
         return new Response(
           JSON.stringify({
@@ -408,6 +417,15 @@ describe("api client", () => {
         );
       }
 
+      if (url.endsWith("/api/documents/document-2") && init?.method === "DELETE") {
+        return new Response(null, {
+          status: 204,
+          headers: {
+            "X-Correlation-Id": "corr-document-delete"
+          }
+        });
+      }
+
       if (url.endsWith("/api/documents") && init?.method === "POST") {
         return new Response(
           JSON.stringify({
@@ -428,6 +446,15 @@ describe("api client", () => {
             }
           }
         );
+      }
+
+      if (url.endsWith("/api/tenant/users/user-2") && init?.method === "DELETE") {
+        return new Response(null, {
+          status: 204,
+          headers: {
+            "X-Correlation-Id": "corr-user-delete"
+          }
+        });
       }
 
       if (url.endsWith("/api/tenant/users") && init?.method === "GET") {
@@ -512,6 +539,7 @@ describe("api client", () => {
     const logoutResponse = await apiClient.logout();
     const binders = await apiClient.listBinders();
     const createdBinder = await apiClient.createBinder({ name: "Operations" });
+    await apiClient.deleteBinder("binder-2");
     const binderDetail = await apiClient.getBinderDetail("binder-2");
     const binderPolicy = await apiClient.getBinderPolicy("binder-2");
     const updatedBinderPolicy = await apiClient.updateBinderPolicy("binder-2", {
@@ -525,6 +553,7 @@ describe("api client", () => {
       contentType: "markdown",
       content: "# Operations Plan"
     });
+    await apiClient.deleteDocument("document-2");
     const tenantUsers = await apiClient.listTenantUsers();
     const createdTenantUser = await apiClient.createTenantUser({
       email: "writer@acme-demo.local",
@@ -533,6 +562,7 @@ describe("api client", () => {
     const updatedTenantUser = await apiClient.updateTenantUserRole("user-2", {
       role: "BinderRead"
     });
+    await apiClient.deleteTenantUser("user-2");
 
     expect(impersonationStatus.isImpersonating).toBe(false);
     expect(impersonationStarted.isImpersonating).toBe(true);
@@ -551,6 +581,6 @@ describe("api client", () => {
     expect(createdTenantUser.role).toBe("BinderWrite");
     expect(createdTenantUser.credentials.password).toBe("generated-password");
     expect(updatedTenantUser.role).toBe("BinderRead");
-    expect(fetchMock).toHaveBeenCalledTimes(15);
+    expect(fetchMock).toHaveBeenCalledTimes(18);
   });
 });
