@@ -23,6 +23,19 @@ This repo exists to:
 
 This is not intended to become a commercial product.
 
+## Project Provenance
+
+PaperBinder was designed and built by Daniel Maratta as a public engineering portfolio/demo SaaS project.
+
+- Canonical demo: `https://paperbinder.danielmaratta.com`
+- Author site: `https://danielmaratta.com`
+- Canonical repository: `https://github.com/daniel-maratta/paper-binder.git`
+- Provenance and verification notes: `PROJECT_ORIGIN.md`
+
+## License
+
+PaperBinder is available under the MIT License. See `LICENSE` and `NOTICE.md`.
+
 ---
 
 ## What PaperBinder Is
