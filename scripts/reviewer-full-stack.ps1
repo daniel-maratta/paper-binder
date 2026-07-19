@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-  [switch]$NoBrowser
+  [switch]$NoBrowser,
+  [switch]$EnableChallengeBypass
 )
 
 Set-StrictMode -Version Latest
@@ -11,6 +12,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Get-RepoRoot
 $envFile = Join-Path $repoRoot ".env"
 $startLocalScript = Join-Path $PSScriptRoot "start-local.ps1"
+$setLocalChallengeBypassScript = Join-Path $PSScriptRoot "set-local-challenge-bypass.ps1"
 
 function Get-DotEnvValue {
   param(
@@ -78,68 +80,89 @@ function Assert-ComposeServiceRunning {
   }
 }
 
-& $startLocalScript
+Assert-PaperBinderEnvFileExists
 
-$rootUrl = Get-DotEnvValue -Path $envFile -Key "PAPERBINDER_PUBLIC_ROOT_URL"
-if ([string]::IsNullOrWhiteSpace($rootUrl)) {
-  $rootUrl = Get-DotEnvValue -Path $envFile -Key "VITE_PAPERBINDER_ROOT_URL"
-}
+$originalEnvContent = $null
 
-if ([string]::IsNullOrWhiteSpace($rootUrl)) {
-  throw "PAPERBINDER_PUBLIC_ROOT_URL (or VITE_PAPERBINDER_ROOT_URL fallback) must be present in .env."
-}
+try {
+  if ($EnableChallengeBypass) {
+    $originalEnvContent = Get-Content -LiteralPath $envFile -Raw
+    Write-Host "Reviewer full stack: enabling local challenge bypass for this startup."
+    & $setLocalChallengeBypassScript -Mode Enable
+  }
 
-$tenantUrl = "$($rootUrl.Replace('://paperbinder.', '://demo.paperbinder.'))/app"
-$liveUrl = "$rootUrl/health/live"
-$readyUrl = "$rootUrl/health/ready"
+  & $startLocalScript
 
-Assert-ComposeServiceRunning -ServiceName "proxy"
-Assert-ComposeServiceRunning -ServiceName "app"
-Assert-ComposeServiceRunning -ServiceName "db"
-Assert-ComposeServiceRunning -ServiceName "worker"
+  $rootUrl = Get-DotEnvValue -Path $envFile -Key "PAPERBINDER_PUBLIC_ROOT_URL"
+  if ([string]::IsNullOrWhiteSpace($rootUrl)) {
+    $rootUrl = Get-DotEnvValue -Path $envFile -Key "VITE_PAPERBINDER_ROOT_URL"
+  }
 
-$composeStatus = Invoke-CapturedCommand -FilePath "docker" -Arguments @("compose", "ps") -WorkingDirectory $repoRoot
-if ($composeStatus.ExitCode -ne 0) {
-  $details = if ([string]::IsNullOrWhiteSpace($composeStatus.Output)) {
-    "docker compose ps failed with no output."
+  if ([string]::IsNullOrWhiteSpace($rootUrl)) {
+    throw "PAPERBINDER_PUBLIC_ROOT_URL (or VITE_PAPERBINDER_ROOT_URL fallback) must be present in .env."
+  }
+
+  $tenantUrl = "$($rootUrl.Replace('://paperbinder.', '://demo.paperbinder.'))/app"
+  $liveUrl = "$rootUrl/health/live"
+  $readyUrl = "$rootUrl/health/ready"
+
+  Assert-ComposeServiceRunning -ServiceName "proxy"
+  Assert-ComposeServiceRunning -ServiceName "app"
+  Assert-ComposeServiceRunning -ServiceName "db"
+  Assert-ComposeServiceRunning -ServiceName "worker"
+
+  $composeStatus = Invoke-CapturedCommand -FilePath "docker" -Arguments @("compose", "ps") -WorkingDirectory $repoRoot
+  if ($composeStatus.ExitCode -ne 0) {
+    $details = if ([string]::IsNullOrWhiteSpace($composeStatus.Output)) {
+      "docker compose ps failed with no output."
+    }
+    else {
+      $composeStatus.Output
+    }
+
+    throw "Could not read compose status.`n$details"
+  }
+
+  $workerLogs = Invoke-CapturedCommand -FilePath "docker" -Arguments @("compose", "logs", "--no-color", "--tail", "10", "worker") -WorkingDirectory $repoRoot
+  if ($workerLogs.ExitCode -ne 0) {
+    $details = if ([string]::IsNullOrWhiteSpace($workerLogs.Output)) {
+      "docker compose logs worker failed with no output."
+    }
+    else {
+      $workerLogs.Output
+    }
+
+    throw "Could not read worker logs.`n$details"
+  }
+
+  Write-Host "Reviewer full stack is ready."
+  Write-Host "  Reviewer URL: $rootUrl"
+  Write-Host "  Tenant example: $tenantUrl"
+  Write-Host "  Health (live): $liveUrl"
+  Write-Host "  Health (ready): $readyUrl"
+  if ($EnableChallengeBypass) {
+    Write-Host "  Local challenge bypass: enabled for the launched stack"
+  }
+  Write-Host ""
+  Write-Host "Compose services:"
+  Write-Host $composeStatus.StdOut
+  Write-Host ""
+  Write-Host "Recent worker logs:"
+  if ([string]::IsNullOrWhiteSpace($workerLogs.StdOut)) {
+    Write-Host "  <no worker log lines were returned>"
   }
   else {
-    $composeStatus.Output
+    Write-Host $workerLogs.StdOut
   }
 
-  throw "Could not read compose status.`n$details"
-}
-
-$workerLogs = Invoke-CapturedCommand -FilePath "docker" -Arguments @("compose", "logs", "--no-color", "--tail", "10", "worker") -WorkingDirectory $repoRoot
-if ($workerLogs.ExitCode -ne 0) {
-  $details = if ([string]::IsNullOrWhiteSpace($workerLogs.Output)) {
-    "docker compose logs worker failed with no output."
+  if (-not $NoBrowser) {
+    Start-Process $rootUrl
+    Start-Process $liveUrl
   }
-  else {
-    $workerLogs.Output
+}
+finally {
+  if ($EnableChallengeBypass -and $null -ne $originalEnvContent) {
+    Set-Content -LiteralPath $envFile -Value $originalEnvContent -Encoding ascii
+    Write-Host "Reviewer full stack: restored .env challenge bypass settings after startup."
   }
-
-  throw "Could not read worker logs.`n$details"
-}
-
-Write-Host "Reviewer full stack is ready."
-Write-Host "  Reviewer URL: $rootUrl"
-Write-Host "  Tenant example: $tenantUrl"
-Write-Host "  Health (live): $liveUrl"
-Write-Host "  Health (ready): $readyUrl"
-Write-Host ""
-Write-Host "Compose services:"
-Write-Host $composeStatus.StdOut
-Write-Host ""
-Write-Host "Recent worker logs:"
-if ([string]::IsNullOrWhiteSpace($workerLogs.StdOut)) {
-  Write-Host "  <no worker log lines were returned>"
-}
-else {
-  Write-Host $workerLogs.StdOut
-}
-
-if (-not $NoBrowser) {
-  Start-Process $rootUrl
-  Start-Process $liveUrl
 }

@@ -128,7 +128,7 @@ $reviewerVscodeMatches = @($vscodeConfigurations | Where-Object { $_.name -eq "R
 Assert-Equal -Actual $reviewerVscodeMatches.Count -Expected 1 -Message "VS Code Reviewer Full Stack launch must exist exactly once."
 $reviewerVscodeConfig = $reviewerVscodeMatches[0]
 Assert-Equal -Actual $reviewerVscodeConfig.type -Expected "node-terminal" -Message "VS Code Reviewer Full Stack launch must use a terminal-backed command."
-Assert-Equal -Actual $reviewerVscodeConfig.command -Expected "powershell -ExecutionPolicy Bypass -File ./scripts/reviewer-full-stack.ps1" -Message "VS Code Reviewer Full Stack launch must use the canonical reviewer script."
+Assert-Equal -Actual $reviewerVscodeConfig.command -Expected "powershell -ExecutionPolicy Bypass -File ./scripts/reviewer-full-stack.ps1 -EnableChallengeBypass" -Message "VS Code Reviewer Full Stack launch must use the canonical reviewer script with reviewer-path challenge bypass."
 Assert-Equal -Actual $reviewerVscodeConfig.cwd -Expected '${workspaceFolder}' -Message "VS Code Reviewer Full Stack launch must run from the workspace root."
 
 $uiOnlyVscodeMatches = @($vscodeConfigurations | Where-Object { $_.name -eq "UI Only" })
@@ -186,7 +186,7 @@ $reviewerTaskMatches = @($taskEntries | Where-Object { $_.label -eq "Reviewer Fu
 Assert-Equal -Actual $reviewerTaskMatches.Count -Expected 1 -Message "VS Code Reviewer Full Stack task must exist exactly once."
 $reviewerTask = $reviewerTaskMatches[0]
 Assert-Equal -Actual $reviewerTask.command -Expected "powershell" -Message "Reviewer Full Stack task must use PowerShell."
-Assert-SequenceEqual -Actual $reviewerTask.args -Expected @("-ExecutionPolicy", "Bypass", "-File", '${workspaceFolder}/scripts/reviewer-full-stack.ps1') -Message "Reviewer Full Stack task must call the canonical reviewer script."
+Assert-SequenceEqual -Actual $reviewerTask.args -Expected @("-ExecutionPolicy", "Bypass", "-File", '${workspaceFolder}/scripts/reviewer-full-stack.ps1', "-EnableChallengeBypass") -Message "Reviewer Full Stack task must call the canonical reviewer script with reviewer-path challenge bypass."
 
 $apiLaunchSettings = Get-JsonDocument -RelativePath "src/PaperBinder.Api/Properties/launchSettings.json"
 $reviewerApiProfile = $apiLaunchSettings.profiles."Reviewer Full Stack"
@@ -196,7 +196,7 @@ if ($null -eq $reviewerApiProfile) {
 
 Assert-Equal -Actual $reviewerApiProfile.commandName -Expected "Executable" -Message "API Reviewer Full Stack profile must use the executable launcher."
 Assert-Equal -Actual $reviewerApiProfile.executablePath -Expected "powershell" -Message "API Reviewer Full Stack profile must invoke PowerShell."
-Assert-Equal -Actual $reviewerApiProfile.commandLineArgs -Expected "-ExecutionPolicy Bypass -File .\scripts\reviewer-full-stack.ps1" -Message "API Reviewer Full Stack profile must point at the repo-root reviewer script."
+Assert-Equal -Actual $reviewerApiProfile.commandLineArgs -Expected "-ExecutionPolicy Bypass -File .\scripts\reviewer-full-stack.ps1 -EnableChallengeBypass" -Message "API Reviewer Full Stack profile must point at the repo-root reviewer script with reviewer-path challenge bypass."
 Assert-Equal -Actual $reviewerApiProfile.workingDirectory -Expected "..\..\" -Message "API Reviewer Full Stack profile must execute from the repo root."
 
 $apiOnlyApiProfile = $apiLaunchSettings.profiles."API Only"

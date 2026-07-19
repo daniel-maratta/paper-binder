@@ -143,7 +143,7 @@ Policy:
 - `App + Worker (Process)` is the fast engineering path when you only want the compiled SPA on `http://localhost:5080` and a separate worker process.
 - `API Only` launches in Development indicate process liveness only, while `UI Only` serves the compiled SPA through the same API host.
 - VS Code keeps the separate `Launch Frontend Dev Server` path as an extra focused frontend-debug surface.
-- The explicit local challenge bypass is a supported local-development aid, but it remains opt-in and should stay off for the canonical reviewer path. Use `scripts/set-local-challenge-bypass.ps1 -Mode Enable` only for intentional local challenge-bypass sessions, and return it to `Disable` afterward.
+- `Reviewer Full Stack` now temporarily enables the local challenge bypass for the stack startup it owns, then restores `.env` to its prior values so the checked-in local default remains bypass-off. Use `scripts/set-local-challenge-bypass.ps1 -Mode Enable` only for intentional non-reviewer challenge-bypass sessions, and return it to `Disable` afterward.
 - Interactive API documentation can be introduced later when real endpoint contracts exist and authorization policy is in place.
 - `scripts/test.ps1` always runs unit tests plus the non-Docker integration bucket; Docker-backed integration tests run automatically when Docker is available and can be required explicitly via `-DockerIntegrationMode Require` for checkpoint or CI validation.
 

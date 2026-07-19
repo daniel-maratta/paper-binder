@@ -90,6 +90,7 @@ Local Visual Studio process launches now load missing configuration keys from th
 - Expected services: `proxy`, `db`, `migrations`, `app`, `worker`
 - Browser behavior: opens `http://paperbinder.localhost:8080` and `http://paperbinder.localhost:8080/health/live`
 - Verification behavior: confirms `/health/live` and `/health/ready`, prints compose status, and prints recent worker logs
+- Challenge behavior: the checked-in reviewer launch surfaces pass `-EnableChallengeBypass`, which temporarily enables the local challenge bypass for that startup, launches the stack, then restores `.env` to its previous values so the repo default stays unchanged
 
 ### Drift Guard
 
@@ -165,11 +166,12 @@ Shared test and production use separate public hostnames plus `docker-compose.te
 The checked-in `.env.example` values are fake/demo-safe and are intended to work for the local Docker topology without exposing real secrets.
 The commented Namecheap values in `.env.example` exist only to document the shared-test wildcard-TLS contract; leave them unset for ordinary local work.
 `PAPERBINDER_PUBLIC_ROOT_URL` should stay aligned with the root host URL exposed by the local reverse proxy.
-Leave both local challenge-bypass flags `false` for the normal reviewer path.
-If you need to test past the root-host challenge locally, run `powershell -ExecutionPolicy Bypass -File .\scripts\set-local-challenge-bypass.ps1 -Mode Enable`, then rebuild/restart the relevant app surface.
-Run `powershell -ExecutionPolicy Bypass -File .\scripts\set-local-challenge-bypass.ps1 -Mode Disable` when you are done so checkpoint validation and reviewer-path manual testing return to the expected default.
+Leave both local challenge-bypass flags `false` in the repo-root `.env` as the default checked-in local configuration.
+`Reviewer Full Stack` now enables the local challenge bypass only for the stack startup it owns, then restores `.env` to its previous values after launch.
+If you need the bypass outside the reviewer path, run `powershell -ExecutionPolicy Bypass -File .\scripts\set-local-challenge-bypass.ps1 -Mode Enable`, then rebuild/restart the relevant app surface.
+Run `powershell -ExecutionPolicy Bypass -File .\scripts\set-local-challenge-bypass.ps1 -Mode Disable` when you are done so checkpoint validation and non-reviewer local flows return to the expected default.
 The bypass is accepted only when the configured root host is loopback or `.localhost`; enabling it against a non-local root URL now fails fast.
-`Reviewer Full Stack`, release validation, and any reviewer-facing manual walkthrough should treat bypass-off as the default expected state.
+Release validation and the non-reviewer local stack should still treat bypass-off as the default expected state.
 
 ## Process Debugging Surfaces
 
