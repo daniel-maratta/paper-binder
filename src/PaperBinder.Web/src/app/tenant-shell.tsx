@@ -129,6 +129,34 @@ function toRootHomeUrl(rootUrl: string): string {
   return new URL("/", rootUrl).toString();
 }
 
+function setDocumentTitle(pageTitle: string) {
+  document.title = `${pageTitle} | ${productIdentity.productName}`;
+}
+
+function resolveTenantPageTitle(pathname: string): string {
+  if (pathname === "/app") {
+    return "Workspace dashboard";
+  }
+
+  if (pathname === "/app/binders") {
+    return "Binders";
+  }
+
+  if (pathname.startsWith("/app/binders/")) {
+    return "Binder detail";
+  }
+
+  if (pathname.startsWith("/app/documents/")) {
+    return "Document detail";
+  }
+
+  if (pathname === "/app/users") {
+    return "Users and access";
+  }
+
+  return "Workspace route unavailable";
+}
+
 function isToastAutoDismissable(variant: TenantShellToastVariant): boolean {
   return variant === "info" || variant === "success";
 }
@@ -435,6 +463,10 @@ export function TenantShell({
   const expiryRefreshAttemptedRef = useRef(false);
   const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl);
   const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl);
+
+  useEffect(() => {
+    setDocumentTitle(resolveTenantPageTitle(location.pathname));
+  }, [location.pathname]);
 
   function showToast({ title, body, variant = "info" }: TenantShellToastInput) {
     setToasts((currentToasts) => [

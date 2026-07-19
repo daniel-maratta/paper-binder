@@ -189,6 +189,7 @@ describe("tenant shell", () => {
     expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
     expect(await screen.findByText("Operations")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Review binders" })).toBeInTheDocument();
+    expect(document.title).toBe("Workspace dashboard | PaperBinder");
   });
 
   it("Should_LinkLogoToLandingPage_AndOpenAboutInNewTab_When_HeaderActionsRender", async () => {
@@ -598,6 +599,12 @@ describe("tenant shell", () => {
     const supersedesSelect = screen.getByLabelText("Supersedes");
     const options = Array.from(supersedesSelect.querySelectorAll("option")).map((option) => option.textContent);
     expect(options).toEqual(["No superseded document", "Incident handbook"]);
+    expect(
+      screen.getByText(
+        "A document with this title already exists. Rename this document or supersede the current document with the same name."
+      )
+    ).toBeInTheDocument();
+    expect(document.title).toBe("Binder detail | PaperBinder");
 
     fireEvent.click(screen.getByRole("button", { name: "Delete binder" }));
     fireEvent.change(screen.getByLabelText("Confirm binder name"), {
@@ -777,6 +784,50 @@ describe("tenant shell", () => {
     await waitFor(() => expect(deleteTenantUser).toHaveBeenCalledWith("user-2"));
     expect(await screen.findByText("User deleted.")).toBeInTheDocument();
     expect(screen.queryByText("member@acme-demo.local")).not.toBeInTheDocument();
+  });
+
+  it("Should_DisableSelfDeletion_When_CurrentEffectiveUserIsSelected", async () => {
+    renderTenantRoute({
+      route: "/app/users",
+      apiClient: createApiClientStub({
+        getImpersonationStatus: vi.fn(async () =>
+          createTenantImpersonationStatus({
+            isImpersonating: true,
+            effective: {
+              userId: "user-2",
+              email: "admin@acme-demo.local",
+              role: "TenantAdmin"
+            }
+          })
+        ) as PaperBinderApiClient["getImpersonationStatus"],
+        listTenantUsers: vi.fn(async () => [
+          {
+            userId: "user-1",
+            email: "owner@acme-demo.local",
+            role: "TenantAdmin",
+            isOwner: true
+          },
+          {
+            userId: "user-2",
+            email: "admin@acme-demo.local",
+            role: "TenantAdmin",
+            isOwner: false
+          }
+        ]) as PaperBinderApiClient["listTenantUsers"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Users and access" })).toBeInTheDocument();
+    expect(document.title).toBe("Users and access | PaperBinder");
+
+    fireEvent.click(await screen.findByRole("button", { name: "Manage user admin@acme-demo.local" }));
+
+    expect(screen.getByText("Self-deletion is disabled.")).toBeInTheDocument();
+    expect(screen.getByText("You cannot remove the current effective user from this screen.")).toBeInTheDocument();
+    expect(
+      screen.queryByText("PaperBinder will ask for admin@acme-demo.local before removing this user.")
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete user" })).toBeDisabled();
   });
 
   it("Should_ShowServerIssuedCredentials_When_TenantUserIsCreated", async () => {

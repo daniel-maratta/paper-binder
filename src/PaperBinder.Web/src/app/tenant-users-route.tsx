@@ -126,6 +126,21 @@ export function UsersPage() {
     setIsDeletingUser(false);
   }, [selectedUserId]);
 
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (!event.persisted) {
+        return;
+      }
+
+      setCreatedCredentials(null);
+    }
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
+
   async function copyValue(label: string, value: string) {
     const copied = await writeClipboardValue(value);
     if (copied) {
@@ -340,7 +355,9 @@ export function UsersPage() {
     selectedUser === null ? null : (roleDrafts[selectedUser.userId] ?? selectedUser.role);
   const selectedUserRoleIsDirty =
     selectedUser !== null && selectedUserRoleDraft !== null && selectedUserRoleDraft !== selectedUser.role;
-  const canDeleteSelectedUser = selectedUser !== null && !selectedUser.isOwner;
+  const isSelectedUserSelf =
+    selectedUser !== null && selectedUser.userId === impersonation.effective.userId;
+  const canDeleteSelectedUser = selectedUser !== null && !selectedUser.isOwner && !isSelectedUserSelf;
   const deleteConfirmationMatchesSelectedUser =
     selectedUser !== null && deleteConfirmationEmail.trim().toLowerCase() === selectedUser.email.toLowerCase();
 
@@ -550,10 +567,16 @@ export function UsersPage() {
                             <AlertTitle>Owner deletion is disabled.</AlertTitle>
                             <AlertBody>The workspace owner cannot be deleted from this screen.</AlertBody>
                           </Alert>
+                        ) : isSelectedUserSelf ? (
+                          <Alert variant="info">
+                            <AlertTitle>Self-deletion is disabled.</AlertTitle>
+                            <AlertBody>You cannot remove the current effective user from this screen.</AlertBody>
+                          </Alert>
                         ) : (
-                          <p className="text-sm leading-6 text-[var(--pb-color-text-muted)]">
-                            PaperBinder will ask for <strong>{selectedUser.email}</strong> before removing this user.
-                          </p>
+                          <Alert variant="warning">
+                            <AlertTitle>Confirm before removing this user.</AlertTitle>
+                            <AlertBody>Type the exact email address in the confirmation dialog before removal.</AlertBody>
+                          </Alert>
                         )}
                         <Button
                           className="w-full justify-center sm:w-auto"
@@ -736,7 +759,12 @@ export function UsersPage() {
                 Cancel
               </Button>
               <Button
-                disabled={!deleteConfirmationMatchesSelectedUser || isDeletingUser || selectedUser.isOwner}
+                disabled={
+                  !deleteConfirmationMatchesSelectedUser ||
+                  isDeletingUser ||
+                  selectedUser.isOwner ||
+                  isSelectedUserSelf
+                }
                 isLoading={isDeletingUser}
                 onClick={() => void handleDeleteUser(selectedUser)}
                 type="button"

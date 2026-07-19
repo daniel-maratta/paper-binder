@@ -341,6 +341,10 @@ export function BinderDetailPage() {
     documentContent.trim().length > 0 &&
     !isDocumentTitleTooLong &&
     hasValidMatchingTitleSupersedeSelection;
+  const duplicateTitleError =
+    matchingTitleDocument !== null && !hasValidMatchingTitleSupersedeSelection
+      ? "A document with this title already exists. Rename this document or supersede the current document with the same name."
+      : fieldErrors.documentSupersedesDocumentId;
 
   useEffect(() => {
     if (matchingTitleDocument === null) {
@@ -639,7 +643,6 @@ export function BinderDetailPage() {
                 />
               </Field>
               <Field
-                error={fieldErrors.documentSupersedesDocumentId}
                 hint={
                   matchingTitleDocument === null
                     ? "Optional. Link this document to an earlier visible document in the same binder."
@@ -680,6 +683,11 @@ export function BinderDetailPage() {
               <Button disabled={!canSubmitDocument || isCreating} isLoading={isCreating} type="submit">
                 Add document
               </Button>
+              {duplicateTitleError ? (
+                <p className="mt-[-4px] text-[0.86rem] font-bold leading-6 text-[var(--pb-status-danger-text)]">
+                  {duplicateTitleError}
+                </p>
+              ) : null}
             </form>
           </div>
         </section>
@@ -690,7 +698,8 @@ export function BinderDetailPage() {
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Delete binder</h3>
             <p className="pb-auth-panel-copy">
-              Remove this binder and every document currently stored in it after confirming the binder name.
+              Remove this binder and every document currently stored in it after confirming the binder
+              name. This action cannot be undone.
             </p>
           </div>
           <div className="pb-auth-panel-body space-y-4">
@@ -712,10 +721,13 @@ export function BinderDetailPage() {
 
       <Dialog onOpenChange={setIsDeleteBinderDialogOpen} open={isDeleteBinderDialogOpen}>
         <DialogContent
-          description={`Type ${binder.name} to confirm permanent removal of this binder and its documents.`}
+          description={`Type ${binder.name} to permanently remove this binder and all of its documents. This action cannot be undone.`}
           title={`Delete ${binder.name}?`}
         >
-          <Field hint="This action removes the binder and all of its current documents." label="Confirm binder name">
+          <Field
+            hint="This action removes the binder and all of its current documents permanently."
+            label="Confirm binder name"
+          >
             <input
               autoComplete="off"
               disabled={isDeletingBinder}
