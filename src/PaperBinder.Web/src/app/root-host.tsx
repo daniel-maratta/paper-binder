@@ -10,6 +10,7 @@ import { CredentialDisplayField } from "./credential-display-field";
 import { productIdentity } from "./product-identity";
 import { writeClipboardValue } from "./copy-value-chip";
 import type { RootHostContext } from "./host-context";
+import type { FrontendEnvironment } from "../environment";
 import { rootRouteDefinitions } from "./route-registry";
 import { mapRootHostError, type RootHostErrorViewModel } from "./root-host-errors";
 
@@ -79,7 +80,7 @@ function setDocumentTitle(pageTitle: string) {
 
 function resolveRootPageTitle(pathname: string): string {
   if (pathname === "/login") {
-    return "Sign in to a demo workspace";
+    return "Sign in";
   }
 
   const matchingRoute = rootRouteDefinitions.find((route) => route.path === pathname);
@@ -87,7 +88,17 @@ function resolveRootPageTitle(pathname: string): string {
     return matchingRoute.title;
   }
 
-  return "PaperBinder public site";
+  return "Not found";
+}
+
+function resolveWorkspaceReturnUrl(search: string, environment: FrontendEnvironment): string | null {
+  const workspaceSlug = new URLSearchParams(search).get("workspace")?.trim().toLowerCase();
+  if (!workspaceSlug || !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(workspaceSlug)) {
+    return null;
+  }
+
+  const rootUrl = new URL(environment.rootUrl);
+  return `${rootUrl.protocol}//${workspaceSlug}.${environment.tenantBaseDomain}/app`;
 }
 
 function PublicPanel({
@@ -215,6 +226,9 @@ function RootHostErrorNotice({ error }: { error: RootHostErrorViewModel | null }
 }
 
 function PublicTopbar({ hostContext }: { hostContext: RootHostContext }) {
+  const location = useLocation();
+  const workspaceReturnUrl = resolveWorkspaceReturnUrl(location.search, hostContext.environment);
+
   return (
     <header className="pb-public-topbar">
       <NavLink aria-label="PaperBinder home" className="pb-public-brand" to="/">
@@ -243,9 +257,15 @@ function PublicTopbar({ hostContext }: { hostContext: RootHostContext }) {
         {hostContext.debugAlias ? (
           <span className="pb-public-debug-chip">Loopback alias</span>
         ) : null}
-        <PublicShellLink className="pb-public-header-cta" to="/start-demo">
-          Access Demo
-        </PublicShellLink>
+        {workspaceReturnUrl ? (
+          <a className="pb-public-header-cta" href={workspaceReturnUrl}>
+            Open Workspace
+          </a>
+        ) : (
+          <PublicShellLink className="pb-public-header-cta" to="/start-demo">
+            Start Demo
+          </PublicShellLink>
+        )}
       </div>
     </header>
   );
@@ -298,20 +318,29 @@ function RootShell({ hostContext }: { hostContext: RootHostContext }) {
   );
 }
 
-function RootLandingPage() {
+function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
+  const location = useLocation();
+  const workspaceReturnUrl = resolveWorkspaceReturnUrl(location.search, hostContext.environment);
+
   return (
     <div className="pb-public-landing">
       <section className="pb-public-hero">
         <section aria-labelledby="public-hero-title" className="pb-public-hero-copy">
           <p className="pb-public-eyebrow">PaperBinder</p>
-          <h1 id="public-hero-title">A secure workspace for your documents and your team.</h1>
+          <h1 id="public-hero-title">PaperBinder document workspaces</h1>
           <p className="pb-public-hero-body">
             Start a temporary workspace, move straight into the product, and manage documents with the same flows used inside the app.
           </p>
           <div className="pb-public-hero-actions">
-            <PublicShellLink className="pb-public-button-link--light" to="/start-demo">
-              Start live demo
-            </PublicShellLink>
+            {workspaceReturnUrl ? (
+              <a className="pb-public-button-link--light" href={workspaceReturnUrl}>
+                Open workspace
+              </a>
+            ) : (
+              <PublicShellLink className="pb-public-button-link--light" to="/start-demo">
+                Start live demo
+              </PublicShellLink>
+            )}
             <PublicShellLink className="pb-public-button-link--ghost" to="/about">
               Learn more
             </PublicShellLink>
@@ -630,7 +659,7 @@ function RootWelcomePage({
     <div className="pb-public-page">
         <section className="pb-public-page-intro">
           <p className="pb-public-eyebrow">Start demo</p>
-          <h1>Start a live demo workspace</h1>
+          <h1>Start demo</h1>
           <p>
             Create a temporary PaperBinder workspace, receive one-time credentials, and continue into the
             product.
@@ -849,7 +878,7 @@ function RootLoginPage({
     <div className="pb-public-page">
         <section className="pb-public-page-intro">
           <p className="pb-public-eyebrow">Direct sign in</p>
-          <h1>Sign in to a demo workspace</h1>
+          <h1>Sign in</h1>
           <p>Return to a workspace you already created with the email and password issued for it.</p>
         </section>
 
@@ -972,7 +1001,7 @@ function RootAboutPage() {
     <div className="pb-public-page">
       <section className="pb-public-page-intro">
         <p className="pb-public-eyebrow">About PaperBinder</p>
-        <h1>PaperBinder is a multi-tenant document workspace demo.</h1>
+        <h1>About PaperBinder</h1>
         <p>
           It focuses on binders, immutable documents, and role-based access inside temporary demo workspaces.
         </p>
@@ -1060,7 +1089,7 @@ function RootNotFoundPage() {
     <div className="pb-public-page">
       <section className="pb-public-page-intro">
         <p className="pb-public-eyebrow">Page unavailable</p>
-        <h1>This page is not part of the PaperBinder public site.</h1>
+        <h1>Page unavailable</h1>
         <p>Use one of the known public pages below.</p>
       </section>
 
@@ -1097,7 +1126,7 @@ export function RootHostRoutes({
   return (
     <Fragment>
       <Route element={<RootShell hostContext={hostContext} />}>
-        <Route element={<RootLandingPage />} path="/" />
+        <Route element={<RootLandingPage hostContext={hostContext} />} path="/" />
         <Route element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/start-demo" />
         <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/login" />
         <Route element={<RootAboutPage />} path="/about" />

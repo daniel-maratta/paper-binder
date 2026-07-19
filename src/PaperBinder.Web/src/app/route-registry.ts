@@ -2,13 +2,13 @@ export const rootRouteDefinitions = [
   {
     path: "/" as const,
     label: "Product",
-    title: "PaperBinder product overview",
+    title: "Home",
     description: "See the product, the public entry points, and the demo path."
   },
   {
     path: "/start-demo" as const,
     label: "Demo",
-    title: "Start a live demo workspace",
+    title: "Demo",
     description: "Create a temporary workspace and continue into the product."
   },
   {

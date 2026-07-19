@@ -125,7 +125,7 @@ Start a live disposable workspace and inspect the product directly.
 ## 9. Headline territory
 
 Recommended homepage headline directions:
-- A secure workspace for your documents and your team.
+- PaperBinder document workspaces.
 - Organize sensitive documents in a workspace built for review.
 - Multi-tenant document workspaces with controlled access and clear visibility.
 
@@ -146,4 +146,3 @@ When a choice is ambiguous:
 3. prefer demotion over deletion for reviewer context
 4. prefer calm credibility over visual novelty
 5. prefer real scope honestly framed over invented scope
-

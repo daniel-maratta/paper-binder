@@ -125,8 +125,13 @@ function toRootLoginUrl(rootUrl: string): string {
   return new URL("/login", rootUrl).toString();
 }
 
-function toRootHomeUrl(rootUrl: string): string {
-  return new URL("/", rootUrl).toString();
+function toRootHomeUrl(rootUrl: string, tenantSlug?: string): string {
+  const url = new URL("/", rootUrl);
+  if (tenantSlug) {
+    url.searchParams.set("workspace", tenantSlug);
+  }
+
+  return url.toString();
 }
 
 function setDocumentTitle(pageTitle: string) {
@@ -135,7 +140,7 @@ function setDocumentTitle(pageTitle: string) {
 
 function resolveTenantPageTitle(pathname: string): string {
   if (pathname === "/app") {
-    return "Workspace dashboard";
+    return "Dashboard";
   }
 
   if (pathname === "/app/binders") {
@@ -143,18 +148,18 @@ function resolveTenantPageTitle(pathname: string): string {
   }
 
   if (pathname.startsWith("/app/binders/")) {
-    return "Binder detail";
+    return "Binder";
   }
 
   if (pathname.startsWith("/app/documents/")) {
-    return "Document detail";
+    return "Document";
   }
 
   if (pathname === "/app/users") {
-    return "Users and access";
+    return "Users";
   }
 
-  return "Workspace route unavailable";
+  return "Not found";
 }
 
 function isToastAutoDismissable(variant: TenantShellToastVariant): boolean {
@@ -463,6 +468,7 @@ export function TenantShell({
   const expiryRefreshAttemptedRef = useRef(false);
   const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl);
   const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl);
+  const rootHomeUrlWithWorkspace = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
 
   useEffect(() => {
     setDocumentTitle(resolveTenantPageTitle(location.pathname));
@@ -814,7 +820,7 @@ export function TenantShell({
         <aside className="pb-auth-sidebar">
           <div className="pb-auth-sidebar-brandlockup">
             <div className="pb-auth-sidebar-brand">
-              <PaperBinderWordmark href={rootHomeUrl} />
+              <PaperBinderWordmark href={rootHomeUrlWithWorkspace} />
             </div>
           </div>
 

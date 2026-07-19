@@ -43,7 +43,7 @@ Codex should verify current route ownership before changing paths.
 PAPERBINDER
 
 ### Headline
-A secure workspace for your documents and your team.
+PaperBinder document workspaces.
 
 ### Supporting copy
 Multi-tenant by design. Built for organized review, controlled access, and clear visibility.
@@ -131,7 +131,7 @@ Help the user start a disposable demo workspace or log in with existing demo cre
 ## Demo-entry page copy draft
 
 ### Page title
-Start a live demo workspace
+Start demo
 
 ### Intro
 Create a disposable PaperBinder workspace and continue directly into the live product.

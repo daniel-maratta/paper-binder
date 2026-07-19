@@ -87,7 +87,7 @@ High-rated rows are candidates for later modification or removal, but no copy ch
 | `Product` | `src/PaperBinder.Web/src/app/route-registry.ts` - top nav label | `Low` |
 | `Demo` | `src/PaperBinder.Web/src/app/route-registry.ts` - top nav label | `Low` |
 | `About` | `src/PaperBinder.Web/src/app/route-registry.ts` - top nav label | `Low` |
-| `A secure workspace for your documents and your team.` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootLandingPage` hero | `Medium` |
+| `PaperBinder document workspaces` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootLandingPage` hero | `Low` |
 | `Multi-tenant by design. Review the product in a temporary workspace that stays product-first from the first click.` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootLandingPage` hero body | `High` |
 | `Start live demo` | `src/PaperBinder.Web/src/app/root-host.tsx` - hero CTA | `Low` |
 | `Learn more` | `src/PaperBinder.Web/src/app/root-host.tsx` - hero CTA | `Low` |
@@ -107,7 +107,7 @@ High-rated rows are candidates for later modification or removal, but no copy ch
 | Text | Location in code | AI smell |
 | --- | --- | --- |
 | `Start demo` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootWelcomePage` eyebrow | `Low` |
-| `Start a live demo workspace` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootWelcomePage` title | `Low` |
+| `Start demo` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootWelcomePage` title | `Low` |
 | `Start a temporary PaperBinder workspace, receive one-time credentials, and continue directly into the live product.` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootWelcomePage` intro body | `Medium` |
 | `New demo workspace` | `src/PaperBinder.Web/src/app/root-host.tsx` - provision panel eyebrow | `Low` |
 | `Provision a temporary tenant and keep the server in charge.` | `src/PaperBinder.Web/src/app/root-host.tsx` - provision panel heading | `High` |
@@ -143,7 +143,7 @@ High-rated rows are candidates for later modification or removal, but no copy ch
 | `Failures stay limited to challenge, credential, rate-limit, and expiry guidance.` | `src/PaperBinder.Web/src/app/root-host.tsx` - side panel bullet | `High` |
 | `Demo workspaces are temporary and removed during periodic cleanup.` | `src/PaperBinder.Web/src/app/root-host.tsx` - side panel bullet | `Medium` |
 | `Direct sign in` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootLoginPage` eyebrow | `Low` |
-| `Sign in to a demo workspace` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootLoginPage` title | `Low` |
+| `Sign in` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootLoginPage` title | `Low` |
 | `Return to a previously provisioned workspace with valid credentials. Redirect resolution stays on the server so the browser never builds tenant URLs from user input.` | `src/PaperBinder.Web/src/app/root-host.tsx` - `RootLoginPage` intro body | `High` |
 | `Root-host login` | `src/PaperBinder.Web/src/app/root-host.tsx` - login panel eyebrow | `Medium` |
 | `Use existing demo credentials.` | `src/PaperBinder.Web/src/app/root-host.tsx` - login panel heading | `Low` |

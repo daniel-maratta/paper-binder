@@ -79,7 +79,7 @@ Primary questions:
 
 Examples:
 
-- `Start a live demo workspace`
+- `Start demo`
 - `Create and open the binders available in this workspace`
 - `Manage users, roles, and view-as access from one page`
 

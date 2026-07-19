@@ -380,7 +380,7 @@ a {
 }
 
 .pb-public-hero-copy {
-  max-width: 760px;
+  max-width: 920px;
 }
 
 .pb-public-hero-copy h1,
@@ -391,6 +391,7 @@ a {
   line-height: 1.04;
   font-weight: 650;
   letter-spacing: -0.045em;
+  text-wrap: balance;
 }
 
 .pb-public-page-intro h1 {
@@ -407,6 +408,7 @@ a {
   font-size: 1.42rem;
   line-height: 1.5;
   max-width: 720px;
+  text-wrap: pretty;
 }
 
 .pb-public-page-intro p,
@@ -1555,6 +1557,11 @@ a {
   border-radius: 10px;
   background: var(--pb-surface-subtle);
   padding: 18px;
+}
+
+.pb-auth-subpanel--warning {
+  border-color: var(--pb-status-warning);
+  background: linear-gradient(180deg, rgba(252, 247, 236, 0.99), rgba(247, 238, 219, 0.95));
 }
 
 .pb-auth-subpanel-header {

@@ -78,7 +78,7 @@ function renderRootRoute({
   navigator = vi.fn<(redirectUrl: string) => void>(),
   challengeLocalBypassEnabled = false
 }: {
-  route?: "/" | "/login" | "/start-demo";
+  route?: string;
   apiClient?: PaperBinderApiClient;
   navigator?: (redirectUrl: string) => void;
   challengeLocalBypassEnabled?: boolean;
@@ -128,7 +128,7 @@ describe("root-host flows", () => {
     expect(screen.getByRole("link", { name: "Demo" })).toHaveAttribute("href", "/start-demo");
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
     expect(
-      screen.getByRole("heading", { name: "A secure workspace for your documents and your team." })
+      screen.getByRole("heading", { name: "PaperBinder document workspaces" })
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start live demo" })).toHaveAttribute("href", "/start-demo");
     expect(
@@ -147,13 +147,13 @@ describe("root-host flows", () => {
       })
     ).toHaveAttribute("src", "/presentation/users-proof.png");
     expect(
-      screen.getAllByRole("link", { name: "Access Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
+      screen.getAllByRole("link", { name: "Start Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
     ).toBe(true);
     expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
     expect(
       screen.getByText("PaperBinder is a portfolio SaaS demo designed and built by Daniel Maratta.")
     ).toBeInTheDocument();
-    expect(document.title).toBe("PaperBinder product overview | PaperBinder");
+    expect(document.title).toBe("Home | PaperBinder");
     expect(screen.getByRole("link", { name: "paperbinder.danielmaratta.com" })).toHaveAttribute(
       "href",
       "https://paperbinder.danielmaratta.com"
@@ -165,6 +165,21 @@ describe("root-host flows", () => {
     expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
+  });
+
+  it("Should_LinkBackToWorkspace_When_PublicHomeReceivesWorkspaceHint", async () => {
+    renderRootRoute({
+      route: "/?workspace=acme"
+    });
+
+    expect(screen.getByRole("link", { name: "Open Workspace" })).toHaveAttribute(
+      "href",
+      "https://acme.paperbinder.example.test/app"
+    );
+    expect(screen.getByRole("link", { name: "Open workspace" })).toHaveAttribute(
+      "href",
+      "https://acme.paperbinder.example.test/app"
+    );
   });
 
   it("Should_SubmitProvisionRequest_WithTenantNameAndChallengeToken_When_RootHostProvisionFormIsValid", async () => {
@@ -296,7 +311,7 @@ describe("root-host flows", () => {
     });
     window.dispatchEvent(pageShowEvent);
 
-    expect(await screen.findByRole("heading", { name: "Start a live demo workspace" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Start demo" })).toBeInTheDocument();
     expect(screen.queryByDisplayValue("generated-password")).not.toBeInTheDocument();
   });
 
@@ -334,7 +349,7 @@ describe("root-host flows", () => {
       })
     });
 
-    expect(await screen.findByRole("heading", { name: "Start a live demo workspace" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Start demo" })).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Go to sign in" })[0]).toHaveAttribute("href", "/login");
 
     fireEvent.change(screen.getByLabelText("Workspace name"), {
