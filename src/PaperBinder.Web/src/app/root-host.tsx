@@ -947,15 +947,15 @@ function RootLoginPage({
   }
 
   return (
-    <div className="pb-public-page">
+    <div className="pb-public-page pb-public-login-page">
         <section className="pb-public-page-intro">
           <p className="pb-public-eyebrow">Direct sign in</p>
           <h1>Sign in</h1>
           <p>Return to a workspace you already created with the email and password issued for it.</p>
         </section>
 
-      <div className="pb-public-page-grid">
-        <PublicPanel className="pb-public-panel--form">
+      <div className="pb-public-page-grid pb-public-login-page-grid">
+        <PublicPanel className="pb-public-panel--form pb-public-panel--login-form">
           <div className="pb-public-panel-heading">
             <p className="pb-public-panel-eyebrow">Workspace sign in</p>
             <h2>Use existing demo credentials.</h2>
@@ -1003,6 +1003,7 @@ function RootLoginPage({
             ) : (
               <RootHostChallengeWidget
                 error={fieldErrors.challenge}
+                fallbackVariant="panel"
                 hint="Complete the challenge before signing in."
                 label="Challenge"
                 onTokenChange={setChallengeToken}
@@ -1040,9 +1041,9 @@ function RootLoginPage({
           ) : null}
         </PublicPanel>
 
-        <div className="pb-public-side-stack">
+        <div className="pb-public-side-stack pb-public-login-support">
           <PublicAsideSection>
-            <p className="pb-public-panel-eyebrow">Need a new workspace?</p>
+            <p className="pb-public-panel-eyebrow">NEED A NEW WORKSPACE?</p>
             <h2>Start with a fresh demo workspace.</h2>
             <p>
               Create a temporary workspace and continue into the product with one-time credentials.
@@ -1055,11 +1056,11 @@ function RootLoginPage({
           </PublicAsideSection>
 
           <PublicAsideSection>
-            <p className="pb-public-panel-eyebrow">Security posture</p>
-            <ul className="pb-public-bullet-list">
+            <p className="pb-public-panel-eyebrow">SECURITY POSTURE</p>
+            <ul className="pb-public-bullet-list pb-public-login-checklist">
               <li>Complete the challenge before signing in, unless local bypass is enabled.</li>
-              <li>If sign in fails, the challenge must be completed again before retrying.</li>
-              <li>After sign in, PaperBinder sends you to the matching workspace.</li>
+              <li>If sign-in fails, complete the challenge again before retrying.</li>
+              <li>After sign-in, PaperBinder sends you to the matching workspace.</li>
             </ul>
           </PublicAsideSection>
         </div>

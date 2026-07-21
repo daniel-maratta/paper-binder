@@ -430,6 +430,18 @@ describe("root-host flows", () => {
       })
     });
 
+    expect(screen.getByRole("heading", { name: "Start with a fresh demo workspace." })).toBeInTheDocument();
+    expect(
+      screen.getByText("Create a temporary workspace and continue into the product with one-time credentials.")
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start demo instead" })).toHaveAttribute("href", "/start-demo");
+    expect(screen.getByText("SECURITY POSTURE")).toBeInTheDocument();
+    expect(
+      screen.getByText("Complete the challenge before signing in, unless local bypass is enabled.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("If sign-in fails, complete the challenge again before retrying.")).toBeInTheDocument();
+    expect(screen.getByText("After sign-in, PaperBinder sends you to the matching workspace.")).toBeInTheDocument();
+
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "owner@acme-demo.local" }
     });
