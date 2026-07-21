@@ -17,6 +17,12 @@ import { mapRootHostError, type RootHostErrorViewModel } from "./root-host-error
 type RootHostFieldErrors = Partial<Record<"tenantName" | "email" | "password" | "challenge", string>>;
 
 type PublicValuePillar = {
+  icon: "boundary" | "key" | "document" | "timer";
+  title: string;
+  body: string;
+};
+
+type PublicDemoStep = {
   title: string;
   body: string;
 };
@@ -27,20 +33,39 @@ const localChallengeBypassToken = "paperbinder-test-challenge-pass";
 
 const publicValuePillars: PublicValuePillar[] = [
   {
-    title: "Isolation",
-    body: "Each tenant stays inside its own workspace boundary."
+    icon: "boundary",
+    title: "Tenant isolation",
+    body: "Each workspace stays inside its own scoped boundary."
   },
   {
-    title: "Access control",
-    body: "Access changes with each user's role."
+    icon: "key",
+    title: "Role-aware access",
+    body: "Access changes with each user's assigned role."
   },
   {
-    title: "Visibility",
-    body: "See the product in a live workspace."
+    icon: "document",
+    title: "Immutable documents",
+    body: "Documents are reviewable without becoming a broad editor."
   },
   {
-    title: "Disposable demo",
-    body: "Each workspace is temporary and removed during periodic cleanup."
+    icon: "timer",
+    title: "Temporary demo lifecycle",
+    body: "Demo workspaces expire and are removed during cleanup."
+  }
+];
+
+const publicDemoSteps: PublicDemoStep[] = [
+  {
+    title: "Create a temporary workspace",
+    body: "Choose a workspace name and complete the challenge."
+  },
+  {
+    title: "Save the generated credentials",
+    body: "The one-time credentials are shown once before entering the workspace."
+  },
+  {
+    title: "Review the live product flows",
+    body: "Move through binders, immutable documents, and tenant access from the active workspace."
   }
 ];
 
@@ -134,6 +159,49 @@ function PublicStat({
       <dt>{label}</dt>
       <dd>{value}</dd>
     </div>
+  );
+}
+
+function PublicProofIcon({ icon }: { icon: PublicValuePillar["icon"] }) {
+  if (icon === "boundary") {
+    return (
+      <svg aria-hidden="true" className="pb-public-feature-icon" viewBox="0 0 24 24">
+        <path d="M7 7.5h10v9H7z" />
+        <path d="M4.5 4.5h15v15h-15z" />
+        <path d="M9.5 12h5" />
+      </svg>
+    );
+  }
+
+  if (icon === "key") {
+    return (
+      <svg aria-hidden="true" className="pb-public-feature-icon" viewBox="0 0 24 24">
+        <path d="M9.5 14.5a4 4 0 1 1 3.3-6.25" />
+        <path d="M13 10.5h7" />
+        <path d="M17 10.5v3" />
+        <path d="M20 10.5v2" />
+        <path d="M8.5 11.5h.01" />
+      </svg>
+    );
+  }
+
+  if (icon === "document") {
+    return (
+      <svg aria-hidden="true" className="pb-public-feature-icon" viewBox="0 0 24 24">
+        <path d="M7 3.5h6.5L18 8v12.5H7z" />
+        <path d="M13.5 3.5V8H18" />
+        <path d="M9.5 14.25 11.25 16l3.5-4" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-hidden="true" className="pb-public-feature-icon" viewBox="0 0 24 24">
+      <path d="M12 6.5v5.25l3 1.75" />
+      <path d="M7.25 3.75h9.5" />
+      <path d="M12 3.75v2.75" />
+      <path d="M12 20.5a7 7 0 1 0 0-14 7 7 0 0 0 0 14Z" />
+    </svg>
   );
 }
 
@@ -377,10 +445,10 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
         </section>
       </section>
 
-      <section aria-label="PaperBinder value pillars" className="pb-public-feature-strip">
+      <section aria-label="PaperBinder proof points" className="pb-public-feature-strip">
         {publicValuePillars.map((pillar) => (
           <article className="pb-public-feature" key={pillar.title}>
-            <div aria-hidden="true" className="pb-public-feature-icon" />
+            <PublicProofIcon icon={pillar.icon} />
             <div>
               <h2>{pillar.title}</h2>
               <p>{pillar.body}</p>
@@ -392,16 +460,16 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
       <div className="pb-public-story-stack">
         <PublicStorySection className="pb-public-story-section--split">
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">Users and access</p>
-            <h2>Manage the workspace without hopping between admin screens.</h2>
+            <p className="pb-public-panel-eyebrow">USERS AND ACCESS</p>
+            <h2>Manage access without leaving the workspace.</h2>
             <p>
-              Workspace admins can keep the full user list in view, adjust roles, hand off one-time
-              credentials, and use view as from the same route.
+              Workspace admins can keep the full user list in view, adjust roles, and hand off one-time
+              credentials from the same route.
             </p>
             <ul className="pb-public-bullet-list">
               <li>Owner and access context stay visible while reviewers move through the workspace.</li>
-              <li>User creation and credential handoff happen in the same flow.</li>
-              <li>Role changes and view as stay in one place instead of fragmenting the demo.</li>
+              <li>User creation and credential handoff happen in one flow.</li>
+              <li>Role changes and view-as checks stay close to the product surface.</li>
             </ul>
           </div>
           <div className="pb-public-story-media">
@@ -417,17 +485,19 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
 
         <PublicStorySection className="pb-public-story-section--accent">
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">Demo path</p>
+            <p className="pb-public-panel-eyebrow">DEMO PATH</p>
             <h2>Start with the product, not a setup checklist.</h2>
-            <p>
-              The public flow is intentionally short: create a temporary workspace, save the one-time
-              credentials, and continue straight into the tenant experience.
-            </p>
           </div>
           <ol className="pb-public-step-list">
-            <li>Choose a workspace name and complete the challenge.</li>
-            <li>Save the generated credentials before continuing.</li>
-            <li>Review binders, documents, and tenant access from the live workspace.</li>
+            {publicDemoSteps.map((step, index) => (
+              <li className="pb-public-step" key={step.title}>
+                <span className="pb-public-step-marker">{index + 1}</span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.body}</p>
+                </div>
+              </li>
+            ))}
           </ol>
         </PublicStorySection>
       </div>

@@ -146,6 +146,20 @@ describe("root-host flows", () => {
         name: "PaperBinder users page with current users, role changes, and view as actions."
       })
     ).toHaveAttribute("src", "/presentation/users-proof.png");
+    expect(screen.getByRole("heading", { name: "Tenant isolation" })).toBeInTheDocument();
+    expect(screen.getByText("Each workspace stays inside its own scoped boundary.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Role-aware access" })).toBeInTheDocument();
+    expect(screen.getByText("Access changes with each user's assigned role.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Immutable documents" })).toBeInTheDocument();
+    expect(screen.getByText("Documents are reviewable without becoming a broad editor.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Temporary demo lifecycle" })).toBeInTheDocument();
+    expect(screen.getByText("Demo workspaces expire and are removed during cleanup.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Manage access without leaving the workspace." })).toBeInTheDocument();
+    expect(screen.getByText("User creation and credential handoff happen in one flow.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Start with the product, not a setup checklist." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Create a temporary workspace" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Save the generated credentials" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Review the live product flows" })).toBeInTheDocument();
     expect(
       screen.getAllByRole("link", { name: "Start Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
     ).toBe(true);
