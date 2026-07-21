@@ -726,7 +726,7 @@ function RootWelcomePage({
   }
 
   return (
-    <div className="pb-public-page">
+    <div className="pb-public-page pb-public-demo-page">
         <section className="pb-public-page-intro">
           <p className="pb-public-eyebrow">Start demo</p>
           <h1>Start demo</h1>
@@ -736,11 +736,11 @@ function RootWelcomePage({
           </p>
         </section>
 
-      <div className="pb-public-page-grid">
+      <div className="pb-public-page-grid pb-public-demo-page-grid">
         {provisionedTenant ? (
           <ProvisionSuccessPanel onContinue={handleContinueToTenant} provisionedTenant={provisionedTenant} />
         ) : (
-          <PublicPanel className="pb-public-panel--form">
+          <PublicPanel className="pb-public-panel--form pb-public-panel--demo-form">
             <div className="pb-public-panel-heading">
               <p className="pb-public-panel-eyebrow">New demo workspace</p>
               <h2>Create a temporary workspace.</h2>
@@ -777,6 +777,7 @@ function RootWelcomePage({
               ) : (
                 <RootHostChallengeWidget
                   error={fieldErrors.challenge}
+                  fallbackVariant="panel"
                   hint="Complete the challenge before starting a workspace or signing in."
                   label="Challenge"
                   onTokenChange={setChallengeToken}
@@ -800,11 +801,13 @@ function RootWelcomePage({
           </PublicPanel>
         )}
 
-        <div className="pb-public-side-stack">
+        <div className="pb-public-side-stack pb-public-demo-support">
           <PublicAsideSection>
-            <p className="pb-public-panel-eyebrow">Use existing credentials</p>
-            <h2>Sign in to an existing workspace.</h2>
-            <p>If you already have demo credentials, go straight to sign in.</p>
+            <p className="pb-public-panel-eyebrow">USE EXISTING CREDENTIALS</p>
+            <h2>Already have demo credentials?</h2>
+            <p>
+              Return to a workspace you already created with the email and password issued during setup.
+            </p>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
                 <NavLink to="/login">Go to sign in</NavLink>
@@ -813,12 +816,11 @@ function RootWelcomePage({
           </PublicAsideSection>
 
           <PublicAsideSection>
-            <p className="pb-public-panel-eyebrow">What stays true</p>
-            <ul className="pb-public-bullet-list">
+            <p className="pb-public-panel-eyebrow">WHAT HAPPENS NEXT</p>
+            <ul className="pb-public-bullet-list pb-public-demo-checklist">
               <li>Only the workspace name and challenge proof are submitted here.</li>
-              <li>The generated credentials are shown once and are not stored in the browser.</li>
-              <li>PaperBinder sends you to the workspace after it is ready.</li>
-              <li>Failures stay focused on challenge, credentials, rate limits, and expiry.</li>
+              <li>Generated credentials are shown once before entering the workspace.</li>
+              <li>PaperBinder sends you to the new workspace after it is ready.</li>
               <li>Demo workspaces are temporary and removed during periodic cleanup.</li>
             </ul>
           </PublicAsideSection>

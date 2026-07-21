@@ -365,6 +365,21 @@ describe("root-host flows", () => {
 
     expect(await screen.findByRole("heading", { name: "Start demo" })).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Go to sign in" })[0]).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("heading", { name: "Already have demo credentials?" })).toBeInTheDocument();
+    expect(
+      screen.getByText("Return to a workspace you already created with the email and password issued during setup.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("WHAT HAPPENS NEXT")).toBeInTheDocument();
+    expect(screen.getByText("Only the workspace name and challenge proof are submitted here.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Generated credentials are shown once before entering the workspace.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("PaperBinder sends you to the new workspace after it is ready.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Demo workspaces are temporary and removed during periodic cleanup.")
+    ).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: "Acme Demo" }
@@ -379,6 +394,25 @@ describe("root-host flows", () => {
       })
     );
     expect(await screen.findByRole("heading", { name: "Workspace ready." })).toBeInTheDocument();
+  });
+
+  it("Should_RenderIntentionalChallengeFallback_When_ChallengeScriptCannotLoad", async () => {
+    renderRootRoute({
+      route: "/start-demo"
+    });
+
+    await waitFor(() => {
+      expect(document.querySelector(`script[src="${testEnvironment.challengeScriptUrl}"]`)).not.toBeNull();
+    });
+
+    document
+      .querySelector(`script[src="${testEnvironment.challengeScriptUrl}"]`)!
+      .dispatchEvent(new Event("error"));
+
+    expect(await screen.findByText("Challenge unavailable")).toBeInTheDocument();
+    expect(
+      screen.getAllByText("The challenge widget could not be loaded. Refresh and try again.").length
+    ).toBeGreaterThan(0);
   });
 
   it("Should_SubmitLoginRequest_AndRedirectUsingServerProvidedUrl_When_RootHostLoginSucceeds", async () => {
