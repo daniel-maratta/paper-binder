@@ -13,8 +13,8 @@
 
 ## Extension Rules
 
-- `PAPERBINDER_LEASE_EXTENSION_MINUTES` is the single v1 setting for both the extension eligibility threshold and the extension amount.
-- Extension endpoint may be called only when remaining lease is greater than `0` and less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
+- `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES` controls when the extension action becomes available.
+- Extension endpoint may be called only when remaining lease is greater than `0` and less than or equal to `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES`.
 - Each extension adds `PAPERBINDER_LEASE_EXTENSION_MINUTES` to `ExpiresAt`.
 - Maximum 3 extensions per tenant.
 - Requests that violate extension rules are rejected with `409 TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN` or `409 TENANT_LEASE_EXTENSION_LIMIT_REACHED`.

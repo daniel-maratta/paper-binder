@@ -51,6 +51,14 @@ internal static class TenantUserAdministrationSql
             @IsOwner);
         """;
 
+    public const string SelectTenantUserIdsForUpdate =
+        """
+        select user_id
+        from user_tenants
+        where tenant_id = @TenantId
+        for update;
+        """;
+
     public const string SelectTenantUserForUpdate =
         """
         select

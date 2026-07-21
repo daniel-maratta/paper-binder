@@ -107,7 +107,7 @@ public sealed class DataProtectionConfigurationTests
             new AuthCookieSettings(".paperbinder.localhost", "paperbinder.auth", keyRingPath),
             dataProtectionSettings,
             new ChallengeSettings("local-demo-site-key", "local-demo-secret-key", false),
-            new LeaseSettings(60, 10, 3, 60, 180),
+            new LeaseSettings(60, 10, 15, 3, 60, 180),
             new RateLimitSettings(30, 120, 10),
             new AuditSettings(AuditRetentionMode.RetainTenantPurgedSummary),
             new ObservabilitySettings(null));

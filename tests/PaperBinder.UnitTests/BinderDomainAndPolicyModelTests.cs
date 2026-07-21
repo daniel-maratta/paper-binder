@@ -12,7 +12,7 @@ public sealed class BinderDomainAndPolicyModelTests
         yield return [BinderPolicyMode.Inherit, Array.Empty<TenantRole>(), TenantRole.BinderRead, true];
         yield return [BinderPolicyMode.RestrictedRoles, new[] { TenantRole.BinderRead }, TenantRole.BinderRead, true];
         yield return [BinderPolicyMode.RestrictedRoles, new[] { TenantRole.BinderRead }, TenantRole.BinderWrite, false];
-        yield return [BinderPolicyMode.RestrictedRoles, new[] { TenantRole.TenantAdmin, TenantRole.BinderWrite }, TenantRole.TenantAdmin, true];
+        yield return [BinderPolicyMode.RestrictedRoles, new[] { TenantRole.BinderRead }, TenantRole.TenantAdmin, true];
     }
 
     [Theory]
@@ -104,25 +104,27 @@ public sealed class BinderDomainAndPolicyModelTests
     }
 
     [Fact]
-    public void BinderPolicyRules_Should_RejectRestrictedRolesMode_When_NoRolesRemain()
+    public void BinderPolicyRules_Should_NormalizeRestrictedRolesMode_ToTenantAdminOnly_When_NoRolesRemain()
     {
         var result = BinderPolicyRules.ValidateAndNormalize(
             BinderPolicyModeNames.RestrictedRoles,
             []);
 
-        Assert.False(result.Succeeded);
-        Assert.Contains("must include at least one valid tenant role", result.Detail, StringComparison.Ordinal);
+        Assert.True(result.Succeeded);
+        Assert.NotNull(result.Policy);
+        Assert.Equal([TenantRole.TenantAdmin], result.Policy!.AllowedRoles);
     }
 
     [Fact]
-    public void BinderPolicyRules_Should_RejectRestrictedRolesMode_When_TenantAdminIsMissing()
+    public void BinderPolicyRules_Should_AddTenantAdmin_When_TenantAdminIsMissing()
     {
         var result = BinderPolicyRules.ValidateAndNormalize(
             BinderPolicyModeNames.RestrictedRoles,
             [nameof(TenantRole.BinderRead)]);
 
-        Assert.False(result.Succeeded);
-        Assert.Contains("must include TenantAdmin", result.Detail, StringComparison.Ordinal);
+        Assert.True(result.Succeeded);
+        Assert.NotNull(result.Policy);
+        Assert.Equal([TenantRole.TenantAdmin, TenantRole.BinderRead], result.Policy!.AllowedRoles);
     }
 
     [Fact]

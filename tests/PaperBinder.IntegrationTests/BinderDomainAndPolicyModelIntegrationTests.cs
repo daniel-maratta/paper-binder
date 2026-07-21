@@ -344,7 +344,7 @@ public sealed class BinderDomainAndPolicyModelIntegrationTests(PostgresContainer
     }
 
     [Fact]
-    public async Task Should_ReturnUnprocessableEntity_When_RestrictedBinderPolicyOmitsTenantAdmin()
+    public async Task Should_AddTenantAdmin_When_RestrictedBinderPolicyOmitsTenantAdmin()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
@@ -368,12 +368,13 @@ public sealed class BinderDomainAndPolicyModelIntegrationTests(PostgresContainer
             csrfToken: session.CsrfCookieValue);
 
         var response = await host.Client.SendAsync(request);
-        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+        var policy = await response.Content.ReadFromJsonAsync<BinderPolicyPayload>();
 
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         AssertApiProtocolHeaders(response);
-        Assert.NotNull(problem);
-        Assert.Equal(BinderPolicyInvalidErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
+        Assert.NotNull(policy);
+        Assert.Equal(BinderPolicyModeNames.RestrictedRoles, policy!.Mode);
+        Assert.Equal([nameof(TenantRole.TenantAdmin), nameof(TenantRole.BinderWrite)], policy.AllowedRoles);
     }
 
     [Fact]

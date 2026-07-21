@@ -97,7 +97,7 @@ public sealed class DapperTenantLeaseService(
                     return TenantLeaseExtendOutcome.Failed(
                         new TenantLeaseFailure(
                             TenantLeaseFailureKind.ExtensionWindowNotOpen,
-                            $"The tenant lease can be extended only when the remaining lease is greater than 0 and less than or equal to {policy.ExtensionMinutes} minutes."));
+                            $"The tenant lease can be extended only when the remaining lease is greater than 0 and less than or equal to {policy.ExtensionWindowMinutes} minutes."));
                 }
 
                 var updatedSnapshot = snapshot.WithExtension(policy.ExtensionMinutes);
@@ -153,6 +153,7 @@ public sealed class DapperTenantLeaseService(
 
     private TenantLeasePolicy CreatePolicy() =>
         new(
+            runtimeSettings.Lease.ExtensionWindowMinutes,
             runtimeSettings.Lease.ExtensionMinutes,
             runtimeSettings.Lease.MaxExtensions);
 

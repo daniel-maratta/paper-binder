@@ -44,6 +44,11 @@ public sealed record PaperBinderRuntimeSettings(
         var otlpEndpointValue = getValue(PaperBinderConfigurationKeys.ObservabilityOtlpEndpoint);
 
         var defaultMinutes = GetPositiveInt(getValue, PaperBinderConfigurationKeys.LeaseDefaultMinutes, errors);
+        var extensionWindowMinutes = GetOptionalPositiveInt(
+            getValue,
+            PaperBinderConfigurationKeys.LeaseExtensionWindowMinutes,
+            defaultValue: 10,
+            errors);
         var extensionMinutes = GetPositiveInt(getValue, PaperBinderConfigurationKeys.LeaseExtensionMinutes, errors);
         var maxExtensions = GetPositiveInt(getValue, PaperBinderConfigurationKeys.LeaseMaxExtensions, errors);
         var cleanupIntervalSeconds = GetPositiveInt(getValue, PaperBinderConfigurationKeys.LeaseCleanupIntervalSeconds, errors);
@@ -123,7 +128,7 @@ public sealed record PaperBinderRuntimeSettings(
                 dataProtectionCertificatePath,
                 dataProtectionCertificatePassword),
             new ChallengeSettings(challengeSiteKey!, challengeSecretKey!, challengeLocalBypassEnabled),
-            new LeaseSettings(defaultMinutes, extensionMinutes, maxExtensions, cleanupIntervalSeconds, recentActivityGraceSeconds),
+            new LeaseSettings(defaultMinutes, extensionWindowMinutes, extensionMinutes, maxExtensions, cleanupIntervalSeconds, recentActivityGraceSeconds),
             new RateLimitSettings(preAuthPerMinute, authenticatedPerMinute, leaseExtendPerMinute),
             new AuditSettings(auditRetentionMode!.Value),
             new ObservabilitySettings(otlpEndpoint));
@@ -382,6 +387,7 @@ public sealed record ChallengeSettings(
 
 public sealed record LeaseSettings(
     int DefaultMinutes,
+    int ExtensionWindowMinutes,
     int ExtensionMinutes,
     int MaxExtensions,
     int CleanupIntervalSeconds,
@@ -418,6 +424,7 @@ public static class PaperBinderConfigurationKeys
     public const string ChallengeSecretKey = "PAPERBINDER_CHALLENGE_SECRET_KEY";
     public const string ChallengeLocalBypassEnabled = "PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED";
     public const string LeaseDefaultMinutes = "PAPERBINDER_LEASE_DEFAULT_MINUTES";
+    public const string LeaseExtensionWindowMinutes = "PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES";
     public const string LeaseExtensionMinutes = "PAPERBINDER_LEASE_EXTENSION_MINUTES";
     public const string LeaseMaxExtensions = "PAPERBINDER_LEASE_MAX_EXTENSIONS";
     public const string LeaseCleanupIntervalSeconds = "PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS";

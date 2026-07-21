@@ -30,7 +30,7 @@ public static class TenantLeaseRules
             return false;
         }
 
-        return remaining <= TimeSpan.FromMinutes(policy.ExtensionMinutes);
+        return remaining <= TimeSpan.FromMinutes(policy.ExtensionWindowMinutes);
     }
 
     public static int GetSecondsRemaining(DateTimeOffset expiresAtUtc, DateTimeOffset now)

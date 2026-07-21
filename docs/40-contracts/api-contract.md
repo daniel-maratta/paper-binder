@@ -92,6 +92,7 @@ Notes:
 - Document-title validation failures return `400` ProblemDetails with `errorCode` `DOCUMENT_TITLE_INVALID`.
 - Missing or whitespace-only document content returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_REQUIRED`.
 - Document content longer than 50,000 characters returns `400` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TOO_LARGE`.
+- Demo guardrail limit violations return `409` ProblemDetails with `errorCode` `TENANT_USER_LIMIT_REACHED`, `BINDER_LIMIT_REACHED`, or `DOCUMENT_LIMIT_REACHED`.
 - Unsupported document `contentType` values return `422` ProblemDetails with `errorCode` `DOCUMENT_CONTENT_TYPE_INVALID`.
 - Missing document binder targets return `400` ProblemDetails with `errorCode` `DOCUMENT_BINDER_REQUIRED`.
 - Invalid document supersedes targets return `422` ProblemDetails with `errorCode` `DOCUMENT_SUPERSEDES_INVALID`.
@@ -150,7 +151,7 @@ Notes:
     - `404` when the tenant host does not resolve to a current tenant.
   - Notes:
     - `secondsRemaining` is derived from server time and is never negative in a `200` response.
-    - `canExtend` is true only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`, and `extensionCount` is below `maxExtensions`.
+    - `canExtend` is true only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES`, and `extensionCount` is below `maxExtensions`.
     - Cleanup may defer the eventual `404` briefly while an expired tenant still has recent authenticated tenant-host activity inside the configured grace window.
     - When that defer path is the reason a tenant-host request still resolves to `410`, the ProblemDetails payload includes `terminalTenantState: "expired_retained_recent_activity"` so the SPA can distinguish it from the eventual `404`/not-found state deliberately.
   - Idempotency: idempotent.
@@ -183,7 +184,7 @@ Notes:
     - `404` when the tenant host does not resolve to a current tenant.
   - Notes:
     - The handler ignores client-supplied tenant identifiers, duration values, or other business inputs and operates only on the current host-resolved tenant.
-    - `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the extension eligibility threshold and the amount added on success.
+    - `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES` drives the extension eligibility threshold; `PAPERBINDER_LEASE_EXTENSION_MINUTES` drives the amount added on success.
     - Cleanup may defer the eventual `404` briefly while an expired tenant still has recent authenticated tenant-host activity inside the configured grace window.
     - When that defer path is the reason a tenant-host request still resolves to `410`, the ProblemDetails payload includes `terminalTenantState: "expired_retained_recent_activity"` so the SPA can distinguish it from the eventual `404`/not-found state deliberately.
   - Idempotency: not idempotent.
@@ -338,6 +339,7 @@ Notes:
   - Failure semantics:
     - `400` when the email is empty, too long, contains whitespace, or does not contain exactly one `@`.
     - `409` when the requested email already exists.
+    - `409` with `TENANT_USER_LIMIT_REACHED` when the tenant has reached the hidden demo user cap.
     - `422` for invalid role values.
   - Idempotency: not idempotent.
 
@@ -418,6 +420,7 @@ Notes:
     - `400` when the binder name is empty, whitespace-only, or longer than 200 characters after trimming.
     - `403` when the caller lacks the `BinderWrite` endpoint policy or the request omits a valid CSRF token.
     - `404` when request host is not a tenant host.
+    - `409` with `BINDER_LIMIT_REACHED` when the tenant has reached the hidden demo binder cap.
   - Notes:
     - New binders default to binder policy mode `inherit`.
     - Binder names are not unique within a tenant in CP9.
@@ -514,7 +517,8 @@ Notes:
     - `restricted_roles`
   - Policy payload rules:
     - `allowedRoles` must be empty when `mode=inherit`.
-    - `allowedRoles` must contain one or more exact v1 tenant role values when `mode=restricted_roles`.
+    - `allowedRoles` may be empty when `mode=restricted_roles`; the backend normalizes restricted policies to include `TenantAdmin`.
+    - Non-empty `allowedRoles` values must be exact v1 tenant role values.
   - Request example:
     ```json
     {
@@ -622,6 +626,7 @@ Notes:
     - `403` when binder-local policy denies the target binder after the `BinderWrite` endpoint policy has already passed, or the request omits a valid CSRF token.
     - `404` when the target binder does not exist in the current tenant or the request host is not a tenant host.
     - `409` when another document in the same binder already uses the same trimmed, case-insensitive title and `supersedesDocumentId` does not reference an earlier document with that same title.
+    - `409` with `DOCUMENT_LIMIT_REACHED` when the binder has reached the hidden demo document cap.
     - `422` when `contentType` is not the exact value `markdown` or `supersedesDocumentId` does not reference an existing document in the same tenant and same binder.
   - Notes:
     - Titles are trimmed and must be 1-200 characters after trimming.

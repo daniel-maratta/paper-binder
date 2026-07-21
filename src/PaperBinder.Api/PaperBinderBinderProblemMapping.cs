@@ -31,6 +31,12 @@ internal static class PaperBinderBinderProblemMapping
                 failure.Detail,
                 PaperBinderErrorCodes.BinderPolicyInvalid),
 
+            BinderFailureKind.LimitReached => new(
+                StatusCodes.Status409Conflict,
+                "Binder limit reached.",
+                failure.Detail,
+                PaperBinderErrorCodes.BinderLimitReached),
+
             _ => throw new ArgumentOutOfRangeException(nameof(failure.Kind), failure.Kind, "Unknown binder failure.")
         };
 }

@@ -5,6 +5,7 @@ namespace PaperBinder.Application.Binders;
 public static class BinderNameRules
 {
     public const int MaxLength = 200;
+    public const int MaxBindersPerTenant = 20;
 
     public static bool TryTrimToValidName(string? value, out string trimmedName)
     {
@@ -80,22 +81,17 @@ public static class BinderPolicyRules
                 "The `allowedRoles` collection must be empty when `mode` is `inherit`.");
         }
 
-        if (mode == BinderPolicyMode.RestrictedRoles &&
-            normalizedRoles.Policy is not { AllowedRoles.Count: > 0 })
+        var allowedRoles = normalizedRoles.Policy?.AllowedRoles ?? Array.Empty<TenantRole>();
+        if (mode == BinderPolicyMode.RestrictedRoles)
         {
-            return BinderPolicyValidationResult.Failed(
-                "The `allowedRoles` collection must include at least one valid tenant role when `mode` is `restricted_roles`.");
+            allowedRoles = allowedRoles
+                .Append(TenantRole.TenantAdmin)
+                .Distinct()
+                .OrderBy(role => role)
+                .ToArray();
         }
 
-        if (mode == BinderPolicyMode.RestrictedRoles &&
-            normalizedRoles.Policy is { AllowedRoles: var allowedRoles } &&
-            !allowedRoles.Contains(TenantRole.TenantAdmin))
-        {
-            return BinderPolicyValidationResult.Failed(
-                "The `allowedRoles` collection must include TenantAdmin when `mode` is `restricted_roles` so tenant admins retain authoritative binder access.");
-        }
-
-        var normalizedPolicy = new BinderPolicy(mode, normalizedRoles.Policy?.AllowedRoles ?? Array.Empty<TenantRole>());
+        var normalizedPolicy = new BinderPolicy(mode, allowedRoles);
         return BinderPolicyValidationResult.Success(normalizedPolicy);
     }
 

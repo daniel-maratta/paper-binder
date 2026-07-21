@@ -37,6 +37,14 @@ internal static class BinderSql
             @CreatedAtUtc);
         """;
 
+    public const string CountTenantBindersForUpdate =
+        """
+        select id
+        from binders
+        where tenant_id = @TenantId
+        for update;
+        """;
+
     public const string InsertDefaultPolicy =
         """
         insert into binder_policies (

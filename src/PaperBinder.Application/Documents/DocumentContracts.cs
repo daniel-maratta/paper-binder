@@ -68,7 +68,8 @@ public enum DocumentFailureKind
     BinderPolicyDenied,
     SupersedesInvalid,
     AlreadyArchived,
-    NotArchived
+    NotArchived,
+    LimitReached
 }
 
 public sealed record DocumentFailure(

@@ -13,7 +13,7 @@ public sealed class BinderPolicyEvaluator : IBinderPolicyEvaluator
         policy.Mode switch
         {
             BinderPolicyMode.Inherit => true,
-            BinderPolicyMode.RestrictedRoles => policy.AllowedRoles.Contains(callerRole),
+            BinderPolicyMode.RestrictedRoles => callerRole == TenantRole.TenantAdmin || policy.AllowedRoles.Contains(callerRole),
             _ => throw new ArgumentOutOfRangeException(nameof(policy), policy.Mode, "Unknown binder policy mode.")
         };
 }

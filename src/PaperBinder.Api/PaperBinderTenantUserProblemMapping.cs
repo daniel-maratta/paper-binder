@@ -25,6 +25,12 @@ internal static class PaperBinderTenantUserProblemMapping
                 failure.Detail,
                 PaperBinderErrorCodes.TenantRoleInvalid),
 
+            TenantUserAdministrationFailureKind.LimitReached => new(
+                StatusCodes.Status409Conflict,
+                "Tenant user limit reached.",
+                failure.Detail,
+                PaperBinderErrorCodes.TenantUserLimitReached),
+
             TenantUserAdministrationFailureKind.LastTenantAdminRequired => new(
                 StatusCodes.Status409Conflict,
                 "Tenant admin required.",

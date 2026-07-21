@@ -102,6 +102,30 @@ public sealed class DapperDocumentService(
                                     "The current tenant role is not allowed to access the target binder."));
                         }
 
+                        var documentCount = await connection.ExecuteScalarAsync<int>(
+                            new CommandDefinition(
+                                """
+                                select count(*)
+                                from documents
+                                where tenant_id = @TenantId
+                                  and binder_id = @BinderId;
+                                """,
+                                new
+                                {
+                                    TenantId = command.Tenant.TenantId,
+                                    BinderId = command.BinderId.Value
+                                },
+                                transaction,
+                                cancellationToken: innerCancellationToken));
+
+                        if (documentCount >= DocumentRules.MaxDocumentsPerBinder)
+                        {
+                            return DocumentCreateOutcome.Failed(
+                                new DocumentFailure(
+                                    DocumentFailureKind.LimitReached,
+                                    $"This demo binder can contain up to {DocumentRules.MaxDocumentsPerBinder} documents."));
+                        }
+
                         if (command.SupersedesDocumentId.HasValue)
                         {
                             if (command.SupersedesDocumentId.Value == documentId)

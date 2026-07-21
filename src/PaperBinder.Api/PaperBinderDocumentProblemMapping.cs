@@ -79,6 +79,12 @@ internal static class PaperBinderDocumentProblemMapping
                 failure.Detail,
                 PaperBinderErrorCodes.DocumentNotArchived),
 
+            DocumentFailureKind.LimitReached => new(
+                StatusCodes.Status409Conflict,
+                "Document limit reached.",
+                failure.Detail,
+                PaperBinderErrorCodes.DocumentLimitReached),
+
             _ => throw new ArgumentOutOfRangeException(nameof(failure.Kind), failure.Kind, "Unknown document failure.")
         };
 }

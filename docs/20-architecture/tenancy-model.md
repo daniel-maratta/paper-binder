@@ -26,7 +26,7 @@ Tenant identifiers in query/body/headers are not trusted for scoping.
 - Tenant includes provision timestamp and expiration timestamp.
 - Provisioning sets `expires_at = provisioned_at + 60 minutes`.
 - Extension allowed only when remaining lease is less than or equal to 10 minutes.
-- Each extension adds 10 minutes.
+- Each extension adds 15 minutes.
 - Maximum 3 extensions.
 - Cleanup worker cadence target is every 1 minute.
 - Expired tenants fail closed immediately at `expires_at`.
