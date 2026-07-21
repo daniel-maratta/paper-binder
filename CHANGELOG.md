@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## [1.1.0] - 2026-07-20
+
+- Tightened demo workspace guardrails, lease-extension behavior, destructive-action surfaces, and reviewer-facing UI polish for the next stable release.
+
 ## [1.0.5] - 2026-07-03
 
 ### Fixed
