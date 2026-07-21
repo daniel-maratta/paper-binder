@@ -112,6 +112,14 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
         correlationId: error.correlationId,
         retryAfterLabel
       };
+    case "BINDER_LIMIT_REACHED":
+      return {
+        title: "Binder limit reached.",
+        detail: error.detail ?? "This demo workspace cannot create another binder.",
+        field: "binderName",
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
     case "DOCUMENT_NOT_FOUND":
       return {
         title: "Document not found.",
@@ -178,6 +186,14 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
         correlationId: error.correlationId,
         retryAfterLabel
       };
+    case "DOCUMENT_LIMIT_REACHED":
+      return {
+        title: "Document limit reached.",
+        detail: error.detail ?? "This demo binder cannot create another document.",
+        field: "documentTitle",
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
     case "TENANT_USER_EMAIL_CONFLICT":
       return {
         title: "Email already exists.",
@@ -199,6 +215,14 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
         title: "Tenant user not found.",
         detail: error.detail ?? "The selected user is no longer available in this workspace.",
         field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "TENANT_USER_LIMIT_REACHED":
+      return {
+        title: "Tenant user limit reached.",
+        detail: error.detail ?? "This demo workspace cannot create another user.",
+        field: "tenantUserEmail",
         correlationId: error.correlationId,
         retryAfterLabel
       };

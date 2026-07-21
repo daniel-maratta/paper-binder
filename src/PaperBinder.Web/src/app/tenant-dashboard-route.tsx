@@ -112,7 +112,7 @@ export function DashboardPage() {
         <DashboardStat label="Lease extensions" value={`${lease.extensionCount} of ${lease.maxExtensions} used`} />
         <DashboardStat
           label="Demo expires in"
-          tone={countdownSeconds <= 900 ? "warning" : "default"}
+          tone={countdownSeconds > 0 && countdownSeconds < 600 ? "warning" : "default"}
           value={formatCountdown(countdownSeconds)}
         />
       </div>
@@ -127,7 +127,7 @@ export function DashboardPage() {
           <div>
             <h3 className="pb-auth-callout__title">This demo tenant will be available for an hour after creation</h3>
             <p className="pb-auth-callout__body">
-              When less than 10 minutes are left, the opportunity to extend the demo by 10 minutes appears if you need more time. You can extend the tenant demo by up to 3 times (30 minutes).
+              When less than 10 minutes are left, the opportunity to extend the demo by 15 minutes appears if you need more time. You can extend the tenant demo by up to 3 times (45 minutes).
             </p>
           </div>
         </section>

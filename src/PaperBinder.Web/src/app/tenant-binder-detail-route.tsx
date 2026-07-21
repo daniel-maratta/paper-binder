@@ -28,6 +28,7 @@ type DocumentFieldErrors = Partial<
   Record<"documentTitle" | "documentContent" | "documentSupersedesDocumentId", string>
 >;
 type BinderPolicyFieldErrors = Partial<Record<"binderPolicy", string>>;
+const binderPolicySelectableRoleOptions = roleOptions.filter((role) => role !== "TenantAdmin");
 
 function DetailStat({
   label,
@@ -114,11 +115,10 @@ function BinderPolicyCard({
   const [mode, setMode] = useState<BinderPolicy["mode"]>("inherit");
   const [allowedRoles, setAllowedRoles] = useState<TenantRole[]>([]);
   const sortedAllowedRoles = [...allowedRoles].sort();
-  const sortedPolicyRoles = [...(policy?.allowedRoles ?? [])].sort();
+  const sortedPolicyRoles = [...(policy?.allowedRoles.filter((role) => role !== "TenantAdmin") ?? [])].sort();
   const isDirty =
     policy !== null &&
     (mode !== policy.mode || JSON.stringify(sortedAllowedRoles) !== JSON.stringify(sortedPolicyRoles));
-  const isInvalidRestrictedRoleSelection = mode === "restricted_roles" && allowedRoles.length === 0;
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -134,7 +134,7 @@ function BinderPolicyCard({
 
         setPolicy(nextPolicy);
         setMode(nextPolicy.mode);
-        setAllowedRoles(nextPolicy.allowedRoles);
+        setAllowedRoles(nextPolicy.allowedRoles.filter((role) => role !== "TenantAdmin"));
         setLoadError(null);
       } catch (error) {
         if (abortController.signal.aborted) {
@@ -186,7 +186,7 @@ function BinderPolicyCard({
       const updatedPolicy = await apiClient.updateBinderPolicy(binderId, payload);
       setPolicy(updatedPolicy);
       setMode(updatedPolicy.mode);
-      setAllowedRoles(updatedPolicy.allowedRoles);
+      setAllowedRoles(updatedPolicy.allowedRoles.filter((role) => role !== "TenantAdmin"));
       setSubmitSuccess(true);
     } catch (error) {
       const mappedError = mapTenantHostError(error);
@@ -235,10 +235,10 @@ function BinderPolicyCard({
             <fieldset className="space-y-3">
               <legend className="text-sm font-medium text-[var(--pb-color-text)]">Allowed roles</legend>
               <p className="pb-auth-panel-copy">
-                Only the selected roles can open this binder.
+                Tenant admins always retain access. Select any additional roles that can open this binder.
               </p>
               <div className="pb-auth-checkbox-list">
-                {roleOptions.map((role) => (
+                {binderPolicySelectableRoleOptions.map((role) => (
                   <label className="pb-auth-checkbox-item" key={role}>
                     <input
                       checked={allowedRoles.includes(role)}
@@ -260,7 +260,7 @@ function BinderPolicyCard({
                 </Alert>
               ) : null}
             <Button
-              disabled={!isDirty || isInvalidRestrictedRoleSelection || isSubmitting}
+              disabled={!isDirty || isSubmitting}
               isLoading={isSubmitting}
               type="submit"
             >
@@ -695,7 +695,7 @@ export function BinderDetailPage() {
       ) : null}
 
       {canMutateBinder ? (
-        <section className="pb-auth-panel">
+        <section className="pb-auth-panel pb-auth-panel--danger">
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Delete binder</h3>
             <p className="pb-auth-panel-copy">

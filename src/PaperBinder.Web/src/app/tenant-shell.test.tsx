@@ -73,11 +73,11 @@ describe("tenant shell", () => {
     expect(screen.getByText(/return to a safe starting point/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Return to main site" })).toHaveAttribute(
       "href",
-      "https://paperbinder.example.test/"
+      "https://paperbinder.example.test/?workspace=acme"
     );
     expect(screen.getByRole("link", { name: "Return to sign in" })).toHaveAttribute(
       "href",
-      "https://paperbinder.example.test/login"
+      "https://paperbinder.example.test/login?workspace=acme"
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Copy correlation id" }));
@@ -202,7 +202,7 @@ describe("tenant shell", () => {
     );
     expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute(
       "href",
-      "https://paperbinder.example.test/about"
+      "https://paperbinder.example.test/about?workspace=acme"
     );
     expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute("target", "_blank");
     expect(screen.getByText("Designed by")).toBeInTheDocument();
@@ -300,7 +300,7 @@ describe("tenant shell", () => {
     expect(await screen.findByRole("heading", { name: "Demo expired" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Return to main site" })).toHaveAttribute(
       "href",
-      "https://paperbinder.example.test/"
+      "https://paperbinder.example.test/?workspace=acme"
     );
   });
 

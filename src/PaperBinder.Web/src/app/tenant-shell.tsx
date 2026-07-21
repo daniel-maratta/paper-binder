@@ -61,6 +61,7 @@ type TenantBootstrapViewModel = {
 };
 
 export const roleOptions: readonly TenantRole[] = ["TenantAdmin", "BinderWrite", "BinderRead"];
+const leaseExtensionWindowSeconds = 10 * 60;
 const toastAutoDismissMs = 5000;
 
 export type TenantHostNavigator = (redirectUrl: string) => void;
@@ -121,12 +122,26 @@ function normalizeCountdownSeconds(secondsRemaining: number): number {
   return Math.max(0, Math.ceil(secondsRemaining));
 }
 
-function toRootLoginUrl(rootUrl: string): string {
-  return new URL("/login", rootUrl).toString();
+function toRootLoginUrl(rootUrl: string, tenantSlug?: string): string {
+  const url = new URL("/login", rootUrl);
+  if (tenantSlug) {
+    url.searchParams.set("workspace", tenantSlug);
+  }
+
+  return url.toString();
 }
 
 function toRootHomeUrl(rootUrl: string, tenantSlug?: string): string {
   const url = new URL("/", rootUrl);
+  if (tenantSlug) {
+    url.searchParams.set("workspace", tenantSlug);
+  }
+
+  return url.toString();
+}
+
+function toRootAboutUrl(rootUrl: string, tenantSlug?: string): string {
+  const url = new URL("/about", rootUrl);
   if (tenantSlug) {
     url.searchParams.set("workspace", tenantSlug);
   }
@@ -466,8 +481,9 @@ export function TenantShell({
   const nextToastIdRef = useRef(0);
   const toastDismissStateRef = useRef(new Map<string, ToastDismissState>());
   const expiryRefreshAttemptedRef = useRef(false);
-  const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl);
-  const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl);
+  const extensionWindowRefreshAttemptedRef = useRef(false);
+  const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+  const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
   const rootHomeUrlWithWorkspace = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
 
   useEffect(() => {
@@ -627,6 +643,24 @@ export function TenantShell({
     }
 
     expiryRefreshAttemptedRef.current = true;
+    void refreshShellState();
+  }, [bootstrapError, countdownSeconds, lease, refreshShellState]);
+
+  useEffect(() => {
+    if (lease === null || bootstrapError !== null) {
+      return;
+    }
+
+    if (lease.canExtend || countdownSeconds <= 0 || countdownSeconds > leaseExtensionWindowSeconds) {
+      extensionWindowRefreshAttemptedRef.current = false;
+      return;
+    }
+
+    if (extensionWindowRefreshAttemptedRef.current) {
+      return;
+    }
+
+    extensionWindowRefreshAttemptedRef.current = true;
     void refreshShellState();
   }, [bootstrapError, countdownSeconds, lease, refreshShellState]);
 
@@ -794,7 +828,7 @@ export function TenantShell({
   const visibleToasts = toasts.slice(0, 3);
   const queuedToastCount = Math.max(0, toasts.length - visibleToasts.length);
   const isViewingAs = impersonation.isImpersonating;
-  const aboutUrl = new URL("/about", hostContext.environment.rootUrl).toString();
+  const aboutUrl = toRootAboutUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
 
   return (
     <div className="pb-auth-shell">
@@ -903,7 +937,7 @@ export function TenantShell({
           </header>
 
           <div className="pb-auth-shell-body">
-            {lease.canExtend ? (
+            {lease.canExtend || (countdownSeconds > 0 && countdownSeconds <= leaseExtensionWindowSeconds) ? (
               <TenantLeaseBanner
                 countdownSeconds={countdownSeconds}
                 isExtending={isExtending}

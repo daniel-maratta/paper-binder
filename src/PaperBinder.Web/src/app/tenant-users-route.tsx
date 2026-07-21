@@ -551,7 +551,7 @@ export function UsersPage() {
                       </div>
                     </section>
 
-                    <section className="pb-auth-subpanel pb-auth-subpanel--warning">
+                    <section className="pb-auth-subpanel pb-auth-subpanel--danger">
                       <div className="pb-auth-subpanel-header">
                         <h4 className="text-base font-semibold tracking-[-0.02em] text-[var(--pb-color-text)]">
                           Delete user

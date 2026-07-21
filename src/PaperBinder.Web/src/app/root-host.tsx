@@ -327,7 +327,7 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
       <section className="pb-public-hero">
         <section aria-labelledby="public-hero-title" className="pb-public-hero-copy">
           <p className="pb-public-eyebrow">PaperBinder</p>
-          <h1 id="public-hero-title">PaperBinder document workspaces</h1>
+          <h1 id="public-hero-title">A secure workspace for your documents and your team.</h1>
           <p className="pb-public-hero-body">
             Start a temporary workspace, move straight into the product, and manage documents with the same flows used inside the app.
           </p>

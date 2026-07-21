@@ -128,7 +128,7 @@ describe("root-host flows", () => {
     expect(screen.getByRole("link", { name: "Demo" })).toHaveAttribute("href", "/start-demo");
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
     expect(
-      screen.getByRole("heading", { name: "PaperBinder document workspaces" })
+      screen.getByRole("heading", { name: "A secure workspace for your documents and your team." })
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start live demo" })).toHaveAttribute("href", "/start-demo");
     expect(

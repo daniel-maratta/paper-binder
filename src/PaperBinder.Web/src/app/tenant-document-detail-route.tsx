@@ -525,7 +525,7 @@ export function DocumentDetailPage() {
       </section>
 
       {canDeleteDocument ? (
-        <section className="pb-auth-panel">
+        <section className="pb-auth-panel pb-auth-panel--danger">
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Delete document</h3>
             <p className="pb-auth-panel-copy">
