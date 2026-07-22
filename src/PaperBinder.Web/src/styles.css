@@ -1576,6 +1576,10 @@ a {
   gap: 8px;
 }
 
+.pb-credential-field--public-email .pb-credential-field__actions {
+  margin-top: 6px;
+}
+
 .pb-credential-field__control input {
   width: 100%;
   min-height: 46px;

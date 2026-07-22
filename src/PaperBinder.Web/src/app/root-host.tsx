@@ -798,6 +798,7 @@ function ProvisionSuccessPanel({
 
       <div className="pb-public-form-stack">
         <CredentialDisplayField
+          className="pb-credential-field--public-email"
           copyButtonLabel="Copy email"
           hint="Use this email if you sign in again later."
           label="Email"
