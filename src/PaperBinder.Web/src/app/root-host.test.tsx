@@ -199,6 +199,7 @@ describe("root-host flows", () => {
     });
 
     expect(screen.getByRole("heading", { name: "About PaperBinder" })).toBeInTheDocument();
+    expect(screen.getByText("PROJECT OVERVIEW")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "A small, complete SaaS demo for document workspaces." })).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -211,11 +212,11 @@ describe("root-host flows", () => {
     expect(screen.getByText("Role-aware access inside isolated workspaces.")).toBeInTheDocument();
     expect(screen.getByText("Demo path")).toBeInTheDocument();
     expect(screen.getByText("Temporary demo workspaces with generated credentials.")).toBeInTheDocument();
-    expect(screen.getByText("FEATURED WRITE-UP")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Featured write-up" })).toBeInTheDocument();
+    expect(screen.getByText("TECHNICAL WRITE-UP")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Featured article" })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "The technical article walks through the architecture, scope decisions, and AI-assisted build process behind PaperBinder."
+        "A closer look at the architecture, scope decisions, and AI-assisted build process behind PaperBinder."
       )
     ).toBeInTheDocument();
     expect(
@@ -240,13 +241,17 @@ describe("root-host flows", () => {
     expect(screen.getByRole("heading", { name: "Small by design." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "In scope" })).toBeInTheDocument();
     expect(screen.getByText("Temporary demo workspaces")).toBeInTheDocument();
+    expect(screen.getByText("Public demo path")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Out of scope" })).toBeInTheDocument();
     expect(screen.getByText("Billing and subscription management")).toBeInTheDocument();
-    expect(screen.getByText("IMPLEMENTATION BASELINE")).toBeInTheDocument();
+    expect(screen.getByText("PUBLIC UI BASELINE")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Implementation baseline" })).toBeInTheDocument();
     expect(
+      screen.getByText("Reusable structure, readable states, and responsive layouts.")
+    ).toBeInTheDocument();
+    expect(
       screen.getByText(
-        "The public surface is built around reusable layout components, responsive behavior, readable contrast tokens, and keyboard-visible controls."
+        "The public pages use reusable layout components, responsive behavior, readable contrast tokens, and keyboard-visible controls."
       )
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Reusable public shell" })).toBeInTheDocument();

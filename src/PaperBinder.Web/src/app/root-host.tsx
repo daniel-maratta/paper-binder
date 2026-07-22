@@ -501,60 +501,64 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
 function PublicFooter() {
   return (
     <footer className="pb-public-footer">
-      <div className="pb-public-footer-brand">
-        <NavLink aria-label="PaperBinder home" className="pb-public-footer-logo" to="/">
-          <img alt="" aria-hidden="true" src="/brand/pb-full-logo-white.png" />
-        </NavLink>
-        <p>A production-shaped SaaS demo designed and built by Daniel Maratta.</p>
-      </div>
+      <div className="pb-public-footer-main">
+        <div className="pb-public-footer-brand">
+          <NavLink aria-label="PaperBinder home" className="pb-public-footer-logo" to="/">
+            <img alt="" aria-hidden="true" src="/brand/pb-full-logo-white.png" />
+          </NavLink>
+          <p>A production-shaped SaaS demo designed and built by Daniel Maratta.</p>
+        </div>
 
-      <div className="pb-public-footer-nav">
-        <section aria-labelledby="public-footer-product">
-          <h2 id="public-footer-product">Product</h2>
-          <ul>
-            {rootRouteDefinitions.map((route) => (
-              <li key={route.path}>
-                <NavLink className="pb-public-footer-link" to={route.path}>
-                  {route.label}
-                </NavLink>
+        <div className="pb-public-footer-nav">
+          <section aria-labelledby="public-footer-product">
+            <h2 id="public-footer-product">Product</h2>
+            <ul>
+              {rootRouteDefinitions.map((route) => (
+                <li key={route.path}>
+                  <NavLink className="pb-public-footer-link" to={route.path}>
+                    {route.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section aria-labelledby="public-footer-project">
+            <h2 id="public-footer-project">Project</h2>
+            <ul>
+              <li>
+                <a
+                  className="pb-public-footer-link"
+                  href={productIdentity.canonicalDemoUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Live project
+                </a>
               </li>
-            ))}
-          </ul>
-        </section>
-
-        <section aria-labelledby="public-footer-project">
-          <h2 id="public-footer-project">Project</h2>
-          <ul>
-            <li>
-              <a
-                className="pb-public-footer-link"
-                href={productIdentity.canonicalDemoUrl}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Live project
-              </a>
-            </li>
-            <li>
-              <a className="pb-public-footer-link" href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
-                Portfolio
-              </a>
-            </li>
-            <li>
-              <a
-                className="pb-public-footer-link"
-                href={productIdentity.canonicalRepositoryUrl}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Repository history
-              </a>
-            </li>
-          </ul>
-        </section>
+              <li>
+                <a className="pb-public-footer-link" href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
+                  Portfolio
+                </a>
+              </li>
+              <li>
+                <a
+                  className="pb-public-footer-link"
+                  href={productIdentity.canonicalRepositoryUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Repository history
+                </a>
+              </li>
+            </ul>
+          </section>
+        </div>
       </div>
 
-      <p className="pb-public-footer-copyright">&copy; 2026 {productIdentity.productName}</p>
+      <div className="pb-public-footer-meta">
+        <p className="pb-public-footer-copyright">&copy; 2026 {productIdentity.productName}</p>
+      </div>
     </footer>
   );
 }
@@ -692,7 +696,7 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
             {publicDemoSteps.map((step, index) => (
               <li className="pb-public-step" key={step.title}>
                 <span className="pb-public-step-marker">{index + 1}</span>
-                <div>
+                <div className="pb-public-step-copy">
                   <h3>{step.title}</h3>
                   <p>{step.body}</p>
                 </div>
@@ -1251,7 +1255,7 @@ function RootLoginPage({
 function RootAboutPage() {
   return (
     <PublicPage className="pb-public-about-page">
-      <PublicHero eyebrow="ABOUT PAPERBINDER" title="About PaperBinder">
+      <PublicHero eyebrow="PROJECT NOTES" title="About PaperBinder">
         A concise overview of what PaperBinder demonstrates, what it intentionally excludes, and where to inspect the
         live project.
       </PublicHero>
@@ -1259,7 +1263,7 @@ function RootAboutPage() {
       <div className="pb-public-story-stack">
         <PublicStorySection className="pb-public-about-overview" variant="accent">
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">ABOUT PAPERBINDER</p>
+            <p className="pb-public-panel-eyebrow">PROJECT OVERVIEW</p>
             <h2>A small, complete SaaS demo for document workspaces.</h2>
             <p>
               PaperBinder includes tenant-scoped workspaces, binder-level access, immutable text documents, and
@@ -1275,11 +1279,10 @@ function RootAboutPage() {
 
         <PublicStorySection className="pb-public-about-articles-section" variant="split">
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">FEATURED WRITE-UP</p>
-            <h2>Featured write-up</h2>
+            <p className="pb-public-panel-eyebrow">TECHNICAL WRITE-UP</p>
+            <h2>Featured article</h2>
             <p>
-              The technical article walks through the architecture, scope decisions, and AI-assisted build process
-              behind PaperBinder.
+              A closer look at the architecture, scope decisions, and AI-assisted build process behind PaperBinder.
             </p>
           </div>
           <ArticleCard
@@ -1329,7 +1332,7 @@ function RootAboutPage() {
                 <li>Tenant isolation</li>
                 <li>Binder and document workflows</li>
                 <li>Role-aware access</li>
-                <li>Reviewer-friendly demo path</li>
+                <li>Public demo path</li>
               </ul>
             </section>
             <section aria-labelledby="about-out-of-scope" className="pb-public-about-scope-panel">
@@ -1347,11 +1350,14 @@ function RootAboutPage() {
 
         <PublicStorySection className="pb-public-about-baseline-section">
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">IMPLEMENTATION BASELINE</p>
+            <p className="pb-public-panel-eyebrow">PUBLIC UI BASELINE</p>
             <h2>Implementation baseline</h2>
             <p>
-              The public surface is built around reusable layout components, responsive behavior, readable contrast
-              tokens, and keyboard-visible controls.
+              Reusable structure, readable states, and responsive layouts.
+            </p>
+            <p>
+              The public pages use reusable layout components, responsive behavior, readable contrast tokens, and
+              keyboard-visible controls.
             </p>
           </div>
           <ul className="pb-public-about-baseline-list">
