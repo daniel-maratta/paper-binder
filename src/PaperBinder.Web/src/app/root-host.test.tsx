@@ -156,6 +156,9 @@ describe("root-host flows", () => {
     expect(screen.getByText("Demo workspaces expire and are removed during cleanup.")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Manage access without leaving the workspace." })).toBeInTheDocument();
     expect(screen.getByText("User creation and credential handoff happen in one flow.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Workspace admins can keep the full user list in view, adjust roles, and hand off generated credentials from the same route.")
+    ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Start with the product, not a setup checklist." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Create a temporary workspace" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Save the generated credentials" })).toBeInTheDocument();
@@ -470,6 +473,8 @@ describe("root-host flows", () => {
       expect(document.querySelector(`script[src="${testEnvironment.challengeScriptUrl}"]`)).not.toBeNull();
     });
 
+    expect(screen.getAllByText("Security challenge loading...").length).toBeGreaterThan(0);
+
     document
       .querySelector(`script[src="${testEnvironment.challengeScriptUrl}"]`)!
       .dispatchEvent(new Event("error"));
@@ -501,9 +506,8 @@ describe("root-host flows", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start demo instead" })).toHaveAttribute("href", "/start-demo");
     expect(screen.getByText("SECURITY POSTURE")).toBeInTheDocument();
-    expect(
-      screen.getByText("Complete the challenge before signing in, unless local bypass is enabled.")
-    ).toBeInTheDocument();
+    expect(screen.getAllByText("Complete the challenge before signing in.").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/unless local bypass is enabled/i)).not.toBeInTheDocument();
     expect(screen.getByText("If sign-in fails, complete the challenge again before retrying.")).toBeInTheDocument();
     expect(screen.getByText("After sign-in, PaperBinder sends you to the matching workspace.")).toBeInTheDocument();
 

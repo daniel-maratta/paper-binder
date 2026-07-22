@@ -62,20 +62,20 @@ type ChallengeStatus = "loading" | "ready" | "complete" | "error";
 function getChallengeStatusContent(status: ChallengeStatus): {
   badge: string;
   badgeVariant: "neutral" | "warning" | "success" | "danger";
-  detail: string;
+  detail: string | null;
 } {
   switch (status) {
     case "loading":
       return {
         badge: "Loading",
         badgeVariant: "neutral",
-        detail: "Loading the challenge widget."
+        detail: null
       };
     case "ready":
       return {
         badge: "Required",
         badgeVariant: "warning",
-        detail: "Complete the challenge before submitting."
+        detail: null
       };
     case "complete":
       return {
@@ -219,6 +219,12 @@ export function RootHostChallengeWidget({
         )}
       >
         <div ref={containerRef} />
+        {status === "loading" ? (
+          <div aria-live="polite" className="pb-challenge-loading" role="status">
+            <span aria-hidden="true" className="pb-challenge-loading__pulse" />
+            <span>Security challenge loading...</span>
+          </div>
+        ) : null}
         {status === "error" && fallbackVariant === "panel" ? (
           <div className="pb-challenge-fallback">
             <strong>Challenge unavailable</strong>
@@ -229,9 +235,11 @@ export function RootHostChallengeWidget({
       <p className="text-sm text-[var(--pb-color-text-muted)]" id={hintId}>
         {hint}
       </p>
-      <p className="text-sm text-[var(--pb-color-text-muted)]" id={statusId}>
-        {statusContent.detail}
-      </p>
+      {statusContent.detail ? (
+        <p className="text-sm text-[var(--pb-color-text-muted)]" id={statusId}>
+          {statusContent.detail}
+        </p>
+      ) : null}
       {error ? (
         <p className="text-sm text-[var(--pb-color-danger)]" id={errorId}>
           {error}

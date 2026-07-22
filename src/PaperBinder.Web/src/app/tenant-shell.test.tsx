@@ -267,24 +267,22 @@ describe("tenant shell", () => {
       traceId: null,
       validationErrors: null
     });
-    let leaseReadCount = 0;
+    let shouldExpireOnLeaseRead = false;
 
     renderTenantRoute({
       apiClient: createApiClientStub({
         getTenantLease: vi.fn(async () => {
-          leaseReadCount += 1;
-
-          if (leaseReadCount === 1) {
-            return createTenantLeaseSummary({
-              expiresAt: "2026-04-17T12:00:01Z",
-              secondsRemaining: 1,
-              extensionCount: 1,
-              maxExtensions: 3,
-              canExtend: false
-            });
+          if (shouldExpireOnLeaseRead) {
+            throw expiredError;
           }
 
-          throw expiredError;
+          return createTenantLeaseSummary({
+            expiresAt: new Date(Date.now() + 60_000).toISOString(),
+            secondsRemaining: 60,
+            extensionCount: 1,
+            maxExtensions: 3,
+            canExtend: false
+          });
         }) as PaperBinderApiClient["getTenantLease"]
       })
     });
@@ -292,6 +290,7 @@ describe("tenant shell", () => {
     expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
 
     await act(async () => {
+      shouldExpireOnLeaseRead = true;
       window.dispatchEvent(new Event("focus"));
       await Promise.resolve();
       await Promise.resolve();

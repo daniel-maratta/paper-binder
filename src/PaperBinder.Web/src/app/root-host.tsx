@@ -40,28 +40,28 @@ const publicValuePillars: PublicValuePillar[] = [
   {
     icon: "key",
     title: "Role-aware access",
-    body: "Access changes with each user's assigned role."
+    body: "Assigned roles control what each user can see and do."
   },
   {
     icon: "document",
     title: "Immutable documents",
-    body: "Documents are reviewable without becoming a broad editor."
+    body: "Documents are reviewable records, not freeform editor content."
   },
   {
     icon: "timer",
     title: "Temporary demo lifecycle",
-    body: "Demo workspaces expire and are removed during cleanup."
+    body: "Demo workspaces expire automatically."
   }
 ];
 
 const publicDemoSteps: PublicDemoStep[] = [
   {
     title: "Create a temporary workspace",
-    body: "Choose a workspace name and complete the challenge."
+    body: "Choose a workspace name and complete the security challenge."
   },
   {
     title: "Save the generated credentials",
-    body: "The generated credentials are shown once before entering the workspace."
+    body: "Credentials are shown before entering the workspace."
   },
   {
     title: "Review the live product flows",
@@ -126,25 +126,114 @@ function resolveWorkspaceReturnUrl(search: string, environment: FrontendEnvironm
   return `${rootUrl.protocol}//${workspaceSlug}.${environment.tenantBaseDomain}/app`;
 }
 
-function PublicPanel({
-  className,
-  ...props
-}: ComponentPropsWithoutRef<"section">) {
-  return <section className={cn("pb-public-panel", className)} {...props} />;
+function PublicPage({ className, ...props }: ComponentPropsWithoutRef<"div">) {
+  return <div className={cn("pb-public-page", className)} {...props} />;
 }
 
-function PublicAsideSection({
+function PublicHero({
+  eyebrow,
+  title,
+  children,
+  actions,
+  id,
+  variant = "page"
+}: {
+  eyebrow: string;
+  title: string;
+  children: ReactNode;
+  actions?: ReactNode;
+  id?: string;
+  variant?: "landing" | "page";
+}) {
+  const titleId = id ?? "public-page-title";
+
+  return (
+    <section
+      aria-labelledby={titleId}
+      className={cn(variant === "landing" ? "pb-public-hero-copy" : "pb-public-page-intro")}
+    >
+      <p className="pb-public-eyebrow">{eyebrow}</p>
+      <h1 id={titleId}>{title}</h1>
+      {variant === "landing" ? <p className="pb-public-hero-body">{children}</p> : <p>{children}</p>}
+      {actions ? <div className="pb-public-hero-actions">{actions}</div> : null}
+    </section>
+  );
+}
+
+function PublicPanel({
   className,
+  variant = "default",
   ...props
-}: ComponentPropsWithoutRef<"section">) {
-  return <section className={cn("pb-public-side-section", className)} {...props} />;
+}: ComponentPropsWithoutRef<"section"> & {
+  variant?: "default" | "form" | "soft";
+}) {
+  return (
+    <section
+      className={cn(
+        "pb-public-panel",
+        variant === "form" && "pb-public-panel--form",
+        variant === "soft" && "pb-public-panel--soft",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+function PublicFormPanel({ className, ...props }: ComponentPropsWithoutRef<"section">) {
+  return <PublicPanel className={cn("pb-public-form-panel", className)} variant="form" {...props} />;
+}
+
+function GlassPanel({ className, ...props }: ComponentPropsWithoutRef<"section">) {
+  return <section className={cn("pb-public-glass-panel", className)} {...props} />;
+}
+
+function GlassPanelSection({ className, ...props }: ComponentPropsWithoutRef<"section">) {
+  return <section className={cn("pb-public-glass-panel-section", className)} {...props} />;
+}
+
+function PublicPanelHeading({
+  eyebrow,
+  title,
+  children,
+  className,
+  titleId
+}: {
+  eyebrow: string;
+  title: string;
+  children?: ReactNode;
+  className?: string;
+  titleId?: string;
+}) {
+  const heading = titleId ? <h2 id={titleId}>{title}</h2> : <h2>{title}</h2>;
+
+  return (
+    <div className={cn("pb-public-panel-heading", className)}>
+      <p className="pb-public-panel-eyebrow">{eyebrow}</p>
+      {heading}
+      {children ? <p>{children}</p> : null}
+    </div>
+  );
 }
 
 function PublicStorySection({
   className,
+  variant = "default",
   ...props
-}: ComponentPropsWithoutRef<"section">) {
-  return <section className={cn("pb-public-story-section", className)} {...props} />;
+}: ComponentPropsWithoutRef<"section"> & {
+  variant?: "default" | "accent" | "split";
+}) {
+  return (
+    <section
+      className={cn(
+        "pb-public-story-section",
+        variant === "accent" && "pb-public-story-section--accent",
+        variant === "split" && "pb-public-story-section--split",
+        className
+      )}
+      {...props}
+    />
+  );
 }
 
 function PublicStat({
@@ -159,6 +248,76 @@ function PublicStat({
       <dt>{label}</dt>
       <dd>{value}</dd>
     </div>
+  );
+}
+
+function FeatureCard({ pillar }: { pillar: PublicValuePillar }) {
+  return (
+    <article className="pb-public-feature">
+      <PublicProofIcon icon={pillar.icon} />
+      <div>
+        <h2>{pillar.title}</h2>
+        <p>{pillar.body}</p>
+      </div>
+    </article>
+  );
+}
+
+function ArticleCard({
+  meta,
+  title,
+  children,
+  href,
+  cta
+}: {
+  meta: string;
+  title: string;
+  children: ReactNode;
+  href: string;
+  cta: string;
+}) {
+  return (
+    <article className="pb-public-about-article-card">
+      <div>
+        <p className="pb-public-about-article-meta">{meta}</p>
+        <h3>{title}</h3>
+        <p>{children}</p>
+      </div>
+      <a href={href} onClick={href === "#" ? (event) => event.preventDefault() : undefined}>
+        {cta}
+      </a>
+    </article>
+  );
+}
+
+function ProofCard({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <li>
+      <h3>{title}</h3>
+      <p>{children}</p>
+    </li>
+  );
+}
+
+function ReferenceCard({
+  title,
+  href,
+  label,
+  children
+}: {
+  title: string;
+  href: string;
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <li>
+      <h3>{title}</h3>
+      <a href={href} rel="noreferrer" target="_blank">
+        {label}
+      </a>
+      <p>{children}</p>
+    </li>
   );
 }
 
@@ -293,7 +452,7 @@ function RootHostErrorNotice({ error }: { error: RootHostErrorViewModel | null }
   );
 }
 
-function PublicTopbar({ hostContext }: { hostContext: RootHostContext }) {
+function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
   const location = useLocation();
   const workspaceReturnUrl = resolveWorkspaceReturnUrl(location.search, hostContext.environment);
 
@@ -326,7 +485,7 @@ function PublicTopbar({ hostContext }: { hostContext: RootHostContext }) {
           <span className="pb-public-debug-chip">Loopback alias</span>
         ) : null}
         {workspaceReturnUrl ? (
-          <a className="pb-public-header-cta" href={workspaceReturnUrl}>
+          <a className="pb-public-button-link pb-public-header-cta" href={workspaceReturnUrl}>
             Open Workspace
           </a>
         ) : (
@@ -339,7 +498,31 @@ function PublicTopbar({ hostContext }: { hostContext: RootHostContext }) {
   );
 }
 
-function RootShell({ hostContext }: { hostContext: RootHostContext }) {
+function PublicFooter() {
+  return (
+    <footer className="pb-public-footer">
+      <div className="pb-public-footer-copy">
+        <span>&copy; 2026 {productIdentity.productName}</span>
+        <span>{productIdentity.provenanceSummary}</span>
+      </div>
+      <div className="pb-public-footer-links">
+        <a
+          className="pb-public-footer-link"
+          href={productIdentity.canonicalDemoUrl}
+          rel="noreferrer"
+          target="_blank"
+        >
+          {productIdentity.canonicalDemoHost}
+        </a>
+        <a className="pb-public-footer-link" href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
+          {productIdentity.authorName}
+        </a>
+      </div>
+    </footer>
+  );
+}
+
+function PublicShell({ hostContext }: { hostContext: RootHostContext }) {
   const location = useLocation();
   const isLandingRoute = location.pathname === "/";
 
@@ -349,39 +532,22 @@ function RootShell({ hostContext }: { hostContext: RootHostContext }) {
 
   return (
     <div className="pb-public-site">
+      <a className="pb-public-skip-link" href="#public-main">
+        Skip to content
+      </a>
       <div aria-hidden="true" className="pb-public-decor pb-public-decor--ring" />
       <div aria-hidden="true" className="pb-public-decor pb-public-decor--glow" />
 
-      <PublicTopbar hostContext={hostContext} />
+      <PublicHeader hostContext={hostContext} />
 
-      <main className={cn("pb-public-main", isLandingRoute ? "pb-public-main--landing" : "pb-public-main--inner")}>
+      <main
+        className={cn("pb-public-main", isLandingRoute ? "pb-public-main--landing" : "pb-public-main--inner")}
+        id="public-main"
+      >
         <Outlet />
       </main>
 
-      <footer className="pb-public-footer">
-        <div className="pb-public-footer-copy">
-          <span>&copy; 2026 {productIdentity.productName}</span>
-          <span>{productIdentity.provenanceSummary}</span>
-        </div>
-        <div className="pb-public-footer-links">
-          <a
-            className="pb-public-footer-link"
-            href={productIdentity.canonicalDemoUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {productIdentity.canonicalDemoHost}
-          </a>
-          <a
-            className="pb-public-footer-link"
-            href={productIdentity.authorUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {productIdentity.authorName}
-          </a>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }
@@ -393,27 +559,31 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
   return (
     <div className="pb-public-landing">
       <section className="pb-public-hero">
-        <section aria-labelledby="public-hero-title" className="pb-public-hero-copy">
-          <p className="pb-public-eyebrow">PaperBinder</p>
-          <h1 id="public-hero-title">A secure workspace for your documents and your team.</h1>
-          <p className="pb-public-hero-body">
-            Start a temporary workspace, move straight into the product, and manage documents with the same flows used inside the app.
-          </p>
-          <div className="pb-public-hero-actions">
-            {workspaceReturnUrl ? (
-              <a className="pb-public-button-link--light" href={workspaceReturnUrl}>
-                Open workspace
-              </a>
-            ) : (
-              <PublicShellLink className="pb-public-button-link--light" to="/start-demo">
-                Start live demo
+        <PublicHero
+          actions={
+            <>
+              {workspaceReturnUrl ? (
+                <a className="pb-public-button-link pb-public-button-link--light" href={workspaceReturnUrl}>
+                  Open workspace
+                </a>
+              ) : (
+                <PublicShellLink className="pb-public-button-link--light" to="/start-demo">
+                  Start demo
+                </PublicShellLink>
+              )}
+              <PublicShellLink className="pb-public-button-link--ghost" to="/about">
+                Learn more
               </PublicShellLink>
-            )}
-            <PublicShellLink className="pb-public-button-link--ghost" to="/about">
-              Learn more
-            </PublicShellLink>
-          </div>
-        </section>
+            </>
+          }
+          eyebrow="PaperBinder"
+          id="public-hero-title"
+          title="A production-shaped SaaS demo for document workspaces."
+          variant="landing"
+        >
+          PaperBinder demonstrates tenant isolation, role-aware access, immutable documents, and an ephemeral
+          workspace lifecycle in a working product UI.
+        </PublicHero>
 
         <section aria-label="PaperBinder product preview" className="pb-public-product-mockup">
           <div className="pb-public-mockup-stage">
@@ -447,29 +617,22 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
 
       <section aria-label="PaperBinder proof points" className="pb-public-feature-strip">
         {publicValuePillars.map((pillar) => (
-          <article className="pb-public-feature" key={pillar.title}>
-            <PublicProofIcon icon={pillar.icon} />
-            <div>
-              <h2>{pillar.title}</h2>
-              <p>{pillar.body}</p>
-            </div>
-          </article>
+          <FeatureCard key={pillar.title} pillar={pillar} />
         ))}
       </section>
 
       <div className="pb-public-story-stack">
-        <PublicStorySection className="pb-public-story-section--split">
+        <PublicStorySection variant="split">
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">USERS AND ACCESS</p>
             <h2>Manage access without leaving the workspace.</h2>
             <p>
-              Workspace admins can keep the full user list in view, adjust roles, and hand off one-time
-              credentials from the same route.
+              Workspace admins can view users, adjust roles, and issue generated credentials from one route.
             </p>
             <ul className="pb-public-bullet-list">
-              <li>Owner and access context stay visible while reviewers move through the workspace.</li>
-              <li>User creation and credential handoff happen in one flow.</li>
-              <li>Role changes and view-as checks stay close to the product surface.</li>
+              <li>Owner and access context stay visible while moving through the workspace.</li>
+              <li>User creation and credential generation happen in one flow.</li>
+              <li>Role changes and view-as checks stay close to the workspace.</li>
             </ul>
           </div>
           <div className="pb-public-story-media">
@@ -483,7 +646,7 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
           </div>
         </PublicStorySection>
 
-        <PublicStorySection className="pb-public-story-section--accent">
+        <PublicStorySection variant="accent">
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">DEMO PATH</p>
             <h2>Start with the product, not a setup checklist.</h2>
@@ -554,15 +717,11 @@ function ProvisionSuccessPanel({
   }
 
   return (
-    <PublicPanel className="pb-public-panel--form">
-      <div className="pb-public-panel-heading">
-        <p className="pb-public-panel-eyebrow">Workspace ready</p>
-        <h2>Workspace ready.</h2>
-        <p>
+    <PublicFormPanel>
+      <PublicPanelHeading eyebrow="Workspace ready" title="Workspace ready.">
           You are already signed in to this workspace. Save these credentials now if you want to return to it
           later.
-        </p>
-      </div>
+      </PublicPanelHeading>
 
       <Alert className="mt-4 pt-6" variant="info">
         <AlertTitle>Save these credentials now</AlertTitle>
@@ -625,7 +784,7 @@ function ProvisionSuccessPanel({
           <NavLink to="/login">Go to sign in</NavLink>
         </Button>
       </div>
-    </PublicPanel>
+    </PublicFormPanel>
   );
 }
 
@@ -675,7 +834,7 @@ function RootWelcomePage({
     }
 
     if (!challengeLocalBypassEnabled && !challengeToken) {
-      nextFieldErrors.challenge = "Complete the challenge before submitting.";
+      nextFieldErrors.challenge = "Complete the security challenge before starting a workspace.";
     }
 
     if (Object.keys(nextFieldErrors).length > 0) {
@@ -726,34 +885,25 @@ function RootWelcomePage({
   }
 
   return (
-    <div className="pb-public-page pb-public-demo-page">
-        <section className="pb-public-page-intro">
-          <p className="pb-public-eyebrow">Start demo</p>
-          <h1>Start demo</h1>
-          <p>
-            Create a temporary PaperBinder workspace, receive generated credentials, and continue into the
-            product.
-          </p>
-        </section>
+    <PublicPage className="pb-public-demo-page">
+      <PublicHero eyebrow="Start demo" title="Start demo">
+        Create a temporary PaperBinder workspace and continue with generated credentials.
+      </PublicHero>
 
       <div className="pb-public-page-grid pb-public-demo-page-grid">
         {provisionedTenant ? (
           <ProvisionSuccessPanel onContinue={handleContinueToTenant} provisionedTenant={provisionedTenant} />
         ) : (
-          <PublicPanel className="pb-public-panel--form pb-public-panel--demo-form">
-            <div className="pb-public-panel-heading">
-              <p className="pb-public-panel-eyebrow">New demo workspace</p>
-              <h2>Create a temporary workspace.</h2>
-              <p>
+          <PublicFormPanel className="pb-public-panel--demo-form">
+            <PublicPanelHeading eyebrow="New demo workspace" title="Create a temporary workspace.">
                 Choose a workspace name. PaperBinder verifies the challenge, creates the workspace, and signs
                 you in.
-              </p>
-            </div>
+            </PublicPanelHeading>
 
             <form className="pb-public-form-stack" onSubmit={handleProvisionSubmit}>
               <Field
                 error={fieldErrors.tenantName}
-                hint="Choose a name for this demo workspace."
+                hint="This name is used only for the temporary demo workspace."
                 label="Workspace name"
               >
                 <input
@@ -778,7 +928,7 @@ function RootWelcomePage({
                 <RootHostChallengeWidget
                   error={fieldErrors.challenge}
                   fallbackVariant="panel"
-                  hint="Complete the challenge before starting a workspace or signing in."
+                  hint="Complete the security challenge before starting a workspace."
                   label="Challenge"
                   onTokenChange={setChallengeToken}
                   resetNonce={challengeResetNonce}
@@ -798,35 +948,33 @@ function RootWelcomePage({
                 </Button>
               </div>
             </form>
-          </PublicPanel>
+          </PublicFormPanel>
         )}
 
-        <div className="pb-public-side-stack pb-public-demo-support">
-          <PublicAsideSection>
-            <p className="pb-public-panel-eyebrow">USE EXISTING CREDENTIALS</p>
-            <h2>Already have demo credentials?</h2>
-            <p>
+        <GlassPanel className="pb-public-demo-support">
+          <GlassPanelSection>
+            <PublicPanelHeading eyebrow="USE EXISTING CREDENTIALS" title="Already have demo credentials?">
               Return to a workspace you already created with the email and password issued during setup.
-            </p>
+            </PublicPanelHeading>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
                 <NavLink to="/login">Go to sign in</NavLink>
               </Button>
             </div>
-          </PublicAsideSection>
+          </GlassPanelSection>
 
-          <PublicAsideSection>
+          <GlassPanelSection>
             <p className="pb-public-panel-eyebrow">WHAT HAPPENS NEXT</p>
             <ul className="pb-public-bullet-list pb-public-demo-checklist">
               <li>Only the workspace name and challenge proof are submitted here.</li>
-              <li>Generated credentials are shown once before entering the workspace.</li>
-              <li>PaperBinder sends you to the new workspace after it is ready.</li>
-              <li>Demo workspaces are temporary and removed during periodic cleanup.</li>
+              <li>Generated credentials are shown before entering the workspace.</li>
+              <li>PaperBinder opens the new workspace after setup completes.</li>
+              <li>Demo workspaces are temporary and removed during cleanup.</li>
             </ul>
-          </PublicAsideSection>
-        </div>
+          </GlassPanelSection>
+        </GlassPanel>
       </div>
-    </div>
+    </PublicPage>
   );
 }
 
@@ -895,7 +1043,7 @@ function RootLoginPage({
     }
 
     if (!challengeLocalBypassEnabled && !challengeToken) {
-      nextFieldErrors.challenge = "Complete the challenge before submitting.";
+      nextFieldErrors.challenge = "Complete the security challenge before signing in.";
     }
 
     if (Object.keys(nextFieldErrors).length > 0) {
@@ -947,20 +1095,16 @@ function RootLoginPage({
   }
 
   return (
-    <div className="pb-public-page pb-public-login-page">
-        <section className="pb-public-page-intro">
-          <p className="pb-public-eyebrow">Direct sign in</p>
-          <h1>Sign in</h1>
-          <p>Return to a workspace you already created with the email and password issued for it.</p>
-        </section>
+    <PublicPage className="pb-public-login-page">
+      <PublicHero eyebrow="Direct sign in" title="Sign in">
+        Return to an existing demo workspace with the credentials generated during setup.
+      </PublicHero>
 
       <div className="pb-public-page-grid pb-public-login-page-grid">
-        <PublicPanel className="pb-public-panel--form pb-public-panel--login-form">
-          <div className="pb-public-panel-heading">
-            <p className="pb-public-panel-eyebrow">Workspace sign in</p>
-            <h2>Use existing demo credentials.</h2>
-            <p>Enter the email and password from your workspace setup.</p>
-          </div>
+        <PublicFormPanel className="pb-public-panel--login-form">
+          <PublicPanelHeading eyebrow="Workspace sign in" title="Use existing demo credentials.">
+            Enter the email and password from your workspace setup.
+          </PublicPanelHeading>
 
           <form className="pb-public-form-stack" onSubmit={handleLoginSubmit}>
             <Field error={fieldErrors.email} hint="Use the email issued for this demo workspace." label="Email">
@@ -1004,7 +1148,7 @@ function RootLoginPage({
               <RootHostChallengeWidget
                 error={fieldErrors.challenge}
                 fallbackVariant="panel"
-                hint="Complete the challenge before signing in."
+                hint="Complete the security challenge before signing in."
                 label="Challenge"
                 onTokenChange={setChallengeToken}
                 resetNonce={challengeResetNonce}
@@ -1039,97 +1183,85 @@ function RootLoginPage({
               </Button>
             </div>
           ) : null}
-        </PublicPanel>
+        </PublicFormPanel>
 
-        <div className="pb-public-side-stack pb-public-login-support">
-          <PublicAsideSection>
-            <p className="pb-public-panel-eyebrow">NEED A NEW WORKSPACE?</p>
-            <h2>Start with a fresh demo workspace.</h2>
-            <p>
-              Create a temporary workspace and continue into the product with generated credentials.
-            </p>
+        <GlassPanel className="pb-public-login-support">
+          <GlassPanelSection>
+            <PublicPanelHeading eyebrow="NEED A NEW WORKSPACE?" title="Start with a fresh demo workspace.">
+              Create a temporary workspace and continue with generated credentials.
+            </PublicPanelHeading>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
                 <NavLink to="/start-demo">Start demo instead</NavLink>
               </Button>
             </div>
-          </PublicAsideSection>
+          </GlassPanelSection>
 
-          <PublicAsideSection>
-            <p className="pb-public-panel-eyebrow">SECURITY POSTURE</p>
+          <GlassPanelSection>
+            <p className="pb-public-panel-eyebrow">HOW SIGN-IN WORKS</p>
             <ul className="pb-public-bullet-list pb-public-login-checklist">
-              <li>Complete the challenge before signing in, unless local bypass is enabled.</li>
+              <li>Complete the security challenge before signing in.</li>
               <li>If sign-in fails, complete the challenge again before retrying.</li>
               <li>After sign-in, PaperBinder sends you to the matching workspace.</li>
             </ul>
-          </PublicAsideSection>
-        </div>
+          </GlassPanelSection>
+        </GlassPanel>
       </div>
-    </div>
+    </PublicPage>
   );
 }
 
 function RootAboutPage() {
   return (
-    <div className="pb-public-page pb-public-about-page">
-      <section className="pb-public-page-intro">
-        <p className="pb-public-eyebrow">ABOUT PAPERBINDER</p>
-        <h1>About PaperBinder</h1>
-        <p>
-          It explains what the project demonstrates, where its boundaries are, and where reviewers can inspect the
-          live product and source history.
-        </p>
-      </section>
+    <PublicPage className="pb-public-about-page">
+      <PublicHero eyebrow="ABOUT PAPERBINDER" title="About PaperBinder">
+        A concise overview of what PaperBinder demonstrates, what it intentionally excludes, and where to inspect the
+        live project.
+      </PublicHero>
 
       <div className="pb-public-story-stack">
-        <PublicStorySection className="pb-public-story-section--accent pb-public-about-overview">
+        <PublicStorySection className="pb-public-about-overview" variant="accent">
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">ABOUT PAPERBINDER</p>
-            <h2>A scoped SaaS demo for technical review.</h2>
+            <h2>A small, complete SaaS demo for document workspaces.</h2>
             <p>
-              PaperBinder demonstrates a small but complete document workspace: tenant-scoped workspaces,
-              binder-level access, immutable text documents, and a short-lived demo path for reviewers.
+              PaperBinder includes tenant-scoped workspaces, binder-level access, immutable text documents, and
+              temporary demo workspaces with generated credentials.
             </p>
           </div>
           <dl className="pb-public-about-summary-grid">
             <PublicStat label="Core model" value="Binders and immutable text documents." />
             <PublicStat label="Access boundary" value="Role-aware access inside isolated workspaces." />
-            <PublicStat label="Review path" value="Temporary demo workspace with generated credentials." />
+            <PublicStat label="Review path" value="Temporary demo workspaces with generated credentials." />
           </dl>
         </PublicStorySection>
 
         <PublicStorySection>
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">WHAT THIS DEMONSTRATES</p>
-            <h2>Focused product scope with real SaaS boundaries.</h2>
+            <h2>A narrow product scope with real SaaS boundaries.</h2>
           </div>
           <ul className="pb-public-about-card-grid">
-            <li>
-              <h3>Tenant-scoped workspaces</h3>
-              <p>Each demo workspace stays isolated from the others.</p>
-            </li>
-            <li>
-              <h3>Binder-level access</h3>
-              <p>Users can be assigned roles that affect what they can see and do.</p>
-            </li>
-            <li>
-              <h3>Immutable documents</h3>
-              <p>Documents are treated as reviewable records rather than a broad editing surface.</p>
-            </li>
-            <li>
-              <h3>Operational demo lifecycle</h3>
-              <p>Temporary tenants, expiry state, and cleanup behavior are part of the product flow.</p>
-            </li>
+            <ProofCard title="Tenant-scoped workspaces">Each demo workspace stays isolated from the others.</ProofCard>
+            <ProofCard title="Binder-level access">
+              Users can be assigned roles that affect what they can see and do.
+            </ProofCard>
+            <ProofCard title="Immutable documents">
+              Documents are treated as reviewable records rather than freeform editor content.
+            </ProofCard>
+            <ProofCard title="Temporary demo lifecycle">
+              Temporary tenants, expiry state, and cleanup behavior are part of the demo flow.
+            </ProofCard>
           </ul>
         </PublicStorySection>
 
         <PublicStorySection className="pb-public-about-scope-section">
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">INTENTIONAL SCOPE</p>
-            <h2>Small surface area, deliberate boundaries.</h2>
+            <h2>Small by design.</h2>
             <p>
-              PaperBinder is scoped to demonstrate delivery quality, implementation decisions, and reviewer-visible
-              product behavior without pretending to be a full commercial document platform.
+              PaperBinder is intentionally narrow. It demonstrates SaaS architecture, access boundaries, document
+              workflows, and deployment quality without expanding into a full document-management platform.
             </p>
           </div>
           <div className="pb-public-about-scope-grid">
@@ -1140,7 +1272,7 @@ function RootAboutPage() {
                 <li>Tenant isolation</li>
                 <li>Binder and document workflows</li>
                 <li>Role-aware access</li>
-                <li>Reviewer-friendly product path</li>
+                <li>Reviewer-friendly demo path</li>
               </ul>
             </section>
             <section aria-labelledby="about-out-of-scope" className="pb-public-about-scope-panel">
@@ -1161,68 +1293,56 @@ function RootAboutPage() {
             <p className="pb-public-panel-eyebrow">ARTICLES</p>
             <h2>Technical write-ups from the build.</h2>
             <p>
-              Deeper notes on the product architecture, implementation tradeoffs, and AI-assisted delivery process
-              behind PaperBinder.
+              Deeper notes on the product architecture, tradeoffs, and implementation choices behind PaperBinder.
             </p>
           </div>
-          <article className="pb-public-about-article-card">
-            <div>
-              <p className="pb-public-about-article-meta">Architecture / AI-assisted development / SaaS demo</p>
-              <h3>How I Built a Production-Shaped SaaS Demo with AI Agents</h3>
-              <p>
-                A walkthrough of the product architecture, implementation choices, reviewer-facing scope, and the
-                agent-assisted workflow used to build PaperBinder.
-              </p>
-            </div>
-            <a href="#" onClick={(event) => event.preventDefault()}>
-              Read article
-            </a>
-          </article>
+          <ArticleCard
+            cta="Read article"
+            href="#"
+            meta="Architecture / AI-assisted development / SaaS demo"
+            title="How I Built a Production-Shaped SaaS Demo with AI Agents"
+          >
+            A walkthrough of the product architecture, tradeoffs, and implementation choices behind PaperBinder.
+          </ArticleCard>
         </PublicStorySection>
 
         <PublicStorySection>
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">REVIEWER REFERENCES</p>
-            <h2>Canonical project references.</h2>
-            <p>{productIdentity.provenanceSummary}</p>
+            <h2>Project links for review.</h2>
+            <p>Use these links to inspect the live project, portfolio context, and source history.</p>
           </div>
           <ul className="pb-public-about-reference-list">
-            <li>
-              <h3>Live project</h3>
-              <a href={productIdentity.canonicalDemoUrl} rel="noreferrer" target="_blank">
-                {productIdentity.canonicalDemoHost}
-              </a>
-              <p>Public demo entry point and product walkthrough.</p>
-            </li>
-            <li>
-              <h3>Portfolio</h3>
-              <a href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
-                danielmaratta.com
-              </a>
-              <p>Main portfolio and professional context.</p>
-            </li>
-            <li>
-              <h3>Repository history</h3>
-              <a href={productIdentity.canonicalRepositoryUrl} rel="noreferrer" target="_blank">
-                Canonical repository history
-              </a>
-              <p>Source history and implementation record.</p>
-            </li>
+            <ReferenceCard
+              href={productIdentity.canonicalDemoUrl}
+              label={productIdentity.canonicalDemoHost}
+              title="Live project"
+            >
+              Public demo entry point and product walkthrough.
+            </ReferenceCard>
+            <ReferenceCard href={productIdentity.authorUrl} label="danielmaratta.com" title="Portfolio">
+              Main portfolio and professional context.
+            </ReferenceCard>
+            <ReferenceCard
+              href={productIdentity.canonicalRepositoryUrl}
+              label="Canonical repository history"
+              title="Repository history"
+            >
+              Source history and implementation record.
+            </ReferenceCard>
           </ul>
         </PublicStorySection>
       </div>
-    </div>
+    </PublicPage>
   );
 }
 
 function RootNotFoundPage() {
   return (
-    <div className="pb-public-page">
-      <section className="pb-public-page-intro">
-        <p className="pb-public-eyebrow">Page unavailable</p>
-        <h1>Page unavailable</h1>
-        <p>Use one of the known public pages below.</p>
-      </section>
+    <PublicPage>
+      <PublicHero eyebrow="Page unavailable" title="Page unavailable">
+        Use one of the known public pages below.
+      </PublicHero>
 
       <PublicPanel>
         <p className="pb-public-panel-eyebrow">Known public pages</p>
@@ -1241,7 +1361,7 @@ function RootNotFoundPage() {
           </li>
         </ul>
       </PublicPanel>
-    </div>
+    </PublicPage>
   );
 }
 
@@ -1256,7 +1376,7 @@ export function RootHostRoutes({
 }) {
   return (
     <Fragment>
-      <Route element={<RootShell hostContext={hostContext} />}>
+      <Route element={<PublicShell hostContext={hostContext} />}>
         <Route element={<RootLandingPage hostContext={hostContext} />} path="/" />
         <Route element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/start-demo" />
         <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/login" />
