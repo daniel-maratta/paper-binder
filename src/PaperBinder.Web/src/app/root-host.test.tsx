@@ -138,7 +138,7 @@ describe("root-host flows", () => {
     ).toHaveAttribute("src", "/presentation/dashboard-proof.png");
     expect(
       screen.getByRole("img", {
-        name: "PaperBinder start-demo screen with one-time credentials for a new workspace."
+        name: "PaperBinder start-demo screen with generated credentials for a new workspace."
       })
     ).toHaveAttribute("src", "/presentation/start-demo-proof.png");
     expect(
@@ -179,6 +179,71 @@ describe("root-host flows", () => {
     expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
+  });
+
+  it("Should_RenderReviewerOrientedAboutPage_When_AboutRouteLoads", async () => {
+    renderRootRoute({
+      route: "/about"
+    });
+
+    expect(screen.getByRole("heading", { name: "About PaperBinder" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "A scoped SaaS demo for technical review." })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "PaperBinder demonstrates a small but complete document workspace: tenant-scoped workspaces, binder-level access, immutable text documents, and a short-lived demo path for reviewers."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("Core model")).toBeInTheDocument();
+    expect(screen.getByText("Binders and immutable text documents.")).toBeInTheDocument();
+    expect(screen.getByText("Access boundary")).toBeInTheDocument();
+    expect(screen.getByText("Role-aware access inside isolated workspaces.")).toBeInTheDocument();
+    expect(screen.getByText("Review path")).toBeInTheDocument();
+    expect(screen.getByText("Temporary demo workspace with generated credentials.")).toBeInTheDocument();
+    expect(screen.getByText("WHAT THIS DEMONSTRATES")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Focused product scope with real SaaS boundaries." })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Tenant-scoped workspaces" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Binder-level access" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Immutable documents" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Operational demo lifecycle" })).toBeInTheDocument();
+    expect(screen.getByText("INTENTIONAL SCOPE")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Small surface area, deliberate boundaries." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "In scope" })).toBeInTheDocument();
+    expect(screen.getByText("Temporary demo workspaces")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Out of scope" })).toBeInTheDocument();
+    expect(screen.getByText("Billing and subscription management")).toBeInTheDocument();
+    expect(screen.getByText("ARTICLES")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Technical write-ups from the build." })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Deeper notes on the product architecture, implementation tradeoffs, and AI-assisted delivery process behind PaperBinder."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "How I Built a Production-Shaped SaaS Demo with AI Agents" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Architecture / AI-assisted development / SaaS demo")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Read article" })).toHaveAttribute("href", "#");
+    expect(screen.getByText("REVIEWER REFERENCES")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Canonical project references." })).toBeInTheDocument();
+    expect(
+      screen
+        .getAllByRole("link", { name: "paperbinder.danielmaratta.com" })
+        .some((link) => link.getAttribute("href") === "https://paperbinder.danielmaratta.com")
+    ).toBe(true);
+    expect(screen.getByRole("link", { name: "danielmaratta.com" })).toHaveAttribute(
+      "href",
+      "https://danielmaratta.com"
+    );
+    expect(screen.getByRole("link", { name: "Canonical repository history" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder.git"
+    );
+    expect(screen.queryByText(/in progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/coming soon/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/placeholder/i)).not.toBeInTheDocument();
+    expect(document.title).toBe("About PaperBinder | PaperBinder");
   });
 
   it("Should_LinkBackToWorkspace_When_PublicHomeReceivesWorkspaceHint", async () => {
@@ -432,7 +497,7 @@ describe("root-host flows", () => {
 
     expect(screen.getByRole("heading", { name: "Start with a fresh demo workspace." })).toBeInTheDocument();
     expect(
-      screen.getByText("Create a temporary workspace and continue into the product with one-time credentials.")
+      screen.getByText("Create a temporary workspace and continue into the product with generated credentials.")
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start demo instead" })).toHaveAttribute("href", "/start-demo");
     expect(screen.getByText("SECURITY POSTURE")).toBeInTheDocument();

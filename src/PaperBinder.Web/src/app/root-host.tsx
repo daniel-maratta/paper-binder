@@ -61,7 +61,7 @@ const publicDemoSteps: PublicDemoStep[] = [
   },
   {
     title: "Save the generated credentials",
-    body: "The one-time credentials are shown once before entering the workspace."
+    body: "The generated credentials are shown once before entering the workspace."
   },
   {
     title: "Review the live product flows",
@@ -435,7 +435,7 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
               <div aria-hidden="true" className="pb-public-phone-preview__speaker" />
               <div className="pb-public-phone-preview__screen">
                 <img
-                  alt="PaperBinder start-demo screen with one-time credentials for a new workspace."
+                  alt="PaperBinder start-demo screen with generated credentials for a new workspace."
                   className="pb-public-proof-image pb-public-proof-image--phone"
                   src="/presentation/start-demo-proof.png"
                 />
@@ -731,7 +731,7 @@ function RootWelcomePage({
           <p className="pb-public-eyebrow">Start demo</p>
           <h1>Start demo</h1>
           <p>
-            Create a temporary PaperBinder workspace, receive one-time credentials, and continue into the
+            Create a temporary PaperBinder workspace, receive generated credentials, and continue into the
             product.
           </p>
         </section>
@@ -1046,7 +1046,7 @@ function RootLoginPage({
             <p className="pb-public-panel-eyebrow">NEED A NEW WORKSPACE?</p>
             <h2>Start with a fresh demo workspace.</h2>
             <p>
-              Create a temporary workspace and continue into the product with one-time credentials.
+              Create a temporary workspace and continue into the product with generated credentials.
             </p>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
@@ -1071,84 +1071,142 @@ function RootLoginPage({
 
 function RootAboutPage() {
   return (
-    <div className="pb-public-page">
+    <div className="pb-public-page pb-public-about-page">
       <section className="pb-public-page-intro">
-        <p className="pb-public-eyebrow">About PaperBinder</p>
+        <p className="pb-public-eyebrow">ABOUT PAPERBINDER</p>
         <h1>About PaperBinder</h1>
         <p>
-          It focuses on binders, immutable documents, and role-based access inside temporary demo workspaces.
+          It explains what the project demonstrates, where its boundaries are, and where reviewers can inspect the
+          live product and source history.
         </p>
       </section>
 
       <div className="pb-public-story-stack">
-        <PublicStorySection className="pb-public-story-section--accent">
+        <PublicStorySection className="pb-public-story-section--accent pb-public-about-overview">
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">About PaperBinder</p>
-            <h2>A deliberately narrow SaaS demo built for technical review.</h2>
+            <p className="pb-public-panel-eyebrow">ABOUT PAPERBINDER</p>
+            <h2>A scoped SaaS demo for technical review.</h2>
             <p>
-              PaperBinder is a scoped artifact rather than a broad content platform. The product surface stays
-              focused on tenant isolation, binder-level access, immutable text documents, and a reviewer-friendly
-              demo path.
+              PaperBinder demonstrates a small but complete document workspace: tenant-scoped workspaces,
+              binder-level access, immutable text documents, and a short-lived demo path for reviewers.
             </p>
           </div>
-          <dl className="pb-public-stat-grid">
-            <PublicStat label="Core objects" value="Binders and immutable text documents" />
-            <PublicStat label="Access model" value="Role-aware and tenant-isolated" />
-            <PublicStat label="Demo path" value="Temporary workspace with one-time credentials" />
+          <dl className="pb-public-about-summary-grid">
+            <PublicStat label="Core model" value="Binders and immutable text documents." />
+            <PublicStat label="Access boundary" value="Role-aware access inside isolated workspaces." />
+            <PublicStat label="Review path" value="Temporary demo workspace with generated credentials." />
           </dl>
         </PublicStorySection>
 
         <PublicStorySection>
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">Intentional constraints</p>
-            <h2>The demo stays narrow on purpose.</h2>
+            <p className="pb-public-panel-eyebrow">WHAT THIS DEMONSTRATES</p>
+            <h2>Focused product scope with real SaaS boundaries.</h2>
           </div>
-          <ul className="pb-public-bullet-list">
-            <li>The product centers on binders, immutable documents, and workspace administration.</li>
-            <li>Each workspace is isolated and access stays role-based.</li>
-            <li>Demo tenants are temporary and may be removed during routine cleanup.</li>
-            <li>Repository documentation covers the scope and implementation decisions behind the demo.</li>
-          </ul>
-        </PublicStorySection>
-
-        <PublicStorySection>
-          <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">Articles</p>
-            <h2>Supporting write-ups are in progress.</h2>
-            <p>
-              The first article slot is reserved for a deeper walkthrough of the product architecture,
-              implementation choices, and reviewer tradeoffs.
-            </p>
-          </div>
-          <ul className="pb-public-article-list">
+          <ul className="pb-public-about-card-grid">
             <li>
-              <strong>Architecture walkthrough</strong>
-              <span>In progress.</span>
+              <h3>Tenant-scoped workspaces</h3>
+              <p>Each demo workspace stays isolated from the others.</p>
+            </li>
+            <li>
+              <h3>Binder-level access</h3>
+              <p>Users can be assigned roles that affect what they can see and do.</p>
+            </li>
+            <li>
+              <h3>Immutable documents</h3>
+              <p>Documents are treated as reviewable records rather than a broad editing surface.</p>
+            </li>
+            <li>
+              <h3>Operational demo lifecycle</h3>
+              <p>Temporary tenants, expiry state, and cleanup behavior are part of the product flow.</p>
             </li>
           </ul>
         </PublicStorySection>
 
+        <PublicStorySection className="pb-public-about-scope-section">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">INTENTIONAL SCOPE</p>
+            <h2>Small surface area, deliberate boundaries.</h2>
+            <p>
+              PaperBinder is scoped to demonstrate delivery quality, implementation decisions, and reviewer-visible
+              product behavior without pretending to be a full commercial document platform.
+            </p>
+          </div>
+          <div className="pb-public-about-scope-grid">
+            <section aria-labelledby="about-in-scope" className="pb-public-about-scope-panel">
+              <h3 id="about-in-scope">In scope</h3>
+              <ul>
+                <li>Temporary demo workspaces</li>
+                <li>Tenant isolation</li>
+                <li>Binder and document workflows</li>
+                <li>Role-aware access</li>
+                <li>Reviewer-friendly product path</li>
+              </ul>
+            </section>
+            <section aria-labelledby="about-out-of-scope" className="pb-public-about-scope-panel">
+              <h3 id="about-out-of-scope">Out of scope</h3>
+              <ul>
+                <li>Billing and subscription management</li>
+                <li>Broad CMS functionality</li>
+                <li>Rich document editing</li>
+                <li>Enterprise SSO</li>
+                <li>Long-lived customer tenants</li>
+              </ul>
+            </section>
+          </div>
+        </PublicStorySection>
+
+        <PublicStorySection className="pb-public-about-articles-section">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">ARTICLES</p>
+            <h2>Technical write-ups from the build.</h2>
+            <p>
+              Deeper notes on the product architecture, implementation tradeoffs, and AI-assisted delivery process
+              behind PaperBinder.
+            </p>
+          </div>
+          <article className="pb-public-about-article-card">
+            <div>
+              <p className="pb-public-about-article-meta">Architecture / AI-assisted development / SaaS demo</p>
+              <h3>How I Built a Production-Shaped SaaS Demo with AI Agents</h3>
+              <p>
+                A walkthrough of the product architecture, implementation choices, reviewer-facing scope, and the
+                agent-assisted workflow used to build PaperBinder.
+              </p>
+            </div>
+            <a href="#" onClick={(event) => event.preventDefault()}>
+              Read article
+            </a>
+          </article>
+        </PublicStorySection>
+
         <PublicStorySection>
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">Links</p>
+            <p className="pb-public-panel-eyebrow">REVIEWER REFERENCES</p>
             <h2>Canonical project references.</h2>
             <p>{productIdentity.provenanceSummary}</p>
           </div>
-          <ul className="pb-public-link-list">
+          <ul className="pb-public-about-reference-list">
             <li>
+              <h3>Live project</h3>
               <a href={productIdentity.canonicalDemoUrl} rel="noreferrer" target="_blank">
                 {productIdentity.canonicalDemoHost}
               </a>
+              <p>Public demo entry point and product walkthrough.</p>
             </li>
             <li>
+              <h3>Portfolio</h3>
               <a href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
-                {productIdentity.authorUrl}
+                danielmaratta.com
               </a>
+              <p>Main portfolio and professional context.</p>
             </li>
             <li>
+              <h3>Repository history</h3>
               <a href={productIdentity.canonicalRepositoryUrl} rel="noreferrer" target="_blank">
                 Canonical repository history
               </a>
+              <p>Source history and implementation record.</p>
             </li>
           </ul>
         </PublicStorySection>
