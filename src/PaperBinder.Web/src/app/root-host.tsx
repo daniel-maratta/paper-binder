@@ -501,23 +501,60 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
 function PublicFooter() {
   return (
     <footer className="pb-public-footer">
-      <div className="pb-public-footer-copy">
-        <span>&copy; 2026 {productIdentity.productName}</span>
-        <span>{productIdentity.provenanceSummary}</span>
+      <div className="pb-public-footer-brand">
+        <NavLink aria-label="PaperBinder home" className="pb-public-footer-logo" to="/">
+          <img alt="" aria-hidden="true" src="/brand/pb-full-logo-white.png" />
+        </NavLink>
+        <p>A production-shaped SaaS demo designed and built by Daniel Maratta.</p>
       </div>
-      <div className="pb-public-footer-links">
-        <a
-          className="pb-public-footer-link"
-          href={productIdentity.canonicalDemoUrl}
-          rel="noreferrer"
-          target="_blank"
-        >
-          {productIdentity.canonicalDemoHost}
-        </a>
-        <a className="pb-public-footer-link" href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
-          {productIdentity.authorName}
-        </a>
+
+      <div className="pb-public-footer-nav">
+        <section aria-labelledby="public-footer-product">
+          <h2 id="public-footer-product">Product</h2>
+          <ul>
+            {rootRouteDefinitions.map((route) => (
+              <li key={route.path}>
+                <NavLink className="pb-public-footer-link" to={route.path}>
+                  {route.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section aria-labelledby="public-footer-project">
+          <h2 id="public-footer-project">Project</h2>
+          <ul>
+            <li>
+              <a
+                className="pb-public-footer-link"
+                href={productIdentity.canonicalDemoUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Live project
+              </a>
+            </li>
+            <li>
+              <a className="pb-public-footer-link" href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
+                Portfolio
+              </a>
+            </li>
+            <li>
+              <a
+                className="pb-public-footer-link"
+                href={productIdentity.canonicalRepositoryUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Repository history
+              </a>
+            </li>
+          </ul>
+        </section>
       </div>
+
+      <p className="pb-public-footer-copyright">&copy; 2026 {productIdentity.productName}</p>
     </footer>
   );
 }
@@ -1232,8 +1269,28 @@ function RootAboutPage() {
           <dl className="pb-public-about-summary-grid">
             <PublicStat label="Core model" value="Binders and immutable text documents." />
             <PublicStat label="Access boundary" value="Role-aware access inside isolated workspaces." />
-            <PublicStat label="Review path" value="Temporary demo workspaces with generated credentials." />
+            <PublicStat label="Demo path" value="Temporary demo workspaces with generated credentials." />
           </dl>
+        </PublicStorySection>
+
+        <PublicStorySection className="pb-public-about-articles-section" variant="split">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">FEATURED WRITE-UP</p>
+            <h2>Featured write-up</h2>
+            <p>
+              The technical article walks through the architecture, scope decisions, and AI-assisted build process
+              behind PaperBinder.
+            </p>
+          </div>
+          <ArticleCard
+            cta="Read article"
+            href="#"
+            meta="Architecture / SaaS demo / AI-assisted development"
+            title="Building PaperBinder: A Production-Shaped SaaS Demo"
+          >
+            A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind
+            PaperBinder.
+          </ArticleCard>
         </PublicStorySection>
 
         <PublicStorySection>
@@ -1288,25 +1345,32 @@ function RootAboutPage() {
           </div>
         </PublicStorySection>
 
-        <PublicStorySection className="pb-public-about-articles-section">
+        <PublicStorySection className="pb-public-about-baseline-section">
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">ARTICLES</p>
-            <h2>Technical write-ups from the build.</h2>
+            <p className="pb-public-panel-eyebrow">IMPLEMENTATION BASELINE</p>
+            <h2>Implementation baseline</h2>
             <p>
-              Deeper notes on the product architecture, tradeoffs, and implementation choices behind PaperBinder.
+              The public surface is built around reusable layout components, responsive behavior, readable contrast
+              tokens, and keyboard-visible controls.
             </p>
           </div>
-          <ArticleCard
-            cta="Read article"
-            href="#"
-            meta="Architecture / SaaS demo"
-            title="How I Built a Production-Shaped SaaS Demo with AI Agents"
-          >
-            A walkthrough of the product architecture, tradeoffs, and implementation choices behind PaperBinder.
-          </ArticleCard>
+          <ul className="pb-public-about-baseline-list">
+            <ProofCard title="Reusable public shell">
+              Shared header, footer, hero, panel, card, and form patterns keep the unauthenticated pages consistent.
+            </ProofCard>
+            <ProofCard title="Responsive layouts">
+              Marketing, About, demo, and sign-in views collapse into usable narrow-width layouts.
+            </ProofCard>
+            <ProofCard title="Contrast-aware tokens">
+              Text, surfaces, borders, and links use shared tokens so readability is handled consistently.
+            </ProofCard>
+            <ProofCard title="Keyboard-visible controls">
+              Public links, buttons, form fields, and demo controls use visible focus states.
+            </ProofCard>
+          </ul>
         </PublicStorySection>
 
-        <PublicStorySection>
+        <PublicStorySection className="pb-public-about-references-section">
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">REVIEWER REFERENCES</p>
             <h2>Project links for review.</h2>

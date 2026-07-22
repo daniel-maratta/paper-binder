@@ -22,7 +22,7 @@ describe("app router", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Sign in" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /About/ })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /About/ }).some((link) => link.getAttribute("href") === "/about")).toBe(true);
 
     rootView.unmount();
 

@@ -124,9 +124,9 @@ describe("root-host flows", () => {
 
     expect(screen.getByRole("navigation", { name: "Primary navigation" })).toBeInTheDocument();
     expect(screen.queryByLabelText("Root host navigation")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Product" })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: "Demo" })).toHaveAttribute("href", "/start-demo");
-    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
+    expect(screen.getAllByRole("link", { name: "Product" }).some((link) => link.getAttribute("href") === "/")).toBe(true);
+    expect(screen.getAllByRole("link", { name: "Demo" }).some((link) => link.getAttribute("href") === "/start-demo")).toBe(true);
+    expect(screen.getAllByRole("link", { name: "About" }).some((link) => link.getAttribute("href") === "/about")).toBe(true);
     expect(
       screen.getByRole("heading", { name: "A production-shaped SaaS demo for document workspaces." })
     ).toBeInTheDocument();
@@ -173,16 +173,20 @@ describe("root-host flows", () => {
     ).toBe(true);
     expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
     expect(
-      screen.getByText("PaperBinder is a production-shaped SaaS demo designed and built by Daniel Maratta.")
+      screen.getByText("A production-shaped SaaS demo designed and built by Daniel Maratta.")
     ).toBeInTheDocument();
     expect(document.title).toBe("Home | PaperBinder");
-    expect(screen.getByRole("link", { name: "paperbinder.danielmaratta.com" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Live project" })).toHaveAttribute(
       "href",
       "https://paperbinder.danielmaratta.com"
     );
-    expect(screen.getByRole("link", { name: "Daniel Maratta" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Portfolio" })).toHaveAttribute(
       "href",
       "https://danielmaratta.com"
+    );
+    expect(screen.getByRole("link", { name: "Repository history" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder.git"
     );
     expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
@@ -205,8 +209,25 @@ describe("root-host flows", () => {
     expect(screen.getByText("Binders and immutable text documents.")).toBeInTheDocument();
     expect(screen.getByText("Access boundary")).toBeInTheDocument();
     expect(screen.getByText("Role-aware access inside isolated workspaces.")).toBeInTheDocument();
-    expect(screen.getByText("Review path")).toBeInTheDocument();
+    expect(screen.getByText("Demo path")).toBeInTheDocument();
     expect(screen.getByText("Temporary demo workspaces with generated credentials.")).toBeInTheDocument();
+    expect(screen.getByText("FEATURED WRITE-UP")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Featured write-up" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "The technical article walks through the architecture, scope decisions, and AI-assisted build process behind PaperBinder."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Architecture / SaaS demo / AI-assisted development")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind PaperBinder."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Read article" })).toHaveAttribute("href", "#");
     expect(screen.getByText("WHAT THIS DEMONSTRATES")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "A narrow product scope with real SaaS boundaries." })
@@ -221,18 +242,17 @@ describe("root-host flows", () => {
     expect(screen.getByText("Temporary demo workspaces")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Out of scope" })).toBeInTheDocument();
     expect(screen.getByText("Billing and subscription management")).toBeInTheDocument();
-    expect(screen.getByText("ARTICLES")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Technical write-ups from the build." })).toBeInTheDocument();
+    expect(screen.getByText("IMPLEMENTATION BASELINE")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Implementation baseline" })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Deeper notes on the product architecture, tradeoffs, and implementation choices behind PaperBinder."
+        "The public surface is built around reusable layout components, responsive behavior, readable contrast tokens, and keyboard-visible controls."
       )
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "How I Built a Production-Shaped SaaS Demo with AI Agents" })
-    ).toBeInTheDocument();
-    expect(screen.getByText("Architecture / SaaS demo")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Read article" })).toHaveAttribute("href", "#");
+    expect(screen.getByRole("heading", { name: "Reusable public shell" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Responsive layouts" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Contrast-aware tokens" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Keyboard-visible controls" })).toBeInTheDocument();
     expect(screen.getByText("REVIEWER REFERENCES")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Project links for review." })).toBeInTheDocument();
     expect(
@@ -251,6 +271,8 @@ describe("root-host flows", () => {
     expect(screen.queryByText(/in progress/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/coming soon/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/placeholder/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/WCAG compliant/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/fully accessible/i)).not.toBeInTheDocument();
     expect(document.title).toBe("About PaperBinder | PaperBinder");
   });
 
