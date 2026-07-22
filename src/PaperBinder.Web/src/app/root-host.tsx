@@ -646,9 +646,9 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
               <div aria-hidden="true" className="pb-public-phone-preview__speaker" />
               <div className="pb-public-phone-preview__screen">
                 <img
-                  alt="PaperBinder start-demo screen with generated credentials for a new workspace."
+                  alt="PaperBinder binders page in a mobile workspace view."
                   className="pb-public-proof-image pb-public-proof-image--phone"
-                  src="/presentation/start-demo-proof.png"
+                  src="/presentation/binders-proof.png"
                 />
               </div>
             </div>

@@ -697,6 +697,7 @@ a {
 
 .pb-public-phone-preview__screen {
   overflow: hidden;
+  height: 420px;
   border-radius: var(--pb-radius-xl);
   background: var(--pb-bg-page);
 }
@@ -722,7 +723,8 @@ a {
 }
 
 .pb-public-proof-image--phone {
-  min-height: 420px;
+  height: 100%;
+  min-height: 0;
   object-position: top center;
 }
 
@@ -3087,7 +3089,7 @@ a {
   }
 
   .pb-public-proof-image--phone {
-    min-height: auto;
+    min-height: 0;
   }
 
   .pb-public-feature-strip {

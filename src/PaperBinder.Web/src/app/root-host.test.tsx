@@ -143,9 +143,9 @@ describe("root-host flows", () => {
     ).toHaveAttribute("src", "/presentation/dashboard-proof.png");
     expect(
       screen.getByRole("img", {
-        name: "PaperBinder start-demo screen with generated credentials for a new workspace."
+        name: "PaperBinder binders page in a mobile workspace view."
       })
-    ).toHaveAttribute("src", "/presentation/start-demo-proof.png");
+    ).toHaveAttribute("src", "/presentation/binders-proof.png");
     expect(
       screen.getByRole("img", {
         name: "PaperBinder users page with current users, role changes, and view as actions."
