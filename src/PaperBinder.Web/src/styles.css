@@ -351,6 +351,7 @@ a {
   align-items: center;
   gap: 14px;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .pb-public-debug-chip {
@@ -798,6 +799,7 @@ a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
+  min-width: 0;
 }
 
 .pb-public-demo-page-grid,
@@ -807,7 +809,13 @@ a {
   align-items: start;
 }
 
+.pb-public-page-grid > * {
+  min-width: 0;
+}
+
 .pb-public-panel {
+  width: 100%;
+  max-width: 100%;
   border: 1px solid var(--pb-border-muted);
   border-radius: var(--pb-radius-2xl);
   background: var(--pb-surface-panel);
@@ -1175,9 +1183,9 @@ a {
 .pb-public-step-list::before {
   content: "";
   position: absolute;
-  left: 18px;
-  right: 18px;
-  top: 18px;
+  left: 36px;
+  right: 36px;
+  top: 36px;
   height: 1px;
   background: linear-gradient(90deg, var(--pb-public-shell-border), rgba(200, 215, 232, 0.38), var(--pb-public-shell-border));
 }
@@ -2836,7 +2844,7 @@ a {
   .pb-public-stat-grid,
   .pb-public-secondary-grid,
   .pb-public-page-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pb-public-about-summary-grid,
@@ -2853,6 +2861,7 @@ a {
   .pb-public-demo-support,
   .pb-public-login-support {
     width: 100%;
+    max-width: 100%;
     justify-self: stretch;
   }
 
@@ -2979,11 +2988,17 @@ a {
     justify-content: space-between;
   }
 
+  .pb-public-debug-chip {
+    display: none;
+  }
+
   .pb-public-brand-image {
     width: clamp(136px, 42vw, 180px);
   }
 
   .pb-public-header-cta {
+    width: auto;
+    flex-shrink: 0;
     min-height: 42px;
     padding: 0 16px;
     font-size: 14px;
@@ -2992,6 +3007,21 @@ a {
   .pb-public-main--landing,
   .pb-public-main--inner {
     padding-top: 42px;
+  }
+
+  .pb-public-page-grid,
+  .pb-public-demo-page-grid,
+  .pb-public-login-page-grid {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .pb-public-panel--demo-form,
+  .pb-public-panel--login-form,
+  .pb-public-demo-support,
+  .pb-public-login-support {
+    padding: 22px;
   }
 
   .pb-public-hero-copy h1,
@@ -3031,15 +3061,29 @@ a {
   }
 
   .pb-public-mockup-frame {
+    width: 100%;
     padding: 14px;
+  }
+
+  .pb-public-proof-window {
+    min-height: auto;
+  }
+
+  .pb-public-proof-image--hero {
+    min-height: auto;
   }
 
   .pb-public-phone-preview {
     position: relative;
     right: auto;
     bottom: auto;
-    width: min(240px, 74%);
-    margin: 18px 0 0 auto;
+    z-index: 2;
+    width: min(220px, 68%);
+    margin: -10px 12px 0 auto;
+  }
+
+  .pb-public-proof-image--phone {
+    min-height: auto;
   }
 
   .pb-public-feature-strip {
@@ -3061,6 +3105,7 @@ a {
   .pb-public-step {
     display: grid;
     grid-template-columns: 32px minmax(0, 1fr);
+    gap: 14px;
     padding: 16px;
   }
 

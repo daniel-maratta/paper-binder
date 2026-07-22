@@ -1255,7 +1255,7 @@ function RootLoginPage({
 function RootAboutPage() {
   return (
     <PublicPage className="pb-public-about-page">
-      <PublicHero eyebrow="PROJECT NOTES" title="About PaperBinder">
+      <PublicHero eyebrow="PaperBinder" title="About PaperBinder">
         A concise overview of what PaperBinder demonstrates, what it intentionally excludes, and where to inspect the
         live project.
       </PublicHero>
