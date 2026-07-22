@@ -11,11 +11,16 @@ This is the active PaperBinder task board for agent execution.
 
 ## Now (WIP 1-3)
 
-- [T-0037: V1.1 Final Validation And Close-Out](./tasks/T-0037-v1-1-final-validation-and-close-out.md)
+- (empty)
 
 ## Next
 
-- (empty)
+- [T-0038: V1.1 Authenticated Mobile Layout](./tasks/T-0038-v1-1-authenticated-mobile-layout.md)
+- [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md)
+- [T-0040: V1.1 Documentation Truth And Pruning](./tasks/T-0040-v1-1-documentation-truth-pruning.md)
+- [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md)
+- [T-0042: V1.1 Product Screenshot Refresh](./tasks/T-0042-v1-1-product-screenshot-refresh.md)
+- [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md)
 
 ## Later
 
@@ -27,6 +32,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0037: V1.1 Controlled Copy And Public Proof Refresh](./tasks/T-0037-v1-1-final-validation-and-close-out.md)
 - [T-0036: V1.1 Docs And Public-Copy Reconciliation](./tasks/T-0036-v1-1-docs-and-public-copy-reconciliation.md)
 - [T-0035: Tenant-Host Failure Externalization And Trusted Expiry Recovery](./tasks/T-0035-tenant-host-failure-externalization-and-trusted-expiry-recovery.md)
 - [T-0034: V1.1 API And Backend Carry-Forwards](./tasks/T-0034-v1-1-api-and-backend-carry-forwards.md)

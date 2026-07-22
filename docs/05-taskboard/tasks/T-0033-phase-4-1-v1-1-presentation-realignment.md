@@ -256,7 +256,7 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
   - [T-0034: V1.1 API And Backend Carry-Forwards](./T-0034-v1-1-api-and-backend-carry-forwards.md)
   - [T-0035: Tenant-Host Failure Externalization And Trusted Expiry Recovery](./T-0035-tenant-host-failure-externalization-and-trusted-expiry-recovery.md)
   - [T-0036: V1.1 Docs And Public-Copy Reconciliation](./T-0036-v1-1-docs-and-public-copy-reconciliation.md)
-  - [T-0037: V1.1 Final Validation And Close-Out](./T-0037-v1-1-final-validation-and-close-out.md)
+  - [T-0037: V1.1 Controlled Copy And Public Proof Refresh](./T-0037-v1-1-final-validation-and-close-out.md)
 
 ## Validation Evidence
 - `2026-07-15`: `npm.cmd run test -- --run src/app/root-host.test.tsx src/app/tenant-shell.test.tsx` passed in `src/PaperBinder.Web` after the post-batch-4 polish tail covering correlation-id copy affordances, softened outage copy, the authenticated logo/home affordance follow-up, the tenant-slug/header cleanup, toast timing/layout refinement, and the document markdown-preview toggle (`2` files, `28` tests).

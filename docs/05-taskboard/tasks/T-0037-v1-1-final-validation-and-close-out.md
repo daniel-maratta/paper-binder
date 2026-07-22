@@ -1,7 +1,7 @@
-# T-0037: V1.1 Final Validation And Close-Out
+# T-0037: V1.1 Controlled Copy And Public Proof Refresh
 
 ## Status
-active
+done
 
 ## Type
 feature
@@ -16,31 +16,30 @@ agent
 2026-07-15
 
 ## Updated
-2026-07-18
+2026-07-22
 
 ## Checkpoint
 Cross-checkpoint
 
 ## Phase
-Close-out
+V1.1 close-out
 
 ## Summary
-Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessibility audit/remediation, final code-quality and copy review, validation evidence recording, and merge-ready release follow-through planning.
+Complete the controlled copy pass and refresh the unauthenticated landing-page proof imagery so the public site describes the current product without implying unsupported enterprise, compliance, or production guarantees.
 
 ## Context
-- `T-0033` originally carried these close-out expectations, but they are cleaner as their own final task after the remaining backend, security, and docs/copy work lands.
-- The temp UI backlog still calls out responsive QA, accessibility, code quality, and the final controlled copy pass as separate close-out work.
-- This task should run only after the preceding `v1.1` carry-forward tasks are complete enough for a credible final review.
+- `T-0033` originally carried both presentation polish and final close-out expectations.
+- Follow-on review showed that final close-out had expanded into several distinct release-blocking workstreams.
+- This task now records the completed branch scope: public/authenticated copy cleanup on the changed surface, start-demo credential spacing, and landing-page product proof screenshot refresh.
+- Remaining `v1.1.0` work is split into successor tasks so the taskboard is truthful and each PR can stay cohesive.
 
 ## Acceptance Criteria
-- [ ] The planned poison-pill implementation item is inserted near the end of the implementation sequence, right before the final major review, if it still applies.
-- [ ] Responsive verification is completed and recorded for representative desktop and mobile/tablet public and authenticated surfaces.
-- [ ] The accessibility audit/remediation pass is completed and recorded.
-- [ ] The final staff-level code-quality audit across the changed surface area is completed and recorded.
-- [x] The final controlled copy pass against the forbidden-implication rules is completed and recorded.
-- [ ] Remaining non-blocking browser-suite drift, build warnings, and dependency or vulnerability advisories are either remediated or explicitly triaged with durable follow-up tracking.
-- [x] Final validation evidence is recorded in the owning taskboard docs and ready to be mirrored into the release-facing artifact set.
-- [ ] The `v1.1.0` close-out strategy is documented clearly enough that merge-to-`main`, tagging, and deployment can proceed without ad hoc reconstruction.
+- [x] Public and authenticated copy touched by the current branch avoids forbidden implication patterns.
+- [x] The `/start-demo` generated email copy action has appropriate spacing.
+- [x] Landing-page proof assets reflect current authenticated dashboard, binders, and users surfaces.
+- [x] The landing-page phone preview uses the mobile binders proof and crops inside the existing phone frame height.
+- [x] Component expectations are updated for the changed proof image.
+- [x] Remaining `v1.1.0` release-blocking work is split into successor taskboard items.
 
 ## Dependencies
 - [T-0034](./T-0034-v1-1-api-and-backend-carry-forwards.md)
@@ -51,44 +50,47 @@ Run the final `v1.1.0` validation and close-out tranche: responsive QA, accessib
 - (none)
 
 ## Review Gates
-- Scope Lock: Keep this task to validation, audit, and close-out preparation. Do not absorb unrelated feature work discovered during final review unless it is truly release-blocking.
-- Pre-PR Critique: Findings-first review posture. If issues are found, split the smallest corrective task possible instead of bloating the close-out slice.
-- Escalation Notes: Any newly discovered non-blocking work should be promoted into explicit follow-up tracking rather than silently folded into close-out.
+- Scope Lock: Keep this branch to public copy/proof polish and taskboard reconciliation. Authenticated mobile layout, full responsive QA, accessibility QA, docs pruning, final screenshot refresh, and staff-level code review move to successor tasks.
+- Pre-PR Critique: Verify the public proof assets and text do not overstate product scope.
+- Escalation Notes: Follow-on work should start from `main` after this PR merges.
 
 ## Current State
-- Active. `T-0034`, `T-0035`, and `T-0036` are complete enough that the remaining `v1.1` work is now the final validation and close-out lane.
-- Known carry-in items for this task already include the unrelated tenant-host users-route browser-form drift plus the broader build/browser/dependency warning review noted during the earlier slices.
-- Controlled-copy working artifacts now exist under `docs/95-delivery/` (`t-0037-controlled-copy-pass-inventory.md` and `t-0037-copy-strategy.md`), and the current public plus authenticated frontend copy pass has landed with matching component/E2E expectation updates.
-- Validation refreshed on `2026-07-18`: `validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` passed, `run-browser-e2e.ps1` passed both root-host and tenant-host suites, release build remains clean (`0` warnings), and NuGet vulnerability checks remain clean. The unresolved advisory surface is still the frontend `npm audit` cluster (`7` findings total: `4` high, `1` moderate, `2` low).
-- Local reviewer-path defaults are now aligned with the checkpoint contract again: the challenge bypass stays off by default, and `scripts/set-local-challenge-bypass.ps1` provides the supported local-only opt-in toggle.
+- Done. The branch has implementation commits for `/start-demo` email copy spacing and landing proof refresh, plus this taskboard reconciliation.
 
 ## Touch Points
-- `docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md`
-- `docs/95-delivery/`
-- `docs/10-product/accessibility.md`
-- `docs/80-testing/`
-- changed frontend/backend/test seams under review
+- `src/PaperBinder.Web/src/app/credential-display-field.tsx`
+- `src/PaperBinder.Web/src/app/root-host.tsx`
+- `src/PaperBinder.Web/src/app/root-host.test.tsx`
+- `src/PaperBinder.Web/src/styles.css`
+- `src/PaperBinder.Web/public/presentation/`
+- `docs/05-taskboard/`
+- `README.md`
 
 ## Implementation Plan
-- Run the close-out in this order:
-  1. responsive QA
-  2. accessibility audit/remediation
-  3. final code-quality audit
-  4. final controlled copy pass
-  5. validation evidence consolidation
-  6. release/merge/tag/deploy close-out preparation
+- Completed in focused commits:
+  1. Add a class hook to `CredentialDisplayField` and space the public email copy action.
+  2. Replace landing proof screenshots and point the phone preview at the mobile binders proof.
+  3. Reconcile the taskboard around the remaining `v1.1.0` close-out work.
 
 ## Next Action
-- Confirm whether the poison-pill item still applies, then run the remaining responsive, accessibility, and final code-quality passes and decide whether the unresolved `npm audit` advisory cluster and users-route browser-form drift are remediated inside `T-0037` or promoted into explicit follow-up tracking before close-out.
+- Open the PR for this branch, merge it, then create the authenticated mobile layout branch from `main`.
+
+## Validation Evidence
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx`: passed, `15` tests.
+- Chromium rendered check confirmed the landing phone screen and image render at `216 x 420`.
+
+## Decision Notes
+- The comprehensive screenshot capture artifacts were intentionally not committed; they were temporary QA artifacts and were removed before this branch was finalized.
+- The obsolete `start-demo-proof.png` was removed after the phone preview switched to `binders-proof.png`.
 
 ## Validation Plan
-- Canonical build/test/browser/docs validation bundle
-- Manual responsive review notes
-- Accessibility findings and remediation evidence
-- Audit findings and any follow-up links
+- Focused frontend component test for `root-host.test.tsx`.
+- PR review of the refreshed public proof assets.
 
-## Outcome (Fill when done)
-- Not started.
+## Outcome
+- Public proof imagery now reflects the current app surfaces.
+- The landing phone preview keeps the existing frame height and crops the mobile binders screenshot inside the frame.
+- Remaining `v1.1.0` work is no longer hidden inside this task.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.
