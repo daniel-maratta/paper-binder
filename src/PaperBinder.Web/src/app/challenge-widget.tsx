@@ -235,7 +235,7 @@ export function RootHostChallengeWidget({
       <p className="text-sm text-[var(--pb-color-text-muted)]" id={hintId}>
         {hint}
       </p>
-      {statusContent.detail ? (
+      {statusContent.detail && !(status === "error" && fallbackVariant === "panel") ? (
         <p className="text-sm text-[var(--pb-color-text-muted)]" id={statusId}>
           {statusContent.detail}
         </p>

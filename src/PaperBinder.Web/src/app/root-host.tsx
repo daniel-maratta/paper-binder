@@ -966,7 +966,7 @@ function RootWelcomePage({
           <GlassPanelSection>
             <p className="pb-public-panel-eyebrow">WHAT HAPPENS NEXT</p>
             <ul className="pb-public-bullet-list pb-public-demo-checklist">
-              <li>Only the workspace name and challenge proof are submitted here.</li>
+              <li>Only the workspace name and security challenge are submitted here.</li>
               <li>Generated credentials are shown before entering the workspace.</li>
               <li>PaperBinder opens the new workspace after setup completes.</li>
               <li>Demo workspaces are temporary and removed during cleanup.</li>
@@ -1299,7 +1299,7 @@ function RootAboutPage() {
           <ArticleCard
             cta="Read article"
             href="#"
-            meta="Architecture / AI-assisted development / SaaS demo"
+            meta="Architecture / SaaS demo"
             title="How I Built a Production-Shaped SaaS Demo with AI Agents"
           >
             A walkthrough of the product architecture, tradeoffs, and implementation choices behind PaperBinder.

@@ -128,9 +128,14 @@ describe("root-host flows", () => {
     expect(screen.getByRole("link", { name: "Demo" })).toHaveAttribute("href", "/start-demo");
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
     expect(
-      screen.getByRole("heading", { name: "A secure workspace for your documents and your team." })
+      screen.getByRole("heading", { name: "A production-shaped SaaS demo for document workspaces." })
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start live demo" })).toHaveAttribute("href", "/start-demo");
+    expect(
+      screen.getByText(
+        "PaperBinder demonstrates tenant isolation, role-aware access, immutable documents, and an ephemeral workspace lifecycle in a working product UI."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start demo" })).toHaveAttribute("href", "/start-demo");
     expect(
       screen.getByRole("img", {
         name: "PaperBinder dashboard with lease details, recent binders, and next actions."
@@ -149,15 +154,15 @@ describe("root-host flows", () => {
     expect(screen.getByRole("heading", { name: "Tenant isolation" })).toBeInTheDocument();
     expect(screen.getByText("Each workspace stays inside its own scoped boundary.")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Role-aware access" })).toBeInTheDocument();
-    expect(screen.getByText("Access changes with each user's assigned role.")).toBeInTheDocument();
+    expect(screen.getByText("Assigned roles control what each user can see and do.")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Immutable documents" })).toBeInTheDocument();
-    expect(screen.getByText("Documents are reviewable without becoming a broad editor.")).toBeInTheDocument();
+    expect(screen.getByText("Documents are reviewable records, not freeform editor content.")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Temporary demo lifecycle" })).toBeInTheDocument();
-    expect(screen.getByText("Demo workspaces expire and are removed during cleanup.")).toBeInTheDocument();
+    expect(screen.getByText("Demo workspaces expire automatically.")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Manage access without leaving the workspace." })).toBeInTheDocument();
-    expect(screen.getByText("User creation and credential handoff happen in one flow.")).toBeInTheDocument();
+    expect(screen.getByText("User creation and credential generation happen in one flow.")).toBeInTheDocument();
     expect(
-      screen.getByText("Workspace admins can keep the full user list in view, adjust roles, and hand off generated credentials from the same route.")
+      screen.getByText("Workspace admins can view users, adjust roles, and issue generated credentials from one route.")
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Start with the product, not a setup checklist." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Create a temporary workspace" })).toBeInTheDocument();
@@ -168,7 +173,7 @@ describe("root-host flows", () => {
     ).toBe(true);
     expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
     expect(
-      screen.getByText("PaperBinder is a portfolio SaaS demo designed and built by Daniel Maratta.")
+      screen.getByText("PaperBinder is a production-shaped SaaS demo designed and built by Daniel Maratta.")
     ).toBeInTheDocument();
     expect(document.title).toBe("Home | PaperBinder");
     expect(screen.getByRole("link", { name: "paperbinder.danielmaratta.com" })).toHaveAttribute(
@@ -190,10 +195,10 @@ describe("root-host flows", () => {
     });
 
     expect(screen.getByRole("heading", { name: "About PaperBinder" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "A scoped SaaS demo for technical review." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "A small, complete SaaS demo for document workspaces." })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "PaperBinder demonstrates a small but complete document workspace: tenant-scoped workspaces, binder-level access, immutable text documents, and a short-lived demo path for reviewers."
+        "PaperBinder includes tenant-scoped workspaces, binder-level access, immutable text documents, and temporary demo workspaces with generated credentials."
       )
     ).toBeInTheDocument();
     expect(screen.getByText("Core model")).toBeInTheDocument();
@@ -201,17 +206,17 @@ describe("root-host flows", () => {
     expect(screen.getByText("Access boundary")).toBeInTheDocument();
     expect(screen.getByText("Role-aware access inside isolated workspaces.")).toBeInTheDocument();
     expect(screen.getByText("Review path")).toBeInTheDocument();
-    expect(screen.getByText("Temporary demo workspace with generated credentials.")).toBeInTheDocument();
+    expect(screen.getByText("Temporary demo workspaces with generated credentials.")).toBeInTheDocument();
     expect(screen.getByText("WHAT THIS DEMONSTRATES")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Focused product scope with real SaaS boundaries." })
+      screen.getByRole("heading", { name: "A narrow product scope with real SaaS boundaries." })
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Tenant-scoped workspaces" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Binder-level access" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Immutable documents" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Operational demo lifecycle" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Temporary demo lifecycle" })).toBeInTheDocument();
     expect(screen.getByText("INTENTIONAL SCOPE")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Small surface area, deliberate boundaries." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Small by design." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "In scope" })).toBeInTheDocument();
     expect(screen.getByText("Temporary demo workspaces")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Out of scope" })).toBeInTheDocument();
@@ -220,16 +225,16 @@ describe("root-host flows", () => {
     expect(screen.getByRole("heading", { name: "Technical write-ups from the build." })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Deeper notes on the product architecture, implementation tradeoffs, and AI-assisted delivery process behind PaperBinder."
+        "Deeper notes on the product architecture, tradeoffs, and implementation choices behind PaperBinder."
       )
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "How I Built a Production-Shaped SaaS Demo with AI Agents" })
     ).toBeInTheDocument();
-    expect(screen.getByText("Architecture / AI-assisted development / SaaS demo")).toBeInTheDocument();
+    expect(screen.getByText("Architecture / SaaS demo")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Read article" })).toHaveAttribute("href", "#");
     expect(screen.getByText("REVIEWER REFERENCES")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Canonical project references." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Project links for review." })).toBeInTheDocument();
     expect(
       screen
         .getAllByRole("link", { name: "paperbinder.danielmaratta.com" })
@@ -438,15 +443,15 @@ describe("root-host flows", () => {
       screen.getByText("Return to a workspace you already created with the email and password issued during setup.")
     ).toBeInTheDocument();
     expect(screen.getByText("WHAT HAPPENS NEXT")).toBeInTheDocument();
-    expect(screen.getByText("Only the workspace name and challenge proof are submitted here.")).toBeInTheDocument();
+    expect(screen.getByText("Only the workspace name and security challenge are submitted here.")).toBeInTheDocument();
     expect(
-      screen.getByText("Generated credentials are shown once before entering the workspace.")
+      screen.getByText("Generated credentials are shown before entering the workspace.")
     ).toBeInTheDocument();
     expect(
-      screen.getByText("PaperBinder sends you to the new workspace after it is ready.")
+      screen.getByText("PaperBinder opens the new workspace after setup completes.")
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Demo workspaces are temporary and removed during periodic cleanup.")
+      screen.getByText("Demo workspaces are temporary and removed during cleanup.")
     ).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Workspace name"), {
@@ -473,7 +478,8 @@ describe("root-host flows", () => {
       expect(document.querySelector(`script[src="${testEnvironment.challengeScriptUrl}"]`)).not.toBeNull();
     });
 
-    expect(screen.getAllByText("Security challenge loading...").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Security challenge loading...")).toHaveLength(1);
+    expect(screen.getByText("Complete the security challenge before starting a workspace.")).toBeInTheDocument();
 
     document
       .querySelector(`script[src="${testEnvironment.challengeScriptUrl}"]`)!
@@ -502,11 +508,11 @@ describe("root-host flows", () => {
 
     expect(screen.getByRole("heading", { name: "Start with a fresh demo workspace." })).toBeInTheDocument();
     expect(
-      screen.getByText("Create a temporary workspace and continue into the product with generated credentials.")
+      screen.getByText("Create a temporary workspace and continue with generated credentials.")
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start demo instead" })).toHaveAttribute("href", "/start-demo");
-    expect(screen.getByText("SECURITY POSTURE")).toBeInTheDocument();
-    expect(screen.getAllByText("Complete the challenge before signing in.").length).toBeGreaterThan(0);
+    expect(screen.getByText("HOW SIGN-IN WORKS")).toBeInTheDocument();
+    expect(screen.getAllByText("Complete the security challenge before signing in.").length).toBeGreaterThan(0);
     expect(screen.queryByText(/unless local bypass is enabled/i)).not.toBeInTheDocument();
     expect(screen.getByText("If sign-in fails, complete the challenge again before retrying.")).toBeInTheDocument();
     expect(screen.getByText("After sign-in, PaperBinder sends you to the matching workspace.")).toBeInTheDocument();
