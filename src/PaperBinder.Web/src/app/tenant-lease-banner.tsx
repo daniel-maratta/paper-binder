@@ -47,7 +47,7 @@ export function TenantLeaseBanner({
     countdownSeconds <= 0
       ? "This workspace has expired. Existing UI may stay visible, but new actions will fail until an admin extends the lease or cleanup removes the workspace."
       : lease.canExtend
-        ? "This workspace can be extended now before it expires."
+        ? "This workspace can be extended by 15 minutes now before it expires."
       : "This workspace remains active. The extend action appears only after the server opens the final extension window.";
 
   return (
@@ -76,7 +76,7 @@ export function TenantLeaseBanner({
       </div>
       <div className="mt-4 flex flex-wrap gap-3">
         <Button
-          disabled={!lease.canExtend && !isExtending}
+          disabled={!lease.canExtend || isExtending}
           isLoading={isExtending}
           onClick={() => {
             void onExtend();

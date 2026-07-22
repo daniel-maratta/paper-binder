@@ -77,6 +77,21 @@ public sealed class DapperTenantUserAdministrationService(
             var createdUser = await transactionScopeRunner.ExecuteAsync(
                 async (connection, transaction, innerCancellationToken) =>
                 {
+                    var tenantUserIds = await connection.QueryAsync<Guid>(
+                        new CommandDefinition(
+                            TenantUserAdministrationSql.SelectTenantUserIdsForUpdate,
+                            new { TenantId = command.TenantId },
+                            transaction,
+                            cancellationToken: innerCancellationToken));
+
+                    if (tenantUserIds.Count() >= TenantUserAdministrationRules.MaxUsersPerTenant)
+                    {
+                        return TenantUserCreateOutcome.Failed(
+                            new TenantUserAdministrationFailure(
+                                TenantUserAdministrationFailureKind.LimitReached,
+                                $"This demo workspace can contain up to {TenantUserAdministrationRules.MaxUsersPerTenant} users."));
+                    }
+
                     await connection.ExecuteAsync(
                         new CommandDefinition(
                             TenantUserAdministrationSql.InsertUser,
@@ -97,9 +112,24 @@ public sealed class DapperTenantUserAdministrationService(
                             transaction,
                             cancellationToken: innerCancellationToken));
 
-                    return new TenantUserSummary(user.Id, user.Email, role, IsOwner: false);
+                    return TenantUserCreateOutcome.Success(
+                        new TenantUserSummary(user.Id, user.Email, role, IsOwner: false),
+                        generatedPassword);
                 },
                 cancellationToken: cancellationToken);
+
+            if (!createdUser.Succeeded)
+            {
+                logger.LogWarning(
+                    "Tenant user creation rejected. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} FailureKind={FailureKind}",
+                    command.TenantId,
+                    command.ActorUserId,
+                    command.EffectiveUserId,
+                    command.IsImpersonated,
+                    createdUser.Failure!.Kind);
+
+                return createdUser;
+            }
 
             logger.LogInformation(
                 "Tenant user created. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} TargetUserId={TargetUserId} Role={Role}",
@@ -107,10 +137,10 @@ public sealed class DapperTenantUserAdministrationService(
                 command.ActorUserId,
                 command.EffectiveUserId,
                 command.IsImpersonated,
-                createdUser.UserId,
-                createdUser.Role);
+                createdUser.User!.UserId,
+                createdUser.User.Role);
 
-            return TenantUserCreateOutcome.Success(createdUser, generatedPassword);
+            return createdUser;
         }
         catch (PostgresException ex) when (IsEmailConflict(ex))
         {
@@ -277,15 +307,12 @@ public sealed class DapperTenantUserAdministrationService(
                 }
 
                 var currentRole = targetUser.ToSummary().Role;
-                if (targetUser.IsOwner &&
-                    TenantUserAdministrationRules.WouldDeleteLastOwner(
-                        isOwner: true,
-                        await CountOwnersForUpdateAsync(connection, transaction, command.TenantId, innerCancellationToken)))
+                if (TenantUserAdministrationRules.WouldDeleteOwner(targetUser.IsOwner))
                 {
                     return TenantUserDeleteOutcome.Failed(
                         new TenantUserAdministrationFailure(
                             TenantUserAdministrationFailureKind.LastTenantOwnerRequired,
-                            "At least one tenant owner must remain assigned to the tenant."));
+                            "The workspace owner cannot be deleted."));
                 }
 
                 if (currentRole == TenantRole.TenantAdmin &&
@@ -414,19 +441,4 @@ public sealed class DapperTenantUserAdministrationService(
         return tenantAdminIds.Count();
     }
 
-    private static async Task<int> CountOwnersForUpdateAsync(
-        System.Data.Common.DbConnection connection,
-        System.Data.Common.DbTransaction transaction,
-        Guid tenantId,
-        CancellationToken cancellationToken)
-    {
-        var ownerIds = await connection.QueryAsync<Guid>(
-            new CommandDefinition(
-                TenantUserAdministrationSql.SelectTenantOwnerIdsForUpdate,
-                new { TenantId = tenantId },
-                transaction,
-                cancellationToken: cancellationToken));
-
-        return ownerIds.Count();
-    }
 }

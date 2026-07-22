@@ -85,7 +85,7 @@
       "label": "Reviewer Full Stack",
       "type": "process",
       "command": "powershell",
-      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/reviewer-full-stack.ps1"],
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/scripts/reviewer-full-stack.ps1", "-EnableChallengeBypass"],
       "problemMatcher": []
     }
   ]

@@ -5,7 +5,7 @@
       "name": "Reviewer Full Stack",
       "type": "node-terminal",
       "request": "launch",
-      "command": "powershell -ExecutionPolicy Bypass -File ./scripts/reviewer-full-stack.ps1",
+      "command": "powershell -ExecutionPolicy Bypass -File ./scripts/reviewer-full-stack.ps1 -EnableChallengeBypass",
       "cwd": "${workspaceFolder}"
     },
     {

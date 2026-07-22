@@ -96,7 +96,7 @@ On provisioning:
 Extension policy:
 - `GET /api/tenant/lease` requires authenticated tenant membership.
 - `POST /api/tenant/lease/extend` requires `TenantAdmin`, valid CSRF, and the dedicated lease-extend rate limiter.
-- Extension allowed only when remaining lease is greater than `0` and less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
+- Extension allowed only when remaining lease is greater than `0` and less than or equal to `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES`.
 - Each extension adds `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
 - Maximum 3 extensions per tenant.
 - Canonical lease endpoints: `GET /api/tenant/lease` and `POST /api/tenant/lease/extend`.

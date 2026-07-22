@@ -1,13 +1,15 @@
 import { type ReactNode, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import type { DocumentDetail } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
+import { Dialog, DialogContent, DialogFooter } from "../components/ui/dialog";
+import { Field } from "../components/ui/field";
 import { StatusBadge } from "../components/ui/status-badge";
 import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
 import type { TenantHostErrorViewModel } from "./tenant-host-errors";
 import { mapTenantHostError } from "./tenant-host-errors";
-import { TenantRouteFailureCard, formatDateTime, useTenantShellContext } from "./tenant-shell";
+import { TenantHostErrorNotice, TenantRouteFailureCard, formatDateTime, useTenantShellContext } from "./tenant-shell";
 
 function isSafeMarkdownHref(href: string) {
   const trimmedHref = href.trim();
@@ -251,12 +253,17 @@ function DetailStat({
 
 export function DocumentDetailPage() {
   const { documentId = "" } = useParams();
+  const navigate = useNavigate();
   const { apiClient, impersonation, showToast } = useTenantShellContext();
   const [documentDetail, setDocumentDetail] = useState<DocumentDetail | null>(null);
   const [supersededDocumentTitle, setSupersededDocumentTitle] = useState<string | null>(null);
   const [isViewingSource, setIsViewingSource] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteConfirmationTitle, setDeleteConfirmationTitle] = useState("");
+  const [deleteError, setDeleteError] = useState<TenantHostErrorViewModel | null>(null);
+  const [isDeletingDocument, setIsDeletingDocument] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -331,6 +338,8 @@ export function DocumentDetailPage() {
     setIsViewingSource(false);
   }, [documentId]);
 
+  const canDeleteDocument = impersonation.effective.role !== "BinderRead";
+
   async function copyValue(label: string, value: string) {
     const copied = await writeClipboardValue(value);
     if (copied) {
@@ -349,31 +358,60 @@ export function DocumentDetailPage() {
     });
   }
 
+  async function handleDeleteDocument() {
+    if (documentDetail === null) {
+      return;
+    }
+
+    setIsDeletingDocument(true);
+    setDeleteError(null);
+
+    try {
+      await apiClient.deleteDocument(documentDetail.documentId);
+      showToast({
+        title: "Document deleted.",
+        body: `${documentDetail.title} was removed from this binder.`,
+        variant: "success"
+      });
+      navigate(`/app/binders/${documentDetail.binderId}`);
+    } catch (error) {
+      setDeleteError(mapTenantHostError(error));
+    } finally {
+      setIsDeletingDocument(false);
+    }
+  }
+
   if (pageError !== null) {
     return <TenantRouteFailureCard error={pageError} />;
   }
 
   if (isLoading || documentDetail === null) {
-    return (
-      <section className="pb-auth-panel pb-auth-panel--route">
-        <div className="pb-auth-panel-header">
-          <p className="pb-auth-eyebrow">Document detail</p>
-          <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">Loading document</h2>
-          <p className="pb-auth-panel-copy">PaperBinder is loading the current document.</p>
-        </div>
-      </section>
-    );
+      return (
+        <section className="pb-auth-panel pb-auth-panel--route">
+          <div className="pb-auth-panel-header">
+            <p className="pb-auth-eyebrow">Document detail</p>
+            <h2 className="pb-auth-panel-title pb-auth-panel-title--lg">Loading document</h2>
+            <p className="pb-auth-panel-copy">Loading the current document.</p>
+          </div>
+        </section>
+      );
   }
 
   return (
     <div className="pb-auth-page">
+      <div className="flex flex-wrap gap-3">
+        <Button asChild type="button" variant="secondary">
+          <Link to={`/app/binders/${documentDetail.binderId}`}>Back to binder</Link>
+        </Button>
+      </div>
+
       <section className="pb-auth-page-intro">
         <div className="pb-auth-detail-head">
           <div>
             <p className="pb-auth-eyebrow">Document detail</p>
             <h2 className="pb-auth-page-title">{documentDetail.title}</h2>
             <p className="pb-auth-page-copy">
-              Read the rendered markdown by default, or switch to source when you need the stored document body.
+              Read the rendered markdown by default, or switch to source when you need the original text.
             </p>
           </div>
           <StatusBadge className="pb-auth-detail-status" variant={documentDetail.archivedAt ? "warning" : "success"}>
@@ -412,9 +450,9 @@ export function DocumentDetailPage() {
 
       {documentDetail.archivedAt ? (
         <Alert className="w-full" variant="warning">
-          <AlertTitle>Archived document visible by direct id.</AlertTitle>
+          <AlertTitle>Archived document opened by direct link.</AlertTitle>
           <AlertBody>
-            Binder lists hide archived documents, but direct reads remain available to allowed users.
+            Archived documents do not appear in binder lists, but direct links still work for allowed users.
           </AlertBody>
         </Alert>
       ) : null}
@@ -428,8 +466,8 @@ export function DocumentDetailPage() {
               </h3>
               <p className="pb-auth-panel-copy">
                 {isViewingSource
-                  ? "Read-only markdown source is shown exactly as stored for this workspace."
-                  : "Rendered markdown is shown by default so the document reads like a finished page."}
+                  ? "Read-only markdown source is shown exactly as stored."
+                  : "Rendered markdown is shown by default for easier reading."}
               </p>
             </div>
             <Button
@@ -454,7 +492,7 @@ export function DocumentDetailPage() {
 
       <section className="pb-auth-panel">
         <div className="pb-auth-panel-header">
-          <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Reference metadata</h3>
+          <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Document metadata</h3>
         </div>
         <div className="pb-auth-panel-body">
           <div className="pb-auth-summary-grid pb-auth-summary-grid--2">
@@ -486,11 +524,66 @@ export function DocumentDetailPage() {
         </div>
       </section>
 
-      <div className="flex flex-wrap gap-3">
-        <Button asChild type="button" variant="secondary">
-          <Link to={`/app/binders/${documentDetail.binderId}`}>Back to binder</Link>
-        </Button>
-      </div>
+      {canDeleteDocument ? (
+        <section className="pb-auth-panel pb-auth-panel--danger">
+          <div className="pb-auth-panel-header">
+            <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Delete document</h3>
+            <p className="pb-auth-panel-copy">
+              Remove this document after confirming the exact document name.
+            </p>
+          </div>
+          <div className="pb-auth-panel-body space-y-4">
+            <TenantHostErrorNotice error={deleteError} />
+            <Button
+              onClick={() => {
+                setDeleteConfirmationTitle("");
+                setDeleteError(null);
+                setIsDeleteDialogOpen(true);
+              }}
+              type="button"
+              variant="danger"
+            >
+              Delete document
+            </Button>
+          </div>
+        </section>
+      ) : null}
+
+      <Dialog onOpenChange={setIsDeleteDialogOpen} open={isDeleteDialogOpen}>
+        <DialogContent
+          description={`Type ${documentDetail.title} to confirm permanent removal of this document.`}
+          title={`Delete ${documentDetail.title}?`}
+        >
+          <Field hint="This action permanently removes the current document." label="Confirm document name">
+            <input
+              autoComplete="off"
+              disabled={isDeletingDocument}
+              onChange={(event) => {
+                setDeleteConfirmationTitle(event.target.value);
+                setDeleteError(null);
+              }}
+              placeholder={documentDetail.title}
+              type="text"
+              value={deleteConfirmationTitle}
+            />
+          </Field>
+          <TenantHostErrorNotice error={deleteError} />
+          <DialogFooter>
+            <Button onClick={() => setIsDeleteDialogOpen(false)} type="button" variant="secondary">
+              Cancel
+            </Button>
+            <Button
+              disabled={deleteConfirmationTitle.trim() !== documentDetail.title || isDeletingDocument}
+              isLoading={isDeletingDocument}
+              onClick={() => void handleDeleteDocument()}
+              type="button"
+              variant="danger"
+            >
+              Delete document
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

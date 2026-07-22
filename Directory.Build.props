@@ -1,9 +1,16 @@
 <Project>
   <PropertyGroup>
-    <VersionPrefix>1.0.5</VersionPrefix>
-    <AssemblyVersion>1.0.5.0</AssemblyVersion>
-    <FileVersion>1.0.5.0</FileVersion>
+    <VersionPrefix>1.1.0</VersionPrefix>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
     <InformationalVersion>$(VersionPrefix)</InformationalVersion>
+    <Authors>Daniel Maratta</Authors>
+    <Company>Daniel Maratta</Company>
+    <Product>PaperBinder</Product>
+    <Description>PaperBinder is a constrained multi-tenant SaaS portfolio demo designed and built by Daniel Maratta.</Description>
+    <PackageProjectUrl>https://paperbinder.danielmaratta.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/daniel-maratta/paper-binder.git</RepositoryUrl>
+    <Copyright>Copyright © Daniel Maratta</Copyright>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 

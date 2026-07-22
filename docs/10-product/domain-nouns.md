@@ -20,7 +20,7 @@ Fields:
 Rules:
 - Expires after 60 minutes.
 - Extension allowed only when remaining lease is <= 10 minutes.
-- Each extension adds +10 minutes.
+- Each extension adds +15 minutes.
 - Maximum 3 extensions.
 - Hard-deleted by worker when expired.
 - Cleanup is eventual after expiry and may defer purge while recent authenticated tenant-host activity is still inside the configured retention window.
@@ -63,7 +63,7 @@ Rules:
 - Immutable after creation.
 - Content cannot be updated in place.
 - Title is trimmed and must be 1-200 characters after trimming.
-- Titles must be unique within a binder unless the new document supersedes an earlier document with the same title.
+- Titles must be unique within a binder using trimmed, case-insensitive comparison unless the new document supersedes an earlier document with the same title.
 - ContentType is the exact contract value `markdown`.
 - Content must be non-whitespace and at most 50,000 characters.
 - New document may supersede a prior document via metadata.
@@ -130,7 +130,7 @@ Fields:
 
 Rules:
 - Extension allowed only when remaining lease is <= 10 minutes.
-- Each extension adds +10 minutes.
+- Each extension adds +15 minutes.
 - Maximum 3 extensions.
 - Expired tenants are hard-deleted by worker.
 - Cleanup is eventual after expiry and may defer purge while recent authenticated tenant-host activity is still inside the configured retention window.

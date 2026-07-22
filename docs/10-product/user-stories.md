@@ -72,7 +72,7 @@ As a tenant user with permission, I can create and read immutable text documents
 
 ### Acceptance Criteria
 - `POST /api/documents` creates immutable text document in a tenant binder.
-- `POST /api/documents` trims title to 1-200 characters, requires exact `contentType=markdown`, requires non-whitespace content <= 50,000 characters, accepts optional same-binder `SupersedesDocumentId`, and rejects duplicate binder-local titles unless the new document supersedes an earlier same-title document.
+- `POST /api/documents` trims title to 1-200 characters, requires exact `contentType=markdown`, requires non-whitespace content <= 50,000 characters, accepts optional same-binder `SupersedesDocumentId`, and rejects case-insensitive duplicate binder-local titles unless the new document supersedes an earlier same-title document.
 - Tenant-host `/app/binders/{binderId}` owns document creation, and `/app/documents/{documentId}` owns read-only document detail in the browser.
 - `GET /api/documents` lists documents scoped to current tenant, omits restricted binders on unfiltered requests, and returns `403` when an explicit binder filter targets a same-tenant binder denied by binder-local policy.
 - `GET /api/documents/{id}` returns document only when tenant-scoped access is valid and still allows direct-id reads of archived documents.
@@ -107,6 +107,7 @@ As a tenant admin, I can manage tenant users and assign roles without crossing t
 - `GET /api/tenant/users` returns only users for the current tenant.
 - `POST /api/tenant/users` creates a tenant-scoped user with an initial role and returns one-time server-generated credentials.
 - `POST /api/tenant/users/{userId}/role` changes role only for tenant-scoped users.
+- `DELETE /api/tenant/users/{userId}` removes tenant-scoped non-owner users without allowing workspace owner deletion.
 - Tenant-host `/app/users` exposes list, create, and role-change behavior only for `TenantAdmin`.
 - Attempting to demote the last remaining tenant admin returns `409`.
 - Non-admin callers receive `403` for tenant user-management routes.

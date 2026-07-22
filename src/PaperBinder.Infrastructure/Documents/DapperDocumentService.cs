@@ -102,6 +102,30 @@ public sealed class DapperDocumentService(
                                     "The current tenant role is not allowed to access the target binder."));
                         }
 
+                        var documentCount = await connection.ExecuteScalarAsync<int>(
+                            new CommandDefinition(
+                                """
+                                select count(*)
+                                from documents
+                                where tenant_id = @TenantId
+                                  and binder_id = @BinderId;
+                                """,
+                                new
+                                {
+                                    TenantId = command.Tenant.TenantId,
+                                    BinderId = command.BinderId.Value
+                                },
+                                transaction,
+                                cancellationToken: innerCancellationToken));
+
+                        if (documentCount >= DocumentRules.MaxDocumentsPerBinder)
+                        {
+                            return DocumentCreateOutcome.Failed(
+                                new DocumentFailure(
+                                    DocumentFailureKind.LimitReached,
+                                    $"This demo binder can contain up to {DocumentRules.MaxDocumentsPerBinder} documents."));
+                        }
+
                         if (command.SupersedesDocumentId.HasValue)
                         {
                             if (command.SupersedesDocumentId.Value == documentId)
@@ -146,7 +170,7 @@ public sealed class DapperDocumentService(
                                 from documents
                                 where tenant_id = @TenantId
                                   and binder_id = @BinderId
-                                  and title = @Title;
+                                  and lower(title) = lower(@Title);
                                 """,
                                 new
                                 {
@@ -425,6 +449,87 @@ public sealed class DapperDocumentService(
         DocumentArchiveCommand command,
         CancellationToken cancellationToken = default) =>
         TransitionArchiveStateAsync(command, archiveRequested: false, cancellationToken);
+
+    public async Task<DocumentDeleteOutcome> DeleteAsync(
+        DocumentDeleteCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        ArgumentNullException.ThrowIfNull(command.Tenant);
+
+        var outcome = await transactionScopeRunner.ExecuteAsync(
+            async (connection, transaction, innerCancellationToken) =>
+            {
+                var accessState = await GetDocumentAccessStateAsync(
+                    connection,
+                    transaction,
+                    command.Tenant,
+                    command.CallerRole,
+                    command.DocumentId,
+                    forUpdate: true,
+                    innerCancellationToken);
+
+                if (accessState is null)
+                {
+                    return DocumentDeleteOutcome.Failed(
+                        new DocumentFailure(
+                            DocumentFailureKind.NotFound,
+                            "The requested document does not exist in the current tenant."));
+                }
+
+                if (!accessState.IsAllowed)
+                {
+                    return DocumentDeleteOutcome.Failed(
+                        new DocumentFailure(
+                            DocumentFailureKind.BinderPolicyDenied,
+                            "The current tenant role is not allowed to access the target binder."));
+                }
+
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        """
+                        delete from documents
+                        where tenant_id = @TenantId
+                          and id = @DocumentId;
+                        """,
+                        new
+                        {
+                            TenantId = command.Tenant.TenantId,
+                            DocumentId = command.DocumentId
+                        },
+                        transaction,
+                        cancellationToken: innerCancellationToken));
+
+                return DocumentDeleteOutcome.Success();
+            },
+            cancellationToken: cancellationToken);
+
+        if (outcome.Succeeded)
+        {
+            logger.LogInformation(
+                "Document deleted. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} document_id={document_id}",
+                "document_deleted",
+                command.Tenant.TenantId,
+                command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
+                command.DocumentId);
+        }
+        else
+        {
+            logger.LogWarning(
+                "Document delete rejected. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} document_id={document_id} failure_kind={failure_kind}",
+                "document_delete_rejected",
+                command.Tenant.TenantId,
+                command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
+                command.DocumentId,
+                outcome.Failure!.Kind);
+        }
+
+        return outcome;
+    }
 
     private async Task<DocumentDetailOutcome> TransitionArchiveStateAsync(
         DocumentArchiveCommand command,

@@ -123,15 +123,15 @@ public sealed class TenantLeaseLifecycleIntegrationTests(PostgresContainerFixtur
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         AssertApiProtocolHeaders(response);
         Assert.NotNull(payload);
-        Assert.Equal(now.AddMinutes(15), payload!.ExpiresAt);
-        Assert.Equal(900, payload.SecondsRemaining);
+        Assert.Equal(now.AddMinutes(20), payload!.ExpiresAt);
+        Assert.Equal(1200, payload.SecondsRemaining);
         Assert.Equal(2, payload.ExtensionCount);
         Assert.Equal(3, payload.MaxExtensions);
         Assert.False(payload.CanExtend);
 
         var leaseRow = await GetTenantLeaseRowAsync(host, tenant.Id);
         Assert.NotNull(leaseRow);
-        Assert.Equal(now.AddMinutes(15), leaseRow!.ExpiresAtUtc);
+        Assert.Equal(now.AddMinutes(20), leaseRow!.ExpiresAtUtc);
         Assert.Equal(2, leaseRow.ExtensionCount);
     }
 

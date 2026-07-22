@@ -4,6 +4,7 @@ import { writeClipboardValue } from "./copy-value-chip";
 type CredentialDisplayFieldVariant = "public" | "auth";
 
 export function CredentialDisplayField({
+  className,
   copyButtonLabel,
   hint,
   hideButtonLabel,
@@ -14,6 +15,7 @@ export function CredentialDisplayField({
   value,
   variant
 }: {
+  className?: string;
   copyButtonLabel: string;
   hint: string;
   hideButtonLabel?: string;
@@ -60,7 +62,7 @@ export function CredentialDisplayField({
   const copyTooltip = copied ? "Copied" : copyFailed ? "Copy unavailable" : "Copy to clipboard";
 
   return (
-    <div className={`pb-credential-field pb-credential-field--${variant}`}>
+    <div className={["pb-credential-field", `pb-credential-field--${variant}`, className].filter(Boolean).join(" ")}>
       <div className="pb-credential-field__header">
         <label className="pb-credential-field__label" htmlFor={inputId}>
           {label}

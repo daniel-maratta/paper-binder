@@ -107,7 +107,6 @@ export function resolveHostContext(
     currentPath,
     apiOrigin: environment.apiOrigin,
     environment,
-    reason:
-      "The current host does not match the configured root host or a single-label tenant subdomain."
+    reason: "This address is not the main PaperBinder site or a supported workspace address."
   };
 }

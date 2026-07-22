@@ -6,7 +6,10 @@ namespace PaperBinder.UnitTests;
 
 public sealed class TenantLeaseLifecycleTests
 {
-    private static readonly TenantLeasePolicy DefaultPolicy = new(10, 3);
+    private static readonly TenantLeasePolicy DefaultPolicy = new(
+        ExtensionWindowMinutes: 10,
+        ExtensionMinutes: 15,
+        MaxExtensions: 3);
 
     [Fact]
     public void TenantLeaseRules_Should_ProjectLeaseState_WithNonNegativeSecondsRemaining()

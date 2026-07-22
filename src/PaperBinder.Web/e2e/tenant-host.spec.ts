@@ -63,7 +63,7 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
 
   await page.getByRole("button", { name: "Log out" }).click();
   await expect(page).toHaveURL("http://paperbinder.localhost:5081/login");
-  await expect(page.getByRole("heading", { name: "Sign in to a demo workspace", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in", exact: true })).toBeVisible();
 
   await page.getByLabel("Email").fill(readerEmail);
   await page.getByLabel("Password").fill(readerPassword);
@@ -118,7 +118,7 @@ test("Should_StartViewAsFromUsersRoute_AndReturnToAdminSession_InBrowser", async
   );
 
   await page.getByRole("button", { name: `Manage user ${readerEmail}` }).click();
-  await page.getByRole("button", { name: "Impersonate this user" }).click();
+  await page.getByRole("button", { name: "View as this user" }).click();
 
   expect((await impersonationStartResponse).status()).toBe(200);
   await expect(page).toHaveURL(tenantHostUrl(provisionedTenant.tenantSlug));
@@ -134,7 +134,7 @@ test("Should_StartViewAsFromUsersRoute_AndReturnToAdminSession_InBrowser", async
       response.request().method() === "DELETE"
   );
 
-  await page.getByRole("button", { name: "Stop impersonation" }).click();
+  await page.getByRole("button", { name: "Stop view as" }).click();
 
   expect((await impersonationStopResponse).status()).toBe(200);
   await expect(page.getByRole("heading", { level: 2, name: "Users and access", exact: true })).toBeVisible();

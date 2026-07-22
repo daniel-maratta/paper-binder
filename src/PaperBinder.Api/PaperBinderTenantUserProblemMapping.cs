@@ -25,6 +25,12 @@ internal static class PaperBinderTenantUserProblemMapping
                 failure.Detail,
                 PaperBinderErrorCodes.TenantRoleInvalid),
 
+            TenantUserAdministrationFailureKind.LimitReached => new(
+                StatusCodes.Status409Conflict,
+                "Tenant user limit reached.",
+                failure.Detail,
+                PaperBinderErrorCodes.TenantUserLimitReached),
+
             TenantUserAdministrationFailureKind.LastTenantAdminRequired => new(
                 StatusCodes.Status409Conflict,
                 "Tenant admin required.",
@@ -33,7 +39,7 @@ internal static class PaperBinderTenantUserProblemMapping
 
             TenantUserAdministrationFailureKind.LastTenantOwnerRequired => new(
                 StatusCodes.Status409Conflict,
-                "Tenant owner required.",
+                "The workspace owner cannot be deleted.",
                 failure.Detail,
                 PaperBinderErrorCodes.LastTenantOwnerRequired),
 

@@ -16,6 +16,10 @@ Start here, then load only the lane docs relevant to the task.
 4. [docs/30-security/tenant-isolation.md](./30-security/tenant-isolation.md)
 5. [docs/40-contracts/api-contract.md](./40-contracts/api-contract.md)
 
+## Root Reviewer Artifacts
+
+- [PROJECT_ORIGIN.md](../PROJECT_ORIGIN.md) `(Project provenance, canonical public references, and verification guidance)`
+
 ## Active V1.1 Presentation Canon
 
 The approved `v1.1` presentation contract and `ADR-0013` are the active forward presentation canon for this phase. Current V1 presentation docs remain available as historical shipped-surface references, and the redesign packet remains exploratory input only.

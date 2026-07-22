@@ -14,6 +14,7 @@ import { Toast, ToastViewport } from "../components/ui/toast";
 import { cn } from "../lib/cn";
 import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
 import type { TenantHostContext } from "./host-context";
+import { productIdentity } from "./product-identity";
 import { tenantNavigationItems } from "./route-registry";
 import {
   mapTenantHostError,
@@ -60,6 +61,7 @@ type TenantBootstrapViewModel = {
 };
 
 export const roleOptions: readonly TenantRole[] = ["TenantAdmin", "BinderWrite", "BinderRead"];
+const leaseExtensionWindowSeconds = 10 * 60;
 const toastAutoDismissMs = 5000;
 
 export type TenantHostNavigator = (redirectUrl: string) => void;
@@ -120,12 +122,59 @@ function normalizeCountdownSeconds(secondsRemaining: number): number {
   return Math.max(0, Math.ceil(secondsRemaining));
 }
 
-function toRootLoginUrl(rootUrl: string): string {
-  return new URL("/login", rootUrl).toString();
+function toRootLoginUrl(rootUrl: string, tenantSlug?: string): string {
+  const url = new URL("/login", rootUrl);
+  if (tenantSlug) {
+    url.searchParams.set("workspace", tenantSlug);
+  }
+
+  return url.toString();
 }
 
-function toRootHomeUrl(rootUrl: string): string {
-  return new URL("/", rootUrl).toString();
+function toRootHomeUrl(rootUrl: string, tenantSlug?: string): string {
+  const url = new URL("/", rootUrl);
+  if (tenantSlug) {
+    url.searchParams.set("workspace", tenantSlug);
+  }
+
+  return url.toString();
+}
+
+function toRootAboutUrl(rootUrl: string, tenantSlug?: string): string {
+  const url = new URL("/about", rootUrl);
+  if (tenantSlug) {
+    url.searchParams.set("workspace", tenantSlug);
+  }
+
+  return url.toString();
+}
+
+function setDocumentTitle(pageTitle: string) {
+  document.title = `${pageTitle} | ${productIdentity.productName}`;
+}
+
+function resolveTenantPageTitle(pathname: string): string {
+  if (pathname === "/app") {
+    return "Dashboard";
+  }
+
+  if (pathname === "/app/binders") {
+    return "Binders";
+  }
+
+  if (pathname.startsWith("/app/binders/")) {
+    return "Binder";
+  }
+
+  if (pathname.startsWith("/app/documents/")) {
+    return "Document";
+  }
+
+  if (pathname === "/app/users") {
+    return "Users";
+  }
+
+  return "Not found";
 }
 
 function isToastAutoDismissable(variant: TenantShellToastVariant): boolean {
@@ -300,7 +349,7 @@ function TenantBootstrapFailurePage({
           <p className="pb-auth-eyebrow">Workspace routing</p>
           <h1 className="pb-auth-page-title">{error.title}</h1>
           <p className="pb-auth-panel-copy">
-            PaperBinder keeps workspace routing host-derived even when this workspace cannot be opened.
+            This workspace address could not be opened, but you can safely return to the public site or sign in again.
           </p>
         </div>
         <div className="pb-auth-panel-body">
@@ -338,7 +387,7 @@ function TenantShellLoadingPage() {
         <div className="pb-auth-panel-header">
           <p className="pb-auth-eyebrow">Workspace loading</p>
           <h1 className="pb-auth-page-title">Loading tenant workspace</h1>
-          <p className="pb-auth-panel-copy">PaperBinder is loading the current workspace context.</p>
+          <p className="pb-auth-panel-copy">Loading the current workspace.</p>
         </div>
       </section>
     </div>
@@ -432,8 +481,14 @@ export function TenantShell({
   const nextToastIdRef = useRef(0);
   const toastDismissStateRef = useRef(new Map<string, ToastDismissState>());
   const expiryRefreshAttemptedRef = useRef(false);
-  const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl);
-  const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl);
+  const extensionWindowRefreshAttemptedRef = useRef(false);
+  const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+  const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+  const rootHomeUrlWithWorkspace = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+
+  useEffect(() => {
+    setDocumentTitle(resolveTenantPageTitle(location.pathname));
+  }, [location.pathname]);
 
   function showToast({ title, body, variant = "info" }: TenantShellToastInput) {
     setToasts((currentToasts) => [
@@ -588,6 +643,24 @@ export function TenantShell({
     }
 
     expiryRefreshAttemptedRef.current = true;
+    void refreshShellState();
+  }, [bootstrapError, countdownSeconds, lease, refreshShellState]);
+
+  useEffect(() => {
+    if (lease === null || bootstrapError !== null) {
+      return;
+    }
+
+    if (lease.canExtend || countdownSeconds <= 0 || countdownSeconds > leaseExtensionWindowSeconds) {
+      extensionWindowRefreshAttemptedRef.current = false;
+      return;
+    }
+
+    if (extensionWindowRefreshAttemptedRef.current) {
+      return;
+    }
+
+    extensionWindowRefreshAttemptedRef.current = true;
     void refreshShellState();
   }, [bootstrapError, countdownSeconds, lease, refreshShellState]);
 
@@ -755,7 +828,7 @@ export function TenantShell({
   const visibleToasts = toasts.slice(0, 3);
   const queuedToastCount = Math.max(0, toasts.length - visibleToasts.length);
   const isViewingAs = impersonation.isImpersonating;
-  const aboutUrl = new URL("/about", hostContext.environment.rootUrl).toString();
+  const aboutUrl = toRootAboutUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
 
   return (
     <div className="pb-auth-shell">
@@ -781,7 +854,7 @@ export function TenantShell({
         <aside className="pb-auth-sidebar">
           <div className="pb-auth-sidebar-brandlockup">
             <div className="pb-auth-sidebar-brand">
-              <PaperBinderWordmark href={rootHomeUrl} />
+              <PaperBinderWordmark href={rootHomeUrlWithWorkspace} />
             </div>
           </div>
 
@@ -817,6 +890,10 @@ export function TenantShell({
                 v{packageJson.version}
               </p>
             </div>
+            <div className="pb-auth-sidebar-footer-row">
+              <p className="pb-auth-sidebar-context-label">Designed by</p>
+              <p className="pb-auth-sidebar-context-value">{productIdentity.authorName}</p>
+            </div>
             <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
               About PaperBinder
             </a>
@@ -844,7 +921,7 @@ export function TenantShell({
                   type="button"
                   variant="danger"
                 >
-                  Stop impersonation
+                  Stop view as
                 </Button>
               ) : null}
             </div>
@@ -860,7 +937,7 @@ export function TenantShell({
           </header>
 
           <div className="pb-auth-shell-body">
-            {lease.canExtend ? (
+            {lease.canExtend || (countdownSeconds > 0 && countdownSeconds <= leaseExtensionWindowSeconds) ? (
               <TenantLeaseBanner
                 countdownSeconds={countdownSeconds}
                 isExtending={isExtending}

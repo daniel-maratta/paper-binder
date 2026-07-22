@@ -22,6 +22,8 @@ public sealed class RuntimeConfigurationTests
         Assert.Null(settings.DataProtection.CertificatePath);
         Assert.Equal(AuditRetentionMode.RetainTenantPurgedSummary, settings.Audit.RetentionMode);
         Assert.Equal(60, settings.Lease.DefaultMinutes);
+        Assert.Equal(10, settings.Lease.ExtensionWindowMinutes);
+        Assert.Equal(15, settings.Lease.ExtensionMinutes);
         Assert.Equal(180, settings.Lease.RecentActivityGraceSeconds);
         Assert.Equal(120, settings.RateLimits.AuthenticatedPerMinute);
     }

@@ -19,4 +19,4 @@ if ($TestPath.Count -gt 0) {
   $arguments += $TestPath
 }
 
-Invoke-NpmCommand -Arguments $arguments -WorkingDirectory $frontendRoot
+Invoke-ExternalCommand -FilePath (Get-NpmCommand) -Arguments $arguments -WorkingDirectory $frontendRoot

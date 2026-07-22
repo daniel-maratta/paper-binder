@@ -1,7 +1,14 @@
 {
   "name": "paperbinder-web",
   "private": true,
-  "version": "1.0.5",
+  "version": "1.1.0",
+  "description": "PaperBinder frontend for the Daniel Maratta portfolio SaaS demo.",
+  "author": "Daniel Maratta (https://danielmaratta.com)",
+  "homepage": "https://paperbinder.danielmaratta.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daniel-maratta/paper-binder.git"
+  },
   "type": "module",
   "packageManager": "npm@11.8.0",
   "engines": {

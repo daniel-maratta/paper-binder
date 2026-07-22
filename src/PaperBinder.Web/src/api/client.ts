@@ -519,6 +519,15 @@ export function createPaperBinderApiClient({
 
       return response.data;
     },
+    async deleteBinder(binderId: string, signal?: AbortSignal): Promise<void> {
+      await request<void>({
+        path: `/api/binders/${encodeURIComponent(binderId)}`,
+        method: "DELETE",
+        body: {},
+        signal,
+        expectJson: false
+      });
+    },
     async getBinderDetail(binderId: string, signal?: AbortSignal): Promise<BinderDetail> {
       const response = await request<BinderDetail>({
         path: `/api/binders/${encodeURIComponent(binderId)}`,
@@ -567,6 +576,15 @@ export function createPaperBinderApiClient({
 
       return response.data;
     },
+    async deleteDocument(documentId: string, signal?: AbortSignal): Promise<void> {
+      await request<void>({
+        path: `/api/documents/${encodeURIComponent(documentId)}`,
+        method: "DELETE",
+        body: {},
+        signal,
+        expectJson: false
+      });
+    },
     async listTenantUsers(signal?: AbortSignal): Promise<TenantUser[]> {
       const response = await request<ListTenantUsersResponse>({
         path: "/api/tenant/users",
@@ -598,6 +616,15 @@ export function createPaperBinderApiClient({
       });
 
       return response.data;
+    },
+    async deleteTenantUser(userId: string, signal?: AbortSignal): Promise<void> {
+      await request<void>({
+        path: `/api/tenant/users/${encodeURIComponent(userId)}`,
+        method: "DELETE",
+        body: {},
+        signal,
+        expectJson: false
+      });
     }
   };
 }

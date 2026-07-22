@@ -118,12 +118,13 @@ All entities are tenant-scoped unless explicitly global.
 - Tenant expiration triggers automated cleanup.
 - Tenant lease status is exposed via `GET /api/tenant/lease`.
 - Tenant lease status returns `expiresAt`, `secondsRemaining`, `extensionCount`, `maxExtensions`, and `canExtend`.
-- Tenant lease extension is allowed only when remaining lease is greater than `0` and less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
+- Tenant lease extension is allowed only when remaining lease is greater than `0` and less than or equal to `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES`.
 - Lease extension action uses `POST /api/tenant/lease/extend`.
 - Lease extension requires `TenantAdmin`, a valid CSRF token, and the route-scoped lease-extend rate limiter.
 - Each extension adds `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
 - Maximum 3 extensions per tenant.
 - The tenant-host shell displays current lease expiry, countdown, extension usage, and the extend action using authoritative lease data from the existing lease endpoints.
+- Demo workspaces enforce hidden guardrail limits that are surfaced only when a create request exceeds them.
 
 ### 6.2 Authentication
 
@@ -151,6 +152,7 @@ All entities are tenant-scoped unless explicitly global.
 - Binders may define binder-local access constraints (role-based).
 - Binder policy modes are `inherit` (default) and `restricted_roles`.
 - Binder policy `allowedRoles` values are exact v1 tenant role values.
+- Restricted binder policies always preserve tenant-admin access on the backend, even when tenant admins are not included by the client payload.
 - Binder list responses omit restricted binders the caller cannot access.
 - Binder detail responses return concrete `documents` summaries in CP10.
 - The browser exposes binder list and inline binder creation on tenant-host `/app/binders`.
@@ -165,9 +167,10 @@ All entities are tenant-scoped unless explicitly global.
 - Documents are immutable after creation.
 - Changes require creating a new document (optional `SupersedesDocumentId` metadata).
 - Document titles are trimmed and must be 1-200 characters after trimming.
-- Document titles are unique within a binder unless the new document supersedes an earlier same-title document in that binder.
+- Document titles are unique within a binder using trimmed, case-insensitive comparison unless the new document supersedes an earlier same-title document in that binder.
 - Document `contentType` must be the exact contract value `markdown`.
 - Document content must be non-whitespace and no longer than 50,000 characters.
+- A demo binder can contain up to 50 documents.
 - `SupersedesDocumentId`, when supplied, must reference another document in the same tenant and same binder.
 - Archive/soft-delete visibility is allowed without changing content.
 - Archived documents are hidden by default in list views and can be included with explicit filter options.
@@ -180,6 +183,8 @@ All entities are tenant-scoped unless explicitly global.
 
 - Tenant-admin browser flows expose tenant user list, create, and role-change behavior on tenant-host `/app/users`.
 - Tenant-admin user creation sends only email plus role; the server generates the temporary password and returns it once in the create response.
+- A demo workspace can contain up to 12 users and 20 binders.
+- Tenant-admin deletion removes non-owner workspace users only; workspace owner deletion is reserved for full tenant cleanup.
 - Non-admin callers must fail safely for tenant-admin-only user-management actions.
 
 ### 6.7 Lease and Cleanup

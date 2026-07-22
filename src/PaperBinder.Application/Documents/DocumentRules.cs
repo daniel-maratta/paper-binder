@@ -4,6 +4,7 @@ public static class DocumentRules
 {
     public const int MaxTitleLength = 200;
     public const int MaxContentLength = 50_000;
+    public const int MaxDocumentsPerBinder = 50;
     public const string MarkdownContentType = "markdown";
 
     public static bool TryTrimToValidTitle(string? value, out string trimmedTitle)

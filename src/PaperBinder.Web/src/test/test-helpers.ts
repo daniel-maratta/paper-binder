@@ -122,6 +122,7 @@ export function createApiClientStub(overrides: Partial<PaperBinderApiClient> = {
       name: "Operations",
       createdAt: "2026-04-16T11:00:00Z"
     })) as PaperBinderApiClient["createBinder"],
+    deleteBinder: vi.fn(async () => undefined) as PaperBinderApiClient["deleteBinder"],
     getBinderDetail: vi.fn(async () => ({
       binderId: "binder-1",
       name: "Operations",
@@ -156,6 +157,7 @@ export function createApiClientStub(overrides: Partial<PaperBinderApiClient> = {
       createdAt: "2026-04-16T11:20:00Z",
       archivedAt: null
     })) as PaperBinderApiClient["createDocument"],
+    deleteDocument: vi.fn(async () => undefined) as PaperBinderApiClient["deleteDocument"],
     listTenantUsers: vi.fn(async () => []) as PaperBinderApiClient["listTenantUsers"],
     createTenantUser: vi.fn(async () => ({
       userId: "user-1",
@@ -173,6 +175,7 @@ export function createApiClientStub(overrides: Partial<PaperBinderApiClient> = {
       role: "TenantAdmin",
       isOwner: true
     })) as PaperBinderApiClient["updateTenantUserRole"],
+    deleteTenantUser: vi.fn(async () => undefined) as PaperBinderApiClient["deleteTenantUser"],
     ...overrides
   };
 }

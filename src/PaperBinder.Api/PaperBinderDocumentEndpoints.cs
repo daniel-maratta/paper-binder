@@ -21,6 +21,8 @@ internal static class PaperBinderDocumentEndpoints
             .RequireAuthorization(PaperBinderAuthorizationPolicyNames.BinderWrite);
         documents.MapPost("/{documentId:guid}/unarchive", UnarchiveDocumentAsync)
             .RequireAuthorization(PaperBinderAuthorizationPolicyNames.BinderWrite);
+        documents.MapDelete("/{documentId:guid}", DeleteDocumentAsync)
+            .RequireAuthorization(PaperBinderAuthorizationPolicyNames.BinderWrite);
     }
 
     private static async Task ListDocumentsAsync(
@@ -162,6 +164,37 @@ internal static class PaperBinderDocumentEndpoints
             problemDetailsService,
             false,
             cancellationToken);
+    }
+
+    private static async Task DeleteDocumentAsync(
+        HttpContext context,
+        Guid documentId,
+        IDocumentService documentService,
+        IRequestTenantContext tenantContext,
+        IRequestTenantMembershipContext membershipContext,
+        IRequestExecutionUserContext executionUserContext,
+        IProblemDetailsService problemDetailsService,
+        CancellationToken cancellationToken)
+    {
+        var tenant = GetRequiredTenant(tenantContext);
+        var membership = GetRequiredMembership(membershipContext);
+        var outcome = await documentService.DeleteAsync(
+            new DocumentDeleteCommand(
+                tenant,
+                executionUserContext.ActorUserId,
+                executionUserContext.EffectiveUserId,
+                executionUserContext.IsImpersonated,
+                membership.Role,
+                documentId),
+            cancellationToken);
+
+        if (!outcome.Succeeded)
+        {
+            await WriteFailureAsync(context, problemDetailsService, outcome.Failure!);
+            return;
+        }
+
+        context.Response.StatusCode = StatusCodes.Status204NoContent;
     }
 
     private static async Task TransitionArchiveStateAsync(

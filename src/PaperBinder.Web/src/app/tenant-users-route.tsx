@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { TenantRole, TenantUser } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
+import { Dialog, DialogContent, DialogFooter } from "../components/ui/dialog";
 import { Field } from "../components/ui/field";
 import { StatusBadge } from "../components/ui/status-badge";
 import { DataTable, type DataTableColumn, type DataTableRow } from "../components/ui/table";
@@ -27,6 +28,28 @@ type TenantUserCredentialSnapshot = {
   password: string;
 };
 
+function sortUsers(users: readonly TenantUser[], effectiveUserId: string): TenantUser[] {
+  const ownerVisible = users.some((user) => user.isOwner);
+
+  return users
+    .map((user, index) => ({ user, index }))
+    .sort((left, right) => {
+      const leftPriority = left.user.isOwner
+        ? 0
+        : !ownerVisible && left.user.userId === effectiveUserId
+          ? 1
+          : 2;
+      const rightPriority = right.user.isOwner
+        ? 0
+        : !ownerVisible && right.user.userId === effectiveUserId
+          ? 1
+          : 2;
+
+      return leftPriority - rightPriority || left.index - right.index;
+    })
+    .map(({ user }) => user);
+}
+
 export function UsersPage() {
   const { apiClient, impersonation, startImpersonation, showToast } = useTenantShellContext();
   const navigate = useNavigate();
@@ -46,6 +69,10 @@ export function UsersPage() {
   const [impersonationError, setImpersonationError] = useState<TenantHostErrorViewModel | null>(null);
   const [isStartingImpersonationForUserId, setIsStartingImpersonationForUserId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteConfirmationEmail, setDeleteConfirmationEmail] = useState("");
+  const [deleteError, setDeleteError] = useState<TenantHostErrorViewModel | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -91,6 +118,28 @@ export function UsersPage() {
       setSelectedUserId(null);
     }
   }, [selectedUserId, users]);
+
+  useEffect(() => {
+    setIsDeleteDialogOpen(false);
+    setDeleteConfirmationEmail("");
+    setDeleteError(null);
+    setIsDeletingUser(false);
+  }, [selectedUserId]);
+
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (!event.persisted) {
+        return;
+      }
+
+      setCreatedCredentials(null);
+    }
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
 
   async function copyValue(label: string, value: string) {
     const copied = await writeClipboardValue(value);
@@ -222,9 +271,38 @@ export function UsersPage() {
     }
   }
 
+  async function handleDeleteUser(user: TenantUser) {
+    setIsDeletingUser(true);
+    setDeleteError(null);
+
+    try {
+      await apiClient.deleteTenantUser(user.userId);
+      setUsers((currentUsers) => currentUsers.filter((currentUser) => currentUser.userId !== user.userId));
+      setRoleDrafts((currentDrafts) => {
+        const nextDrafts = { ...currentDrafts };
+        delete nextDrafts[user.userId];
+        return nextDrafts;
+      });
+      setSelectedUserId(null);
+      setIsDeleteDialogOpen(false);
+      setDeleteConfirmationEmail("");
+      showToast({
+        title: "User deleted.",
+        body: `${user.email} was removed from this workspace.`,
+        variant: "success"
+      });
+    } catch (error) {
+      setDeleteError(mapTenantHostError(error));
+    } finally {
+      setIsDeletingUser(false);
+    }
+  }
+
   if (pageError !== null) {
     return <TenantRouteFailureCard error={pageError} />;
   }
+
+  const orderedUsers = sortUsers(users, impersonation.effective.userId);
 
   const columns: readonly DataTableColumn[] = [
     { key: "email", header: "Email" },
@@ -232,7 +310,7 @@ export function UsersPage() {
     { key: "ownership", header: "Ownership" },
     { key: "actions", header: "Actions" }
   ];
-  const rows: DataTableRow[] = users.map((user) => ({
+  const rows: DataTableRow[] = orderedUsers.map((user) => ({
     key: user.userId,
     cells: [
       <div key={`${user.userId}-email`}>
@@ -267,7 +345,8 @@ export function UsersPage() {
       </Button>,
     ]
   }));
-  const selectedUser = selectedUserId === null ? null : users.find((user) => user.userId === selectedUserId) ?? null;
+  const selectedUser =
+    selectedUserId === null ? null : orderedUsers.find((user) => user.userId === selectedUserId) ?? null;
   const canStartSelectedUserImpersonation =
     selectedUser !== null &&
     !impersonation.isImpersonating &&
@@ -276,6 +355,11 @@ export function UsersPage() {
     selectedUser === null ? null : (roleDrafts[selectedUser.userId] ?? selectedUser.role);
   const selectedUserRoleIsDirty =
     selectedUser !== null && selectedUserRoleDraft !== null && selectedUserRoleDraft !== selectedUser.role;
+  const isSelectedUserSelf =
+    selectedUser !== null && selectedUser.userId === impersonation.effective.userId;
+  const canDeleteSelectedUser = selectedUser !== null && !selectedUser.isOwner && !isSelectedUserSelf;
+  const deleteConfirmationMatchesSelectedUser =
+    selectedUser !== null && deleteConfirmationEmail.trim().toLowerCase() === selectedUser.email.toLowerCase();
 
   return (
     <div className="space-y-5">
@@ -287,7 +371,7 @@ export function UsersPage() {
           Users and access
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-(--pb-color-text-muted)">
-          Keep the full user list on screen while add-user, role updates, and impersonation actions expand on this route.
+          Keep the full user list visible while you add users, change roles, and start view as.
         </p>
       </section>
 
@@ -296,7 +380,7 @@ export function UsersPage() {
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Current users</h3>
             <p className="pb-auth-panel-copy">
-              Role changes, owner visibility, and impersonation eligibility stay server-enforced for this workspace.
+              Manage roles and view as actions for this workspace from one page.
             </p>
           </div>
           <div className="pb-auth-panel-body space-y-4">
@@ -315,7 +399,7 @@ export function UsersPage() {
                     Manage selected user
                   </h3>
                   <p className="mt-1 text-sm leading-6 text-[var(--pb-color-text-muted)]">
-                    Role changes and impersonation start here without leaving the current user list.
+                    Update roles and start view as without leaving the current user list.
                   </p>
                 </div>
                 {selectedUser !== null ? (
@@ -336,7 +420,7 @@ export function UsersPage() {
 
               {selectedUser === null ? (
                 <div className="pb-auth-selection-empty mt-4">
-                  Select a user from the table to expand the role-change and view-as panels here.
+                  Select a user to open role and view as actions here.
                 </div>
               ) : (
                 <div className="mt-4 space-y-4">
@@ -386,7 +470,7 @@ export function UsersPage() {
                       </div>
                       <div className="mt-4 space-y-4">
                         <Field
-                          hint="Role changes stay within the tenant-scoped permissions model."
+                          hint="Choose the role this user should have in the workspace."
                           label={`Role for ${selectedUser.email}`}
                         >
                           <select
@@ -432,10 +516,10 @@ export function UsersPage() {
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <h4 className="text-base font-semibold tracking-[-0.02em] text-[var(--pb-color-text)]">
-                            Impersonate
+                            View as
                           </h4>
                           <p className="mt-1 text-sm leading-6 text-[var(--pb-color-text-muted)]">
-                            Start impersonation from this user-management surface only.
+                            Start view as from this user-management page.
                           </p>
                         </div>
                         {canStartSelectedUserImpersonation ? (
@@ -448,10 +532,10 @@ export function UsersPage() {
                         <TenantHostErrorNotice error={impersonationError} />
                         <p className="text-sm leading-6 text-[var(--pb-color-text-muted)]">
                           {canStartSelectedUserImpersonation
-                            ? "Use impersonation when you need to confirm the workspace from the selected member role."
+                            ? "Use view as to confirm the workspace experience for the selected member."
                             : impersonation.isImpersonating
-                              ? "Stop the current impersonation session before starting another one."
-                              : "The current effective user cannot impersonate itself."}
+                              ? "Stop the current view as session before starting another one."
+                              : "You cannot start view as for the current effective user."}
                         </p>
                         {canStartSelectedUserImpersonation ? (
                           <Button
@@ -461,9 +545,47 @@ export function UsersPage() {
                             type="button"
                             variant="secondary"
                           >
-                            Impersonate this user
+                            View as this user
                           </Button>
                         ) : null}
+                      </div>
+                    </section>
+
+                    <section className="pb-auth-subpanel pb-auth-subpanel--danger">
+                      <div className="pb-auth-subpanel-header">
+                        <h4 className="text-base font-semibold tracking-[-0.02em] text-[var(--pb-color-text)]">
+                          Delete user
+                        </h4>
+                        <p className="mt-1 text-sm leading-6 text-[var(--pb-color-text-muted)]">
+                          Remove this workspace user.
+                        </p>
+                      </div>
+                      <div className="mt-4 space-y-4">
+                        <TenantHostErrorNotice error={deleteError} />
+                        {selectedUser.isOwner ? (
+                          <Alert variant="info">
+                            <AlertTitle>Owner deletion is disabled.</AlertTitle>
+                            <AlertBody>The workspace owner cannot be deleted.</AlertBody>
+                          </Alert>
+                        ) : isSelectedUserSelf ? (
+                          <Alert variant="info">
+                            <AlertTitle>Self-deletion is disabled.</AlertTitle>
+                            <AlertBody>You cannot remove the current effective user from this screen.</AlertBody>
+                          </Alert>
+                        ) : null}
+                        <Button
+                          className="w-full justify-center sm:w-auto"
+                          disabled={!canDeleteSelectedUser}
+                          onClick={() => {
+                            setDeleteError(null);
+                            setDeleteConfirmationEmail("");
+                            setIsDeleteDialogOpen(true);
+                          }}
+                          type="button"
+                          variant="danger"
+                        >
+                          Delete user
+                        </Button>
                       </div>
                     </section>
                   </div>
@@ -531,11 +653,11 @@ export function UsersPage() {
                 <Alert variant="success">
                   <AlertTitle>User added.</AlertTitle>
                   <AlertBody>{createdCredentials.email} was added to this workspace.</AlertBody>
-                  <AlertBody>Record these one-time credentials now if you need to hand them to the user.</AlertBody>
+                  <AlertBody>Save these credentials now if you need to hand them to the user.</AlertBody>
                   <div className="mt-4 space-y-3">
                     <CredentialDisplayField
                       copyButtonLabel={`Copy workspace email for ${createdCredentials.email}`}
-                      hint="Shown once after creation for credential handoff."
+                      hint="Use this email for the user's first sign-in."
                       label="Workspace email"
                       onCopyResult={(copied) => {
                         if (!copied) {
@@ -559,7 +681,7 @@ export function UsersPage() {
                     <CredentialDisplayField
                       copyButtonLabel={`Copy workspace password for ${createdCredentials.email}`}
                       hideButtonLabel="Hide workspace password"
-                      hint="Masked by default and shown once after the server creates the user."
+                      hint="This password won't be shown again."
                       label="Workspace password"
                       onCopyResult={(copied) => {
                         if (!copied) {
@@ -597,6 +719,58 @@ export function UsersPage() {
           </div>
         </section>
       </div>
+
+      {selectedUser !== null ? (
+        <Dialog onOpenChange={setIsDeleteDialogOpen} open={isDeleteDialogOpen}>
+          <DialogContent
+            description={`Type ${selectedUser.email} to confirm removal from this workspace.`}
+            title={`Delete ${selectedUser.email}?`}
+          >
+            <Field
+              hint="This action removes the user from the current workspace."
+              label="Confirm email"
+            >
+              <input
+                autoComplete="off"
+                disabled={isDeletingUser}
+                onChange={(event) => {
+                  setDeleteConfirmationEmail(event.target.value);
+                  setDeleteError(null);
+                }}
+                placeholder={selectedUser.email}
+                type="text"
+                value={deleteConfirmationEmail}
+              />
+            </Field>
+            <TenantHostErrorNotice error={deleteError} />
+            <DialogFooter>
+              <Button
+                onClick={() => {
+                  setIsDeleteDialogOpen(false);
+                }}
+                type="button"
+                variant="secondary"
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={
+                  !deleteConfirmationMatchesSelectedUser ||
+                  isDeletingUser ||
+                  selectedUser.isOwner ||
+                  isSelectedUserSelf
+                }
+                isLoading={isDeletingUser}
+                onClick={() => void handleDeleteUser(selectedUser)}
+                type="button"
+                variant="danger"
+              >
+                Delete user
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </div>
   );
 }

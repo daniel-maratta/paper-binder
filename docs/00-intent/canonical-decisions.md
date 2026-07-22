@@ -34,7 +34,7 @@ Reviewer experience:
 - Code walkthrough
 
 Release boundary:
-- The shipped release line is prose `V1` with current stable tag `v1.0.5`
+- The shipped release line is prose `V1` with current stable tag `v1.1.0`
 - The historical first stable tag remains `v1.0.0`
 - Release readiness is documented through the delivery lane; live public-host operation is not a `V1` release gate
 
@@ -82,7 +82,7 @@ Tenant lease:
 - Hard delete on expiration
 - No access grace period after expiration
 - Extension allowed only when remaining lease is <= 10 minutes
-- Each extension adds +10 minutes
+- Each extension adds +15 minutes
 - Maximum 3 extensions per tenant
 - Cleanup is eventual after expiry and may defer purge while recent authenticated tenant-host activity is still inside the configured retention window
 - Worker runs on a fixed cadence (target: every 1 minute)

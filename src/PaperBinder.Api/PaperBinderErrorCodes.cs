@@ -17,6 +17,7 @@ internal static class PaperBinderErrorCodes
     public const string TenantLeaseExtensionLimitReached = "TENANT_LEASE_EXTENSION_LIMIT_REACHED";
     public const string TenantUserNotFound = "TENANT_USER_NOT_FOUND";
     public const string TenantUserEmailConflict = "TENANT_USER_EMAIL_CONFLICT";
+    public const string TenantUserLimitReached = "TENANT_USER_LIMIT_REACHED";
     public const string LastTenantAdminRequired = "LAST_TENANT_ADMIN_REQUIRED";
     public const string LastTenantOwnerRequired = "LAST_TENANT_OWNER_REQUIRED";
     public const string TenantRoleInvalid = "TENANT_ROLE_INVALID";
@@ -28,6 +29,7 @@ internal static class PaperBinderErrorCodes
     public const string TenantImpersonationNotActive = "TENANT_IMPERSONATION_NOT_ACTIVE";
     public const string TenantImpersonationSessionConflict = "TENANT_IMPERSONATION_SESSION_CONFLICT";
     public const string BinderNameInvalid = "BINDER_NAME_INVALID";
+    public const string BinderLimitReached = "BINDER_LIMIT_REACHED";
     public const string BinderNotFound = "BINDER_NOT_FOUND";
     public const string BinderPolicyInvalid = "BINDER_POLICY_INVALID";
     public const string BinderPolicyDenied = "BINDER_POLICY_DENIED";
@@ -41,4 +43,5 @@ internal static class PaperBinderErrorCodes
     public const string DocumentSupersedesInvalid = "DOCUMENT_SUPERSEDES_INVALID";
     public const string DocumentAlreadyArchived = "DOCUMENT_ALREADY_ARCHIVED";
     public const string DocumentNotArchived = "DOCUMENT_NOT_ARCHIVED";
+    public const string DocumentLimitReached = "DOCUMENT_LIMIT_REACHED";
 }

@@ -75,7 +75,7 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
     case "TENANT_NOT_FOUND":
       return {
         title: "Tenant unavailable.",
-        detail: error.detail ?? "This tenant host no longer resolves to an active tenant.",
+        detail: error.detail ?? "This workspace is no longer available.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
@@ -109,6 +109,14 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
         title: "Binder policy is invalid.",
         detail: error.detail ?? "Choose a supported policy mode and role combination.",
         field: "binderPolicy",
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "BINDER_LIMIT_REACHED":
+      return {
+        title: "Binder limit reached.",
+        detail: error.detail ?? "This demo workspace cannot create another binder.",
+        field: "binderName",
         correlationId: error.correlationId,
         retryAfterLabel
       };
@@ -178,10 +186,18 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
         correlationId: error.correlationId,
         retryAfterLabel
       };
+    case "DOCUMENT_LIMIT_REACHED":
+      return {
+        title: "Document limit reached.",
+        detail: error.detail ?? "This demo binder cannot create another document.",
+        field: "documentTitle",
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
     case "TENANT_USER_EMAIL_CONFLICT":
       return {
         title: "Email already exists.",
-        detail: error.detail ?? "Choose a different email for the tenant user.",
+        detail: error.detail ?? "Choose a different email for this workspace user.",
         field: "tenantUserEmail",
         correlationId: error.correlationId,
         retryAfterLabel
@@ -189,7 +205,7 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
     case "TENANT_ROLE_INVALID":
       return {
         title: "Select a valid role.",
-        detail: error.detail ?? "Tenant users and binder policies require a supported PaperBinder role.",
+        detail: error.detail ?? "Choose one of the supported workspace roles.",
         field: "tenantUserRole",
         correlationId: error.correlationId,
         retryAfterLabel
@@ -197,15 +213,31 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
     case "TENANT_USER_NOT_FOUND":
       return {
         title: "Tenant user not found.",
-        detail: error.detail ?? "The selected tenant user no longer exists for this tenant.",
+        detail: error.detail ?? "The selected user is no longer available in this workspace.",
         field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "TENANT_USER_LIMIT_REACHED":
+      return {
+        title: "Tenant user limit reached.",
+        detail: error.detail ?? "This demo workspace cannot create another user.",
+        field: "tenantUserEmail",
         correlationId: error.correlationId,
         retryAfterLabel
       };
     case "LAST_TENANT_ADMIN_REQUIRED":
       return {
         title: "At least one tenant admin is required.",
-        detail: error.detail ?? "PaperBinder cannot remove the final tenant admin from the tenant.",
+        detail: error.detail ?? "PaperBinder cannot remove the last workspace admin.",
+        field: null,
+        correlationId: error.correlationId,
+        retryAfterLabel
+      };
+    case "LAST_TENANT_OWNER_REQUIRED":
+      return {
+        title: "The workspace owner cannot be deleted.",
+        detail: error.detail ?? "The workspace owner cannot be deleted.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
@@ -213,7 +245,7 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
     case "TENANT_LEASE_EXTENSION_WINDOW_NOT_OPEN":
       return {
         title: "Lease extension is not available yet.",
-        detail: error.detail ?? "The tenant lease can be extended only during the final extension window.",
+        detail: error.detail ?? "This workspace can be extended only during the final extension window.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
@@ -221,55 +253,55 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
     case "TENANT_LEASE_EXTENSION_LIMIT_REACHED":
       return {
         title: "Lease extension limit reached.",
-        detail: error.detail ?? "This tenant has already used the maximum number of lease extensions.",
+        detail: error.detail ?? "This workspace has already used the maximum number of lease extensions.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
       };
     case "TENANT_IMPERSONATION_NOT_ALLOWED":
       return {
-        title: "View-as is not allowed.",
-        detail: error.detail ?? "Only tenant admins can start tenant-local impersonation.",
+        title: "View as is not allowed.",
+        detail: error.detail ?? "Only workspace admins can start view as.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
       };
     case "TENANT_IMPERSONATION_TARGET_INVALID":
       return {
-        title: "View-as target is invalid.",
-        detail: error.detail ?? "Choose a valid tenant user before retrying view-as.",
+        title: "View as target is invalid.",
+        detail: error.detail ?? "Choose a valid user before trying view as again.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
       };
     case "TENANT_IMPERSONATION_TARGET_NOT_FOUND":
       return {
-        title: "View-as target not found.",
-        detail: error.detail ?? "The selected tenant user is not available for this tenant.",
+        title: "View as target not found.",
+        detail: error.detail ?? "The selected user is not available in this workspace.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
       };
     case "TENANT_IMPERSONATION_SELF_TARGET_REJECTED":
       return {
-        title: "View-as target is not eligible.",
-        detail: error.detail ?? "Choose another tenant-local user to start view-as.",
+        title: "View as target is not eligible.",
+        detail: error.detail ?? "Choose another user to start view as.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
       };
     case "TENANT_IMPERSONATION_ALREADY_ACTIVE":
       return {
-        title: "View-as is already active.",
-        detail: error.detail ?? "Stop the current view-as session before starting another one.",
+        title: "View as is already active.",
+        detail: error.detail ?? "Stop the current view as session before starting another one.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
       };
     case "TENANT_IMPERSONATION_NOT_ACTIVE":
       return {
-        title: "No active view-as session.",
-        detail: error.detail ?? "Start view-as before trying to stop it.",
+        title: "No active view as session.",
+        detail: error.detail ?? "Start view as before trying to stop it.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel
@@ -277,7 +309,7 @@ export function mapTenantHostError(error: unknown): TenantHostErrorViewModel {
     case "TENANT_IMPERSONATION_SESSION_CONFLICT":
       return {
         title: "Session changed.",
-        detail: error.detail ?? "Refresh the tenant workspace and retry the view-as action.",
+        detail: error.detail ?? "Refresh the workspace and try view as again.",
         field: null,
         correlationId: error.correlationId,
         retryAfterLabel

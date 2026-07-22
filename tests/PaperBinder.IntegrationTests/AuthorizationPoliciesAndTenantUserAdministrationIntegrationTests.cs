@@ -551,7 +551,7 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
     }
 
     [Fact]
-    public async Task Should_ReturnConflict_When_RequestWouldDeleteLastTenantOwner()
+    public async Task Should_ReturnConflict_When_RequestWouldDeleteTenantOwner()
     {
         await using var database = await postgres.CreateDatabaseAsync();
         await using var host = await StartHostAsync(database.ConnectionString);
@@ -561,6 +561,12 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
             host,
             tenant,
             "owner@cp8-delete-last-owner.local",
+            TenantRole.BinderRead,
+            isOwner: true);
+        await SeedTenantMemberAsync(
+            host,
+            tenant,
+            "co-owner@cp8-delete-last-owner.local",
             TenantRole.BinderRead,
             isOwner: true);
         var actingAdmin = await SeedTenantMemberAsync(
@@ -582,6 +588,8 @@ public sealed class AuthorizationPoliciesAndTenantUserAdministrationIntegrationT
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.NotNull(problem);
+        Assert.Equal("The workspace owner cannot be deleted.", problem!.Title);
+        Assert.Equal("The workspace owner cannot be deleted.", problem.Detail);
         Assert.Equal(LastTenantOwnerRequiredErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(problem!, "errorCode"));
     }
 

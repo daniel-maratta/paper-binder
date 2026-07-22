@@ -47,6 +47,14 @@ public sealed record DocumentArchiveCommand(
     TenantRole CallerRole,
     Guid DocumentId);
 
+public sealed record DocumentDeleteCommand(
+    TenantContext Tenant,
+    Guid ActorUserId,
+    Guid EffectiveUserId,
+    bool IsImpersonated,
+    TenantRole CallerRole,
+    Guid DocumentId);
+
 public enum DocumentFailureKind
 {
     NotFound,
@@ -60,7 +68,8 @@ public enum DocumentFailureKind
     BinderPolicyDenied,
     SupersedesInvalid,
     AlreadyArchived,
-    NotArchived
+    NotArchived,
+    LimitReached
 }
 
 public sealed record DocumentFailure(
@@ -95,4 +104,13 @@ public sealed record DocumentDetailOutcome(
     public static DocumentDetailOutcome Success(DocumentDetail document) => new(true, document, null);
 
     public static DocumentDetailOutcome Failed(DocumentFailure failure) => new(false, null, failure);
+}
+
+public sealed record DocumentDeleteOutcome(
+    bool Succeeded,
+    DocumentFailure? Failure)
+{
+    public static DocumentDeleteOutcome Success() => new(true, null);
+
+    public static DocumentDeleteOutcome Failed(DocumentFailure failure) => new(false, failure);
 }

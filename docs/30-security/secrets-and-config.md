@@ -31,7 +31,8 @@
 - `PAPERBINDER_DATA_PROTECTION_CERTIFICATE_PASSWORD=<secret>`
 - `PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS=60`
 - `PAPERBINDER_LEASE_DEFAULT_MINUTES=60`
-- `PAPERBINDER_LEASE_EXTENSION_MINUTES=10`
+- `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES=10`
+- `PAPERBINDER_LEASE_EXTENSION_MINUTES=15`
 - `PAPERBINDER_LEASE_MAX_EXTENSIONS=3`
 - `PAPERBINDER_LEASE_RECENT_ACTIVITY_GRACE_SECONDS=180`
 - `PAPERBINDER_CHALLENGE_SITE_KEY=<public-site-key>`
@@ -66,8 +67,8 @@ The current public GHCR deployment contract fixes `PAPERBINDER_AUTH_KEY_RING_PAT
 Provision, login, and logout redirect construction must use this trusted config value rather than the raw incoming request scheme/host.
 Production is indexable by default. Shared test remains intentionally non-indexable through proxy policy rather than application secrets.
 
-`PAPERBINDER_LEASE_EXTENSION_MINUTES` drives both the lease-extension eligibility threshold and the number of minutes added on success.
-No separate `PAPERBINDER_LEASE_EXTENSION_WINDOW_*` key exists in v1.
+`PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES` drives the lease-extension eligibility threshold.
+`PAPERBINDER_LEASE_EXTENSION_MINUTES` drives the number of minutes added on success.
 `PAPERBINDER_LEASE_RECENT_ACTIVITY_GRACE_SECONDS` controls how long cleanup defers purging an already-expired tenant after the latest authenticated tenant-host activity is observed.
 
 `PAPERBINDER_AUDIT_RETENTION_MODE` must be exactly one supported mode:

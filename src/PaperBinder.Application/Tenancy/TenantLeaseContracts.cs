@@ -14,6 +14,7 @@ public sealed record TenantLeaseSnapshot(
     int ExtensionCount);
 
 public sealed record TenantLeasePolicy(
+    int ExtensionWindowMinutes,
     int ExtensionMinutes,
     int MaxExtensions);
 

@@ -1,6 +1,13 @@
 {
   "name": "paperbinder-tooling",
   "private": true,
+  "description": "Tooling manifest for PaperBinder, a multi-tenant SaaS portfolio demo by Daniel Maratta.",
+  "author": "Daniel Maratta (https://danielmaratta.com)",
+  "homepage": "https://paperbinder.danielmaratta.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daniel-maratta/paper-binder.git"
+  },
   "packageManager": "npm@11.8.0",
   "engines": {
     "node": "24.13.x",

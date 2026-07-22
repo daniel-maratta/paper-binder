@@ -161,7 +161,7 @@ export function BindersPage() {
   return (
     <div className="pb-auth-page">
       <section className="pb-auth-page-intro">
-        <p className="pb-auth-eyebrow">Workspace library</p>
+        <p className="pb-auth-eyebrow">Workspace</p>
         <h2 className="pb-auth-page-title">Binders</h2>
         <p className="pb-auth-page-copy">Create and open the binders currently available to this workspace.</p>
       </section>
@@ -170,7 +170,7 @@ export function BindersPage() {
         <section className="pb-auth-panel">
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Available binders</h3>
-            <p className="pb-auth-panel-copy">Only binders visible to this session appear here.</p>
+            <p className="pb-auth-panel-copy">Only the binders available to you appear here.</p>
           </div>
           <div className="pb-auth-panel-body">
             <DataTable
@@ -187,9 +187,7 @@ export function BindersPage() {
         <section className="pb-auth-panel">
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Add binder</h3>
-            <p className="pb-auth-panel-copy">
-              Create a binder to group immutable source documents in this workspace.
-            </p>
+            <p className="pb-auth-panel-copy">Create a binder for the documents this workspace needs.</p>
           </div>
           <div className="pb-auth-panel-body">
             <form className="space-y-4" onSubmit={handleCreateBinder}>

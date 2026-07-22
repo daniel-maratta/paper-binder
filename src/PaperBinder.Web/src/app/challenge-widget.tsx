@@ -62,20 +62,20 @@ type ChallengeStatus = "loading" | "ready" | "complete" | "error";
 function getChallengeStatusContent(status: ChallengeStatus): {
   badge: string;
   badgeVariant: "neutral" | "warning" | "success" | "danger";
-  detail: string;
+  detail: string | null;
 } {
   switch (status) {
     case "loading":
       return {
         badge: "Loading",
         badgeVariant: "neutral",
-        detail: "Loading the challenge widget."
+        detail: null
       };
     case "ready":
       return {
         badge: "Required",
         badgeVariant: "warning",
-        detail: "Complete the challenge before submitting."
+        detail: null
       };
     case "complete":
       return {
@@ -99,7 +99,8 @@ export function RootHostChallengeWidget({
   siteKey,
   scriptUrl,
   resetNonce,
-  onTokenChange
+  onTokenChange,
+  fallbackVariant = "default"
 }: {
   label: string;
   hint: string;
@@ -108,6 +109,7 @@ export function RootHostChallengeWidget({
   scriptUrl: string;
   resetNonce: number;
   onTokenChange: (token: string | null) => void;
+  fallbackVariant?: "default" | "panel";
 }) {
   const labelId = useId();
   const hintId = `${labelId}-hint`;
@@ -210,18 +212,34 @@ export function RootHostChallengeWidget({
         aria-describedby={describedBy}
         aria-labelledby={labelId}
         className={cn(
+          "pb-challenge-widget",
+          `pb-challenge-widget--${status}`,
           "rounded-[var(--pb-radius-md)] border bg-white px-3 py-3 shadow-sm focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--pb-color-primary)]",
           error ? "border-[var(--pb-color-danger)]" : "border-[var(--pb-color-border-strong)]"
         )}
       >
         <div ref={containerRef} />
+        {status === "loading" ? (
+          <div aria-live="polite" className="pb-challenge-loading" role="status">
+            <span aria-hidden="true" className="pb-challenge-loading__pulse" />
+            <span>Security challenge loading...</span>
+          </div>
+        ) : null}
+        {status === "error" && fallbackVariant === "panel" ? (
+          <div className="pb-challenge-fallback">
+            <strong>Challenge unavailable</strong>
+            <span>The challenge widget could not be loaded. Refresh and try again.</span>
+          </div>
+        ) : null}
       </div>
       <p className="text-sm text-[var(--pb-color-text-muted)]" id={hintId}>
         {hint}
       </p>
-      <p className="text-sm text-[var(--pb-color-text-muted)]" id={statusId}>
-        {statusContent.detail}
-      </p>
+      {statusContent.detail && !(status === "error" && fallbackVariant === "panel") ? (
+        <p className="text-sm text-[var(--pb-color-text-muted)]" id={statusId}>
+          {statusContent.detail}
+        </p>
+      ) : null}
       {error ? (
         <p className="text-sm text-[var(--pb-color-danger)]" id={errorId}>
           {error}

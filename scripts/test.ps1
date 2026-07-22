@@ -21,7 +21,8 @@ Assert-PaperBinderDotNetSdkAvailable
 Assert-PaperBinderFrontendToolchainAvailable
 
 Write-Host "Running frontend component tests..."
-Invoke-NpmCommand `
+Invoke-ExternalCommand `
+  -FilePath (Get-NpmCommand) `
   -Arguments @("run", "test") `
   -WorkingDirectory $frontendRoot
 

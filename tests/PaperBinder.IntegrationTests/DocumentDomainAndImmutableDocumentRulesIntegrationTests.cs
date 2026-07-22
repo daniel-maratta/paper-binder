@@ -550,7 +550,7 @@ public sealed class DocumentDomainAndImmutableDocumentRulesIntegrationTests(Post
             body: new
             {
                 binderId = binder.Id,
-                title = "Operations handbook",
+                title = "operations handbook",
                 contentType = MarkdownContentType,
                 content = "# duplicate"
             },
@@ -572,7 +572,7 @@ public sealed class DocumentDomainAndImmutableDocumentRulesIntegrationTests(Post
             body: new
             {
                 binderId = binder.Id,
-                title = "Operations handbook",
+                title = "OPERATIONS HANDBOOK",
                 contentType = MarkdownContentType,
                 content = "# duplicate",
                 supersedesDocumentId = differentTitleDocument.Id
@@ -661,6 +661,42 @@ public sealed class DocumentDomainAndImmutableDocumentRulesIntegrationTests(Post
         Assert.Equal(MarkdownContentType, unarchivedPayload.ContentType);
         Assert.Equal("# immutable body", unarchivedPayload.Content);
         Assert.Null(unarchivedPayload.ArchivedAt);
+    }
+
+    [Fact]
+    public async Task Should_DeleteDocument_AndReturnNotFound_When_RequestIsValid()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var tenant = await TenantResolutionIntegrationTestHost.SeedTenantAsync(host, "cp10-delete");
+        var writer = await TenantResolutionIntegrationTestHost.SeedUserAsync(host, "writer@cp10-delete.local", "checkpoint-10-password");
+        await TenantResolutionIntegrationTestHost.SeedMembershipAsync(host, writer, tenant, TenantRole.BinderWrite, isOwner: false);
+
+        var binder = await TenantResolutionIntegrationTestHost.SeedBinderAsync(host, tenant, "Delete Binder");
+        var document = await TenantResolutionIntegrationTestHost.SeedDocumentAsync(host, tenant, binder, "Delete Me", "# delete");
+        var session = await AuthIntegrationTestClient.LoginAsync(host, writer.Email, writer.Password);
+
+        using var deleteRequest = CreateTenantApiRequest(
+            HttpMethod.Delete,
+            tenant,
+            session,
+            $"/api/documents/{document.Id:D}",
+            csrfToken: session.CsrfCookieValue);
+
+        var deleteResponse = await host.Client.SendAsync(deleteRequest);
+
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        AssertApiProtocolHeaders(deleteResponse);
+
+        using var detailRequest = CreateTenantApiRequest(HttpMethod.Get, tenant, session, $"/api/documents/{document.Id:D}");
+        var detailResponse = await host.Client.SendAsync(detailRequest);
+        var detailProblem = await detailResponse.Content.ReadFromJsonAsync<ProblemDetailsResponse>();
+
+        Assert.Equal(HttpStatusCode.NotFound, detailResponse.StatusCode);
+        AssertApiProtocolHeaders(detailResponse);
+        Assert.NotNull(detailProblem);
+        Assert.Equal(DocumentNotFoundErrorCode, TenantResolutionIntegrationTestHost.GetRequiredExtension(detailProblem!, "errorCode"));
     }
 
     [Fact]
@@ -763,7 +799,13 @@ public sealed class DocumentDomainAndImmutableDocumentRulesIntegrationTests(Post
             session,
             $"/api/documents/{archivedDocument.Id:D}/unarchive");
 
-        foreach (var request in new[] { createRequest, archiveRequest, unarchiveRequest })
+        using var deleteRequest = CreateTenantApiRequest(
+            HttpMethod.Delete,
+            tenant,
+            session,
+            $"/api/documents/{activeDocument.Id:D}");
+
+        foreach (var request in new[] { createRequest, archiveRequest, unarchiveRequest, deleteRequest })
         {
             var response = await host.Client.SendAsync(request);
             var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>();

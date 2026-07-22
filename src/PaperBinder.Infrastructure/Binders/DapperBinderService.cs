@@ -57,9 +57,24 @@ public sealed class DapperBinderService(
         var binderId = Guid.NewGuid();
         var createdAtUtc = clock.UtcNow;
 
-        await transactionScopeRunner.ExecuteAsync(
+        var outcome = await transactionScopeRunner.ExecuteAsync(
             async (connection, transaction, innerCancellationToken) =>
             {
+                var binderIds = await connection.QueryAsync<Guid>(
+                    new CommandDefinition(
+                        BinderSql.CountTenantBindersForUpdate,
+                        new { TenantId = command.Tenant.TenantId },
+                        transaction,
+                        cancellationToken: innerCancellationToken));
+
+                if (binderIds.Count() >= BinderNameRules.MaxBindersPerTenant)
+                {
+                    return BinderCreateOutcome.Failed(
+                        new BinderFailure(
+                            BinderFailureKind.LimitReached,
+                            $"This demo workspace can contain up to {BinderNameRules.MaxBindersPerTenant} binders."));
+                }
+
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         BinderSql.InsertBinder,
@@ -87,8 +102,23 @@ public sealed class DapperBinderService(
                         },
                         transaction,
                         cancellationToken: innerCancellationToken));
+                return BinderCreateOutcome.Success(new BinderSummary(binderId, normalizedName, createdAtUtc));
             },
             cancellationToken: cancellationToken);
+
+        if (!outcome.Succeeded)
+        {
+            logger.LogWarning(
+                "Binder create rejected. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} failure_kind={failure_kind}",
+                "binder_create_rejected",
+                command.Tenant.TenantId,
+                command.ActorUserId,
+                command.EffectiveUserId,
+                command.IsImpersonated,
+                outcome.Failure!.Kind);
+
+            return outcome;
+        }
 
         logger.LogInformation(
             "Binder created. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id}",
@@ -99,7 +129,7 @@ public sealed class DapperBinderService(
             command.IsImpersonated,
             binderId);
 
-        return BinderCreateOutcome.Success(new BinderSummary(binderId, normalizedName, createdAtUtc));
+        return outcome;
     }
 
     public async Task<BinderDetailOutcome> GetDetailAsync(

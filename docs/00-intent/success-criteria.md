@@ -43,7 +43,7 @@ The following must be demonstrably true:
 
 - Demo tenant has a defined expiration timestamp.
 - Tenant extension is allowed only when remaining lease is <= 10 minutes.
-- Each extension adds +10 minutes.
+- Each extension adds +15 minutes.
 - Maximum 3 extensions per tenant.
 - Background job runs on schedule.
 - Expired tenant data is hard-deleted.

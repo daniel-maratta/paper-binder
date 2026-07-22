@@ -37,7 +37,7 @@ Rules:
 - Canonical endpoints are `GET /api/tenant/lease` and `POST /api/tenant/lease/extend`.
 - `GET /api/tenant/lease` returns authoritative lease fields.
 - `POST /api/tenant/lease/extend` requires `TenantAdmin`, a valid CSRF token, and the dedicated lease-extend rate limiter.
-- `POST /api/tenant/lease/extend` applies extension only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_MINUTES`, and extension count is below max.
+- `POST /api/tenant/lease/extend` applies extension only when remaining lease is greater than `0`, less than or equal to `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES`, and extension count is below max.
 - Each successful extension adds exactly `PAPERBINDER_LEASE_EXTENSION_MINUTES`.
 - Maximum extension count is 3.
 - Expired tenants are denied tenant-scoped actions and then hard-deleted by worker.

@@ -60,7 +60,8 @@ public enum BinderFailureKind
     NameInvalid,
     NotFound,
     PolicyDenied,
-    PolicyInvalid
+    PolicyInvalid,
+    LimitReached
 }
 
 public sealed record BinderFailure(

@@ -78,7 +78,7 @@ function renderRootRoute({
   navigator = vi.fn<(redirectUrl: string) => void>(),
   challengeLocalBypassEnabled = false
 }: {
-  route?: "/" | "/login" | "/start-demo";
+  route?: string;
   apiClient?: PaperBinderApiClient;
   navigator?: (redirectUrl: string) => void;
   challengeLocalBypassEnabled?: boolean;
@@ -124,35 +124,176 @@ describe("root-host flows", () => {
 
     expect(screen.getByRole("navigation", { name: "Primary navigation" })).toBeInTheDocument();
     expect(screen.queryByLabelText("Root host navigation")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Product" })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: "Demo" })).toHaveAttribute("href", "/start-demo");
-    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
+    expect(screen.getAllByRole("link", { name: "Product" }).some((link) => link.getAttribute("href") === "/")).toBe(true);
+    expect(screen.getAllByRole("link", { name: "Demo" }).some((link) => link.getAttribute("href") === "/start-demo")).toBe(true);
+    expect(screen.getAllByRole("link", { name: "About" }).some((link) => link.getAttribute("href") === "/about")).toBe(true);
     expect(
-      screen.getByRole("heading", { name: "A secure workspace for your documents and your team." })
+      screen.getByRole("heading", { name: "A production-shaped SaaS demo for document workspaces." })
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start live demo" })).toHaveAttribute("href", "/start-demo");
+    expect(
+      screen.getByText(
+        "PaperBinder demonstrates tenant isolation, role-aware access, immutable documents, and an ephemeral workspace lifecycle in a working product UI."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start demo" })).toHaveAttribute("href", "/start-demo");
     expect(
       screen.getByRole("img", {
-        name: "PaperBinder dashboard showing lease metrics, recent binders, and next actions inside the authenticated workspace."
+        name: "PaperBinder dashboard with lease details, recent binders, and next actions."
       })
     ).toHaveAttribute("src", "/presentation/dashboard-proof.png");
     expect(
       screen.getByRole("img", {
-        name: "PaperBinder start-demo flow shown in a handheld preview with one-time credentials and the live workspace handoff."
+        name: "PaperBinder binders page in a mobile workspace view."
       })
-    ).toHaveAttribute("src", "/presentation/start-demo-proof.png");
+    ).toHaveAttribute("src", "/presentation/binders-proof.png");
     expect(
       screen.getByRole("img", {
-        name: "PaperBinder users and access page showing current users, add-user form, role management, and view-as actions."
+        name: "PaperBinder users page with current users, role changes, and view as actions."
       })
     ).toHaveAttribute("src", "/presentation/users-proof.png");
+    expect(screen.getByRole("heading", { name: "Tenant isolation" })).toBeInTheDocument();
+    expect(screen.getByText("Each workspace stays inside its own scoped boundary.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Role-aware access" })).toBeInTheDocument();
+    expect(screen.getByText("Assigned roles control what each user can see and do.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Immutable documents" })).toBeInTheDocument();
+    expect(screen.getByText("Documents are reviewable records, not freeform editor content.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Temporary demo lifecycle" })).toBeInTheDocument();
+    expect(screen.getByText("Demo workspaces expire automatically.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Manage access without leaving the workspace." })).toBeInTheDocument();
+    expect(screen.getByText("User creation and credential generation happen in one flow.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Workspace admins can view users, adjust roles, and issue generated credentials from one route.")
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Start with the product, not a setup checklist." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Create a temporary workspace" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Save the generated credentials" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Review the live product flows" })).toBeInTheDocument();
     expect(
       screen.getAllByRole("link", { name: "Start Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
     ).toBe(true);
     expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
+    expect(
+      screen.getByText("A production-shaped SaaS demo designed and built by Daniel Maratta.")
+    ).toBeInTheDocument();
+    expect(document.title).toBe("Home | PaperBinder");
+    expect(screen.getByRole("link", { name: "Live project" })).toHaveAttribute(
+      "href",
+      "https://paperbinder.danielmaratta.com"
+    );
+    expect(screen.getByRole("link", { name: "Portfolio" })).toHaveAttribute(
+      "href",
+      "https://danielmaratta.com"
+    );
+    expect(screen.getByRole("link", { name: "Repository history" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder.git"
+    );
     expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
+  });
+
+  it("Should_RenderReviewerOrientedAboutPage_When_AboutRouteLoads", async () => {
+    renderRootRoute({
+      route: "/about"
+    });
+
+    expect(screen.getByRole("heading", { name: "About PaperBinder" })).toBeInTheDocument();
+    expect(screen.getByText("PROJECT OVERVIEW")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "A small, complete SaaS demo for document workspaces." })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "PaperBinder includes tenant-scoped workspaces, binder-level access, immutable text documents, and temporary demo workspaces with generated credentials."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("Core model")).toBeInTheDocument();
+    expect(screen.getByText("Binders and immutable text documents.")).toBeInTheDocument();
+    expect(screen.getByText("Access boundary")).toBeInTheDocument();
+    expect(screen.getByText("Role-aware access inside isolated workspaces.")).toBeInTheDocument();
+    expect(screen.getByText("Demo path")).toBeInTheDocument();
+    expect(screen.getByText("Temporary demo workspaces with generated credentials.")).toBeInTheDocument();
+    expect(screen.getByText("TECHNICAL WRITE-UP")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Featured article" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "A closer look at the architecture, scope decisions, and AI-assisted build process behind PaperBinder."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Architecture / SaaS demo / AI-assisted development")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind PaperBinder."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Read article" })).toHaveAttribute("href", "#");
+    expect(screen.getByText("WHAT THIS DEMONSTRATES")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "A narrow product scope with real SaaS boundaries." })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Tenant-scoped workspaces" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Binder-level access" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Immutable documents" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Temporary demo lifecycle" })).toBeInTheDocument();
+    expect(screen.getByText("INTENTIONAL SCOPE")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Small by design." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "In scope" })).toBeInTheDocument();
+    expect(screen.getByText("Temporary demo workspaces")).toBeInTheDocument();
+    expect(screen.getByText("Public demo path")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Out of scope" })).toBeInTheDocument();
+    expect(screen.getByText("Billing and subscription management")).toBeInTheDocument();
+    expect(screen.getByText("PUBLIC UI BASELINE")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Implementation baseline" })).toBeInTheDocument();
+    expect(
+      screen.getByText("Reusable structure, readable states, and responsive layouts.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "The public pages use reusable layout components, responsive behavior, readable contrast tokens, and keyboard-visible controls."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Reusable public shell" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Responsive layouts" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Contrast-aware tokens" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Keyboard-visible controls" })).toBeInTheDocument();
+    expect(screen.getByText("REVIEWER REFERENCES")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Project links for review." })).toBeInTheDocument();
+    expect(
+      screen
+        .getAllByRole("link", { name: "paperbinder.danielmaratta.com" })
+        .some((link) => link.getAttribute("href") === "https://paperbinder.danielmaratta.com")
+    ).toBe(true);
+    expect(screen.getByRole("link", { name: "danielmaratta.com" })).toHaveAttribute(
+      "href",
+      "https://danielmaratta.com"
+    );
+    expect(screen.getByRole("link", { name: "Canonical repository history" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder.git"
+    );
+    expect(screen.queryByText(/in progress/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/coming soon/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/placeholder/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/WCAG compliant/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/fully accessible/i)).not.toBeInTheDocument();
+    expect(document.title).toBe("About PaperBinder | PaperBinder");
+  });
+
+  it("Should_LinkBackToWorkspace_When_PublicHomeReceivesWorkspaceHint", async () => {
+    renderRootRoute({
+      route: "/?workspace=acme"
+    });
+
+    expect(screen.getByRole("link", { name: "Open Workspace" })).toHaveAttribute(
+      "href",
+      "https://acme.paperbinder.example.test/app"
+    );
+    expect(screen.getByRole("link", { name: "Open workspace" })).toHaveAttribute(
+      "href",
+      "https://acme.paperbinder.example.test/app"
+    );
   });
 
   it("Should_SubmitProvisionRequest_WithTenantNameAndChallengeToken_When_RootHostProvisionFormIsValid", async () => {
@@ -262,6 +403,55 @@ describe("root-host flows", () => {
     expect(passwordField).toHaveAttribute("type", "password");
   });
 
+  it("Should_ClearProvisionedCredentials_When_PageIsRestoredFromBackForwardCache", async () => {
+    installTurnstileStub();
+
+    renderRootRoute({
+      route: "/start-demo"
+    });
+
+    fireEvent.change(screen.getByLabelText("Workspace name"), {
+      target: { value: "Acme Demo" }
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Complete challenge" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start demo workspace" }));
+
+    await screen.findByRole("heading", { name: "Workspace ready." });
+
+    const pageShowEvent = new Event("pageshow");
+    Object.defineProperty(pageShowEvent, "persisted", {
+      configurable: true,
+      value: true
+    });
+    window.dispatchEvent(pageShowEvent);
+
+    expect(await screen.findByRole("heading", { name: "Start demo" })).toBeInTheDocument();
+    expect(screen.queryByDisplayValue("generated-password")).not.toBeInTheDocument();
+  });
+
+  it("Should_ClearLoginPassword_When_PageIsRestoredFromBackForwardCache", async () => {
+    renderRootRoute({
+      route: "/login",
+      challengeLocalBypassEnabled: true
+    });
+
+    const passwordField = screen.getByLabelText("Password") as HTMLInputElement;
+    fireEvent.change(passwordField, {
+      target: { value: "generated-password" }
+    });
+
+    const pageShowEvent = new Event("pageshow");
+    Object.defineProperty(pageShowEvent, "persisted", {
+      configurable: true,
+      value: true
+    });
+    window.dispatchEvent(pageShowEvent);
+
+    await waitFor(() => {
+      expect((screen.getByLabelText("Password") as HTMLInputElement).value).toBe("");
+    });
+  });
+
   it("Should_ProvisionOrLogin_FromStartDemoFlow_When_ChallengeAndServerRedirectsSucceed", async () => {
     installTurnstileStub();
     const provisionMock = vi.fn(async () => createProvisionResponse());
@@ -273,8 +463,23 @@ describe("root-host flows", () => {
       })
     });
 
-    expect(await screen.findByRole("heading", { name: "Start a live demo workspace" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Start demo" })).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Go to sign in" })[0]).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("heading", { name: "Already have demo credentials?" })).toBeInTheDocument();
+    expect(
+      screen.getByText("Return to a workspace you already created with the email and password issued during setup.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("WHAT HAPPENS NEXT")).toBeInTheDocument();
+    expect(screen.getByText("Only the workspace name and security challenge are submitted here.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Generated credentials are shown before entering the workspace.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("PaperBinder opens the new workspace after setup completes.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Demo workspaces are temporary and removed during cleanup.")
+    ).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Workspace name"), {
       target: { value: "Acme Demo" }
@@ -291,6 +496,28 @@ describe("root-host flows", () => {
     expect(await screen.findByRole("heading", { name: "Workspace ready." })).toBeInTheDocument();
   });
 
+  it("Should_RenderIntentionalChallengeFallback_When_ChallengeScriptCannotLoad", async () => {
+    renderRootRoute({
+      route: "/start-demo"
+    });
+
+    await waitFor(() => {
+      expect(document.querySelector(`script[src="${testEnvironment.challengeScriptUrl}"]`)).not.toBeNull();
+    });
+
+    expect(screen.getAllByText("Security challenge loading...")).toHaveLength(1);
+    expect(screen.getByText("Complete the security challenge before starting a workspace.")).toBeInTheDocument();
+
+    document
+      .querySelector(`script[src="${testEnvironment.challengeScriptUrl}"]`)!
+      .dispatchEvent(new Event("error"));
+
+    expect(await screen.findByText("Challenge unavailable")).toBeInTheDocument();
+    expect(
+      screen.getAllByText("The challenge widget could not be loaded. Refresh and try again.").length
+    ).toBeGreaterThan(0);
+  });
+
   it("Should_SubmitLoginRequest_AndRedirectUsingServerProvidedUrl_When_RootHostLoginSucceeds", async () => {
     installTurnstileStub();
     const loginMock = vi.fn(async () => ({
@@ -305,6 +532,17 @@ describe("root-host flows", () => {
         login: loginMock as PaperBinderApiClient["login"]
       })
     });
+
+    expect(screen.getByRole("heading", { name: "Start with a fresh demo workspace." })).toBeInTheDocument();
+    expect(
+      screen.getByText("Create a temporary workspace and continue with generated credentials.")
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start demo instead" })).toHaveAttribute("href", "/start-demo");
+    expect(screen.getByText("HOW SIGN-IN WORKS")).toBeInTheDocument();
+    expect(screen.getAllByText("Complete the security challenge before signing in.").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/unless local bypass is enabled/i)).not.toBeInTheDocument();
+    expect(screen.getByText("If sign-in fails, complete the challenge again before retrying.")).toBeInTheDocument();
+    expect(screen.getByText("After sign-in, PaperBinder sends you to the matching workspace.")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "owner@acme-demo.local" }

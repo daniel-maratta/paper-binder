@@ -35,7 +35,8 @@ public enum TenantUserAdministrationFailureKind
     EmailConflict,
     InvalidRole,
     LastTenantAdminRequired,
-    LastTenantOwnerRequired
+    LastTenantOwnerRequired,
+    LimitReached
 }
 
 public sealed record TenantUserAdministrationFailure(

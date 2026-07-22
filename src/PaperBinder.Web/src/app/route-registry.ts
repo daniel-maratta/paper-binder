@@ -2,20 +2,20 @@ export const rootRouteDefinitions = [
   {
     path: "/" as const,
     label: "Product",
-    title: "PaperBinder product overview",
-    description: "See the live workspace story and the product-led public path."
+    title: "Home",
+    description: "See the product, the public entry points, and the demo path."
   },
   {
     path: "/start-demo" as const,
     label: "Demo",
-    title: "Start a live demo workspace",
-    description: "Create a disposable workspace and continue into the live product."
+    title: "Demo",
+    description: "Create a temporary workspace and continue into the product."
   },
   {
     path: "/about" as const,
     label: "About",
     title: "About PaperBinder",
-    description: "Scope, product truth, and supporting context."
+    description: "Product scope, demo constraints, and supporting context."
   },
 ] as const;
 
@@ -33,6 +33,6 @@ export const tenantNavigationItems = [
   {
     path: "/app/users" as const,
     label: "Users",
-    description: "Manage workspace users, roles, and view-as access."
+    description: "Manage workspace users, roles, and view as actions."
   }
 ] as const;
