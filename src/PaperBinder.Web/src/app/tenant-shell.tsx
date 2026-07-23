@@ -63,6 +63,7 @@ type TenantBootstrapViewModel = {
 export const roleOptions: readonly TenantRole[] = ["TenantAdmin", "BinderWrite", "BinderRead"];
 const leaseExtensionWindowSeconds = 10 * 60;
 const toastAutoDismissMs = 5000;
+const desktopShellMediaQuery = "(min-width: 1024px)";
 
 export type TenantHostNavigator = (redirectUrl: string) => void;
 
@@ -418,10 +419,39 @@ export function TenantRouteFailureCard({
 
 function PaperBinderWordmark({ href }: { href: string }) {
   return (
-    <a aria-label="PaperBinder home" href={href}>
+    <a aria-label="PaperBinder home" className="pb-auth-brand-link" href={href}>
       <img alt="PaperBinder" className="pb-auth-brand-image" src="/brand/pb-full-logo-white.png" />
     </a>
   );
+}
+
+export function useIsDesktopShell() {
+  const getMatches = () =>
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(desktopShellMediaQuery).matches
+      : true;
+  const [isDesktopShell, setIsDesktopShell] = useState(getMatches);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      setIsDesktopShell(true);
+      return;
+    }
+
+    const mediaQueryList = window.matchMedia(desktopShellMediaQuery);
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsDesktopShell(event.matches);
+    };
+
+    setIsDesktopShell(mediaQueryList.matches);
+    mediaQueryList.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQueryList.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  return isDesktopShell;
 }
 
 function TenantNavigationIcon({ path }: { path: string }) {
@@ -456,6 +486,72 @@ function TenantNavigationIcon({ path }: { path: string }) {
   }
 }
 
+function SignOutIcon() {
+  return (
+    <svg aria-hidden="true" className="pb-auth-action-icon" viewBox="0 0 24 24">
+      <path d="M10 4H6.5A2.5 2.5 0 0 0 4 6.5v11A2.5 2.5 0 0 0 6.5 20H10" />
+      <path d="M14 8l4 4-4 4" />
+      <path d="M9 12h9" />
+    </svg>
+  );
+}
+
+function TenantNavigation({
+  onNavigate
+}: {
+  onNavigate?: () => void;
+}) {
+  return (
+    <nav aria-label="Workspace navigation" className="pb-auth-nav">
+      {tenantNavigationItems.map((route) => (
+        <NavLink
+          className={({ isActive }) =>
+            cn(
+              "pb-auth-nav-link",
+              isActive ? "pb-auth-nav-link--active" : null
+            )
+          }
+          end={route.path === "/app"}
+          key={route.path}
+          onClick={onNavigate}
+          to={route.path}
+        >
+          <TenantNavigationIcon path={route.path} />
+          <span className="pb-auth-nav-label">{route.label}</span>
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
+
+function TenantShellFooter({
+  aboutUrl
+}: {
+  aboutUrl: string;
+}) {
+  return (
+    <div className="pb-auth-sidebar-footer">
+      <div className="pb-auth-sidebar-footer-row">
+        <p className="pb-auth-sidebar-context-label">Copyright</p>
+        <p className="pb-auth-sidebar-context-value">&copy; 2026 PaperBinder</p>
+      </div>
+      <div className="pb-auth-sidebar-footer-row">
+        <p className="pb-auth-sidebar-context-label">Version</p>
+        <p className="pb-auth-sidebar-context-value pb-auth-sidebar-context-value--host">
+          v{packageJson.version}
+        </p>
+      </div>
+      <div className="pb-auth-sidebar-footer-row">
+        <p className="pb-auth-sidebar-context-label">Designed by</p>
+        <p className="pb-auth-sidebar-context-value">{productIdentity.authorName}</p>
+      </div>
+      <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
+        About PaperBinder
+      </a>
+    </div>
+  );
+}
+
 export function TenantShell({
   apiClient,
   hostContext,
@@ -482,13 +578,52 @@ export function TenantShell({
   const toastDismissStateRef = useRef(new Map<string, ToastDismissState>());
   const expiryRefreshAttemptedRef = useRef(false);
   const extensionWindowRefreshAttemptedRef = useRef(false);
+  const mobileMenuRef = useRef<HTMLElement | null>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
   const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
   const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
   const rootHomeUrlWithWorkspace = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+  const isDesktopShell = useIsDesktopShell();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setDocumentTitle(resolveTenantPageTitle(location.pathname));
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (isDesktopShell) {
+      setIsMobileMenuOpen(false);
+    }
+  }, [isDesktopShell]);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (mobileMenuRef.current?.contains(target) || mobileMenuButtonRef.current?.contains(target)) {
+        return;
+      }
+
+      setIsMobileMenuOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [isMobileMenuOpen]);
 
   function showToast({ title, body, variant = "info" }: TenantShellToastInput) {
     setToasts((currentToasts) => [
@@ -829,6 +964,8 @@ export function TenantShell({
   const queuedToastCount = Math.max(0, toasts.length - visibleToasts.length);
   const isViewingAs = impersonation.isImpersonating;
   const aboutUrl = toRootAboutUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+  const accountEmail = isViewingAs ? impersonation.effective.email : impersonation.actor.email;
+  const accountLabel = isViewingAs ? "Viewing as" : "Logged in as";
 
   return (
     <div className="pb-auth-shell">
@@ -851,90 +988,129 @@ export function TenantShell({
         </ToastViewport>
       ) : null}
       <div className="pb-auth-grid">
-        <aside className="pb-auth-sidebar">
-          <div className="pb-auth-sidebar-brandlockup">
-            <div className="pb-auth-sidebar-brand">
-              <PaperBinderWordmark href={rootHomeUrlWithWorkspace} />
+        {isDesktopShell ? (
+          <aside className="pb-auth-sidebar">
+            <div className="pb-auth-sidebar-brandlockup">
+              <div className="pb-auth-sidebar-brand">
+                <PaperBinderWordmark href={rootHomeUrlWithWorkspace} />
+              </div>
             </div>
-          </div>
 
-          <div className="pb-auth-sidebar-separator" />
+            <div className="pb-auth-sidebar-separator" />
 
-          <nav aria-label="Workspace navigation" className="pb-auth-nav">
-            {tenantNavigationItems.map((route) => (
-              <NavLink
-                className={({ isActive }) =>
-                  cn(
-                    "pb-auth-nav-link",
-                    isActive ? "pb-auth-nav-link--active" : null
-                  )
-                }
-                end={route.path === "/app"}
-                key={route.path}
-                to={route.path}
-              >
-                <TenantNavigationIcon path={route.path} />
-                <span className="pb-auth-nav-label">{route.label}</span>
-              </NavLink>
-            ))}
-          </nav>
+            <TenantNavigation />
 
-          <div className="pb-auth-sidebar-footer">
-            <div className="pb-auth-sidebar-footer-row">
-              <p className="pb-auth-sidebar-context-label">Copyright</p>
-              <p className="pb-auth-sidebar-context-value">&copy; 2026 PaperBinder</p>
-            </div>
-            <div className="pb-auth-sidebar-footer-row">
-              <p className="pb-auth-sidebar-context-label">Version</p>
-              <p className="pb-auth-sidebar-context-value pb-auth-sidebar-context-value--host">
-                v{packageJson.version}
-              </p>
-            </div>
-            <div className="pb-auth-sidebar-footer-row">
-              <p className="pb-auth-sidebar-context-label">Designed by</p>
-              <p className="pb-auth-sidebar-context-value">{productIdentity.authorName}</p>
-            </div>
-            <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
-              About PaperBinder
-            </a>
-          </div>
-        </aside>
+            <TenantShellFooter aboutUrl={aboutUrl} />
+          </aside>
+        ) : null}
 
         <main className="pb-auth-main">
-          <header className="pb-auth-header">
-            <div className="pb-auth-header-account">
-              <div className="pb-auth-header-account-copy">
-                <p className="pb-auth-header-account-label">{isViewingAs ? "Viewing as" : "Logged in as"}</p>
-                <p className="pb-auth-header-account-value">
-                  {isViewingAs ? impersonation.effective.email : impersonation.actor.email}
-                </p>
-                {isViewingAs ? (
-                  <p className="pb-auth-header-account-meta">Signed in as {impersonation.actor.email}</p>
-                ) : null}
-              </div>
-              {isViewingAs ? (
-                <Button
-                  isLoading={isStoppingImpersonation}
-                  onClick={() => {
-                    void handleStopImpersonation();
-                  }}
+          {!isDesktopShell ? (
+            <div className="pb-auth-mobile-shell-chrome">
+              <header className="pb-auth-mobile-header">
+                <PaperBinderWordmark href={rootHomeUrlWithWorkspace} />
+                <button
+                  aria-controls="pb-auth-mobile-menu"
+                  aria-expanded={isMobileMenuOpen}
+                  aria-label={isMobileMenuOpen ? "Close workspace menu" : "Open workspace menu"}
+                  className="pb-auth-mobile-menu-button"
+                  onClick={() => setIsMobileMenuOpen((currentState) => !currentState)}
+                  ref={mobileMenuButtonRef}
                   type="button"
-                  variant="danger"
                 >
-                  Stop view as
-                </Button>
+                  <span className="pb-auth-mobile-menu-button__label">Menu</span>
+                  <span aria-hidden="true" className="pb-auth-mobile-menu-button__icon">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                </button>
+              </header>
+
+              {isMobileMenuOpen ? (
+                <section className="pb-auth-mobile-menu" id="pb-auth-mobile-menu" ref={mobileMenuRef}>
+                  <div className="pb-auth-mobile-menu__section">
+                    <p className="pb-auth-header-account-label">{accountLabel}</p>
+                    <p className="pb-auth-mobile-menu__identity">{accountEmail}</p>
+                    {isViewingAs ? (
+                      <p className="pb-auth-mobile-menu__meta">Signed in as {impersonation.actor.email}</p>
+                    ) : null}
+                  </div>
+                  <div className="pb-auth-mobile-menu__section">
+                    <p className="pb-auth-header-pill-label">Tenant</p>
+                    <p className="pb-auth-mobile-menu__tenant">{hostContext.tenantSlug}</p>
+                  </div>
+                  <div className="pb-auth-mobile-menu__section">
+                    <TenantNavigation onNavigate={() => setIsMobileMenuOpen(false)} />
+                  </div>
+                  <div className="pb-auth-mobile-menu__actions">
+                    {isViewingAs ? (
+                      <Button
+                        isLoading={isStoppingImpersonation}
+                        onClick={() => {
+                          void handleStopImpersonation();
+                        }}
+                        type="button"
+                        variant="danger"
+                      >
+                        Stop view as
+                      </Button>
+                    ) : null}
+                    <Button
+                      className="pb-auth-mobile-menu-signout"
+                      isLoading={isLoggingOut}
+                      onClick={() => void handleLogout()}
+                      type="button"
+                      variant="secondary"
+                    >
+                      <span className="pb-auth-shell-action-content">
+                        <SignOutIcon />
+                        Sign out
+                      </span>
+                    </Button>
+                  </div>
+                </section>
               ) : null}
             </div>
-            <div className="pb-auth-header-actions">
-              <div className="pb-auth-header-pill">
-                <p className="pb-auth-header-pill-label">Tenant</p>
-                <p className="pb-auth-header-pill-value">{hostContext.tenantSlug}</p>
+          ) : null}
+
+          {isDesktopShell ? (
+            <header className="pb-auth-header">
+              <div className="pb-auth-header-account">
+                <div className="pb-auth-header-account-copy">
+                  <p className="pb-auth-header-account-label">{accountLabel}</p>
+                  <p className="pb-auth-header-account-value">{accountEmail}</p>
+                  {isViewingAs ? (
+                    <p className="pb-auth-header-account-meta">Signed in as {impersonation.actor.email}</p>
+                  ) : null}
+                </div>
+                {isViewingAs ? (
+                  <Button
+                    isLoading={isStoppingImpersonation}
+                    onClick={() => {
+                      void handleStopImpersonation();
+                    }}
+                    type="button"
+                    variant="danger"
+                  >
+                    Stop view as
+                  </Button>
+                ) : null}
               </div>
-              <Button isLoading={isLoggingOut} onClick={() => void handleLogout()} type="button" variant="secondary">
-                Log out
-              </Button>
-            </div>
-          </header>
+              <div className="pb-auth-header-actions">
+                <div className="pb-auth-header-pill">
+                  <p className="pb-auth-header-pill-label">Tenant</p>
+                  <p className="pb-auth-header-pill-value">{hostContext.tenantSlug}</p>
+                </div>
+                <Button isLoading={isLoggingOut} onClick={() => void handleLogout()} type="button" variant="secondary">
+                  <span className="pb-auth-shell-action-content">
+                    <SignOutIcon />
+                    Sign out
+                  </span>
+                </Button>
+              </div>
+            </header>
+          ) : null}
 
           <div className="pb-auth-shell-body">
             {lease.canExtend || (countdownSeconds > 0 && countdownSeconds <= leaseExtensionWindowSeconds) ? (
@@ -961,6 +1137,12 @@ export function TenantShell({
               }
             />
           </div>
+
+          {!isDesktopShell ? (
+            <footer className="pb-auth-mobile-footer">
+              <TenantShellFooter aboutUrl={aboutUrl} />
+            </footer>
+          ) : null}
         </main>
       </div>
     </div>
