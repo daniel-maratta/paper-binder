@@ -22,16 +22,18 @@ Start here, then load only the lane docs relevant to the task.
 
 ## Active V1.1 Presentation Canon
 
-The approved `v1.1` presentation contract and `ADR-0013` are the active forward presentation canon for this phase. Current V1 presentation docs remain available as historical shipped-surface references, and the redesign packet remains exploratory input only.
+The approved `v1.1` presentation contract and `ADR-0013` are the active presentation canon for this phase. Current V1 presentation docs remain available as historical shipped-surface references. The temporary redesign packet was pruned after its useful decisions moved into durable docs and taskboard records.
 
 - [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) `(Approved)`
 - [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md) `(Approved)`
 
-## Active V1.1 Presentation Planning
+## V1.1 Presentation History And Current Execution
 
-- [docs/10-product/presentation-adoption-plan-v1-1.md](./10-product/presentation-adoption-plan-v1-1.md) `(Implementation planning under approved canon)`
+- [docs/10-product/presentation-adoption-plan-v1-1.md](./10-product/presentation-adoption-plan-v1-1.md) `(Historical implementation planning under approved canon)`
 - [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) `(Current canonical backlog and execution order for the remaining v1.1 work)`
 - [docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md](./05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md) `(Completed Phase 4.1 presentation/UI tranche record)`
+- [docs/05-taskboard/tasks/T-0038-v1-1-authenticated-mobile-layout.md](./05-taskboard/tasks/T-0038-v1-1-authenticated-mobile-layout.md) `(Completed authenticated mobile shell baseline)`
+- [docs/05-taskboard/tasks/T-0040-v1-1-documentation-truth-pruning.md](./05-taskboard/tasks/T-0040-v1-1-documentation-truth-pruning.md) `(Completed documentation and screenshot refresh task)`
 
 ## Lane Indexes
 
@@ -66,8 +68,8 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active forward 
 
 - For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md` or `release-checklist.md`. Open a specific PR artifact only when historical delivery context is needed.
 - For checkpoint history, start with [docs/55-execution/checkpoint-status.md](./55-execution/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on internal V1 execution history.
-- For v1.1 presentation-governance work, start with [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) and [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md). Use current V1 presentation docs, including `docs/10-product/ux-notes.md`, as historical shipped-surface references only, and treat `docs/temp-ui-ux-design-docs/` as exploratory input.
-- For repo-specific `v1.1` presentation adoption work, then load [docs/10-product/presentation-adoption-plan-v1-1.md](./10-product/presentation-adoption-plan-v1-1.md) before changing routes, copy, tokens, or screenshot surfaces.
+- For v1.1 presentation-governance work, start with [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) and [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md). Use current V1 presentation docs, including `docs/10-product/ux-notes.md`, as historical shipped-surface references only.
+- For repo-specific `v1.1` presentation adoption history, load [docs/10-product/presentation-adoption-plan-v1-1.md](./10-product/presentation-adoption-plan-v1-1.md).
 - For the current remaining `v1.1` execution lane, then load [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) first and follow the queued successor tasks it points to.
 - For the completed detailed `Phase 4.1` presentation tranche, load [docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md](./05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md) as the execution record.
 - For curated reviewer-support context that the public path should eventually reference, start with `REVIEWERS.md`, then `review/README.md`, then the selected canonical docs those files point to.

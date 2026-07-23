@@ -3,13 +3,13 @@ Status: Current (`V1`)
 
 ## Purpose
 
-Own the canonical release gate list for the current stable `V1` release.
+Own the canonical release gate list for the published stable `V1` release and the handoff shape for the active V1.1 release candidate.
 
 ## Required Artifacts
 
-- [x] `CHANGELOG.md` contains the current `## [1.0.5] - 2026-07-03` entry above the historical `## [V1] - 2026-04-19` first-cut release summary, with a fresh empty `## Unreleased`.
-- [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the current stable tag, the command surface, and ownership.
-- [x] Repository version metadata now matches the current stable `V1` release tag `v1.0.5` / `1.0.5` on `main`.
+- [x] `CHANGELOG.md` contains the current `## [1.0.5] - 2026-07-03` published stable entry above the historical `## [V1] - 2026-04-19` first-cut release summary, with active V1.1 release-candidate notes under `## Unreleased`.
+- [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, the active branch metadata distinction, the command surface, and ownership.
+- [x] Repository version metadata matched the current published stable `V1` release tag `v1.0.5` / `1.0.5` on `main` for that release cut; the active V1.1 branch now stages `1.1.0` metadata for final close-out.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
 - [x] `.github/workflows/release.yml` defines the tag-driven release validation pipeline for stable SemVer tags.
 - [x] `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` records shipped scope, validation evidence, reviewer walkthrough, and author notes for the critic.
@@ -76,12 +76,13 @@ Own the canonical release gate list for the current stable `V1` release.
 
 - Release line: `V1`
 - Historical first stable tag: `v1.0.0`
-- Current stable tag: `v1.0.5`
-- SemVer version: `1.0.5`
-- Status: `main` is aligned and taggable for `v1.0.5` as of `2026-07-03`; `v1.0.2` is still the last known-good public deployed state after the successful release and deploy workflows on `2026-07-02`.
-- Executor attestation: `main`, `CHANGELOG.md`, repo version metadata, and current-state delivery docs are aligned for `v1.0.5`; the `v1.0.4` release workflow failed before image publishing due to the flaky trace-correlation gate and was intentionally superseded by this replacement patch cut.
+- Current published stable tag: `v1.0.5`
+- Published stable SemVer version: `1.0.5`
+- Active branch SemVer metadata: `1.1.0`
+- Status: `main` was aligned and taggable for `v1.0.5` as of `2026-07-03`; the active V1.1 branch is not final-release complete until T-0043 records the merge/tag/deploy close-out state.
+- Executor attestation: `main`, `CHANGELOG.md`, repo version metadata, and current-state delivery docs were aligned for `v1.0.5` at that release cut; the active V1.1 branch now stages `1.1.0` metadata and T-0043 owns the final release attestation.
 - Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore; it is disclosed in the CP17 release artifact and remains outside CP17 scope because it does not block the documented `V1` validation bundle.
-- Owner-controlled action pending: verify the `v1.0.5` release workflow, publish the workflow-created GitHub Release draft when ready, and run the shared-test plus production deploy workflows for `1.0.5`.
+- Owner-controlled action pending: complete the T-0043 final staff review and release close-out before declaring `v1.1.0` taggable.
 - Mirrors:
   - `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/55-execution/checkpoint-status.md`

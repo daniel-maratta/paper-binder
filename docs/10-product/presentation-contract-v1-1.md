@@ -1,10 +1,10 @@
 # Presentation Contract - V1.1
 
 Status: Approved
-Scope: Forward presentation canon for the post-`v1.0.5` / `v1.1.0` phase
+Scope: Presentation canon for the V1.1 product-led public and authenticated shell
 Authority: `ADR-0013`
 
-This is the approved forward presentation canon for the `v1.1.0` phase. Current V1 presentation docs remain available as historical shipped-surface references, but they do not control forward presentation planning.
+This is the approved presentation canon for the `v1.1.0` phase. Earlier V1 presentation docs remain available as historical shipped-surface references, but they do not control the current V1.1 presentation surface.
 
 ## Purpose
 
@@ -26,7 +26,7 @@ It narrows the presentation-facing interpretation of:
 - `docs/10-product/information-architecture.md`
 - `docs/10-product/component-specification-v1.md`
 
-Historical V1 presentation docs continue to describe the shipped V1 surface until implementation changes are approved and completed, but they do not control forward `v1.1.0` presentation planning.
+Historical V1 presentation docs remain useful for understanding the pre-V1.1 surface, but they do not control current V1.1 presentation decisions.
 
 ## 1. Public-Path Framing
 
@@ -170,7 +170,7 @@ Screenshots, workflow visuals, and other product-proof surfaces must reflect shi
 
 Presentation may use screenshots, crops, or workflow-oriented proof devices, but those surfaces must remain truthful to the shipped product and its currently supported states.
 
-Placeholder product-image shells are acceptable during implementation, but Phase 5 completion requires replacing public-facing placeholders with captures from the finished authenticated product surface.
+Placeholder product-image shells were acceptable during implementation. Current public-facing proof surfaces must use captures from the finished authenticated product surface.
 
 ## 7. Forbidden Implication Rules
 

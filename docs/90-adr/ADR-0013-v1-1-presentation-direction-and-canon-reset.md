@@ -39,7 +39,7 @@ This decision establishes the following policy:
    The next presentation direction uses the darker blue-neutral slate-style visual system described by the current redesign exploration.
    This is a wholesale replacement of the old orange-accent presentation direction, not a partial theme tweak.
 
-6. The redesign packet under `docs/temp-ui-ux-design-docs/` is exploratory input only.
+6. The temporary redesign packet was exploratory input only and is superseded by this ADR, the V1.1 presentation contract, the adoption plan, and taskboard execution records.
    It is not canonical product or implementation authority as-is.
    It may inform the next canonical contract, but it does not become canon by proximity.
 

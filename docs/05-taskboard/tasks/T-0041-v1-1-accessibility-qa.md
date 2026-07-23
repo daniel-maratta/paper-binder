@@ -16,7 +16,7 @@ agent
 2026-07-22
 
 ## Updated
-2026-07-22
+2026-07-23
 
 ## Checkpoint
 Cross-checkpoint
@@ -25,11 +25,12 @@ Cross-checkpoint
 V1.1 close-out
 
 ## Summary
-Run the comprehensive accessibility QA pass after responsive and documentation cleanup, remediate release-blocking findings, and update docs with the resulting evidence.
+Run the comprehensive accessibility QA pass after documentation cleanup/product screenshot refresh and responsive QA, remediate release-blocking findings, and update docs with the resulting evidence.
 
 ## Context
 - Accessibility should be audited after the layout is stable so findings reflect the actual release candidate.
 - Documentation must record what was checked, what changed, and any residual limitations.
+- Owner direction on 2026-07-23 keeps accessibility QA after responsive QA.
 
 ## Acceptance Criteria
 - [ ] Public and authenticated routes receive accessibility QA.
@@ -39,7 +40,7 @@ Run the comprehensive accessibility QA pass after responsive and documentation c
 - [ ] Accessibility docs reflect the audit and remediation outcome.
 
 ## Dependencies
-- [T-0040](./T-0040-v1-1-documentation-truth-pruning.md)
+- [T-0039](./T-0039-v1-1-responsive-qa.md)
 
 ## Blocked By
 - (none)
@@ -65,7 +66,7 @@ Run the comprehensive accessibility QA pass after responsive and documentation c
 - Record evidence and residual risks.
 
 ## Next Action
-- Start after docs cleanup lands.
+- Start after responsive QA lands.
 
 ## Validation Evidence
 - Not started.

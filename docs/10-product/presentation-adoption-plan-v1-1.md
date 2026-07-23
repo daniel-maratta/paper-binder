@@ -1,36 +1,36 @@
 # V1.1 Presentation Adoption Plan
 
-Status: Active planning
+Status: Historical implementation planning record
 Scope: Repo-specific adoption and implementation planning under the approved `v1.1` presentation canon
 Authority: `ADR-0013` and `docs/10-product/presentation-contract-v1-1.md`
 
-This document translates the approved `v1.1` presentation canon into repo-specific adoption scope, impact, sequencing, and validation requirements.
+This document translated the approved `v1.1` presentation canon into repo-specific adoption scope, impact, sequencing, and validation requirements.
 
-It is an implementation-planning document, not a feature approval or architecture change by itself.
+It is preserved as a planning and decision-history record. Current execution order lives in `docs/05-taskboard/v1-1-backlog.md`.
 
 ## Executive Summary
 
-The approved `v1.1` presentation canon changes PaperBinder's forward presentation target without changing shipped `v1.0.5` product truth, tenancy behavior, or core API scope. Route composition and route ownership may change where explicitly reconciled in the active architecture docs.
+The approved `v1.1` presentation canon changed PaperBinder's presentation target without changing product scope, tenancy behavior, or core API scope. The public presentation redesign and authenticated shell realignment have been implemented; remaining V1.1 work is documentation/screenshot cleanup, responsive QA, accessibility QA, and final release close-out.
 
 In repo terms, the work is concentrated in the React SPA's root-host framing, tenant-shell presentation hierarchy, shared visual tokens, and copy-heavy route components. The most significant implementation seams are the public root-host routes in `src/PaperBinder.Web/src/app/root-host.tsx`, the authenticated shell in `src/PaperBinder.Web/src/app/tenant-shell.tsx`, the current orange token system in `src/PaperBinder.Web/src/styles.css`, and the Vitest and Playwright assertions that currently encode shipped V1 wording.
 
 The adoption plan should preserve three boundaries throughout implementation:
 
 1. Approved `v1.1` canon controls forward presentation direction on this branch.
-2. Shipped V1 docs remain available as historical reference for what exists today until code and screenshots are updated.
-3. Exploratory redesign material may inform implementation choices but does not control them.
+2. Shipped V1 docs remain available as historical reference for the pre-V1.1 surface.
+3. The exploratory redesign packet was superseded and pruned during T-0040; durable decision history remains in the audit, ADR, contract, adoption plan, and taskboard records.
 
 ## Canon / Doc Disposition Matrix
 
 | Disposition | Documents | Planning Treatment |
 | --- | --- | --- |
-| Approved active canon | `docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md`; `docs/10-product/presentation-contract-v1-1.md` | Controlling policy for all `v1.1` presentation planning and later implementation work. |
+| Approved active canon | `docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md`; `docs/10-product/presentation-contract-v1-1.md` | Controlling policy for V1.1 presentation decisions. |
 | Superseded for forward presentation planning | `docs/10-product/ui-ux-contract-v1.md`; `docs/10-product/ui-style.md` | Do not use these as forward canon. Keep them only as shipped V1 presentation reference until implementation lands. |
 | Active and still controlling | `docs/10-product/prd.md`; `docs/10-product/domain-nouns.md`; `docs/10-product/user-stories.md`; `docs/10-product/accessibility.md`; `docs/00-intent/project-scope.md`; `docs/00-intent/non-goals.md`; `docs/20-architecture/frontend-spa.md`; `docs/20-architecture/frontend-app-route-map.md` | These continue to control scope, feature truth, route truth, accessibility baseline, and architectural boundaries. Presentation work must stay inside them. |
 | Active reviewer-support subset | `REVIEWERS.md`; `review/README.md`; `review/architecture-overview.md`; `review/multi-tenancy-diagram.md`; `review/request-lifecycle.md`; `review/user-flows.md`; `review/security-model-summary.md` | This is the curated reviewer lane for future public-path linking. It supports reviewer depth without replacing canon or turning the main product UI into the primary reviewer-evidence surface. |
 | Active but narrowed by the new canon | `docs/10-product/information-architecture.md`; `docs/10-product/component-specification-v1.md` | Keep using these for route and component truth, but reinterpret presentation-facing language through the approved `v1.1` canon. Any conflicting old framing is non-controlling for forward work. |
 | Historical shipped-reference docs | `docs/10-product/ui-ux-contract-v1.md`; `docs/10-product/ui-style.md`; `docs/10-product/ux-notes.md`; `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` | Use only to understand the currently shipped V1 surface, prior wording, and release-era reviewer packaging. Do not treat them as active forward direction. |
-| Exploratory / non-canonical inputs | `docs/temp-ui-ux-design-docs/**`; `review/product-design-audit-2026-07-03.md` | Informative input only. Useful for implementation options and critique, but not controlling canon. |
+| Historical critique input | `review/product-design-audit-2026-07-03.md` | Informative critique and decision-history input only. Useful for understanding why V1.1 presentation work existed, but not controlling canon. |
 
 ## Phase 1 Branch-Local Implementation Brief
 
@@ -109,7 +109,7 @@ Exit gate:
 
 #### Current execution cut: Phase 4.1
 
-- `Phase 4.1` is the next planned execution cut for the approved `v1.1` presentation adoption on this branch.
+- `Phase 4.1` was the execution cut for the approved `v1.1` presentation adoption on this branch.
 - Scope:
   - perform a short pre-implementation remediation pass: back out the stale root-host public-flow work that still assumes `/` owns live demo entry, then decide which remaining uncommitted authenticated-surface/UI changes are worth salvaging versus reverting before broad Phase 4.1 implementation begins
   - split the public landing from the demo-entry auth surface so `/` becomes product-first, `/start-demo` owns challenge/provision/login or one-time-credential handoff work, and `/login` remains the direct-login route and logout return target
@@ -124,7 +124,7 @@ Exit gate:
   - require a final post-implementation auth and implementation-quality audit modeled on the `docs/50-engineering/` audit posture
   - finish with a release-closeout strategy for `v1.1.0` that merges the approved branch into protected `main`, then tags and deploys from `main` rather than pushing release commits directly to `main`
 - Detailed execution state and vertical-slice TDD planning live in [T-0033: Phase 4.1 V1.1 Presentation Realignment](../05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md).
-- During implementation, keep repo history understandable by using logically separated commits in a sensible order rather than bundling route cleanup, shared primitives, authenticated-surface restyling, and validation/audit work into one change.
+- Later close-out work is tracked by [T-0040](../05-taskboard/tasks/T-0040-v1-1-documentation-truth-pruning.md), [T-0039](../05-taskboard/tasks/T-0039-v1-1-responsive-qa.md), [T-0041](../05-taskboard/tasks/T-0041-v1-1-accessibility-qa.md), and [T-0043](../05-taskboard/tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md).
 
 ### Phase 5: Product-Proof Surface Curation
 
@@ -173,10 +173,4 @@ Exit gate:
 
 ## Remaining Questions Before Implementation
 
-No additional canon-level or governance-level decisions remain open before implementation can start.
-
-Later phases still require execution-level choices, but they are not implementation blockers:
-
-- exact token names and values for the blue-neutral replacement system
-- exact screenshot set to capture once product-facing proof surfaces are ready
-- exact route copy and section wording during Phase 3 and Phase 4 implementation
+No additional canon-level or governance-level decisions remain open. Implementation has moved to the V1.1 close-out task sequence.

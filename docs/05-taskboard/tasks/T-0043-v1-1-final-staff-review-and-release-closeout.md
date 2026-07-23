@@ -16,7 +16,7 @@ agent
 2026-07-22
 
 ## Updated
-2026-07-22
+2026-07-23
 
 ## Checkpoint
 Cross-checkpoint
@@ -25,10 +25,10 @@ Cross-checkpoint
 V1.1 close-out
 
 ## Summary
-Perform the final staff-level frontend and backend review, reconcile all repo TODO/task state, run the release validation bundle, and prepare merge/tag/deploy close-out.
+Perform the final staff-level frontend and backend review after documentation cleanup, responsive QA, and accessibility QA are complete; reconcile all repo TODO/task state, run the release validation bundle, and prepare merge/tag/deploy close-out.
 
 ## Context
-- This task should be last. It depends on layout, responsive QA, docs cleanup, accessibility QA, and final screenshots being complete.
+- This task should be last. It depends on layout, docs cleanup with bundled screenshot updates, responsive QA, and accessibility QA being complete.
 - The review should prioritize cohesion, consistency, security, correctness, and industry-standard implementation quality across the app.
 
 ## Acceptance Criteria
@@ -40,7 +40,7 @@ Perform the final staff-level frontend and backend review, reconcile all repo TO
 - [ ] Merge, tag, and deployment close-out steps are documented.
 
 ## Dependencies
-- [T-0042](./T-0042-v1-1-product-screenshot-refresh.md)
+- [T-0041](./T-0041-v1-1-accessibility-qa.md)
 
 ## Blocked By
 - (none)
@@ -69,7 +69,7 @@ Perform the final staff-level frontend and backend review, reconcile all repo TO
 - Prepare release close-out docs.
 
 ## Next Action
-- Start after final product screenshot refresh lands.
+- Start after accessibility QA lands.
 
 ## Validation Evidence
 - Not started.
