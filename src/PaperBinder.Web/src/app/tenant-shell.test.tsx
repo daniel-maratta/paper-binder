@@ -10,6 +10,26 @@ import {
   createTenantLeaseSummary
 } from "../test/test-helpers";
 
+function setShellViewport(width: number) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => {
+      const matches = query === "(min-width: 1024px)" ? width >= 1024 : false;
+      return {
+        matches,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn()
+      };
+    })
+  });
+}
+
 function renderTenantRoute({
   route = "/app",
   apiClient = createApiClientStub(),
@@ -38,9 +58,86 @@ function renderTenantRoute({
 
 afterEach(() => {
   vi.useRealTimers();
+  setShellViewport(1280);
 });
 
 describe("tenant shell", () => {
+  it("Should_RenderDesktopSidebarShell_When_ViewportIsDesktopWidth", async () => {
+    setShellViewport(1280);
+
+    renderTenantRoute({});
+
+    expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Workspace navigation" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Open workspace menu" })).not.toBeInTheDocument();
+    expect(screen.getByText("Designed by")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
+  });
+
+  it("Should_RenderMobileShellMenuAndFooter_When_ViewportIsBelowDesktopBreakpoint", async () => {
+    setShellViewport(390);
+    const logout = vi.fn(async () => ({
+      redirectUrl: "https://paperbinder.example.test/login"
+    }));
+    const navigator = vi.fn();
+
+    renderTenantRoute({
+      apiClient: createApiClientStub({
+        logout: logout as PaperBinderApiClient["logout"]
+      }),
+      navigator
+    });
+
+    expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open workspace menu" })).toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Workspace navigation" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Sign out" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Open workspace menu" }));
+
+    expect(screen.getByText("owner@acme-demo.local")).toBeInTheDocument();
+    expect(screen.getByText("acme")).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Workspace navigation" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Binders" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Users" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
+
+    await waitFor(() => expect(logout).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(navigator).toHaveBeenCalledWith("https://paperbinder.example.test/login"));
+
+    expect(screen.getByText("Copyright")).toBeInTheDocument();
+    expect(screen.getByText("© 2026 PaperBinder")).toBeInTheDocument();
+    expect(screen.getByText("Version")).toBeInTheDocument();
+    expect(screen.getByText("v1.1.0")).toBeInTheDocument();
+    expect(screen.getByText("Designed by")).toBeInTheDocument();
+    expect(screen.getByText("Daniel Maratta")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute(
+      "href",
+      "https://paperbinder.example.test/about?workspace=acme"
+    );
+  });
+
+  it("Should_CloseMobileMenu_When_PointerDownOccursOutsideMenu", async () => {
+    setShellViewport(390);
+
+    renderTenantRoute({});
+
+    expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Open workspace menu" }));
+
+    expect(screen.getByRole("navigation", { name: "Workspace navigation" })).toBeInTheDocument();
+
+    fireEvent.pointerDown(document.body);
+
+    await waitFor(() =>
+      expect(screen.queryByRole("navigation", { name: "Workspace navigation" })).not.toBeInTheDocument()
+    );
+    expect(screen.getByRole("button", { name: "Open workspace menu" })).toBeInTheDocument();
+  });
+
   it("Should_RenderAuthenticationRequired_When_TenantBootstrapReturnsUnauthorized", async () => {
     const writeText = vi.fn(async () => undefined);
     Object.defineProperty(window.navigator, "clipboard", {
@@ -1087,7 +1184,7 @@ describe("tenant shell", () => {
     expect(screen.getByText(/11m 0s|10m 59s/)).toBeInTheDocument();
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Log out" }));
+      fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
       await Promise.resolve();
     });
     expect(logout).toHaveBeenCalledTimes(1);

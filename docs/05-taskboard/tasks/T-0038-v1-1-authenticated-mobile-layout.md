@@ -1,7 +1,7 @@
 # T-0038: V1.1 Authenticated Mobile Layout
 
 ## Status
-queued
+completed
 
 ## Type
 feature
@@ -16,7 +16,7 @@ agent
 2026-07-22
 
 ## Updated
-2026-07-22
+2026-07-23
 
 ## Checkpoint
 Cross-checkpoint
@@ -32,11 +32,11 @@ Make the authenticated tenant-host app responsive enough for mobile use across d
 - Responsive QA, accessibility QA, final screenshots, and final review all depend on this implementation work landing first.
 
 ## Acceptance Criteria
-- [ ] Tenant shell navigation, account controls, lease messaging, and main content work at mobile widths.
-- [ ] Authenticated tables/lists/forms remain readable and operable at mobile widths.
-- [ ] Dashboard, binders, binder detail, document detail, users, and tenant not-found routes are covered.
-- [ ] Tests or browser checks are updated where practical.
-- [ ] Any follow-on visual defects are tracked explicitly rather than left as ambient notes.
+- [x] Tenant shell navigation, account controls, lease messaging, and main content work at mobile widths.
+- [x] Authenticated tables/lists/forms remain readable and operable at mobile widths.
+- [x] Dashboard, binders, binder detail, document detail, users, and tenant not-found routes are covered.
+- [x] Tests or browser checks are updated where practical.
+- [x] Any follow-on visual defects are tracked explicitly rather than left as ambient notes.
 
 ## Dependencies
 - [T-0037](./T-0037-v1-1-final-validation-and-close-out.md)
@@ -50,7 +50,7 @@ Make the authenticated tenant-host app responsive enough for mobile use across d
 - Escalation Notes: Browser verification may require the local Docker stack.
 
 ## Current State
-- Queued. This is the next branch after the current PR merges.
+- Completed. Authenticated tenant-host mobile layout is implemented and has current browser screenshot evidence.
 
 ## Touch Points
 - `src/PaperBinder.Web/src/app/tenant-shell.tsx`
@@ -65,10 +65,12 @@ Make the authenticated tenant-host app responsive enough for mobile use across d
 - Run focused tests and browser verification.
 
 ## Next Action
-- Create `feature/t-0038-authenticated-mobile-layout` from `main` after the current PR merges.
+- Proceed to responsive QA and final close-out follow-ups.
 
 ## Validation Evidence
-- Not started.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/tenant-shell.test.tsx` passed on 2026-07-23 with 28 tests passing.
+- Docker-backed Playwright screenshot capture passed on 2026-07-23 against dashboard, mobile menu open, binders, binder detail, document detail, users admin, and users denied reader views.
+- Refreshed mobile screenshot artifacts: `artifacts/authenticated-mobile-screenshots/01-dashboard-admin.png` through `artifacts/authenticated-mobile-screenshots/07-users-denied-reader.png`.
 
 ## Decision Notes
 - (none)
@@ -78,7 +80,7 @@ Make the authenticated tenant-host app responsive enough for mobile use across d
 - Browser verification against seeded authenticated tenant routes at mobile/tablet/desktop widths.
 
 ## Outcome (Fill when done)
-- Not started.
+- Completed. The authenticated shell now uses a mobile-specific top bar, full-width expanded menu, sidebar-matched dark menu/footer styling, mobile-safe sign-out action, route-close and outside-tap close behavior, tight logo hit area, and mobile route layouts that avoid horizontal overflow while leaving the desktop authenticated layout unchanged.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

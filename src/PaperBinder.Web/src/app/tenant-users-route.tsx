@@ -16,6 +16,7 @@ import {
   TenantRouteFailureCard,
   formatRole,
   roleOptions,
+  useIsDesktopShell,
   useTenantShellContext
 } from "./tenant-shell";
 
@@ -53,6 +54,7 @@ function sortUsers(users: readonly TenantUser[], effectiveUserId: string): Tenan
 export function UsersPage() {
   const { apiClient, impersonation, startImpersonation, showToast } = useTenantShellContext();
   const navigate = useNavigate();
+  const isDesktopShell = useIsDesktopShell();
   const [users, setUsers] = useState<TenantUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
@@ -384,14 +386,69 @@ export function UsersPage() {
             </p>
           </div>
           <div className="pb-auth-panel-body space-y-4">
-            <DataTable
-              caption="Workspace users"
-              columns={columns}
-              emptyMessage="No workspace users are available."
-              isLoading={isLoading}
-              loadingLabel="Loading workspace users..."
-              rows={rows}
-            />
+            {isDesktopShell ? (
+              <div className="pb-auth-user-table">
+                <DataTable
+                  caption="Workspace users"
+                  columns={columns}
+                  emptyMessage="No workspace users are available."
+                  isLoading={isLoading}
+                  loadingLabel="Loading workspace users..."
+                  rows={rows}
+                />
+              </div>
+            ) : (
+              <div aria-label="Workspace users" className="pb-auth-user-mobile-list" role="list">
+                {isLoading ? (
+                  <div className="pb-auth-selection-empty" role="status">
+                    Loading workspace users...
+                  </div>
+                ) : orderedUsers.length === 0 ? (
+                  <div className="pb-auth-selection-empty">No workspace users are available.</div>
+                ) : (
+                  orderedUsers.map((user) => (
+                    <article className="pb-auth-user-mobile-card" key={user.userId} role="listitem">
+                      <div className="pb-auth-user-mobile-card__header">
+                        <div className="pb-auth-user-mobile-card__identity">
+                          <p className="pb-auth-stat-label">Email</p>
+                          <p className="pb-auth-user-mobile-card__email">{user.email}</p>
+                        </div>
+                        {user.isOwner ? <StatusBadge>Owner</StatusBadge> : <StatusBadge>Member</StatusBadge>}
+                      </div>
+                      <div className="pb-auth-user-mobile-card__meta">
+                        <div>
+                          <p className="pb-auth-stat-label">Role</p>
+                          <p>{formatRole(user.role)}</p>
+                        </div>
+                        <div>
+                          <p className="pb-auth-stat-label">User ID</p>
+                          <CopyValueChip
+                            compact
+                            label={`user id for ${user.email}`}
+                            onCopy={() => {
+                              void copyValue("User ID", user.userId);
+                            }}
+                            value={user.userId}
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        aria-label={`Manage user ${user.email}`}
+                        onClick={() => {
+                          setSelectedUserId(user.userId);
+                          setRoleUpdateError(null);
+                          setImpersonationError(null);
+                        }}
+                        type="button"
+                        variant={selectedUserId === user.userId ? "primary" : "secondary"}
+                      >
+                        {selectedUserId === user.userId ? "Managing" : "Manage"}
+                      </Button>
+                    </article>
+                  ))
+                )}
+              </div>
+            )}
             <div className="border-t border-[var(--pb-border-subtle)] pt-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>

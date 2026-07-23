@@ -61,7 +61,7 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
   await page.getByRole("button", { name: "Save policy" }).click();
   await expect(page.getByText("Binder access saved.")).toBeVisible();
 
-  await page.getByRole("button", { name: "Log out" }).click();
+  await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL("http://paperbinder.localhost:5081/login");
   await expect(page.getByRole("heading", { name: "Sign in", exact: true })).toBeVisible();
 
