@@ -28,6 +28,7 @@
   - Validate launch profiles: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
   - Validate checkpoint: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - Run frontend browser E2E: `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1`
+  - Capture product screenshots: `powershell -ExecutionPolicy Bypass -File .\scripts\capture-product-screenshots.ps1`
   - Start local stack: `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
   - Preflight: `pwsh ./scripts/preflight.ps1 -Profile Full`
@@ -39,6 +40,7 @@
   - Validate launch profiles: `pwsh ./scripts/validate-launch-profiles.ps1`
   - Validate checkpoint: `pwsh ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - Run frontend browser E2E: `pwsh ./scripts/run-browser-e2e.ps1`
+  - Capture product screenshots: `pwsh ./scripts/capture-product-screenshots.ps1`
   - Start local stack: `pwsh ./scripts/start-local.ps1`
 
 ## VS Code Flow
@@ -155,6 +157,14 @@ Shared test and production use separate public hostnames plus `docker-compose.te
 - The mock challenge fixture is mounted only into the isolated E2E runtime; the default frontend build output and committed app `wwwroot` tree do not publish it.
 - Do not add the E2E runtime path to `scripts/start-local.ps1`, `scripts/reviewer-full-stack.ps1`, or the base `docker-compose.yml` reviewer flow.
 - The script runs the root-host and tenant-host Playwright specs in separate fresh isolated runtimes so CP7's shared pre-auth rate limit remains intact while CP14/CP15 browser specs keep tenant-per-spec ownership.
+
+## Product Screenshot Capture
+
+- `scripts/capture-product-screenshots.ps1` is the repo-native screenshot refresh entrypoint for public product proof assets and authenticated mobile-shell evidence.
+- The script uses the same isolated E2E Docker runtime as the browser gate and overwrites only the existing screenshot locations:
+  - `src/PaperBinder.Web/public/presentation/`
+  - `artifacts/authenticated-mobile-screenshots/`
+- This screenshot refresh is product-proof capture only. It is not the comprehensive responsive QA matrix and does not replace `T-0039`.
 
 ## First-Time Local Stack Setup
 

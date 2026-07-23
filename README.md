@@ -98,6 +98,7 @@ Canonical workspace commands live in `scripts/`:
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1`
+  - `powershell -ExecutionPolicy Bypass -File .\scripts\capture-product-screenshots.ps1`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\set-local-challenge-bypass.ps1 -Mode Status`
   - `powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1`
 - Linux/macOS with PowerShell Core:
@@ -113,6 +114,7 @@ Canonical workspace commands live in `scripts/`:
   - `pwsh ./scripts/validate-launch-profiles.ps1`
   - `pwsh ./scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require`
   - `pwsh ./scripts/run-browser-e2e.ps1`
+  - `pwsh ./scripts/capture-product-screenshots.ps1`
   - `pwsh ./scripts/set-local-challenge-bypass.ps1 -Mode Status`
   - `pwsh ./scripts/start-local.ps1`
 - Visual Studio:
