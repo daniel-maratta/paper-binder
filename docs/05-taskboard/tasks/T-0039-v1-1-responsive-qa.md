@@ -16,7 +16,7 @@ agent
 2026-07-22
 
 ## Updated
-2026-07-22
+2026-07-23
 
 ## Checkpoint
 Cross-checkpoint
@@ -25,11 +25,12 @@ Cross-checkpoint
 V1.1 close-out
 
 ## Summary
-Run and record a comprehensive responsiveness QA pass across public and authenticated pages after authenticated mobile layout lands.
+Run and record a comprehensive responsiveness QA pass across public and authenticated pages after documentation cleanup and bundled product screenshot updates land.
 
 ## Context
 - A temporary screenshot sweep proved the capture approach, but the artifacts were intentionally removed and not committed.
 - This task should turn the approach into durable QA evidence and remediation tracking after `T-0038`.
+- Owner direction on 2026-07-23 moved documentation cleanup and product screenshot refresh ahead of this responsive QA pass.
 
 ## Acceptance Criteria
 - [ ] Public routes are checked at common desktop/mobile sizes and app breakpoints.
@@ -38,7 +39,7 @@ Run and record a comprehensive responsiveness QA pass across public and authenti
 - [ ] QA evidence is recorded in the taskboard or release-facing docs as appropriate.
 
 ## Dependencies
-- [T-0038](./T-0038-v1-1-authenticated-mobile-layout.md)
+- [T-0040](./T-0040-v1-1-documentation-truth-pruning.md)
 
 ## Blocked By
 - (none)
@@ -64,7 +65,7 @@ Run and record a comprehensive responsiveness QA pass across public and authenti
 - Record evidence and residual findings.
 
 ## Next Action
-- Start after `T-0038` merges.
+- Start after `T-0040` lands.
 
 ## Validation Evidence
 - Not started.

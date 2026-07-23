@@ -4,9 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
-## [1.1.0] - 2026-07-20
-
-- Tightened demo workspace guardrails, lease-extension behavior, destructive-action surfaces, and reviewer-facing UI polish for the next stable release.
+- Tightened demo workspace guardrails, lease-extension behavior, destructive-action surfaces, and reviewer-facing UI polish for the `1.1.0` release candidate.
+- Replaced the public presentation with the implemented V1.1 product-led shell and refreshed authenticated workspace proof surfaces.
+- Added the authenticated mobile shell baseline for dashboard, binders, binder detail, document detail, users, and tenant error routes.
+- Reconciled V1.1 documentation truth, pruned superseded temporary redesign notes, and refreshed public/authenticated product screenshots.
 
 ## [1.0.5] - 2026-07-03
 

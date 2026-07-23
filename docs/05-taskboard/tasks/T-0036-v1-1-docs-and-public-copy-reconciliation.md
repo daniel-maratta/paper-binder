@@ -33,8 +33,8 @@ Reconcile the remaining `v1.1` planning and copy surfaces so active work no long
 - `T-0033` now closes as the completed presentation tranche, so its successor docs should become the durable active source again.
 
 ## Acceptance Criteria
-- [x] No active `v1.1` to-do lives only in `docs/temp-ui-ux-design-docs/`.
-- [x] The temp UI backlog file is preserved as historical input but clearly marked as non-canonical active tracking.
+- [x] No active `v1.1` to-do lives only in temporary planning notes.
+- [x] The temporary backlog was reconciled into canonical taskboard tracking before later pruning.
 - [x] Canonical docs that still describe stale pre-`v1.1` planning or wording are updated to reflect current branch truth.
 - [x] The unauthenticated/public-side copy pass removes obvious AI-smelling, over-mechanical, or over-specific wording while staying truthful to the shipped product.
 - [x] Taskboard, planning, and navigation docs point readers at the canonical backlog/tasks rather than the temp override path.
@@ -55,11 +55,11 @@ Reconcile the remaining `v1.1` planning and copy surfaces so active work no long
 
 ## Current State
 - Historical slice outcome: the `v1.1` doc and public-copy reconciliation landed and canonical docs now reflect the current branch truth.
-- The temp UI design docs remain preserved as historical inputs, but they no longer act as the canonical active backlog.
+- The temporary redesign docs no longer act as the canonical active backlog.
 - Remaining close-out work now lives under `T-0037`, including the final controlled copy pass and broader warning/audit follow-through.
 
 ## Touch Points
-- `docs/temp-ui-ux-design-docs/`
+- temporary redesign planning notes
 - `docs/10-product/`
 - `docs/20-architecture/`
 - `docs/05-taskboard/`
@@ -86,7 +86,7 @@ Reconcile the remaining `v1.1` planning and copy surfaces so active work no long
 ## Outcome (Fill when done)
 - Complete. Canonical planning, product, architecture, security/config, contracts, and taskboard docs were reconciled to current repo truth, including the `v1.1` route model, lease-cleanup retention behavior, server-issued credential flow, and current tenant-host behavior.
 - Complete. The unauthenticated/public copy surface was rewritten into the shipped product voice, and stale or over-mechanical wording from older pre-`v1.1` surfaces was removed where it no longer matched the product.
-- Complete. Active `v1.1` tracking was moved fully back onto the canonical taskboard, while temp UI docs were preserved as historical reference material rather than live execution state.
+- Complete. Active `v1.1` tracking was moved fully back onto the canonical taskboard; T-0040 later pruned the superseded temporary docs after their useful decisions were preserved elsewhere.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

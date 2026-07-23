@@ -1,7 +1,7 @@
 # T-0042: V1.1 Product Screenshot Refresh
 
 ## Status
-queued
+cancelled
 
 ## Type
 docs
@@ -16,7 +16,7 @@ agent
 2026-07-22
 
 ## Updated
-2026-07-22
+2026-07-23
 
 ## Checkpoint
 Cross-checkpoint
@@ -30,6 +30,7 @@ Refresh product screenshots after responsive and accessibility changes are stabl
 ## Context
 - Current branch refreshed landing proof imagery before the authenticated mobile layout work.
 - Any future layout/accessibility changes may require another screenshot pass before deployment.
+- Owner direction on 2026-07-23 bundled this scope into `T-0040` so documentation cleanup and product proof screenshots can land together before responsive QA.
 
 ## Acceptance Criteria
 - [ ] Public landing proof images reflect the final `v1.1.0` UI.
@@ -38,10 +39,10 @@ Refresh product screenshots after responsive and accessibility changes are stabl
 - [ ] Component tests or references are updated for any renamed/replaced assets.
 
 ## Dependencies
-- [T-0041](./T-0041-v1-1-accessibility-qa.md)
+- Superseded by [T-0040](./T-0040-v1-1-documentation-truth-pruning.md).
 
 ## Blocked By
-- (none)
+- Superseded by [T-0040](./T-0040-v1-1-documentation-truth-pruning.md).
 
 ## Review Gates
 - Scope Lock: Screenshot asset refresh only; no new UI behavior except defects found while capturing.
@@ -49,7 +50,7 @@ Refresh product screenshots after responsive and accessibility changes are stabl
 - Escalation Notes: Screenshot capture may require local browser/runtime access.
 
 ## Current State
-- Queued.
+- Cancelled as a standalone task; product screenshot refresh is now owned by `T-0040`.
 
 ## Touch Points
 - `src/PaperBinder.Web/public/presentation/`
@@ -62,7 +63,7 @@ Refresh product screenshots after responsive and accessibility changes are stabl
 - Update references/tests.
 
 ## Next Action
-- Start after accessibility QA and remediation lands.
+- No standalone action. Execute screenshot refresh under `T-0040`.
 
 ## Validation Evidence
 - Not started.
@@ -75,7 +76,7 @@ Refresh product screenshots after responsive and accessibility changes are stabl
 - Visual review of final proof assets.
 
 ## Outcome (Fill when done)
-- Not started.
+- Cancelled. Scope bundled into `T-0040` by owner direction on 2026-07-23.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

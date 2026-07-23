@@ -34,7 +34,8 @@ Reviewer experience:
 - Code walkthrough
 
 Release boundary:
-- The shipped release line is prose `V1` with current stable tag `v1.1.0`
+- The shipped release line is prose `V1` with current published stable tag `v1.0.5`
+- The active `v1.1.0` branch has version metadata staged at `1.1.0`, but final release close-out remains owned by the V1.1 taskboard sequence
 - The historical first stable tag remains `v1.0.0`
 - Release readiness is documented through the delivery lane; live public-host operation is not a `V1` release gate
 

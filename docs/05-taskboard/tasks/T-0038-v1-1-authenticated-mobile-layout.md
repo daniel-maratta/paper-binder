@@ -1,7 +1,7 @@
 # T-0038: V1.1 Authenticated Mobile Layout
 
 ## Status
-completed
+done
 
 ## Type
 feature
@@ -65,7 +65,7 @@ Make the authenticated tenant-host app responsive enough for mobile use across d
 - Run focused tests and browser verification.
 
 ## Next Action
-- Proceed to responsive QA and final close-out follow-ups.
+- Proceed to `T-0040` documentation cleanup and bundled product screenshot refresh before responsive QA.
 
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/tenant-shell.test.tsx` passed on 2026-07-23 with 28 tests passing.
