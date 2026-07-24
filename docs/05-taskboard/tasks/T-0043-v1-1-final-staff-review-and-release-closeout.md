@@ -38,6 +38,7 @@ Perform the final independent acceptance review after `T-0044` (baseline), `T-00
 - [ ] Any residual defects surfaced during acceptance validation are fixed if small and low-risk, or tracked as explicit follow-up.
 - [ ] Full validation evidence is recorded (build, test, docs, browser, local-stack).
 - [ ] Merge, tag, and deployment close-out steps are documented, including production smoke validation.
+- [ ] `docs/95-delivery/release-checklist.md` (the existing canonical gate list) is updated to a final v1.1.0 release-evidence checklist confirming: all v1.1.0 PRs merged; no unresolved High/Critical findings from `T-0044`/`T-0045`/`T-0041`; all automated validation green or explicitly waived with rationale; browser suite green or explicitly waived with rationale; `npm audit` disposition recorded; NuGet vulnerability scan recorded; documentation synchronized with implementation; version numbers (`Directory.Build.props`, frontend `package.json`/`package-lock.json`) consistent; tag created; production deployment validated; production smoke test completed. Do not create a parallel checklist file — extend the existing one per `docs/95-delivery/release-workflow.md`'s established conventions.
 
 ## Dependencies
 - [T-0044](./T-0044-v1-1-establish-release-baseline.md)
