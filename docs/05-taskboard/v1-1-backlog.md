@@ -27,7 +27,7 @@ After this reconciliation:
 6. [T-0040: V1.1 Documentation Truth, Pruning, And Product Screenshot Refresh](./tasks/T-0040-v1-1-documentation-truth-pruning.md) - done
 7. [T-0044: Establish V1.1.0 Release Baseline](./tasks/T-0044-v1-1-establish-release-baseline.md) - done
 8. [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md) - done
-9. [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) - queued
+9. [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) - active (discovery complete; remediation pending — see task file and `docs/50-engineering/t-0045-engineering-security-architecture-review.md`)
 10. [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md) - queued
 11. [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) - queued
 
@@ -35,7 +35,10 @@ Cancelled/superseded:
 
 - [T-0042: V1.1 Product Screenshot Refresh](./tasks/T-0042-v1-1-product-screenshot-refresh.md) - cancelled; scope bundled into `T-0040`
 
-`T-0044` and `T-0039` are both complete. Current active execution target: none — next up is `T-0045`, then `T-0041`, then `T-0043`.
+`T-0044` and `T-0039` are both complete. `T-0045` discovery is complete and its findings are
+persisted, but its own low-risk fixes and three owner decisions are still outstanding — it is not
+`done`. Current active execution target: a remediation pass on `T-0045` (see its task file's
+Decision Notes and Next Action), then `T-0041`, then `T-0043`.
 
 ## Active Backlog Map
 
@@ -45,14 +48,14 @@ Cancelled/superseded:
 | Clean up truthful/stale documentation and update final product screenshots | [T-0040](./tasks/T-0040-v1-1-documentation-truth-pruning.md) | owner direction 2026-07-22 and 2026-07-23 | Runs before responsive QA; includes release-state truth, transient docs, stale/obsolete docs, and final product screenshot refresh |
 | Establish a reproducible v1.1.0 baseline record | [T-0044](./tasks/T-0044-v1-1-establish-release-baseline.md) | owner direction 2026-07-23 | Baseline/reproducibility recording only; no remediation |
 | Run responsive QA | [T-0039](./tasks/T-0039-v1-1-responsive-qa.md) | `T-0033`, reconciled temporary backlog, owner direction 2026-07-22 and 2026-07-23 | Public plus authenticated routes at app breakpoints and common sizes after docs/screenshot cleanup |
-| First-line engineering, security, and architecture review | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | owner direction 2026-07-23 | Split out of `T-0043`; precedes `T-0041` |
+| First-line engineering, security, and architecture review | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | owner direction 2026-07-23 | Split out of `T-0043`; precedes `T-0041`. Discovery complete; findings persisted in `docs/50-engineering/t-0045-engineering-security-architecture-review.md`. Remediation not started. |
 | Run the accessibility audit and remediation pass | [T-0041](./tasks/T-0041-v1-1-accessibility-qa.md) | `T-0033`, reconciled temporary backlog, owner direction 2026-07-22 | Record findings, fixes, and residual limitations; also owns the Binders-table ID-chip mobile-card fix deferred from `T-0039` |
 | Update final product screenshots after UI changes | [T-0040](./tasks/T-0040-v1-1-documentation-truth-pruning.md) | owner direction 2026-07-22 and 2026-07-23 | Bundled into documentation cleanup rather than tracked as a separate task |
 | Insert the planned poison-pill implementation item before the final major review if it still applies | [T-0043](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) | reconciled temporary backlog | Decide near final review |
-| Wire up, replace, or remove the orphaned `TenantImpersonationBanner` component | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | owner direction 2026-07-23, `T-0039` responsive QA | Defined but never rendered; found incidentally during `T-0039` |
+| Wire up, replace, or remove the orphaned `TenantImpersonationBanner` component | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | owner direction 2026-07-23, `T-0039` responsive QA | Defined but never rendered; found incidentally during `T-0039`. Reviewed 2026-07-24 (finding F9): recommend removal, pending owner sign-off; not yet removed. |
 | Validate that `T-0044`/`T-0045` findings were actually resolved and reconcile all repo tasks and TODOs | [T-0043](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) | owner direction 2026-07-22 and 2026-07-23 | Independent acceptance pass, not first-line discovery |
-| Revisit the unrelated tenant-host users-route browser-form drift | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | `2026-W10` task log note | Moved from `T-0043` since it is first-line engineering discovery |
-| Revisit remaining build warnings, browser-suite warnings, and dependency or vulnerability advisories | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | `2026-W10` task log note | Moved from `T-0043` since it is first-line engineering discovery |
+| Revisit the unrelated tenant-host users-route browser-form drift | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | `2026-W10` task log note | Moved from `T-0043` since it is first-line engineering discovery. **Resolved 2026-07-24** (finding F19): already fixed by `T-0037`'s copy pass; the tracked "Temporary password" label now consistently reads "Workspace password" in code and tests. No further action. |
+| Revisit remaining build warnings, browser-suite warnings, and dependency or vulnerability advisories | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | `2026-W10` task log note | Moved from `T-0043` since it is first-line engineering discovery. Re-checked 2026-07-24: 0 build warnings; NuGet clean; npm has 7 advisories, of which only `react-router-dom` (finding F5) is production-relevant and needs an owner decision on deferring its major-version fix. |
 | Mirror the recorded validation evidence into the release-facing artifact set and complete `v1.1.0` close-out planning | [T-0043](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) | `T-0033` | Merge/tag/deploy follow-through planning |
 
 ## Deferred Until After V1.1

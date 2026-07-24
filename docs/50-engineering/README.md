@@ -27,3 +27,4 @@
 - `docs/50-engineering/batch-3-acceptance-review.md`
 - `docs/50-engineering/batch-4-summary.md`
 - `docs/50-engineering/batch-4-acceptance-review.md`
+- `docs/50-engineering/t-0045-engineering-security-architecture-review.md`

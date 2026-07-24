@@ -1,7 +1,7 @@
 # T-0045: Engineering, Security, And Architecture Closeout Review
 
 ## Status
-queued
+active
 
 ## Type
 risk
@@ -16,7 +16,7 @@ agent
 2026-07-23
 
 ## Updated
-2026-07-23
+2026-07-24
 
 ## Checkpoint
 Cross-checkpoint
@@ -59,7 +59,19 @@ Run the first comprehensive staff-level engineering, security, and architecture 
 - Escalation Notes: Full review likely requires elevated build/test/Docker workflows; security-sensitive findings should not be silently patched without a recorded rationale.
 
 ## Current State
-- Queued. Not started. Runs after `T-0044` and before `T-0041`.
+- **Discovery complete. Remediation not started.** The full review has been performed and persisted
+  in [`docs/50-engineering/t-0045-engineering-security-architecture-review.md`](../../50-engineering/t-0045-engineering-security-architecture-review.md),
+  which is the authoritative findings record for this task going forward — do not re-derive
+  findings from scratch; start from that document.
+- No Critical or High-severity finding was identified: no cross-tenant data access, no auth/authz
+  bypass, no CSRF gap, no exploitable XSS/injection, and NuGet has zero known-vulnerable packages.
+- Five Medium-severity findings (F1–F5 in the persisted review) remain open, three of which require
+  an explicit owner/product decision before remediation can proceed (see Decision Notes below and
+  the review document's "Deferred Items / Owner Decisions Required" section).
+- No application code, test code, or dependency version was changed while producing the review.
+  This task's own low-risk fixes (Bundle A in the review document) have not yet been applied.
+- Runs after `T-0044` (done) and before `T-0041`. The persisted review is the handoff artifact for
+  whichever session executes remediation next.
 
 ## Touch Points
 - `src/`
@@ -78,13 +90,47 @@ Run the first comprehensive staff-level engineering, security, and architecture 
 - Record validation evidence.
 
 ## Next Action
-- Start after `T-0044` lands.
+- Remediation pass (fresh session): execute Bundle A from the persisted review document (small,
+  low-risk fixes — stale E2E assertion, dead `TenantImpersonationBanner` removal pending the F9
+  decision below, XSS-boundary doc/dead-code correction, `code-quality-review.md` reconciliation,
+  duplicate problem-contract consolidation, dependency-triage recording) once the three owner
+  decisions below are made. Bundle B items (archive/unarchive UI, React Router migration, ESLint
+  tooling) get their own follow-up tasks, not this one.
+- This task's `Status` should move to `done` only after Bundle A is implemented, validated, and the
+  outstanding acceptance-criteria items (build/runtime warnings, browser-form-drift note, findings
+  fixed-or-tracked) are re-confirmed against the applied changes — not before.
 
 ## Validation Evidence
-- Not started.
+- Discovery-phase validation: this review was performed by direct code reading against commit
+  `a29305c7d570bd83da2989e64ca93a4e2041cb8e` on `release/v1.1.0`, independently re-verifying (not
+  assuming) both the `T-0044` baseline's findings and the pre-existing `code-quality-review.md`
+  audit. Full methodology and evidence are in the persisted review document.
+- Dependency scans re-run fresh on 2026-07-24 against this commit: `dotnet list package
+  --vulnerable --include-transitive` — zero vulnerable packages across all 8 projects. `npm audit`
+  — 7 advisories (2 low, 5 high), of which only `react-router-dom` (production dependency) is
+  release-relevant; the remaining 6 are dev-tooling-only. Full detail in the persisted review
+  document's Dependencies section.
+- No build, test, or browser-suite commands were re-executed in this review — it relies on
+  `T-0044`'s freshly-recorded results, since no application or test code was changed. A remediation
+  pass must re-run the full validation bundle after applying any Bundle A change.
 
 ## Decision Notes
-- (none)
+- **Owner decision required — F3 (archive/unarchive UI):** `docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md`
+  documents archive/unarchive as required, user-visible, write-access behavior. The backend and
+  tests are complete; the frontend has no UI to trigger it. Needs a decision: build the UI before
+  `v1.1.0` ships, or formally amend FD-0001 to defer it. Not decided here.
+- **Owner decision required — F5 (React Router 7→8 migration):** `react-router-dom` (a production
+  dependency) sits in a vulnerable version range, but the fix is a major-version migration, not a
+  patch. Recommendation is to durably defer the full migration to a dedicated task and do a
+  targeted manual check of the open-redirect CVE's applicability before shipping `v1.1.0`. Not
+  decided here.
+- **Owner decision required — F9 (`TenantImpersonationBanner` disposition):** the task's own
+  acceptance criteria ask whether this dead component should be wired up, replaced, or removed.
+  Recommendation is removal (the live "view as" header/stop-control UX already covers the need).
+  Not executed here — this is a decision-and-then-fix, not yet either.
+- All other findings (F1, F2, F4, F6–F8, F10–F20) have a recommended disposition recorded in the
+  persisted review document and do not require an owner decision before a fresh session executes
+  them as Bundle A/rollup items.
 
 ## Validation Plan
 - Full build/test/docs validation bundle.
@@ -92,7 +138,17 @@ Run the first comprehensive staff-level engineering, security, and architecture 
 - `npm audit` / `dotnet list package --vulnerable` re-run.
 
 ## Outcome (Fill when done)
-- Not started.
+- **Not done. Discovery phase complete; remediation phase not started.**
+- Discovery outcome: a full staff-level engineering/security/architecture review was performed and
+  persisted in [`docs/50-engineering/t-0045-engineering-security-architecture-review.md`](../../50-engineering/t-0045-engineering-security-architecture-review.md).
+  Zero Critical/High findings. Five Medium findings (F1–F5) recorded, three needing an explicit
+  owner decision (see Decision Notes). Fifteen Low/Informational findings recorded, mostly already
+  tracked by the existing `code-quality-review.md` remediation plan or requiring no action.
+  Confirmed the one known `T-0044`-baseline test failure is a genuine stale-test defect with a
+  concrete fix identified (not yet applied).
+- Remediation outcome: none yet. This section should be updated again, and `Status` moved to
+  `done`, only once a remediation pass has implemented and validated Bundle A from the persisted
+  review and the three owner decisions above have been made.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

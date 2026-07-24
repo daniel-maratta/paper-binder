@@ -11,11 +11,10 @@ This is the active PaperBinder task board for agent execution.
 
 ## Now (WIP 1-3)
 
-- (empty)
+- [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) — discovery complete, remediation pending (see task file)
 
 ## Next
 
-- [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md)
 - [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md)
 - [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md)
 
