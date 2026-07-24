@@ -40,6 +40,8 @@ Examples:
 - [x] Plan the next post-V1 presentation implementation cut around the approved sample direction and auth-safe flow split -> T-0033 | type:feature | source:owner direction 2026-07-09
 - [ ] Add a Light / Dark / System theme preference after `v1.1.0` | type:feature | source:temp UI backlog 2026-07-12
 - [ ] Add a fun `404` game treatment after `v1.1.0` | type:feature | source:temp UI backlog 2026-07-12
+- [x] Apply the Users-page mobile-card pattern to the Binders list (and binder-detail Documents list) so the binder/document ID copy chip does not wrap character-by-character at narrow widths -> T-0041 | type:bug | source:T-0039 responsive QA 2026-07-23
+- [x] Remove or wire up `TenantImpersonationBanner` (`src/PaperBinder.Web/src/app/tenant-impersonation-banner.tsx`) — defined but never imported/rendered; current "view as" feedback is only the header account-label swap -> T-0045 | type:debt | source:T-0039 responsive QA 2026-07-23
 
 ## Triage Rules
 

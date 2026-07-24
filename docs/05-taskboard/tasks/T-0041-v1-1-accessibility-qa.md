@@ -35,6 +35,7 @@ Run the comprehensive accessibility QA pass after documentation cleanup/product 
 ## Acceptance Criteria
 - [ ] Public and authenticated routes receive accessibility QA.
 - [ ] Keyboard, focus, labels, landmarks, contrast, and screen-reader-relevant states are checked.
+- [ ] The Binders-table binder-ID `CopyValueChip` (`tenant-binders-route.tsx`, via `copy-value-chip.tsx`) is given a mobile-friendly treatment at narrow widths (<420px), where it currently wraps character-by-character in the plain `DataTable`; align with the Users-page mobile-card pattern rather than a CSS-only truncation (two CSS-only attempts during `T-0039` regressed the authenticated shell layout and were reverted).
 - [ ] Release-blocking findings are fixed.
 - [ ] Residual non-blocking findings are explicitly deferred or tracked.
 - [ ] Accessibility docs reflect the audit and remediation outcome.
