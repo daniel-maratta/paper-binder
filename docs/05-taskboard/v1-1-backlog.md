@@ -26,7 +26,7 @@ After this reconciliation:
 5. [T-0038: V1.1 Authenticated Mobile Layout](./tasks/T-0038-v1-1-authenticated-mobile-layout.md) - done
 6. [T-0040: V1.1 Documentation Truth, Pruning, And Product Screenshot Refresh](./tasks/T-0040-v1-1-documentation-truth-pruning.md) - done
 7. [T-0044: Establish V1.1.0 Release Baseline](./tasks/T-0044-v1-1-establish-release-baseline.md) - done
-8. [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md) - done on branch review/v1.1.0-responsive-t0039, PR #44 open into `release/v1.1.0`, not yet merged
+8. [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md) - done
 9. [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) - queued
 10. [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md) - queued
 11. [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) - queued
@@ -35,7 +35,7 @@ Cancelled/superseded:
 
 - [T-0042: V1.1 Product Screenshot Refresh](./tasks/T-0042-v1-1-product-screenshot-refresh.md) - cancelled; scope bundled into `T-0040`
 
-`T-0044` is complete (not yet committed). `T-0039` is complete but lives on a separate branch (review/v1.1.0-responsive-t0039) pending PR merge; it is not a further execution target. Current active execution target: none — next up is `T-0045`, then `T-0041`, then `T-0043`.
+`T-0044` and `T-0039` are both complete. Current active execution target: none — next up is `T-0045`, then `T-0041`, then `T-0043`.
 
 ## Active Backlog Map
 
@@ -44,7 +44,7 @@ Cancelled/superseded:
 | Make the authenticated app responsive on mobile | [T-0038](./tasks/T-0038-v1-1-authenticated-mobile-layout.md) | owner direction 2026-07-22 | Must precede final responsive and accessibility QA |
 | Clean up truthful/stale documentation and update final product screenshots | [T-0040](./tasks/T-0040-v1-1-documentation-truth-pruning.md) | owner direction 2026-07-22 and 2026-07-23 | Runs before responsive QA; includes release-state truth, transient docs, stale/obsolete docs, and final product screenshot refresh |
 | Establish a reproducible v1.1.0 baseline record | [T-0044](./tasks/T-0044-v1-1-establish-release-baseline.md) | owner direction 2026-07-23 | Baseline/reproducibility recording only; no remediation |
-| Run responsive QA | [T-0039](./tasks/T-0039-v1-1-responsive-qa.md) | `T-0033`, reconciled temporary backlog, owner direction 2026-07-22 and 2026-07-23 | Public plus authenticated routes at app breakpoints and common sizes after docs/screenshot cleanup; complete on branch review/v1.1.0-responsive-t0039, pending PR merge |
+| Run responsive QA | [T-0039](./tasks/T-0039-v1-1-responsive-qa.md) | `T-0033`, reconciled temporary backlog, owner direction 2026-07-22 and 2026-07-23 | Public plus authenticated routes at app breakpoints and common sizes after docs/screenshot cleanup |
 | First-line engineering, security, and architecture review | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | owner direction 2026-07-23 | Split out of `T-0043`; precedes `T-0041` |
 | Run the accessibility audit and remediation pass | [T-0041](./tasks/T-0041-v1-1-accessibility-qa.md) | `T-0033`, reconciled temporary backlog, owner direction 2026-07-22 | Record findings, fixes, and residual limitations; also owns the Binders-table ID-chip mobile-card fix deferred from `T-0039` |
 | Update final product screenshots after UI changes | [T-0040](./tasks/T-0040-v1-1-documentation-truth-pruning.md) | owner direction 2026-07-22 and 2026-07-23 | Bundled into documentation cleanup rather than tracked as a separate task |

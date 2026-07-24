@@ -19,10 +19,6 @@ This is the active PaperBinder task board for agent execution.
 - [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md)
 - [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md)
 
-## Awaiting Merge
-
-- [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md) — complete on branch review/v1.1.0-responsive-t0039; PR #44 open into `release/v1.1.0`, not yet merged. This branch (review/v1.1.0-baseline) has not incorporated that work yet, so `T-0039`'s task file here still reflects its pre-work state until the branches reconcile.
-
 ## Later
 
 - (empty)
@@ -34,6 +30,7 @@ This is the active PaperBinder task board for agent execution.
 ## Recently Done
 
 - [T-0044: Establish V1.1.0 Release Baseline](./tasks/T-0044-v1-1-establish-release-baseline.md)
+- [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md)
 - [T-0040: V1.1 Documentation Truth, Pruning, And Product Screenshot Refresh](./tasks/T-0040-v1-1-documentation-truth-pruning.md)
 - [T-0038: V1.1 Authenticated Mobile Layout](./tasks/T-0038-v1-1-authenticated-mobile-layout.md)
 - [T-0037: V1.1 Controlled Copy And Public Proof Refresh](./tasks/T-0037-v1-1-final-validation-and-close-out.md)
