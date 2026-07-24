@@ -52,7 +52,7 @@ Establish a concise, reproducible baseline record for branch review/v1.1.0-basel
 - Escalation Notes: Full bundle requires Docker, browser automation, and local-stack startup.
 
 ## Current State
-- Done. Full validation bundle executed on branch review/v1.1.0-baseline; results recorded in `docs/95-delivery/v1.1.0-baseline.md`. Not yet committed — awaiting review of the report before committing.
+- Done. Full validation bundle executed on branch review/v1.1.0-baseline; results recorded in `docs/95-delivery/v1.1.0-baseline.md`. Committed, pushed, and PR #45 open into `release/v1.1.0` (not merged).
 
 ## Touch Points
 - `docs/95-delivery/v1.1.0-baseline.md` (new)
@@ -70,7 +70,7 @@ Establish a concise, reproducible baseline record for branch review/v1.1.0-basel
 - Write `docs/95-delivery/v1.1.0-baseline.md` and update this task file.
 
 ## Next Action
-- Reported; awaiting review before committing. After commit, proceed to `T-0045`.
+- Done, committed, pushed, PR #45 open. Proceed to `T-0045`.
 
 ## Validation Evidence
 - Full validation bundle executed and recorded in `docs/95-delivery/v1.1.0-baseline.md`: restore/build (0 warnings, 0 errors), 63 frontend + 142 unit + 32 non-Docker integration + 102 Docker integration tests all passing, docs/version/launch-profile validation passing, browser E2E (root-host 3/3, tenant-host 2/3 with one deterministic test-defect failure), local reviewer-stack startup healthy, `npm audit` (7 advisories: 2 low, 5 high) and `dotnet list package --vulnerable` (none) both recorded.
