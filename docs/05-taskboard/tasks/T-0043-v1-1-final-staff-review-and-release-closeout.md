@@ -25,21 +25,24 @@ Cross-checkpoint
 V1.1 close-out
 
 ## Summary
-Perform the final staff-level frontend and backend review after documentation cleanup, responsive QA, and accessibility QA are complete; reconcile all repo TODO/task state, run the release validation bundle, and prepare merge/tag/deploy close-out.
+Perform the final independent acceptance review after `T-0044` (baseline), `T-0045` (engineering/security/architecture), and `T-0041` (accessibility/responsive QA) are complete: validate that prior findings were actually resolved, reconcile remaining repo TODO/task state, run the full release validation bundle, and prepare merge/tag/deploy close-out.
 
 ## Context
-- This task should be last. It depends on layout, docs cleanup with bundled screenshot updates, responsive QA, and accessibility QA being complete.
-- The review should prioritize cohesion, consistency, security, correctness, and industry-standard implementation quality across the app.
+- This task should be last. It depends on documentation cleanup, the v1.1.0 baseline (`T-0044`), the engineering/security/architecture review (`T-0045`), responsive QA (`T-0039`), and accessibility QA (`T-0041`) all being complete.
+- First-line engineering, security, and architecture discovery now belongs to `T-0045`, not this task. This task validates that `T-0045`'s findings were actually addressed (per the finding-validation posture below) rather than performing that discovery itself.
+- The review should prioritize cohesion, consistency, correctness, and confirming prior remediation actually resolved what it claimed to, rather than a first-pass audit.
 
 ## Acceptance Criteria
-- [ ] Frontend and backend receive findings-first staff-level review.
-- [ ] Tenant isolation, auth, authorization, CSRF, routing, and data-access boundaries are rechecked.
+- [ ] Findings recorded in `T-0044` and `T-0045` are each confirmed resolved, explicitly deferred with rationale, or explicitly rejected — a finding does not count as resolved merely because code changed; the original evidence must no longer reproduce.
 - [ ] All repo TODO/task items are addressed, updated, deferred, canceled, or tracked.
-- [ ] Build warnings, browser-suite warnings, and dependency/security advisories are remediated or durably triaged.
-- [ ] Full validation evidence is recorded.
-- [ ] Merge, tag, and deployment close-out steps are documented.
+- [ ] Any residual defects surfaced during acceptance validation are fixed if small and low-risk, or tracked as explicit follow-up.
+- [ ] Full validation evidence is recorded (build, test, docs, browser, local-stack).
+- [ ] Merge, tag, and deployment close-out steps are documented, including production smoke validation.
+- [ ] `docs/95-delivery/release-checklist.md` (the existing canonical gate list) is updated to a final v1.1.0 release-evidence checklist confirming: all v1.1.0 PRs merged; no unresolved High/Critical findings from `T-0044`/`T-0045`/`T-0041`; all automated validation green or explicitly waived with rationale; browser suite green or explicitly waived with rationale; `npm audit` disposition recorded; NuGet vulnerability scan recorded; documentation synchronized with implementation; version numbers (`Directory.Build.props`, frontend `package.json`/`package-lock.json`) consistent; tag created; production deployment validated; production smoke test completed. Do not create a parallel checklist file — extend the existing one per `docs/95-delivery/release-workflow.md`'s established conventions.
 
 ## Dependencies
+- [T-0044](./T-0044-v1-1-establish-release-baseline.md)
+- [T-0045](./T-0045-v1-1-engineering-security-architecture-closeout.md)
 - [T-0041](./T-0041-v1-1-accessibility-qa.md)
 
 ## Blocked By
@@ -63,13 +66,13 @@ Perform the final staff-level frontend and backend review after documentation cl
 
 ## Implementation Plan
 - Run TODO/task inventory.
-- Review frontend and backend changed surfaces.
-- Fix or triage findings.
+- Validate that each `T-0044` and `T-0045` finding was actually resolved, deferred, or rejected.
+- Fix or triage any residual findings.
 - Run release validation bundle.
-- Prepare release close-out docs.
+- Prepare release close-out docs (merge, tag, deploy, production smoke validation).
 
 ## Next Action
-- Start after accessibility QA lands.
+- Start after `T-0044`, `T-0045`, and accessibility QA (`T-0041`) land.
 
 ## Validation Evidence
 - Not started.
