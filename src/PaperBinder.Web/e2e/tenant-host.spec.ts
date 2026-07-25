@@ -56,7 +56,9 @@ test("Should_ExerciseAdminNormalForbiddenAndLogoutTenantFlows_InBrowser", async 
   await page.goto(tenantHostUrl(provisionedTenant.tenantSlug, "/app/binders"));
   await page.getByRole("link", { name: "Open binder", exact: true }).click();
   await page.getByLabel("Access mode").selectOption("restricted_roles");
-  await page.getByLabel("Tenant admin").check();
+  await expect(
+    page.getByText("Tenant admins always retain access. Select any additional roles that can open this binder.")
+  ).toBeVisible();
   await page.getByLabel("Binder read").check();
   await page.getByRole("button", { name: "Save policy" }).click();
   await expect(page.getByText("Binder access saved.")).toBeVisible();
