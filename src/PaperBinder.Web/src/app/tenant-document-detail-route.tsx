@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import type { DocumentDetail } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
@@ -264,6 +264,7 @@ export function DocumentDetailPage() {
   const [deleteConfirmationTitle, setDeleteConfirmationTitle] = useState("");
   const [deleteError, setDeleteError] = useState<TenantHostErrorViewModel | null>(null);
   const [isDeletingDocument, setIsDeletingDocument] = useState(false);
+  const deleteTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -540,6 +541,7 @@ export function DocumentDetailPage() {
                 setDeleteError(null);
                 setIsDeleteDialogOpen(true);
               }}
+              ref={deleteTriggerRef}
               type="button"
               variant="danger"
             >
@@ -552,6 +554,10 @@ export function DocumentDetailPage() {
       <Dialog onOpenChange={setIsDeleteDialogOpen} open={isDeleteDialogOpen}>
         <DialogContent
           description={`Type ${documentDetail.title} to confirm permanent removal of this document.`}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            deleteTriggerRef.current?.focus();
+          }}
           title={`Delete ${documentDetail.title}?`}
         >
           <Field hint="This action permanently removes the current document." label="Confirm document name">

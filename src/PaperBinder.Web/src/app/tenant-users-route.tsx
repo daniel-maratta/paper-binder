@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { TenantRole, TenantUser } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
@@ -72,6 +72,7 @@ export function UsersPage() {
   const [isStartingImpersonationForUserId, setIsStartingImpersonationForUserId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const deleteUserTriggerRef = useRef<HTMLButtonElement>(null);
   const [deleteConfirmationEmail, setDeleteConfirmationEmail] = useState("");
   const [deleteError, setDeleteError] = useState<TenantHostErrorViewModel | null>(null);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
@@ -638,6 +639,7 @@ export function UsersPage() {
                             setDeleteConfirmationEmail("");
                             setIsDeleteDialogOpen(true);
                           }}
+                          ref={deleteUserTriggerRef}
                           type="button"
                           variant="danger"
                         >
@@ -781,6 +783,10 @@ export function UsersPage() {
         <Dialog onOpenChange={setIsDeleteDialogOpen} open={isDeleteDialogOpen}>
           <DialogContent
             description={`Type ${selectedUser.email} to confirm removal from this workspace.`}
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              deleteUserTriggerRef.current?.focus();
+            }}
             title={`Delete ${selectedUser.email}?`}
           >
             <Field
