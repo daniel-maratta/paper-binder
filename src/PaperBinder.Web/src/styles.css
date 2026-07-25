@@ -2725,22 +2725,16 @@ a {
   line-height: 1.15;
 }
 
-.pb-auth-markdown h1 {
-  font-size: 2rem;
+.pb-auth-markdown h4 {
+  font-size: 1.3rem;
 }
 
-.pb-auth-markdown h2 {
-  font-size: 1.55rem;
+.pb-auth-markdown h5 {
+  font-size: 1.15rem;
 }
 
-.pb-auth-markdown h3 {
-  font-size: 1.28rem;
-}
-
-.pb-auth-markdown h4,
-.pb-auth-markdown h5,
 .pb-auth-markdown h6 {
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .pb-auth-markdown p,
@@ -3446,12 +3440,12 @@ a {
     padding: 22px 18px;
   }
 
-  .pb-auth-markdown h1 {
-    font-size: 1.75rem;
+  .pb-auth-markdown h4 {
+    font-size: 1.2rem;
   }
 
-  .pb-auth-markdown h2 {
-    font-size: 1.4rem;
+  .pb-auth-markdown h5 {
+    font-size: 1.08rem;
   }
 
 }

@@ -89,16 +89,16 @@ function isMarkdownBlockBoundary(line: string) {
   );
 }
 
+// The "Document preview" panel heading above rendered content is an h3, so a document's
+// own top-level (#) heading must render at h4 or deeper to nest under it without skipping
+// backward past the page's own h1/h2/h3 chrome. Offset every markdown heading level by 3,
+// capped at h6.
+const markdownHeadingLevelOffset = 3;
+
 function renderMarkdownHeading(level: number, content: string, key: string) {
   const children = renderInlineMarkdown(content.trim(), `${key}-inline`);
 
-  switch (level) {
-    case 1:
-      return <h1 key={key}>{children}</h1>;
-    case 2:
-      return <h2 key={key}>{children}</h2>;
-    case 3:
-      return <h3 key={key}>{children}</h3>;
+  switch (Math.min(level + markdownHeadingLevelOffset, 6)) {
     case 4:
       return <h4 key={key}>{children}</h4>;
     case 5:
