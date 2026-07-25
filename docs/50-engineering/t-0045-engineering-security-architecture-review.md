@@ -109,9 +109,10 @@ engineering risk.
 
 ### Security
 
-**F1 [Medium] — Documented XSS boundary is dead code, real defense is undocumented.**
-`src/PaperBinder.Infrastructure/Documents/HtmlEncodingMarkdownDocumentRenderer.cs` (lines 1-16)
-implements `IMarkdownDocumentRenderer` by HTML-encoding markdown via
+**F1 [Medium] — Documented XSS boundary is dead code, real defense is undocumented.** (Remediated
+2026-07-24: removed — see the owning task file's Outcome section.)
+`HtmlEncodingMarkdownDocumentRenderer.cs` (at the time of this review, `src/PaperBinder.Infrastructure/Documents/`, lines 1-16)
+implemented `IMarkdownDocumentRenderer` by HTML-encoding markdown via
 `HtmlEncoder.Default.Encode(markdown)`. It is registered in DI at
 `src/PaperBinder.Infrastructure/Persistence/PaperBinderPersistenceServiceCollectionExtensions.cs` (line 35),
 and its own inline comment (line 12) states: `// CP10 establishes a centralized safe-rendering
@@ -312,8 +313,9 @@ without detection. A scan of all other `app/*.tsx` and `components/ui/*.tsx` fil
 orphaned components — this appears to be an isolated instance today, but the tooling gap that
 allowed it will recur.
 
-**F9 [Low — owner decision required] — `TenantImpersonationBanner` is dead code.**
-`src/PaperBinder.Web/src/app/tenant-impersonation-banner.tsx` is fully implemented but has zero
+**F9 [Low — owner decision required] — `TenantImpersonationBanner` is dead code.** (Remediated
+2026-07-24: removed — see the owning task file's Outcome section.)
+`tenant-impersonation-banner.tsx` (at the time of this review, `src/PaperBinder.Web/src/app/`) was fully implemented but had zero
 importers anywhere in `src/` (confirmed by repo-wide search — only its own definition file
 matches). The live "view as" UX (header account-label swap to "Viewing as" plus a "Stop view as"
 control) already covers the functional need and is well-tested

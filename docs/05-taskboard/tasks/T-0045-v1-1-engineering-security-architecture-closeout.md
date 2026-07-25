@@ -34,7 +34,7 @@ Run the first comprehensive staff-level engineering, security, and architecture 
 
 ## Acceptance Criteria
 - [ ] Tenant isolation, auth, authorization, CSRF, routing, and data-access boundaries are rechecked against `docs/30-security/`.
-- [ ] View-as (impersonation) boundaries are rechecked, including whether `TenantImpersonationBanner` (`src/PaperBinder.Web/src/app/tenant-impersonation-banner.tsx`) should be wired up, replaced, or removed — it is currently defined but never imported/rendered; the only live "view as" feedback is the header account-label swap to "Viewing as".
+- [x] View-as (impersonation) boundaries are rechecked, including whether `TenantImpersonationBanner` (was `tenant-impersonation-banner.tsx`) should be wired up, replaced, or removed — it was defined but never imported/rendered; the only live "view as" feedback is the header account-label swap to "Viewing as". **Resolved 2026-07-24 (F9): removed, per owner sign-off.**
 - [ ] Demo-tenant lifecycle and cleanup behavior is rechecked against `docs/70-operations/cleanup-jobs-runbook.md` and `docs/20-architecture/worker-jobs.md`.
 - [ ] Architecture and maintainability review covers hotspot seams per `docs/50-engineering/coding-standards.md` and `docs/50-engineering/code-quality-review.md`.
 - [ ] Error handling is reviewed for consistency across API and frontend error-mapping paths.

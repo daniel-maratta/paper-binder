@@ -107,7 +107,7 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
 - `src/PaperBinder.Web/src/app/tenant-document-detail-route.tsx`
 - `src/PaperBinder.Web/src/app/tenant-users-route.tsx`
 - `src/PaperBinder.Web/src/app/tenant-lease-banner.tsx`
-- `src/PaperBinder.Web/src/app/tenant-impersonation-banner.tsx`
+- `tenant-impersonation-banner.tsx` (removed 2026-07-24, see `T-0045`)
 - `src/PaperBinder.Web/src/app/challenge-widget.tsx`
 - `src/PaperBinder.Web/src/components/ui/`
 - `src/PaperBinder.Web/e2e/root-host.spec.ts`

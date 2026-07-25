@@ -56,7 +56,7 @@ Exclusions:
 
 - test-only strings
 - non-user-facing code identifiers
-- dormant or currently unmounted components, including `src/PaperBinder.Web/src/app/tenant-impersonation-banner.tsx`
+- dormant or currently unmounted components, including `tenant-impersonation-banner.tsx` (removed 2026-07-24, see `T-0045`)
 - caller-provided dynamic values such as tenant slugs, user emails, correlation IDs, and server-returned titles/details unless the template around them is user-facing
 
 ## Rating Scale
