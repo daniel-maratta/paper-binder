@@ -54,6 +54,13 @@ the full test suite (build, unit, integration, frontend component tests) with no
 re-verified live against the isolated Docker E2E stack after landing. See the T-0041 task file's
 Outcome section for the complete list with file/line evidence.
 
+**Known residual (independent verification, 2026-07-25):** the heading-nesting fix's level-offset
+scheme (capped at `h6`) correctly eliminates the out-of-order `h1` defect, but as a side effect it
+collapses markdown heading levels 4-6 (`####`/`#####`/`######`) onto the same literal `<h6>` tag,
+so a screen-reader user can no longer distinguish a document's own H4 from its H6. This is strictly
+better than the pre-fix state, but is a real, undisclosed-until-now limitation, not a regression.
+Tracked as a Phase 4 follow-up in `docs/05-taskboard/v1-1-backlog.md`; not blocking for `v1.1.0`.
+
 ## Non-goals
 
 - Formal WCAG certification in V1.
