@@ -2849,6 +2849,7 @@ a {
 }
 
 .pb-auth-banner {
+  flex-shrink: 0;
   overflow: hidden;
   border-radius: 12px;
   border: 1px solid var(--pb-auth-banner-border);
