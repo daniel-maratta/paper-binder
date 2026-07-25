@@ -48,7 +48,8 @@ Neither bug was exotic — both were two components disagreeing about where "nar
 
 1. Both confirmed drift bugs (shell/sidebar in T-0039, lease-banner in T-0041's product/responsive/accessibility review) are fixed as of this ADR landing.
 2. `docs/10-product/component-specification-v1.md`'s implementation guidance references this ADR for the canonical breakpoint list.
-3. No further action required to adopt; this is a documentation-and-discipline decision, not a migration.
+3. Adopting this policy itself requires no migration; it is a documentation-and-discipline decision.
+4. **Known residual (independent verification, 2026-07-25):** an audit scoped strictly to actual `@media` viewport rules (as opposed to unrelated element `max-width` properties like text-column widths) confirmed the app uses exactly the five documented breakpoint expressions (420/768/1023/1024/1180px) and nothing else — no undocumented fifth value exists. One pre-existing, narrower inconsistency survives within that set: the dashboard summary-grid collapse (`styles.css`, `.pb-auth-summary-grid` inside `@media (max-width: 1024px)`) uses `1024px` rather than the `1023px` half of this ADR's own documented shell-threshold pairing, a 1px overlap with the JS `min-width: 1024px` check. It predates T-0041's commits and causes only a column-count nuance (2 vs. 3) at exactly 1024px, not the sidebar/nav stacking defect class this ADR targets. Tracked as a Phase 4 follow-up in `docs/05-taskboard/v1-1-backlog.md`; not blocking.
 
 ## Sources
 
