@@ -27,7 +27,7 @@ After this reconciliation:
 6. [T-0040: V1.1 Documentation Truth, Pruning, And Product Screenshot Refresh](./tasks/T-0040-v1-1-documentation-truth-pruning.md) - done
 7. [T-0044: Establish V1.1.0 Release Baseline](./tasks/T-0044-v1-1-establish-release-baseline.md) - done
 8. [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md) - done
-9. [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) - active (discovery complete; remediation pending — see task file and `docs/50-engineering/t-0045-engineering-security-architecture-review.md`)
+9. [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) - done (discovery and remediation both complete; F3/F5 durably deferred with recorded decisions — see task file and `docs/50-engineering/t-0045-engineering-security-architecture-review.md`)
 10. [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md) - queued
 11. [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) - queued
 
@@ -35,10 +35,8 @@ Cancelled/superseded:
 
 - [T-0042: V1.1 Product Screenshot Refresh](./tasks/T-0042-v1-1-product-screenshot-refresh.md) - cancelled; scope bundled into `T-0040`
 
-`T-0044` and `T-0039` are both complete. `T-0045` discovery is complete and its findings are
-persisted, but its own low-risk fixes and three owner decisions are still outstanding — it is not
-`done`. Current active execution target: a remediation pass on `T-0045` (see its task file's
-Decision Notes and Next Action), then `T-0041`, then `T-0043`.
+`T-0044`, `T-0039`, and `T-0045` are all complete. Current active execution target: `T-0041`, then
+`T-0043`.
 
 ## Active Backlog Map
 
