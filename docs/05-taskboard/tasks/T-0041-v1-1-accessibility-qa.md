@@ -54,8 +54,14 @@ Run the comprehensive accessibility QA pass after documentation cleanup/product 
 ## Current State
 - Done. An independent product/responsive/accessibility review was performed against the live
   application (not source-only), producing 3 release-blocking findings, 4 medium-priority
-  findings, and 5 low-priority findings across product quality, responsive layout, and
+  findings, and 4 low-priority findings (11 total) across product quality, responsive layout, and
   accessibility. All were fixed rather than deferred. See Outcome for the full list.
+- **Correction (independent Phase 3 verification, 2026-07-25):** this section and the Outcome
+  below originally claimed "12 findings" (3+4+5). The itemized breakdown in Outcome only ever
+  named 11 distinct findings, and the 14-commit history on the review/v1.1.0-product branch confirms
+  exactly 11 (two commits are a lease-banner correction pass on the same finding, one is an ADR
+  correction pass, one is closing bookkeeping — none is a 12th distinct finding). Corrected here
+  rather than left standing; no finding was silently dropped.
 
 ## Touch Points
 - `src/PaperBinder.Web/src/`
@@ -134,7 +140,7 @@ Run the comprehensive accessibility QA pass after documentation cleanup/product 
 
 ## Outcome (Fill when done)
 - **Done.** An independent product/responsive/accessibility review was performed live against the
-  running application (Docker E2E stack), not source-reading alone, producing 12 findings across
+  running application (Docker E2E stack), not source-reading alone, producing 11 findings across
   three severity tiers, all fixed (none deferred), each in its own commit on
   review/v1.1.0-product:
   - **Release blockers (3):**
@@ -157,7 +163,7 @@ Run the comprehensive accessibility QA pass after documentation cleanup/product 
     chips, credential icon buttons, mobile menu toggle) plus the public logo link missing the
     shared focus-ring treatment; Add User's generated password sharing a `<form>` with the email
     input (moved the credential display outside the form boundary).
-  - **Low-priority (5):** mobile "Viewing as" status hidden unless the hamburger menu is open
+  - **Low-priority (4):** mobile "Viewing as" status hidden unless the hamburger menu is open
     (added an always-visible warning strip); toast auto-dismiss pausing on mouse hover but not
     keyboard focus (added matching `onFocus`/`onBlur` handlers); toast component-spec wording
     overstating "manual dismissal only"; and the breakpoint-policy documentation gap itself
