@@ -470,6 +470,10 @@ This combination provides:
 
 This frontend stack baseline is adopted as part of the PaperBinder v1 UI contract.
 
+## Responsive Breakpoints
+
+Layout-collapsing CSS and JS viewport logic must reuse one of four canonical breakpoints — 420px, 768px, 1024px, and 1180px — rather than introducing a new value per component. See `docs/90-adr/ADR-0015-responsive-breakpoint-policy.md` for the full rationale, the exact meaning of each tier, and the reference QA widths used to verify them.
+
 ---
 
 # 17. Versioning

@@ -20,6 +20,7 @@
 - `docs/90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md`
 - `docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md`
 - `docs/90-adr/ADR-0014-tenant-host-failure-externalization-and-trusted-expiry-disclosure.md`
+- `docs/90-adr/ADR-0015-responsive-breakpoint-policy.md`
 
 ## Key Decision Clusters
 
@@ -33,3 +34,4 @@
 - Frontend/testing foundation: `ADR-0009`, `ADR-0010`
 - Presentation canon and reviewer-support posture: `ADR-0013`
 - Tenant-host disclosure and trusted expiry posture: `ADR-0014`
+- Responsive breakpoint policy: `ADR-0015`
