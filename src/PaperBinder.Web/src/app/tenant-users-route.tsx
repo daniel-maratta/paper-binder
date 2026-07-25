@@ -398,7 +398,7 @@ export function UsersPage() {
                 />
               </div>
             ) : (
-              <div aria-label="Workspace users" className="pb-auth-user-mobile-list" role="list">
+              <div aria-label="Workspace users" className="pb-auth-mobile-list" role="list">
                 {isLoading ? (
                   <div className="pb-auth-selection-empty" role="status">
                     Loading workspace users...
@@ -407,15 +407,15 @@ export function UsersPage() {
                   <div className="pb-auth-selection-empty">No workspace users are available.</div>
                 ) : (
                   orderedUsers.map((user) => (
-                    <article className="pb-auth-user-mobile-card" key={user.userId} role="listitem">
-                      <div className="pb-auth-user-mobile-card__header">
-                        <div className="pb-auth-user-mobile-card__identity">
+                    <article className="pb-auth-mobile-list-card" key={user.userId} role="listitem">
+                      <div className="pb-auth-mobile-list-card__header">
+                        <div className="pb-auth-mobile-list-card__identity">
                           <p className="pb-auth-stat-label">Email</p>
-                          <p className="pb-auth-user-mobile-card__email">{user.email}</p>
+                          <p className="pb-auth-mobile-list-card__title">{user.email}</p>
                         </div>
                         {user.isOwner ? <StatusBadge>Owner</StatusBadge> : <StatusBadge>Member</StatusBadge>}
                       </div>
-                      <div className="pb-auth-user-mobile-card__meta">
+                      <div className="pb-auth-mobile-list-card__meta">
                         <div>
                           <p className="pb-auth-stat-label">Role</p>
                           <p>{formatRole(user.role)}</p>

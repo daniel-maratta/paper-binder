@@ -2556,11 +2556,11 @@ a {
   line-height: 1.65;
 }
 
-.pb-auth-user-mobile-list {
+.pb-auth-mobile-list {
   display: none;
 }
 
-.pb-auth-user-mobile-card {
+.pb-auth-mobile-list-card {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -2570,18 +2570,18 @@ a {
   padding: 16px;
 }
 
-.pb-auth-user-mobile-card__header {
+.pb-auth-mobile-list-card__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
 
-.pb-auth-user-mobile-card__identity {
+.pb-auth-mobile-list-card__identity {
   min-width: 0;
 }
 
-.pb-auth-user-mobile-card__email {
+.pb-auth-mobile-list-card__title {
   margin: 6px 0 0;
   color: var(--pb-text-strong);
   font-size: 0.95rem;
@@ -2590,7 +2590,7 @@ a {
   overflow-wrap: anywhere;
 }
 
-.pb-auth-user-mobile-card__meta {
+.pb-auth-mobile-list-card__meta {
   display: grid;
   gap: 12px;
   color: var(--pb-text-strong);
@@ -2599,19 +2599,19 @@ a {
   line-height: 1.5;
 }
 
-.pb-auth-user-mobile-card__meta p {
+.pb-auth-mobile-list-card__meta p {
   margin: 6px 0 0;
 }
 
-.pb-auth-user-mobile-card .pb-auth-copy-chip {
+.pb-auth-mobile-list-card .pb-auth-copy-chip {
   max-width: 100%;
 }
 
-.pb-auth-user-mobile-card .pb-auth-code {
+.pb-auth-mobile-list-card .pb-auth-code {
   overflow-wrap: anywhere;
 }
 
-.pb-auth-user-mobile-card > button {
+.pb-auth-mobile-list-card > button {
   width: 100%;
 }
 
@@ -3097,7 +3097,7 @@ a {
     display: none;
   }
 
-  .pb-auth-user-mobile-list {
+  .pb-auth-mobile-list {
     display: flex;
     flex-direction: column;
     gap: 12px;

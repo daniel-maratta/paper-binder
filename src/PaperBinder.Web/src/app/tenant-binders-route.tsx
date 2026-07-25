@@ -14,6 +14,7 @@ import {
   TenantHostErrorNotice,
   TenantRouteFailureCard,
   formatDateTime,
+  useIsDesktopShell,
   useTenantShellContext
 } from "./tenant-shell";
 
@@ -30,6 +31,7 @@ function BinderRowIcon() {
 
 export function BindersPage() {
   const { apiClient, impersonation, showToast } = useTenantShellContext();
+  const isDesktopShell = useIsDesktopShell();
   const [binders, setBinders] = useState<BinderSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<TenantHostErrorViewModel | null>(null);
@@ -173,14 +175,57 @@ export function BindersPage() {
             <p className="pb-auth-panel-copy">Only the binders available to you appear here.</p>
           </div>
           <div className="pb-auth-panel-body">
-            <DataTable
-              caption="Workspace binders"
-              columns={columns}
-              emptyMessage="No binders are visible in this workspace yet."
-              isLoading={isLoading}
-              loadingLabel="Loading workspace binders..."
-              rows={rows}
-            />
+            {isDesktopShell ? (
+              <DataTable
+                caption="Workspace binders"
+                columns={columns}
+                emptyMessage="No binders are visible in this workspace yet."
+                isLoading={isLoading}
+                loadingLabel="Loading workspace binders..."
+                rows={rows}
+              />
+            ) : (
+              <div aria-label="Workspace binders" className="pb-auth-mobile-list" role="list">
+                {isLoading ? (
+                  <div className="pb-auth-selection-empty" role="status">
+                    Loading workspace binders...
+                  </div>
+                ) : binders.length === 0 ? (
+                  <div className="pb-auth-selection-empty">No binders are visible in this workspace yet.</div>
+                ) : (
+                  binders.map((binder) => (
+                    <article className="pb-auth-mobile-list-card" key={binder.binderId} role="listitem">
+                      <div className="pb-auth-mobile-list-card__header">
+                        <div className="pb-auth-mobile-list-card__identity">
+                          <p className="pb-auth-stat-label">Binder</p>
+                          <p className="pb-auth-mobile-list-card__title">{binder.name}</p>
+                        </div>
+                      </div>
+                      <div className="pb-auth-mobile-list-card__meta">
+                        <div>
+                          <p className="pb-auth-stat-label">Created</p>
+                          <p>{formatDateTime(binder.createdAt)}</p>
+                        </div>
+                        <div>
+                          <p className="pb-auth-stat-label">Binder ID</p>
+                          <CopyValueChip
+                            compact
+                            label={`binder id for ${binder.name}`}
+                            onCopy={() => {
+                              void copyValue("Binder ID", binder.binderId);
+                            }}
+                            value={binder.binderId}
+                          />
+                        </div>
+                      </div>
+                      <Button asChild type="button" variant="secondary">
+                        <Link to={`/app/binders/${binder.binderId}`}>Open binder</Link>
+                      </Button>
+                    </article>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         </section>
 
