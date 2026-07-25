@@ -19,7 +19,7 @@ Inputs reviewed:
 - Current runtime surface spot checks:
   - `src/PaperBinder.Infrastructure/Configuration/PaperBinderRuntimeSettings.cs` (dormant `AuthenticatedPerMinute` plumbing confirmed)
   - `src/PaperBinder.Api/PaperBinderChallengeVerification.cs` (only consumer of `PB_ENV`)
-  - `src/PaperBinder.Infrastructure/Documents/HtmlEncodingMarkdownDocumentRenderer.cs` (current safe-rendering posture)
+  - `HtmlEncodingMarkdownDocumentRenderer.cs` (current-at-CP16 safe-rendering posture; removed 2026-07-24, see `T-0045` F1)
   - `src/PaperBinder.Web/src/app/tenant-host.tsx` (1966 lines; +125 since CP14 critic note)
   - the historical mock challenge fixture in the frontend public tree (still present there before CP16 implementation)
   - `src/PaperBinder.Api/wwwroot/assets/` (compiled SPA artifacts in repo)

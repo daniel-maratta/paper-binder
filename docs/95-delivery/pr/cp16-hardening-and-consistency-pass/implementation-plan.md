@@ -239,7 +239,7 @@ Slices 1 through 3 settle the runtime hardening and observability contract first
 - `src/PaperBinder.Worker/PaperBinder.Worker.csproj`
 - `src/PaperBinder.Infrastructure/Configuration/PaperBinderRuntimeSettings.cs`
 - `src/PaperBinder.Infrastructure/Persistence/PaperBinderPersistenceServiceCollectionExtensions.cs`
-- `src/PaperBinder.Infrastructure/Documents/HtmlEncodingMarkdownDocumentRenderer.cs`
+- `HtmlEncodingMarkdownDocumentRenderer.cs` (removed 2026-07-24, see `T-0045` F1)
 - `src/PaperBinder.Infrastructure/Binders/DapperBinderService.cs`
 - `src/PaperBinder.Infrastructure/Documents/DapperDocumentService.cs`
 - `src/PaperBinder.Infrastructure/Tenancy/DapperTenantLeaseService.cs`
