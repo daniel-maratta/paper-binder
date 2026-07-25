@@ -25,7 +25,7 @@ This is a lightweight threat model for v1. It documents primary risks and baseli
 - CSRF (cookie auth)
   - Mitigations: readable CSRF cookie plus `X-CSRF-TOKEN` validation on authenticated unsafe `/api/*`, `SameSite=Lax`, and parent-domain auth cookie scoping.
 - XSS
-  - Mitigations: output encoding plus the conservative document renderer that HTML-encodes raw markdown and presents safe source. v1 does not ship a CSP or a parsed-markdown sanitizer pipeline.
+  - Mitigations: the API returns raw markdown as plain text (no server-side HTML rendering); the frontend's markdown-to-JSX renderer (`tenant-document-detail-route.tsx`) never uses `dangerouslySetInnerHTML`, relies on React's automatic text-node escaping, and allowlists link `href` values to `http:`/`https:`/`mailto:`/same-app-relative paths. v1 does not ship a CSP or a parsed-markdown sanitizer pipeline.
 - Session fixation / hijack
   - Mitigations: secure cookie flags (`Secure`, `HttpOnly`, `SameSite`), auth session rotation on login boundary events, bounded session lifetime.
 

@@ -93,7 +93,6 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
 10. **Comments are either sparse where "why" is needed or phrased in delivery/checkpoint language**
    - Why it matters: good comments justify a non-obvious choice. Here the most notable inline comment is tied to checkpoint history, while critical code paths often have no local rationale at all.
    - Representative examples:
-     - `src/PaperBinder.Infrastructure/Documents/HtmlEncodingMarkdownDocumentRenderer.cs`
      - `src/PaperBinder.Api/Program.Partial.cs`
    - Risk: maintainability risk, code-inspection risk.
 

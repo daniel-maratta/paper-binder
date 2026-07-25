@@ -32,7 +32,6 @@ public static class PaperBinderPersistenceServiceCollectionExtensions
         services.AddSingleton<ISqlConnectionFactory, NpgsqlSqlConnectionFactory>();
         services.AddSingleton<ITransactionScopeRunner, NpgsqlTransactionScopeRunner>();
         services.AddSingleton<IBinderPolicyEvaluator, BinderPolicyEvaluator>();
-        services.AddSingleton<IMarkdownDocumentRenderer, HtmlEncodingMarkdownDocumentRenderer>();
         services.AddScoped<ITenantLookupService, DapperTenantLookupService>();
         services.AddScoped<ITenantMembershipLookupService, DapperTenantMembershipLookupService>();
         services.AddScoped<ITenantActivityRecorder, DapperTenantActivityRecorder>();
