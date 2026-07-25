@@ -210,7 +210,7 @@ Toast notifications:
 
 - are separate from inline alerts and are used for async success, warning, error, and informational feedback
 - appear as top-center overlays above page content
-- require manual dismissal
+- auto-dismiss on a timed countdown, but always remain manually dismissible; the countdown pauses on hover or keyboard focus so a reader is never raced against the timer
 - use conventional status coloring:
   - success: green
   - warning: yellow
