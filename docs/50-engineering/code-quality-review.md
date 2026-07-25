@@ -20,29 +20,24 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
 
 ## Top 10 Highest-Signal Findings
 
-1. **Hand-rolled string and enum parsing is repeated in places where .NET already has stronger primitives**
+1. **Hand-rolled string and enum parsing is repeated in places where .NET already has stronger primitives** — **Fixed by `batch-1a`** (see `docs/50-engineering/batch-1a-summary.md`).
    - Why it matters: this is one of the fastest ways to suggest weak curation in a senior .NET review. It suggests the author reached for first-available code rather than platform-native APIs and edge-case thinking.
-   - Representative examples:
-     - `src/PaperBinder.Application/Tenancy/TenantRoleParser.cs` uses a `switch` over `nameof(TenantRole.*)`.
-     - `src/PaperBinder.Infrastructure/Configuration/PaperBinderRuntimeSettings.cs` parses `AuditRetentionMode` via a manual `switch`.
-     - `src/PaperBinder.Application/Binders/BinderRules.cs` manually maps contract strings to `BinderPolicyMode`.
-   - Risk: correctness risk, maintainability risk, code-inspection risk.
+   - `src/PaperBinder.Application/Tenancy/TenantRoleParser.cs` and `src/PaperBinder.Infrastructure/Configuration/PaperBinderRuntimeSettings.cs` now use `Enum.TryParse` plus `Enum.IsDefined` instead of hand-rolled `switch` parsing.
+   - `src/PaperBinder.Application/Binders/BinderRules.cs`'s `BinderPolicyModeNames.TryParseContractValue` remains a manual string map, but this is the repo's own stated exception: the external contract intentionally uses snake_case wire values that differ from the enum member casing, and the method is named to say so explicitly rather than claiming to be a generic `TryParse`.
+   - Risk (historical): correctness risk, maintainability risk, code-inspection risk.
 
-2. **"Normalize" helpers usually just trim strings or perform shallow cleanup**
+2. **"Normalize" helpers usually just trim strings or perform shallow cleanup** — **Fixed by `batch-1a`** (see `docs/50-engineering/batch-1a-summary.md`).
    - Why it matters: misleading names are not cosmetic. They make callers assume stronger guarantees than the helper actually provides.
-   - Representative examples:
-     - `DocumentRules.TryNormalizeTitle` in `src/PaperBinder.Application/Documents/DocumentRules.cs`
-     - `BinderNameRules.TryNormalize` in `src/PaperBinder.Application/Binders/BinderRules.cs`
-     - `TryNormalizeEmail` in `src/PaperBinder.Api/PaperBinderTenantUserEndpoints.cs`
-   - Risk: maintainability risk, code-inspection risk.
+   - `DocumentRules.TryNormalizeTitle` was renamed to `DocumentRules.TryTrimToValidTitle`, `BinderNameRules.TryNormalize` to `BinderNameRules.TryTrimToValidName`, and `TryNormalizeEmail` to `PaperBinderTenantUserRequestValidation.TryTrimToValidEmailAddress` — the last of which now also validates via `System.Net.Mail.MailAddress.TryCreate` with a round-trip check, a real behavior improvement, not just a rename.
+   - Risk (historical): maintainability risk, code-inspection risk.
 
-3. **Multi-type files are common in exactly the places engineers expect deliberate boundaries**
+3. **Multi-type files are common in exactly the places engineers expect deliberate boundaries** — **Partially fixed by `batch-1a`.**
    - Why it matters: packing interfaces, records, enums, failures, outcomes, and rule helpers into one file makes the codebase feel mechanically grouped by checkpoint or feature slice instead of by responsibility.
-   - Representative examples:
+   - `src/PaperBinder.Application/Tenancy/ITenantUserAdministrationService.cs` is now a clean interface-only file; its command/result/failure family moved to `TenantUserAdministrationContracts.cs`.
+   - Still unsplit — representative examples:
      - `src/PaperBinder.Application/Documents/DocumentContracts.cs`
      - `src/PaperBinder.Application/Binders/BinderContracts.cs`
      - `src/PaperBinder.Application/Provisioning/ITenantProvisioningService.cs`
-     - `src/PaperBinder.Application/Tenancy/ITenantUserAdministrationService.cs`
      - `src/PaperBinder.Infrastructure/Configuration/PaperBinderRuntimeSettings.cs`
    - Risk: maintainability risk, code-inspection risk.
 
@@ -100,9 +95,9 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
 
 | Anti-pattern | Why it hurts implementation confidence | Concrete examples |
 | --- | --- | --- |
-| Trim-only "normalization" helpers | Overclaims semantics and hides weak invariants behind confident names | `DocumentRules.TryNormalizeTitle`, `BinderNameRules.TryNormalize`, `TryNormalizeEmail` |
-| Fragile string-to-enum matching | Suggests platform primitives were skipped and contract semantics were not thought through deeply | `TenantRoleParser`, `PaperBinderRuntimeSettings` audit mode parsing, `BinderPolicyModeNames.TryParse` |
-| Multi-type files without a clear exception rule | Makes the code feel bundled by implementation burst rather than stable ownership | `DocumentContracts.cs`, `BinderContracts.cs`, `ITenantProvisioningService.cs`, `ITenantUserAdministrationService.cs` |
+| Trim-only "normalization" helpers | Overclaims semantics and hides weak invariants behind confident names | **Fixed by `batch-1a`** — see item 2 above |
+| Fragile string-to-enum matching | Suggests platform primitives were skipped and contract semantics were not thought through deeply | **Fixed by `batch-1a`** — see item 1 above |
+| Multi-type files without a clear exception rule | Makes the code feel bundled by implementation burst rather than stable ownership | `DocumentContracts.cs`, `BinderContracts.cs`, `ITenantProvisioningService.cs` (`ITenantUserAdministrationService.cs` fixed by `batch-1a`) |
 | Generic result/failure scaffolding repeated per feature | Reads like codegen boilerplate and adds browse noise | `*Outcome`, `*Failure`, `*FailureKind`, problem mapping files |
 | Large service classes with nested record/DTO types | Hides domain intent inside long files that mix concerns | `DapperDocumentService`, `DapperBinderService`, `DapperTenantUserAdministrationService` |
 | Local transport models embedded in endpoint files | Couples route handlers, DTO shape, local validation, and mapping too tightly | `PaperBinderBinderEndpoints`, `PaperBinderDocumentEndpoints`, `PaperBinderTenantUserEndpoints` |
@@ -113,7 +108,7 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
 
 | Hotspot | What an engineer is likely to inspect | Current impression |
 | --- | --- | --- |
-| `src/PaperBinder.Application/Binders/BinderRules.cs`, `src/PaperBinder.Application/Documents/DocumentRules.cs`, `src/PaperBinder.Application/Tenancy/TenantRoleParser.cs` | low-level rules and helper semantics | Fastest non-idiomatic pattern zone: trim-only normalize methods, manual parsers, weak naming precision |
+| `src/PaperBinder.Application/Binders/BinderRules.cs`, `src/PaperBinder.Application/Documents/DocumentRules.cs`, `src/PaperBinder.Application/Tenancy/TenantRoleParser.cs` | low-level rules and helper semantics | Trim-only normalize methods and manual parsers were the fastest non-idiomatic pattern zone; fixed by `batch-1a` (see items 1-2 above) |
 | `src/PaperBinder.Api/Program.Partial.cs` | runtime composition and middleware order | Architecture is intentional, but local code does not explain why ordering matters |
 | `src/PaperBinder.Api/*Endpoints.cs` | public API shape and request handling | Explicit but repetitive; looks template-driven and over-localized |
 | `src/PaperBinder.Infrastructure/Documents/DapperDocumentService.cs`, `Binders/DapperBinderService.cs`, `Tenancy/DapperTenantUserAdministrationService.cs` | real backend judgment under load-bearing behavior | Strong tenant predicates, but file shape is bulky and mixes concerns |
