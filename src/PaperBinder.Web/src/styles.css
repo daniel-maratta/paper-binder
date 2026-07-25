@@ -3036,6 +3036,11 @@ a {
   .pb-auth-detail-grid {
     grid-template-columns: 1fr;
   }
+
+  .pb-auth-banner__layout,
+  .pb-auth-banner__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 1180px) {
@@ -3131,9 +3136,7 @@ a {
 
   .pb-auth-summary-grid,
   .pb-auth-summary-grid--3,
-  .pb-auth-summary-grid--2,
-  .pb-auth-banner__layout,
-  .pb-auth-banner__metrics {
+  .pb-auth-summary-grid--2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
