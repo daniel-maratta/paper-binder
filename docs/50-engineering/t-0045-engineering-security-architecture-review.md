@@ -1,6 +1,6 @@
 # T-0045 Engineering, Security, And Architecture Review
 
-Status: Review Complete — Remediation Not Started
+Status: Review Complete — Bundle A Remediated, F3/F5 Durably Deferred (see owning task file)
 Owner task: [T-0045](../05-taskboard/tasks/T-0045-v1-1-engineering-security-architecture-closeout.md)
 
 ## Purpose
@@ -10,12 +10,18 @@ security, and architecture review of the `v1.1.0` release candidate, performed a
 [T-0044's baseline snapshot](../95-delivery/v1.1.0-baseline.md) and before `T-0041`
 (accessibility QA) and `T-0043` (final acceptance/release close-out).
 
-This document records findings, severities, evidence, false positives, and a recommended
-remediation plan. **It does not remediate any findings.** No application code, test code, or
-dependency versions were changed while producing this document. Remediation is intentionally
-deferred to a separate execution pass so it can be planned, reviewed, and validated on its own
-terms — see `docs/95-delivery/v1.1.0-baseline.md`'s own Non-Goals for the same discovery/
-remediation separation principle applied to `T-0044`.
+This document originally recorded findings, severities, evidence, false positives, and a
+recommended remediation plan **without remediating any findings** — no application code, test
+code, or dependency version was changed while producing the initial review, deliberately
+separating discovery from remediation so remediation could be planned, reviewed, and validated on
+its own terms (see `docs/95-delivery/v1.1.0-baseline.md`'s own Non-Goals for the same principle
+applied to `T-0044`). Bundle A (F1, F2, F4, F7, F9) has since been implemented in-place on this
+same branch, and F3/F5 have received recorded owner decisions to durably defer; both were
+independently verified in a follow-up pass. Findings below carry inline "Remediated"/"Triaged"
+annotations where their disposition has changed since the original review; unannotated findings
+remain as originally recorded. The full remediation and verification trail lives in the owning
+task file's Outcome and Decision Notes sections — this document is not re-derived from scratch
+each time it's updated.
 
 ## Branch And Commit Reviewed
 
@@ -496,9 +502,16 @@ durably deferred to `docs/05-taskboard/v1-1-backlog.md`. The open-redirect manua
 performed: every `<Link to>`/`navigate()` call across `src/PaperBinder.Web/src` uses either a
 static route literal or a hardcoded route prefix interpolated with a server-returned tenant-scoped
 resource id, never raw client/URL-param input — no attacker-controlled value reaches react-router's
-path resolution. The app's actual cross-origin redirects (login/logout/provisioning) go through
-`window.location.assign()` behind a separate `isAbsoluteRedirectUrl` guard, outside this CVE's
-surface entirely.
+path resolution. The app's actual cross-origin redirects (login, provisioning, and logout) go
+through `window.location.assign()`, outside react-router's navigation stack and therefore outside
+this CVE's surface entirely. The root-host login/provisioning paths (`root-host.tsx`) additionally
+validate the server-issued `redirectUrl` with an `isAbsoluteRedirectUrl()` well-formedness check
+before navigating; the tenant-host logout path (`tenant-shell.tsx:938-939`) does not call that
+same guard function, but is equally safe because its `redirectUrl` is never client-influenced — it
+comes directly from the `/api/auth/logout` response, which the server constructs from the trusted
+`PAPERBINDER_PUBLIC_ROOT_URL` configuration, not from request/header input (see this review's own
+Security findings, host validation section). Both mechanisms close off the same attack surface;
+they are not the same guard applied uniformly, as an earlier draft of this note implied.
 
 **F18 [Low] — Remaining 6 advisories are dev-tooling-only, not shipped to production.** `vite`,
 `esbuild`, `postcss`, and `@babel/core` are `devDependencies` (build-time only — never present in

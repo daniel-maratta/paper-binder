@@ -140,8 +140,12 @@ Run the first comprehensive staff-level engineering, security, and architecture 
   manual check of the open-redirect CVE's applicability was performed: no `<Link>`/`useNavigate`
   call in this app passes attacker-controlled input to react-router's path resolution (all targets
   are static literals or hardcoded-prefix + server-returned tenant-scoped resource ids); the app's
-  actual cross-origin redirects go through a separately-guarded `window.location.assign()` path
-  outside this CVE's surface. Recorded in `v1-1-backlog.md` and the persisted review document.
+  actual cross-origin redirects (root-host login/provisioning, tenant-host logout) go through
+  `window.location.assign()` outside react-router's navigation stack entirely, via two different
+  but equally sufficient mechanisms: root-host validates the server-issued URL with
+  `isAbsoluteRedirectUrl()` before navigating, while tenant-host logout relies on its `redirectUrl`
+  being server-constructed from trusted config rather than client input. Recorded in
+  `v1-1-backlog.md` and the persisted review document.
 - **F9 (`TenantImpersonationBanner` disposition) — decided 2026-07-24: remove.** Per the task's own
   acceptance criteria wording ("wired up, replaced, or removed"), owner sign-off was given to follow
   the review's recommendation: the live "view as" header/stop-control UX already covers the
