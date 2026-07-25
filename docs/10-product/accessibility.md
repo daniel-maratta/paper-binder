@@ -1,5 +1,5 @@
 # Accessibility
-Status: Current baseline with required post-upgrade audit
+Status: Post-upgrade audit complete (T-0041, 2026-07-25)
 
 V1 targets baseline accessibility for primary demo flows.
 
@@ -14,6 +14,11 @@ V1 targets baseline accessibility for primary demo flows.
 
 ## Validation Approach
 
+- Live browser pass against the isolated Docker E2E stack (not code reading alone): a scripted
+  keyboard-interaction test covering tab order, focus visibility, skip-link activation, dialog
+  focus trapping and focus-return on close, form validation, and live DOM heading/landmark
+  extraction, run across the public host and the full authenticated workflow (provision, binder
+  create, document create with markdown headings, user create, view-as).
 - Keyboard-only walkthrough:
   - challenge
   - provision + login
@@ -23,17 +28,46 @@ V1 targets baseline accessibility for primary demo flows.
   - tenant-admin user management + binder policy
   - lease extend
   - logout
-- Quick screen-reader sanity check (best effort).
+- Screen-reader-relevant structure (headings, landmarks, ARIA labels, live regions) verified
+  programmatically via DOM queries rather than a screen-reader application; no NVDA/VoiceOver
+  session was run directly.
 
-## Upgrade Posture
+## T-0041 Audit Outcome (2026-07-25)
 
-- During the UI/UX upgrade, preserve this baseline rather than widening scope mid-slice.
-- After the visual/content upgrade is complete, run a broader accessibility audit and remediation pass across the changed public and authenticated surfaces.
+A full product/responsive/accessibility review found and fixed:
+
+- Two heading-hierarchy defects: document markdown content rendering literal, unnested h1-h6
+  tags (fixed by offsetting to h4+ so it nests under the page's panel heading), and the
+  Binders-table mobile-card gap that T-0041's own acceptance criteria required closing.
+- Two focus-management defects: the public skip link not moving focus to its target, and delete
+  confirmation dialogs not returning focus to their trigger button on close.
+- A systemic focus-visible-outline gap across three custom control families (copy chips,
+  credential show/copy buttons, the mobile menu toggle) that silently overrode the app's own
+  focus-ring convention, plus the public logo link missing the same treatment its sibling nav
+  links already had.
+- A toast-timer keyboard-parity gap (auto-dismiss paused on mouse hover but not keyboard focus).
+- A product-experience/form-boundary issue on Add User (the generated one-time password sharing
+  a `<form>` with an email input, the classic browser password-manager heuristic trigger).
+
+All fixes are committed on the review/v1.1.0-product branch, one commit per finding, each validated against
+the full test suite (build, unit, integration, frontend component tests) with no regressions, and
+re-verified live against the isolated Docker E2E stack after landing. See the T-0041 task file's
+Outcome section for the complete list with file/line evidence.
+
+**Known residual (independent verification, 2026-07-25):** the heading-nesting fix's level-offset
+scheme (capped at `h6`) correctly eliminates the out-of-order `h1` defect, but as a side effect it
+collapses markdown heading levels 4-6 (`####`/`#####`/`######`) onto the same literal `<h6>` tag,
+so a screen-reader user can no longer distinguish a document's own H4 from its H6. This is strictly
+better than the pre-fix state, but is a real, undisclosed-until-now limitation, not a regression.
+Tracked as a Phase 4 follow-up in `docs/05-taskboard/v1-1-backlog.md`; not blocking for `v1.1.0`.
 
 ## Non-goals
 
 - Formal WCAG certification in V1.
-- Full accessibility audit program before the UI/UX upgrade lands.
+- Automated accessibility tooling (axe, Lighthouse, pa11y) — this audit used a scripted live
+  keyboard-interaction pass instead; adding automated tooling remains a possible future task, not
+  required by this pass.
+- A live screen-reader (NVDA/VoiceOver) session — DOM/ARIA structure was verified programmatically.
 
 ## Alternatives Considered
 

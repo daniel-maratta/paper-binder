@@ -1,4 +1,4 @@
-import type { CSSProperties, MouseEventHandler, ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
 type ToastVariant = "info" | "success" | "warning" | "danger";
@@ -55,8 +55,8 @@ export function Toast({
   body: ReactNode;
   variant?: ToastVariant;
   onDismiss: () => void;
-  onDismissPause?: MouseEventHandler<HTMLElement>;
-  onDismissResume?: MouseEventHandler<HTMLElement>;
+  onDismissPause?: () => void;
+  onDismissResume?: () => void;
   showTimeoutBar?: boolean;
   timeoutBarDurationMs?: number;
   timeoutBarPaused?: boolean;
@@ -75,6 +75,8 @@ export function Toast({
   return (
     <section
       className={cn("pb-toast", toastVariants[variant])}
+      onBlur={onDismissResume}
+      onFocus={onDismissPause}
       onMouseEnter={onDismissPause}
       onMouseLeave={onDismissResume}
       role={variant === "danger" ? "alert" : "status"}

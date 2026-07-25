@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import type {
   BinderDetail,
@@ -288,6 +288,7 @@ export function BinderDetailPage() {
   const [createdDocument, setCreatedDocument] = useState<DocumentDetail | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isDeleteBinderDialogOpen, setIsDeleteBinderDialogOpen] = useState(false);
+  const deleteBinderTriggerRef = useRef<HTMLButtonElement>(null);
   const [binderDeleteConfirmationName, setBinderDeleteConfirmationName] = useState("");
   const [deleteBinderError, setDeleteBinderError] = useState<TenantHostErrorViewModel | null>(null);
   const [isDeletingBinder, setIsDeletingBinder] = useState(false);
@@ -711,6 +712,7 @@ export function BinderDetailPage() {
                 setBinderDeleteConfirmationName("");
                 setIsDeleteBinderDialogOpen(true);
               }}
+              ref={deleteBinderTriggerRef}
               type="button"
               variant="danger"
             >
@@ -723,6 +725,10 @@ export function BinderDetailPage() {
       <Dialog onOpenChange={setIsDeleteBinderDialogOpen} open={isDeleteBinderDialogOpen}>
         <DialogContent
           description={`Type ${binder.name} to permanently remove this binder and all of its documents. This action cannot be undone.`}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            deleteBinderTriggerRef.current?.focus();
+          }}
           title={`Delete ${binder.name}?`}
         >
           <Field
