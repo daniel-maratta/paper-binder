@@ -2084,6 +2084,19 @@ a {
   width: min(170px, 100%);
 }
 
+.pb-auth-mobile-viewing-as {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 20px;
+  background: var(--pb-status-warning-soft);
+  color: var(--pb-status-warning-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
 .pb-auth-mobile-menu-button {
   display: inline-flex;
   align-items: center;

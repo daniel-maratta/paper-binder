@@ -10,6 +10,7 @@ import {
 } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
+import { StatusBadge } from "../components/ui/status-badge";
 import { Toast, ToastViewport } from "../components/ui/toast";
 import { cn } from "../lib/cn";
 import { CopyValueChip, writeClipboardValue } from "./copy-value-chip";
@@ -1026,6 +1027,12 @@ export function TenantShell({
                   </span>
                 </button>
               </header>
+
+              {isViewingAs ? (
+                <p className="pb-auth-mobile-viewing-as">
+                  <StatusBadge variant="warning">Viewing as</StatusBadge> {accountEmail}
+                </p>
+              ) : null}
 
               {isMobileMenuOpen ? (
                 <section className="pb-auth-mobile-menu" id="pb-auth-mobile-menu" ref={mobileMenuRef}>
