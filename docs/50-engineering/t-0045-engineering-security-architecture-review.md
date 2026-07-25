@@ -297,10 +297,11 @@ user-visible, so it's rated Low, not Medium.)
 API-client method calls it. No canonical doc requires this to be user-visible; tracked as debt, not
 a gap.
 
-**F7 [Low] — Three duplicate problem-contract records.** `PaperBinderApiProblem`
+**F7 [Low] — Three duplicate problem-contract records.** (Remediated 2026-07-24: consolidated
+onto `PaperBinderApiProblem` — see the owning task file's Outcome section.) `PaperBinderApiProblem`
 (`PaperBinderApiProblem.cs:3-7`), `TenantLeaseProblemContract`
-(`PaperBinderTenantLeaseProblemMapping.cs:5-9`), and `TenantImpersonationProblemContract`
-(`PaperBinderImpersonationProblemMapping.cs:18-22`) are structurally identical
+(at the time of this review, `PaperBinderTenantLeaseProblemMapping.cs:5-9`), and `TenantImpersonationProblemContract`
+(at the time of this review, `PaperBinderImpersonationProblemMapping.cs:18-22`) were structurally identical
 `(int StatusCode, string Title, string Detail, string ErrorCode)` shapes, unified by nothing. A
 concrete, cheap-to-fix instance of the "generated-looking repetition" pattern the existing audit
 describes abstractly.

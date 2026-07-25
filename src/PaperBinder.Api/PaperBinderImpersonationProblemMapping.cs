@@ -15,15 +15,9 @@ internal sealed record TenantImpersonationFailure(
     TenantImpersonationFailureKind Kind,
     string Detail);
 
-internal sealed record TenantImpersonationProblemContract(
-    int StatusCode,
-    string Title,
-    string Detail,
-    string ErrorCode);
-
 internal static class PaperBinderImpersonationProblemMapping
 {
-    public static TenantImpersonationProblemContract Map(TenantImpersonationFailure failure) =>
+    public static PaperBinderApiProblem Map(TenantImpersonationFailure failure) =>
         failure.Kind switch
         {
             TenantImpersonationFailureKind.AccessDenied => new(
