@@ -3115,6 +3115,12 @@ a {
     flex-direction: column;
     gap: 12px;
   }
+
+  .pb-auth-summary-grid,
+  .pb-auth-summary-grid--3,
+  .pb-auth-summary-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 1024px) {
@@ -3140,12 +3146,6 @@ a {
     right: 72px;
     top: 302px;
     width: 132px;
-  }
-
-  .pb-auth-summary-grid,
-  .pb-auth-summary-grid--3,
-  .pb-auth-summary-grid--2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .pb-auth-meta-grid,
