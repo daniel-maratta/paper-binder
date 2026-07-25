@@ -112,9 +112,9 @@ Run the first comprehensive staff-level engineering, security, and architecture 
 - **Remediation-phase validation (2026-07-24):**
   - `build.ps1 -Configuration Release` — 0 warnings, 0 errors, after each of the F1/F7/F9 code
     changes.
-  - `validate-docs.ps1` — passed after each doc change (several stale `src/...` path references to
-    the F1/F9-deleted files, in both canonical and historical docs, were caught by this gate and
-    fixed as part of the same change set per the documentation-integrity-contract).
+  - `validate-docs.ps1` — passed after each doc change (several stale inline `src/` path
+    references to the F1/F9-deleted files, in both canonical and historical docs, were caught by
+    this gate and fixed as part of the same change set per the documentation-integrity-contract).
   - `test.ps1 -Configuration Release -DockerIntegrationMode Require` — 63/63 frontend, 142/142
     backend unit, 32/32 non-Docker integration, 102/102 Docker-backed integration, all passing;
     identical counts to the `T-0044` baseline, confirming no regressions from F1/F7/F9.
@@ -196,7 +196,7 @@ Run the first comprehensive staff-level engineering, security, and architecture 
     review document's own precedent, but are noted here as confirmed non-issues.
   - **F20** — not executed: out of this remediation pass's accepted scope. Still an open, cheap
     (~2 minute) manual browser check recommended as a low-priority follow-up.
-  - Doc-integrity fallout from F1/F9's deletions (stale `src/...` path references caught by
+  - Doc-integrity fallout from F1/F9's deletions (stale inline `src/` path references caught by
     `validate-docs.ps1` across both canonical and historical docs) was fixed in the same change set.
   - Full validation bundle re-run and green: build (0 warnings), docs validation, full test suite
     (142/142 unit, 32/32 non-Docker integration, 102/102 Docker integration, 63/63 frontend,
