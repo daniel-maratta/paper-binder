@@ -491,6 +491,15 @@ targeted manual check of the open-redirect CVE's applicability to this app's act
 `useNavigate` usage before shipping `v1.1.0`, since that's the one advisory in the list that isn't
 obviously framework-mode-only.
 
+**Triaged 2026-07-24 (owner decision recorded, see the owning task file's Decision Notes):**
+durably deferred to `docs/05-taskboard/v1-1-backlog.md`. The open-redirect manual check was
+performed: every `<Link to>`/`navigate()` call across `src/PaperBinder.Web/src` uses either a
+static route literal or a hardcoded route prefix interpolated with a server-returned tenant-scoped
+resource id, never raw client/URL-param input — no attacker-controlled value reaches react-router's
+path resolution. The app's actual cross-origin redirects (login/logout/provisioning) go through
+`window.location.assign()` behind a separate `isAbsoluteRedirectUrl` guard, outside this CVE's
+surface entirely.
+
 **F18 [Low] — Remaining 6 advisories are dev-tooling-only, not shipped to production.** `vite`,
 `esbuild`, `postcss`, and `@babel/core` are `devDependencies` (build-time only — never present in
 the built `dist/` output); `undici` is a transitive dependency of the dev/build toolchain, not
