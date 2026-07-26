@@ -63,6 +63,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 - [docs/90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md](./90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md)
 - [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md)
 - [docs/90-adr/ADR-0014-tenant-host-failure-externalization-and-trusted-expiry-disclosure.md](./90-adr/ADR-0014-tenant-host-failure-externalization-and-trusted-expiry-disclosure.md)
+- [docs/90-adr/ADR-0015-responsive-breakpoint-policy.md](./90-adr/ADR-0015-responsive-breakpoint-policy.md)
 
 ## Focused Retrieval
 
