@@ -77,6 +77,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 - For implementation guidance, start with [docs/50-engineering/README.md](./50-engineering/README.md), then load the active standards in that lane. Use the code-quality audit and batch documents only when historical remediation context is needed.
 - For local command execution, validation, or git-write workflows, then load [docs/50-engineering/agent-execution-hygiene.md](./50-engineering/agent-execution-hygiene.md) before composing commands.
 - Treat `docs/70-operations/pipeline-setup/` as historical setup analysis, not a default read set.
+- For canonical term definitions (tenant, workspace, binder, document, view-as/impersonation, actor/effective user, caller role, binder policy, application service, command/query/outcome record, historical artifact, ADR), see [docs/00-intent/glossary.md](./00-intent/glossary.md). It is a reference to consult when a term is ambiguous, not required first reading.
 
 ## Local-Only Overrides
 

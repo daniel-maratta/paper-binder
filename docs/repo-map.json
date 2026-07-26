@@ -14,6 +14,7 @@
   "nodes": [
     { "id": "idx", "type": "doc", "path": "docs/ai-index.md", "tags": ["index"] },
     { "id": "intent", "type": "doc", "path": "docs/00-intent/README.md", "tags": ["intent"] },
+    { "id": "intent-glossary", "type": "doc", "path": "docs/00-intent/glossary.md", "tags": ["intent", "glossary", "terminology"] },
     { "id": "project-origin", "type": "doc", "path": "PROJECT_ORIGIN.md", "tags": ["root", "provenance", "reviewer"] },
     { "id": "taskboard", "type": "doc", "path": "docs/05-taskboard/README.md", "tags": ["taskboard", "execution-state", "internal"] },
     { "id": "taskboard-v1-1-backlog", "type": "doc", "path": "docs/05-taskboard/v1-1-backlog.md", "tags": ["taskboard", "backlog", "v1.1", "internal"] },
@@ -119,6 +120,8 @@
   ],
   "edges": [
     { "from": "idx", "to": "intent", "rel": "lane-index" },
+    { "from": "idx", "to": "intent-glossary", "rel": "reference" },
+    { "from": "intent", "to": "intent-glossary", "rel": "contains" },
     { "from": "idx", "to": "project-origin", "rel": "root-artifact" },
     { "from": "idx", "to": "taskboard", "rel": "lane-index" },
     { "from": "idx", "to": "taskboard-v1-1-backlog", "rel": "planning-reference" },
