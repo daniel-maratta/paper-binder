@@ -4,10 +4,34 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
-- Tightened demo workspace guardrails, lease-extension behavior, destructive-action surfaces, and reviewer-facing UI polish for the `1.1.0` release candidate.
+## [1.1.0] - 2026-07-26
+
+### Added
 - Replaced the public presentation with the implemented V1.1 product-led shell and refreshed authenticated workspace proof surfaces.
 - Added the authenticated mobile shell baseline for dashboard, binders, binder detail, document detail, users, and tenant error routes.
+- Added `docs/90-adr/ADR-0015-responsive-breakpoint-policy.md`, establishing four canonical breakpoints (420/768/1024/1180px) that all layout-collapsing CSS/JS must reuse.
+
+### Changed
+- Tightened demo workspace guardrails, lease-extension behavior, destructive-action surfaces, and reviewer-facing UI polish across the authenticated workspace.
+- Applied the Users-page mobile-card pattern to the Binders list so binder/document ID copy chips no longer wrap character-by-character at narrow (<420px) widths.
+- Consolidated duplicated API problem-detail contracts onto the shared `PaperBinderApiProblem` shape.
+
+### Fixed
+- Fixed authenticated-shell layout breakage in the 1024-1180px viewport range caused by a CSS/JS breakpoint drift, and aligned the dashboard summary-grid breakpoint with the same threshold pairing.
+- Fixed lease-banner content clipping at intermediate viewport heights (`overflow: hidden` disabling flex-item minimum-size protection).
+- Fixed keyboard/focus behavior: skip-link focus target, delete-dialog focus return, visible focus rings on copy chips/credential buttons/mobile menu toggle/public logo link, and toast auto-dismiss pausing on keyboard focus as well as mouse hover.
+- Fixed document markdown heading hierarchy so a document's own headings nest under page chrome instead of rendering as unnested `h1`-`h6`, while preserving H1-H4 semantic distinction.
+- Fixed a stale end-to-end test assertion (`e2e/tenant-host.spec.ts`) that expected a "Tenant admin" binder-policy checkbox the product intentionally never renders.
+- Removed the dead `TenantImpersonationBanner` component (defined but never rendered) and its duplicated helper.
+
+### Security
+- Independent engineering/security/architecture review found no Critical or High-severity findings: no cross-tenant data access, no auth/authz bypass, no CSRF gap, no exploitable XSS/injection, and zero known-vulnerable NuGet packages.
+- Reviewed and durably deferred the one production-relevant `npm audit` advisory (`react-router-dom`, major-version migration) after confirming its open-redirect CVE does not apply to this app's client-side-only routing usage.
+
+### Docs
 - Reconciled V1.1 documentation truth, pruned superseded temporary redesign notes, and refreshed public/authenticated product screenshots.
+- Completed a documentation canonicality / engineering-truth alignment pass correcting CQRS/dispatcher and caller-role claims, labeling historical CP-era and V1 presentation artifacts explicitly, and syncing `docs/ai-index.md`/`docs/repo-map.json` with actual task/ADR state.
+- Recorded final `v1.1.0` release-close-out validation evidence in `docs/95-delivery/release-checklist.md`: docs validation, Release build (0 warnings/0 errors), full test suite (64/64 frontend, 142/142 unit, 32/32 non-Docker integration, 102/102 Docker-backed integration), and browser E2E (root-host 3/3, tenant-host 3/3) all green; NuGet has zero vulnerable packages.
 
 ## [1.0.5] - 2026-07-03
 
