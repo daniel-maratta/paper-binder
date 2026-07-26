@@ -1,7 +1,9 @@
 # UI Style
-Status: V1 (Minimal)
+Status: Historical shipped-reference (V1, Minimal)
 
-V1 styling prioritizes clarity, speed, and accessibility.
+Do not use this document as forward presentation canon for `v1.1.0` work. Its presentation-direction content is superseded by `docs/10-product/presentation-contract-v1-1.md`; use that document and `docs/10-product/presentation-adoption-plan-v1-1.md` instead.
+
+V1 styling prioritized clarity, speed, and accessibility.
 
 ## Style Direction
 

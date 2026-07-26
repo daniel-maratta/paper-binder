@@ -30,5 +30,7 @@ Organization:
 - Only keep extra companion docs when they carry distinct value. Do not mirror `description.md` into a second prose artifact such as `implementation-plan.md`.
 - Example: `docs/95-delivery/pr/cp5-tenancy-resolution-and-immutable-tenant-context/`
 
+Status: every folder currently under `docs/95-delivery/pr/` (`cp1-...` through `cp17-...`) is a historical `V1` checkpoint PR artifact, retained for auditability and provenance. They are not current `v1.1.0` guidance. Current `v1.1.0` delivery evidence lives in `docs/95-delivery/v1.1.0-baseline.md`, `docs/95-delivery/release-checklist.md`, and the `T-0033` through `T-0045` task files under `docs/05-taskboard/tasks/`; the `v1.1.0` release does not use a per-PR folder under `pr/` the way the `V1` checkpoints did.
+
 Checkpoint PR artifacts must include critic-review summary, validation evidence, and unresolved-risk disclosure when implementation work is proposed for merge.
 Use `Draft` for in-progress artifacts, `Review Ready` for the current artifact once handoff is appropriate, and avoid retroactive status churn on older merged artifacts unless you are already doing a broader delivery-doc cleanup.
