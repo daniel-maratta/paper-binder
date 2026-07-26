@@ -11,12 +11,11 @@ This is the active PaperBinder task board for agent execution.
 
 ## Now (WIP 1-3)
 
-- [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) — discovery complete, remediation pending (see task file)
+- [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) — queued; current active execution target per `v1-1-backlog.md`
 
 ## Next
 
-- [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md)
-- [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md)
+- (empty)
 
 ## Later
 
@@ -28,6 +27,8 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md)
+- [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md)
 - [T-0044: Establish V1.1.0 Release Baseline](./tasks/T-0044-v1-1-establish-release-baseline.md)
 - [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md)
 - [T-0040: V1.1 Documentation Truth, Pruning, And Product Screenshot Refresh](./tasks/T-0040-v1-1-documentation-truth-pruning.md)
