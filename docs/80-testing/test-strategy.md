@@ -40,7 +40,7 @@ Related standards:
   - Split repo execution into non-Docker and Docker-backed buckets when Docker is required for only part of the suite.
 - Unit tests:
   - Domain invariants.
-  - Command/query handler behavior under explicit preconditions.
+  - Command/query application-service behavior under explicit preconditions.
 
 ## Validation Contract
 
