@@ -3,9 +3,9 @@
 ## Authorization Placement
 
 - Authorization is enforced at the API boundary via named policies/requirements.
-- Every endpoint that invokes an application handler must attach an authorization policy.
-- Command/query handlers assume authorization has already been enforced.
-- Handlers must not accept caller-role parameters.
+- Every endpoint that invokes an application service method must attach an authorization policy.
+- Application service methods (commands/queries) assume endpoint-level authorization has already been enforced; they must not re-implement it with ad-hoc role checks.
+- Some commands/queries do carry an explicit `CallerRole` field (for example `BinderRenameCommand`, `DocumentCreateCommand`, `DocumentListQuery`). This is not an ad-hoc authorization check: it exists solely so the service can evaluate the binder-level policy layer described below (`restricted_roles`), which is an additional per-binder rule layered on top of endpoint-level authorization, not a substitute for it.
 
 ## Named Policies
 
@@ -13,7 +13,7 @@
 - `BinderRead`: requires tenant membership with effective role `BinderRead` or higher.
 - `BinderWrite`: requires tenant membership with effective role `BinderWrite` or higher.
 - `TenantAdmin`: requires tenant membership with effective role `TenantAdmin`.
-- CP15 keeps impersonation start and stop on `AuthenticatedUser` routes so nested-session conflict and downgraded-role stop behavior can be enforced from trusted actor/impersonation context inside the handler path.
+- CP15 keeps impersonation start and stop on `AuthenticatedUser` routes so nested-session conflict and downgraded-role stop behavior can be enforced from trusted actor/impersonation context inside the application service path.
 
 ## Host Gating
 

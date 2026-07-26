@@ -19,9 +19,9 @@ Define repo-native implementation rules for PaperBinder code changes.
 
 ## Application Pattern Rules
 
-- Use the internal CQRS dispatcher pattern defined by local architecture docs.
-- Handlers implement business behavior; controllers/endpoints invoke handlers and map HTTP contracts.
-- Do not use ad-hoc role checks inside handlers.
+- PaperBinder uses lightweight command/query-shaped application services rather than a mediator or dispatcher pipeline. Minimal API endpoints construct command records for mutations and call application service interfaces directly through DI. Command records carry tenant context, actor/effective user identity, impersonation state, and payload. Queries are primarily service method parameters, with dedicated query records only where they clarify filtering semantics (for example `DocumentListQuery`). Service methods return explicit outcome records for endpoint-level failure handling.
+- Application services implement business behavior; endpoints construct command/query inputs, invoke the service, and map HTTP contracts. They do not contain business rules themselves.
+- Do not use ad-hoc role checks inside application service methods; endpoint-level authorization is enforced at the API boundary (see `docs/20-architecture/policy-authorization.md`).
 - Time, randomness, and external services should be injected behind explicit interfaces.
 
 ## Dependency Rules

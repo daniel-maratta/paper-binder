@@ -35,7 +35,7 @@ This document is implementation-governing and should be treated as required read
 - ASP.NET Core (API host and worker runtime)
 - ASP.NET Core Identity (authentication and identity management)
 - Policy-based authorization at API boundary
-- Internal CQRS dispatcher, not MediatR
+- Lightweight command/query-shaped application services, not MediatR or a dispatcher/mediator pipeline
 
 ### Frontend Application
 

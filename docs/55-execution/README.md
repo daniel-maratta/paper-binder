@@ -2,6 +2,8 @@
 
 This lane contains PaperBinder execution artifacts for product delivery.
 
+Status: this lane's 17-checkpoint plan is the completed historical `V1` execution record (`CP1`-`CP17`, all done; see `checkpoint-status.md`). It is retained for provenance and is not where current work is tracked. Current `v1.1.0` execution state lives in `docs/05-taskboard/v1-1-backlog.md` and `docs/05-taskboard/work-queue.md`.
+
 ## Canonical Plan
 
 - [execution-plan.md](./execution-plan.md) - The V1 execution plan (17 checkpoints, 5 phases)

@@ -38,6 +38,6 @@ Subdomain is routing input only and must match authenticated tenant membership/c
 - While impersonation is active, endpoint and binder-policy authorization evaluate the effective impersonated membership rather than the original actor's `TenantAdmin` role.
 - Original actor identity is preserved in request scope for stop behavior, audit-safe logging, and impersonation teardown during logout or expired-cookie detection.
 - Tenant-host-only and system-host-only API routes are gated from the resolved-host request context before CSRF and authorization run.
-- Handlers do not perform ad-hoc role checks and do not accept caller-role arguments.
+- Application service methods do not perform ad-hoc role checks to re-implement endpoint-level authorization. Some commands/queries do carry an explicit `CallerRole` field, but only to evaluate the separate binder-level policy layer (`docs/20-architecture/policy-authorization.md`), not to gate the operation itself.
 - v1 uses one effective role per user per tenant as a simplification.
 - Future versions may support additive multi-role aggregation without moving authorization out of API-boundary policy checks.
