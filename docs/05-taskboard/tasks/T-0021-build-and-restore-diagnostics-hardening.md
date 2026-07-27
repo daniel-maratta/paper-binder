@@ -64,7 +64,7 @@ Eliminate the opaque script-level build and restore failure paths by surfacing f
 - `src/PaperBinder.Api/PaperBinder.Api.csproj`
 - `README.md`
 - `docs/70-operations/runbook-local.md`
-- `docs/55-execution/checkpoint-status.md`
+- `docs/archive/v1/checkpoints/checkpoint-status.md`
 - `docs/05-taskboard/work-queue.md`
 
 ## Next Action

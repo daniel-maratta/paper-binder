@@ -50,9 +50,9 @@ Implement CP10 so tenant-scoped markdown documents can be created, listed, read,
 - (none)
 
 ## Review Gates
-- Scope Lock: Passed via `docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md` on `2026-04-09`; no blocking findings remain.
+- Scope Lock: Passed via `docs/archive/v1/checkpoints/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md` on `2026-04-09`; no blocking findings remain.
 - Pre-PR Critique: Scope-locked. Contract-first document payloads, same-binder supersedes, archive semantics, CSRF coverage, and markdown strategy boundary are locked.
-- Post-Implementation Critique: Completed via `docs/95-delivery/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md` revision 3 on `2026-04-10`; no blockers and no required fixes remain. Non-blocking coverage observations `N1`-`N3` were deferred as low-risk follow-ups because they duplicate already-proven shared code paths or unit-covered validation rules.
+- Post-Implementation Critique: Completed via `docs/archive/v1/checkpoints/pr/cp10-document-domain-and-immutable-document-rules/critic-review.md` revision 3 on `2026-04-10`; no blockers and no required fixes remain. Non-blocking coverage observations `N1`-`N3` were deferred as low-risk follow-ups because they duplicate already-proven shared code paths or unit-covered validation rules.
 - Escalation Notes: Docker-backed CP10 validation required unsandboxed execution because the sandbox cannot access the local Docker engine named pipe.
 
 ## Current State

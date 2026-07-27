@@ -33,7 +33,7 @@ Establish a concise, reproducible baseline record for branch review/v1.1.0-basel
 - `T-0039` (responsive QA) landed its fix on a separate branch (review/v1.1.0-responsive-t0039, not yet merged), so this baseline reflects branch review/v1.1.0-baseline as it stands today, with the T-0039 viewport matrix and its outcome referenced as pending-merge context rather than already-applied behavior.
 
 ## Acceptance Criteria
-- [x] `docs/95-delivery/v1.1.0-baseline.md` records branch/commit, tool versions, and every canonical validation command with its result.
+- [x] `docs/archive/v1-1/baseline-and-review-infra/v1.1.0-baseline.md` records branch/commit, tool versions, and every canonical validation command with its result.
 - [x] Backend, frontend, integration, docs, browser/E2E, and local-stack results are each recorded, with executed vs statically-inspected vs not-tested explicitly distinguished.
 - [x] The T-0039 responsive viewport matrix is referenced as established/pending-merge context.
 - [x] Current accessibility tooling posture (manual-only today) is recorded accurately against `docs/10-product/accessibility.md`.
@@ -52,10 +52,10 @@ Establish a concise, reproducible baseline record for branch review/v1.1.0-basel
 - Escalation Notes: Full bundle requires Docker, browser automation, and local-stack startup.
 
 ## Current State
-- Done. Full validation bundle executed on branch review/v1.1.0-baseline; results recorded in `docs/95-delivery/v1.1.0-baseline.md`. Committed, pushed, and PR #45 open into `release/v1.1.0` (not merged).
+- Done. Full validation bundle executed on branch review/v1.1.0-baseline; results recorded in `docs/archive/v1-1/baseline-and-review-infra/v1.1.0-baseline.md`. Committed, pushed, and PR #45 open into `release/v1.1.0` (not merged).
 
 ## Touch Points
-- `docs/95-delivery/v1.1.0-baseline.md` (new)
+- `docs/archive/v1-1/baseline-and-review-infra/v1.1.0-baseline.md` (new)
 - `docs/05-taskboard/`
 
 ## Implementation Plan
@@ -67,13 +67,13 @@ Establish a concise, reproducible baseline record for branch review/v1.1.0-basel
 - Attempt local reviewer-stack startup and browser E2E.
 - Reference the T-0039 viewport matrix and accessibility tooling posture.
 - Record warnings/advisories/deferred findings with owning task references.
-- Write `docs/95-delivery/v1.1.0-baseline.md` and update this task file.
+- Write `docs/archive/v1-1/baseline-and-review-infra/v1.1.0-baseline.md` and update this task file.
 
 ## Next Action
 - Done, committed, pushed, PR #45 open. Proceed to `T-0045`.
 
 ## Validation Evidence
-- Full validation bundle executed and recorded in `docs/95-delivery/v1.1.0-baseline.md`: restore/build (0 warnings, 0 errors), 63 frontend + 142 unit + 32 non-Docker integration + 102 Docker integration tests all passing, docs/version/launch-profile validation passing, browser E2E (root-host 3/3, tenant-host 2/3 with one deterministic test-defect failure), local reviewer-stack startup healthy, `npm audit` (7 advisories: 2 low, 5 high) and `dotnet list package --vulnerable` (none) both recorded.
+- Full validation bundle executed and recorded in `docs/archive/v1-1/baseline-and-review-infra/v1.1.0-baseline.md`: restore/build (0 warnings, 0 errors), 63 frontend + 142 unit + 32 non-Docker integration + 102 Docker integration tests all passing, docs/version/launch-profile validation passing, browser E2E (root-host 3/3, tenant-host 2/3 with one deterministic test-defect failure), local reviewer-stack startup healthy, `npm audit` (7 advisories: 2 low, 5 high) and `dotnet list package --vulnerable` (none) both recorded.
 
 ## Decision Notes
 - The docs validator (`validate-docs.ps1`) treats any inline-code literal starting with `review/` as a path into the docs/review/ directory convention, which collided with references to the review/v1.1.0-* branch names introduced by this task and `T-0039`'s taskboard updates. Resolved by writing branch names in prose without backticks throughout the taskboard docs and this baseline document, rather than as inline-code path literals.
@@ -90,7 +90,7 @@ Establish a concise, reproducible baseline record for branch review/v1.1.0-basel
 - `powershell -ExecutionPolicy Bypass -File .\scripts\reviewer-full-stack.ps1 -NoBrowser` (or documented blocker)
 
 ## Outcome
-- Established `docs/95-delivery/v1.1.0-baseline.md` as the repository-native v1.1.0 baseline record for branch review/v1.1.0-baseline.
+- Established `docs/archive/v1-1/baseline-and-review-infra/v1.1.0-baseline.md` as the repository-native v1.1.0 baseline record for branch review/v1.1.0-baseline.
 - Full validation bundle executed: backend/frontend build clean; 339 automated tests passing (63 frontend + 142 unit + 32 non-Docker integration + 102 Docker integration); docs/version/launch-profile validation passing; browser E2E mostly passing with one deterministic, root-caused test defect; local reviewer stack healthy.
 - No application defects were fixed; all findings (one newly discovered, several carried from `T-0039` and prior task-log notes) were recorded and routed to `T-0045` or `T-0041`.
 - No parallel governance system was created.

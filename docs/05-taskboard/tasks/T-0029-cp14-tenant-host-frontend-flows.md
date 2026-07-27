@@ -30,7 +30,7 @@ Implement CP14 so the CP12 tenant-host shell and CP13 onboarding handoff become 
 ## Context
 - CP12 shipped the single-SPA tenant shell, shared client, shared primitives, and route skeletons, but tenant-host routes were still placeholder-oriented.
 - CP13 shipped the root-host onboarding handoff, so the next bounded checkpoint is the authenticated tenant-host browser workflow.
-- CP14 scope is locked by `docs/55-execution/execution-plan.md`, `docs/95-delivery/pr/cp14-tenant-host-frontend-flows/implementation-plan.md`, and `docs/95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md`.
+- CP14 scope is locked by `docs/archive/v1/checkpoints/execution-plan.md`, `docs/archive/v1/checkpoints/pr/cp14-tenant-host-frontend-flows/implementation-plan.md`, and `docs/archive/v1/checkpoints/pr/cp14-tenant-host-frontend-flows/critic-review.md`.
 - The live backend contracts for lease, binders, documents, tenant users, binder policy, and logout already exist and remain authoritative for tenant identity, policy enforcement, CSRF, and error semantics.
 - Tenant-host browser work must stay inside the existing SPA and shared API client; no BFF, no new backend aggregation endpoint, no browser token storage, and no client-built tenant redirects are allowed.
 
@@ -55,9 +55,9 @@ Implement CP14 so the CP12 tenant-host shell and CP13 onboarding handoff become 
 - (none)
 
 ## Review Gates
-- Scope Lock: Passed via [critic-review.md](../../95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md) on `2026-04-16`; implementation must honor the locked decisions and stay inside CP14.
+- Scope Lock: Passed via [critic-review.md](../../archive/v1/checkpoints/pr/cp14-tenant-host-frontend-flows/critic-review.md) on `2026-04-16`; implementation must honor the locked decisions and stay inside CP14.
 - Pre-PR Critique: Scope-lock critique completed. Post-implementation critic review is now complete with a ship-ready verdict on the implemented diff.
-- Post-Implementation Critique: Completed via [critic-review.md](../../95-delivery/pr/cp14-tenant-host-frontend-flows/critic-review.md) on `2026-04-17`; no blocking findings remain. The only required follow-up, `NB-POST-1`, is now closed in executor closeout; `NB-POST-2` remains deferred to a later hardening checkpoint.
+- Post-Implementation Critique: Completed via [critic-review.md](../../archive/v1/checkpoints/pr/cp14-tenant-host-frontend-flows/critic-review.md) on `2026-04-17`; no blocking findings remain. The only required follow-up, `NB-POST-1`, is now closed in executor closeout; `NB-POST-2` remains deferred to a later hardening checkpoint.
 - Escalation Notes: Stop rather than widening scope if the tenant-host UI needs a new backend endpoint, a new sticky frontend dependency for markdown or state management, browser credential persistence, or any client-built tenant redirect or tenant-identity shortcut.
 
 ## Current State

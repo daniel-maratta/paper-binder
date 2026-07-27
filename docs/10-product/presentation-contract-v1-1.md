@@ -18,8 +18,8 @@ This contract sets presentation policy. It is not an implementation plan.
 
 This contract supersedes the presentation-direction portions of:
 
-- `docs/10-product/ui-ux-contract-v1.md`
-- `docs/10-product/ui-style.md`
+- `docs/archive/presentation-history/v1-shipped/ui-ux-contract-v1.md`
+- `docs/archive/presentation-history/v1-shipped/ui-style.md`
 
 It narrows the presentation-facing interpretation of:
 

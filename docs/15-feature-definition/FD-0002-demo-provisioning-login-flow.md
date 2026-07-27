@@ -13,7 +13,7 @@ Resolved — integrated into canonical documentation
 ## Canonical locations
 - docs/40-contracts/api-contract.md
 - docs/10-product/user-stories.md
-- docs/10-product/ux-notes.md
+- docs/archive/presentation-history/v1-shipped/ux-notes.md
 - docs/20-architecture/frontend-spa.md
 
 ## Why this exists
@@ -74,7 +74,7 @@ Representative error codes:
 
 ## Canonical updates required
 - `docs/10-product/user-stories.md` (provision/login acceptance criteria details)
-- `docs/10-product/ux-notes.md` (single-flow language and failure UX)
+- `docs/archive/presentation-history/v1-shipped/ux-notes.md` (single-flow language and failure UX)
 - `docs/20-architecture/system-overview.md` and `docs/20-architecture/frontend-spa.md` (flow sequence)
 - `docs/40-contracts/api-contract.md` (response shape and errors)
 - `docs/70-operations/runbook-local.md` and `docs/70-operations/runbook-prod.md` (verification checklist)

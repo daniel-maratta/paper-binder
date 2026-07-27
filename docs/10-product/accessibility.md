@@ -37,7 +37,7 @@ V1 targets baseline accessibility for primary demo flows.
 A full product/responsive/accessibility review found and fixed:
 
 - Two heading-hierarchy defects: document markdown content rendering literal, unnested h1-h6
-  tags (fixed by offsetting to h4+ so it nests under the page's panel heading), and the
+  tags (fixed by offsetting document markdown headings below the page chrome), and the
   Binders-table mobile-card gap that T-0041's own acceptance criteria required closing.
 - Two focus-management defects: the public skip link not moving focus to its target, and delete
   confirmation dialogs not returning focus to their trigger button on close.

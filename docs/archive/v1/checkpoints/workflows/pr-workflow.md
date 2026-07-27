@@ -1,0 +1,67 @@
+# PR Workflow
+
+How pull requests are structured and merged during execution plan delivery.
+
+## Overview
+
+Every checkpoint ends in a merge to `main`. This workflow defines how PRs are created, scoped, and validated to maintain the execution plan's invariants.
+
+This workflow is a PR-specific companion to [agent-operating-model.md](./agent-operating-model.md). Use the operating model for role responsibilities and review-gate timing.
+
+## PR Scope Rules
+
+- A PR must be cohesive: one logical concern per PR.
+- A checkpoint may produce 1-5 PRs. Prefer fewer, well-scoped PRs over many tiny ones.
+- Every PR must leave `main` buildable, testable, and documentation-consistent.
+- No speculative abstractions. Build only what the checkpoint requires.
+- The relevant task file must already contain validation evidence and pre-PR critique outcome before merge handoff.
+
+## PR Contents Checklist
+
+Before opening a PR, verify:
+
+- [ ] Code changes implement the checkpoint's commit description.
+- [ ] Tests are included for new behavior in the same PR.
+- [ ] Canonical docs are updated in the same PR if behavior, contracts, or terms changed.
+- [ ] Tenant scoping is not weakened for implementation convenience.
+- [ ] No non-goals are introduced without explicit ADR and scope approval.
+- [ ] Touched hotspot files were skimmed for misleading helper names, hand-rolled parsing, shallow validators, and unjustified multi-type files.
+- [ ] Critic review summary and unresolved-risk status are included in the PR artifact.
+- [ ] The PR artifact status line reflects the current handoff state (`Draft` while in progress, `Review Ready` when ready for reviewer handoff).
+
+## PR Validation
+
+Before merging, the PR must satisfy:
+
+- [ ] Backend build passes.
+- [ ] Frontend build passes.
+- [ ] All relevant test suites pass (unit, integration, E2E as applicable).
+- [ ] Docs validation passes (if docs validation scripts exist).
+- [ ] `scripts/validate-launch-profiles.ps1` passes.
+- [ ] Prefer `scripts/validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` for the standard scripted checkpoint-validation bundle.
+- [ ] Manual verification confirms every checked-in launch profile still works in VS Code and Visual Studio, or the documented Visual Studio fallback path is recorded.
+- [ ] The checkpoint's merge gate conditions that this PR addresses are met.
+
+## Common Review Misses
+
+- Host-scoped endpoints should include wrong-host deny-path coverage when the behavior is externally observable.
+- If the checkpoint plan promises structured logging or observability behavior, verify the implementation actually emits it.
+- Keep later-checkpoint work explicitly deferred in `Scope Boundaries`; do not silently pull it forward.
+- Keep one canonical checkpoint narrative per delivery folder. Do not duplicate `description.md` into a second prose artifact unless that file has a distinct purpose.
+- If a helper name claims normalization or canonicalization, verify the implementation really provides that guarantee.
+- If a parser maps strings into enums or contract modes, verify whether platform-native parsing or explicit contract-named parsing would be clearer.
+
+## Merge Discipline
+
+- Merge to `main` only when validation passes.
+- No long-lived feature branches. Checkpoint work should merge within the checkpoint's natural scope.
+- If a PR is blocked, record the blocker in the associated task file and move the task to `Blocked` in `docs/05-taskboard/work-queue.md`.
+- After merge, verify `main` is green. If not, fix forward immediately.
+- Do not rewrite older merged PR artifacts solely to replace `Draft` with `Merged`; only update a merged artifact's status when that post-merge state is itself relevant to the current delivery docs.
+
+## Relationship To Checkpoints And Tasks
+
+- Each PR should reference its associated task ID(s) in the commit message or PR description (e.g., "Refs T-0020").
+- When the final PR for a checkpoint merges, update all associated tasks to `Status: done` and record outcomes.
+- Move completed tasks to `Recently Done` in `docs/05-taskboard/work-queue.md`.
+- When the final PR for a checkpoint merges, update `docs/archive/v1/checkpoints/checkpoint-status.md` to mark the checkpoint complete and record any residual checkpoint-level follow-ups.

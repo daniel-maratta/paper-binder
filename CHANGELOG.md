@@ -4,7 +4,28 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
-## [1.1.0] - 2026-07-26
+### V1.1.0 RC2 Candidate Notes
+
+These notes describe the current `v1.1.0` release candidate. They must stay under `Unreleased`
+until the owner-controlled merge, tag, deployment, production smoke validation, and GitHub Release
+publication steps are complete.
+
+### Security
+- Removed a tracked local ASP.NET Core Data Protection key ring XML file
+  (`src/PaperBinder.Api/paperbinder-local-keys/`) found during an independent hiring-style review
+  pass; it was local/demo-scoped, never the production key ring (a Docker volume at `/data/keys`).
+  Added `paperbinder-local-keys/` to `.gitignore` and a new `scripts/validate-no-tracked-secrets.ps1`
+  guardrail, wired into `preflight.ps1` and CI, so this class of file cannot be silently recommitted.
+- Added baseline security response headers: `X-Content-Type-Options: nosniff`, `Referrer-Policy:
+  strict-origin-when-cross-origin`, and `X-Frame-Options: DENY` on every app response
+  (`SecurityResponseHeadersMiddleware`), plus `Strict-Transport-Security` at the TLS-terminating
+  reverse proxy for the test and prod Caddy configs. CSP remains an intentional non-goal (CP16
+  decision, unchanged) pending its own per-route validation pass.
+
+### Docs
+- Added a "Known Gaps" section to `REVIEWERS.md` surfacing the archive/unarchive UI gap and the
+  `react-router-dom` advisory deferral directly in the reviewer fast-path, instead of leaving them
+  only in `FD-0001` and the engineering review doc.
 
 ### Added
 - Replaced the public presentation with the implemented V1.1 product-led shell and refreshed authenticated workspace proof surfaces.
@@ -31,7 +52,7 @@ All notable changes to this project are documented in this file.
 ### Docs
 - Reconciled V1.1 documentation truth, pruned superseded temporary redesign notes, and refreshed public/authenticated product screenshots.
 - Completed a documentation canonicality / engineering-truth alignment pass correcting CQRS/dispatcher and caller-role claims, labeling historical CP-era and V1 presentation artifacts explicitly, and syncing `docs/ai-index.md`/`docs/repo-map.json` with actual task/ADR state.
-- Recorded final `v1.1.0` release-close-out validation evidence in `docs/95-delivery/release-checklist.md`: docs validation, Release build (0 warnings/0 errors), full test suite (64/64 frontend, 142/142 unit, 32/32 non-Docker integration, 102/102 Docker-backed integration), and browser E2E (root-host 3/3, tenant-host 3/3) all green; NuGet has zero vulnerable packages.
+- Recorded `v1.1.0` RC2 validation evidence in `docs/95-delivery/release-checklist.md`: docs validation, Release build (0 warnings/0 errors), full test suite (64/64 frontend, 142/142 unit, 32/32 non-Docker integration, 102/102 Docker-backed integration), and browser E2E (root-host 3/3, tenant-host 3/3) all green; NuGet has zero vulnerable packages. Final tag/deploy evidence remains pending.
 
 ## [1.0.5] - 2026-07-03
 
@@ -90,7 +111,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 - The complete `V1` reviewer-ready system: root-host provisioning and login, tenant-host binder and document flows, tenant-admin user management, lease lifecycle, worker cleanup, tenant-local impersonation, and the React SPA plus ASP.NET Core API and worker runtime needed to support them.
-- The canonical release artifact set for `V1`: `docs/95-delivery/release-workflow.md`, `docs/95-delivery/release-checklist.md`, and the CP17 release snapshot under `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/`.
+- The canonical release artifact set for `V1`: `docs/95-delivery/release-workflow.md`, `docs/95-delivery/release-checklist.md`, and the CP17 release snapshot under `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/`.
 
 ### Changed
 - Delivery, operations, testing, reviewer, taskboard, and execution docs now align on the locked `V1` / `v1.0.0` release identity, the supported single-host Docker Compose topology, the clean-checkout validation bundle, and the reviewer walkthrough order.

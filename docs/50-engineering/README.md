@@ -13,18 +13,23 @@
 - `docs/50-engineering/coding-standards.md`
 - `docs/50-engineering/data-access-standards.md`
 - `docs/50-engineering/frontend-standards.md`
-- `docs/50-engineering/code-quality-review.md`
-- `docs/50-engineering/code-quality-gap-analysis.md`
-- `docs/50-engineering/batch-1a-summary.md`
-- `docs/50-engineering/batch-1a-acceptance-review.md`
-- `docs/50-engineering/batch-1b-summary.md`
-- `docs/50-engineering/batch-1b-acceptance-review.md`
-- `docs/50-engineering/batch-1c-summary.md`
-- `docs/50-engineering/batch-1c-acceptance-review.md`
-- `docs/50-engineering/batch-2-summary.md`
-- `docs/50-engineering/batch-2-acceptance-review.md`
-- `docs/50-engineering/batch-3-summary.md`
-- `docs/50-engineering/batch-3-acceptance-review.md`
-- `docs/50-engineering/batch-4-summary.md`
-- `docs/50-engineering/batch-4-acceptance-review.md`
-- `docs/50-engineering/t-0045-engineering-security-architecture-review.md`
+
+## Historical Review And Remediation Evidence
+
+These archived documents are retained for traceability and auditability. They are not current engineering standards; use the active docs above as the governing contracts.
+
+- `docs/archive/v1-1/remediation/engineering-quality/code-quality-review.md`
+- `docs/archive/v1-1/remediation/engineering-quality/code-quality-gap-analysis.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-1a-summary.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-1a-acceptance-review.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-1b-summary.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-1b-acceptance-review.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-1c-summary.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-1c-acceptance-review.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-2-summary.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-2-acceptance-review.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-3-summary.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-3-acceptance-review.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-4-summary.md`
+- `docs/archive/v1-1/remediation/engineering-quality/batch-4-acceptance-review.md`
+- `docs/archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md`
