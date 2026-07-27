@@ -15,6 +15,7 @@
 (paperbinder-test-proxy) {
 	header {
 		X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 	}
 
 	handle /robots.txt {

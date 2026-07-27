@@ -30,6 +30,10 @@ jobs:
         shell: bash
         run: cp .env.example .env
 
+      - name: Validate no tracked secrets
+        shell: pwsh
+        run: ./scripts/validate-no-tracked-secrets.ps1
+
       - name: Validate version metadata
         shell: pwsh
         run: ./scripts/validate-version.ps1
