@@ -23,6 +23,7 @@ src/PaperBinder.Api/wwwroot/
 *.local
 .env
 AGENTS.local.md
+paperbinder-local-keys/
 .claude/*.local.json
 
 # Editor directories and files

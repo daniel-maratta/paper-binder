@@ -51,9 +51,9 @@ Implement CP12 so the current CP11 placeholder SPA becomes a host-aware, testabl
 - (none)
 
 ## Review Gates
-- Scope Lock: Passed via [critic-review.md](../../95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/critic-review.md) on `2026-04-15`; no blocking findings remain.
+- Scope Lock: Passed via [critic-review.md](../../archive/v1/checkpoints/pr/cp12-frontend-foundation-and-shared-ui-system/critic-review.md) on `2026-04-15`; no blocking findings remain.
 - Pre-PR Critique: Scope-locked. The component-test tooling decision, stack-governance posture, and doc reconciliation landed before broad implementation.
-- Post-Implementation Critique: Completed via [critic-review.md](../../95-delivery/pr/cp12-frontend-foundation-and-shared-ui-system/critic-review.md) on `2026-04-15`; ship-ready verdict, no blockers, and no required fixes before merge. Follow-up closed `NB-POST-1` and `NB-POST-2` with explicit `401` and invalid-host render coverage; `NB-POST-3` remains deferred because exact-name CSRF cookie matching would require a new frontend configuration contract or hardcoding a backend-overrideable cookie name.
+- Post-Implementation Critique: Completed via [critic-review.md](../../archive/v1/checkpoints/pr/cp12-frontend-foundation-and-shared-ui-system/critic-review.md) on `2026-04-15`; ship-ready verdict, no blockers, and no required fixes before merge. Follow-up closed `NB-POST-1` and `NB-POST-2` with explicit `401` and invalid-host render coverage; `NB-POST-3` remains deferred because exact-name CSRF cookie matching would require a new frontend configuration contract or hardcoding a backend-overrideable cookie name.
 - Escalation Notes: Frontend dependency installation succeeded after moving the npm cache into the workspace. The canonical checkpoint validator still required unsandboxed execution because its nested frontend build path hit the sandbox child-process restriction for Vite/esbuild.
 
 ## Current State

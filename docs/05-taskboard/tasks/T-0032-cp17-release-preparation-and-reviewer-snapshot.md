@@ -28,7 +28,7 @@ Phase 5
 Implement CP17 so PaperBinder ends `V1` as a reviewer-ready release cut: release identity is locked to prose `V1` with recommended tag `v1.0.0`, the changelog and release artifact set are complete, deployment and rollback docs match the supported single-host Docker Compose runtime, reviewer docs match the shipped system, the AI lane is explicitly deferred from `V1`, and final validation proves the documented commands reproduce the candidate release.
 
 ## Context
-- CP17 scope is locked by `docs/55-execution/execution-plan.md`, `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md`, and `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md`.
+- CP17 scope is locked by `docs/archive/v1/checkpoints/execution-plan.md`, `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/implementation-plan.md`, and `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md`.
 - The checkpoint is release-prep only: no new feature work, architecture changes, or public-demo infrastructure expansion.
 - The canonical closeout signal lives in `docs/95-delivery/release-checklist.md` `Release Readiness`, mirrored into the CP17 release artifact and checkpoint ledger.
 
@@ -48,9 +48,9 @@ Implement CP17 so PaperBinder ends `V1` as a reviewer-ready release cut: release
 - (none)
 
 ## Review Gates
-- Scope Lock: Passed via `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md` on `2026-04-19`.
+- Scope Lock: Passed via `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md` on `2026-04-19`.
 - Pre-PR Critique: Completed in the revised CP17 implementation plan before implementation broadened.
-- Post-Implementation Critic Review: Passed via `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md` on `2026-04-20`; no blocking findings remain.
+- Post-Implementation Critic Review: Passed via `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/critic-review.md` on `2026-04-20`; no blocking findings remain.
 - Escalation Notes: Stop rather than widening into post-`V1` feature work, deployment-model changes, new dependencies, or reviewer-microsite generation.
 
 ## Current State

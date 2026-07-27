@@ -82,7 +82,7 @@ Reviewer note:
 6. Release evidence:
    - `docs/95-delivery/release-workflow.md`
    - `docs/95-delivery/release-checklist.md`
-   - `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
+   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
 
 ## What To Evaluate
 
@@ -92,6 +92,23 @@ Reviewer note:
 - Decision quality and traceability through ADRs.
 - Operational simplicity and demo lifecycle controls (tenant lease and cleanup).
 - Release readiness evidence: clean-checkout reproducibility, reviewer clarity, and documentation integrity.
+
+## Known Gaps (Recorded, Not Hidden)
+
+A first-line engineering/security review (`T-0045`,
+[`docs/archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md`](docs/archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md))
+found no Critical/High findings, but flagged two items with recorded owner decisions rather than
+silent omission:
+
+- **Document archive/unarchive has no frontend UI.** The API, domain rules, and tests are complete
+  (`POST /api/documents/{documentId}/archive` / `/unarchive`), but no button triggers it in
+  `v1.1.0`. See
+  [`docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md`](docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md)
+  for the full gap and deferral rationale.
+- **`react-router-dom` sits in a vulnerable version range** (`npm audit`); the fix is a major-version
+  migration (React Router 7 to 8), not a patch. A manual open-redirect check found no
+  attacker-controlled value reaches the app's route resolution. Durably deferred; see
+  [`docs/05-taskboard/v1-1-backlog.md`](docs/05-taskboard/v1-1-backlog.md).
 
 ## Local Validation
 

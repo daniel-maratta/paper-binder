@@ -15,6 +15,18 @@ public sealed class ApiProtocolIntegrationTests
     private const string UnsupportedApiVersionErrorCode = "API_VERSION_UNSUPPORTED";
 
     [Fact]
+    public async Task Should_EmitBaselineSecurityHeaders_On_EveryResponse()
+    {
+        await using var host = await StartHostAsync();
+
+        var response = await host.Client.GetAsync("/api/contracts/probe");
+
+        Assert.Equal("nosniff", GetRequiredHeader(response, "X-Content-Type-Options"));
+        Assert.Equal("strict-origin-when-cross-origin", GetRequiredHeader(response, "Referrer-Policy"));
+        Assert.Equal("DENY", GetRequiredHeader(response, "X-Frame-Options"));
+    }
+
+    [Fact]
     public async Task Should_DefaultToV1AndGenerateCorrelationId_When_ApiVersionHeaderIsMissing()
     {
         await using var host = await StartHostAsync();

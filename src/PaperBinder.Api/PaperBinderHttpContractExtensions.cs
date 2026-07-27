@@ -14,6 +14,7 @@ internal static class PaperBinderHttpContractExtensions
 
     public static void UsePaperBinderHttpContract(this WebApplication app)
     {
+        app.UseMiddleware<SecurityResponseHeadersMiddleware>();
         app.UseMiddleware<RequestCorrelationMiddleware>();
         app.UseExceptionHandler();
         app.UseMiddleware<ApiVersionNegotiationMiddleware>();

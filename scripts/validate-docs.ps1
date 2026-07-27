@@ -8,14 +8,14 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $anchorCache = @{}
 $releaseChecklistPath = Join-Path $repoRoot "docs/95-delivery/release-checklist.md"
 $releaseWorkflowPath = Join-Path $repoRoot "docs/95-delivery/release-workflow.md"
-$releaseArtifactPath = Join-Path $repoRoot "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
+$releaseArtifactPath = Join-Path $repoRoot "docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
 $privateGuardTargets = @(
   (Join-Path $repoRoot "README.md"),
   (Join-Path $repoRoot "REVIEWERS.md"),
   (Join-Path $repoRoot "CHANGELOG.md"),
   (Join-Path $repoRoot "docs/95-delivery/release-workflow.md"),
   (Join-Path $repoRoot "docs/95-delivery/release-checklist.md"),
-  (Join-Path $repoRoot "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"),
+  (Join-Path $repoRoot "docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"),
   (Join-Path $repoRoot "docs/05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md")
 ) + @(Get-ChildItem -Path (Join-Path $repoRoot "review") -File -Filter "*.md")
 
@@ -113,7 +113,7 @@ function Assert-PathExists {
 function Assert-ReleaseChecklistStructure {
   Assert-PathExists -RelativePath "docs/95-delivery/release-checklist.md"
   Assert-PathExists -RelativePath "docs/95-delivery/release-workflow.md"
-  Assert-PathExists -RelativePath "docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
+  Assert-PathExists -RelativePath "docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
 
   $releaseChecklistContent = Get-Content -Path $releaseChecklistPath -Raw
   $requiredHeadings = @(

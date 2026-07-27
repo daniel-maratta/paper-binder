@@ -56,12 +56,13 @@ PaperBinder is available under the MIT License. See `LICENSE` and `NOTICE.md`.
 - `docs/30-security/`: security posture, tenant isolation, and threat model.
 - `docs/40-contracts/`: API and external contract documentation.
 - `docs/50-engineering/`: product engineering constraints and stack lock.
-- `docs/55-execution/`: staged delivery plan for this product.
+- `docs/55-execution/`: pointer to archived `V1` execution history.
 - `docs/60-ai/`: deferred post-V1 AI candidate scope and architecture.
 - `docs/70-operations/`: operational procedures and runbooks.
 - `docs/80-testing/`: test strategy, test data, and test suites.
 - `docs/90-adr/`: product architecture decision records.
-- `docs/95-delivery/`: release/PR artifacts and delivery/versioning notes.
+- `docs/95-delivery/`: current release workflow, checklist, and delivery/versioning notes.
+- `docs/archive/`: historical execution evidence, completed checkpoint artifacts, superseded plans, remediation summaries, and release/presentation history.
 
 ---
 
@@ -78,6 +79,7 @@ PaperBinder is available under the MIT License. See `LICENSE` and `NOTICE.md`.
 - Testing docs: `docs/80-testing/`
 - Release workflow: `docs/95-delivery/release-workflow.md`
 - Release checklist: `docs/95-delivery/release-checklist.md`
+- Historical archive: `docs/archive/README.md`
 
 ---
 
@@ -155,4 +157,4 @@ Policy:
 
 PaperBinder is reviewer-ready at `V1`.
 The current stable release tag is `v1.0.5`; `v1.1.0` remains in active close-out work.
-Release readiness is recorded in `docs/95-delivery/release-checklist.md`, with the release snapshot in `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`.
+Release readiness is recorded in `docs/95-delivery/release-checklist.md`, with the release snapshot in `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`.

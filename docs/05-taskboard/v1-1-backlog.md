@@ -27,17 +27,17 @@ After this reconciliation:
 6. [T-0040: V1.1 Documentation Truth, Pruning, And Product Screenshot Refresh](./tasks/T-0040-v1-1-documentation-truth-pruning.md) - done
 7. [T-0044: Establish V1.1.0 Release Baseline](./tasks/T-0044-v1-1-establish-release-baseline.md) - done
 8. [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md) - done
-9. [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) - done (discovery and remediation both complete; F3/F5 durably deferred with recorded decisions — see task file and `docs/50-engineering/t-0045-engineering-security-architecture-review.md`)
+9. [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) - done (discovery and remediation both complete; F3/F5 durably deferred with recorded decisions — see task file and `docs/archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md`)
 10. [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md) - done (independently verified 2026-07-25: 11 findings across 3 release-blocking/4 medium/4 low tiers, all fixed and live-verified against the running app; ACCEPT WITH NON-BLOCKING RESIDUALS at the time of RC1 — the two Phase 4 follow-ups below were both identified during RC1 verification and resolved during Phase 4 RC remediation)
-11. [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) - blocked (agent-performable work complete 2026-07-26; blocked on owner-controlled PR 5 merge, tag, and production deploy/smoke validation)
+11. [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) - blocked (agent-performable work complete 2026-07-26; PR 5 merged into `release/v1.1.0` via PR #50; blocked on owner-controlled merge to `main`, tag, and production deploy/smoke validation)
 
 Cancelled/superseded:
 
 - [T-0042: V1.1 Product Screenshot Refresh](./tasks/T-0042-v1-1-product-screenshot-refresh.md) - cancelled; scope bundled into `T-0040`
 
 `T-0044`, `T-0039`, `T-0045`, and `T-0041` are all complete. `T-0043`'s agent-performable work is
-complete; it is blocked on owner-controlled PR 5 merge, tag creation, and production deploy/smoke
-validation.
+complete; PR 5 merged into `release/v1.1.0` via PR #50. It is blocked on owner-controlled merge to
+`main`, tag creation, and production deploy/smoke validation.
 
 ## Active Backlog Map
 
@@ -47,10 +47,10 @@ validation.
 | Clean up truthful/stale documentation and update final product screenshots | [T-0040](./tasks/T-0040-v1-1-documentation-truth-pruning.md) | owner direction 2026-07-22 and 2026-07-23 | Runs before responsive QA; includes release-state truth, transient docs, stale/obsolete docs, and final product screenshot refresh |
 | Establish a reproducible v1.1.0 baseline record | [T-0044](./tasks/T-0044-v1-1-establish-release-baseline.md) | owner direction 2026-07-23 | Baseline/reproducibility recording only; no remediation |
 | Run responsive QA | [T-0039](./tasks/T-0039-v1-1-responsive-qa.md) | `T-0033`, reconciled temporary backlog, owner direction 2026-07-22 and 2026-07-23 | Public plus authenticated routes at app breakpoints and common sizes after docs/screenshot cleanup |
-| First-line engineering, security, and architecture review | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | owner direction 2026-07-23 | Split out of `T-0043`; precedes `T-0041`. Discovery complete; findings persisted in `docs/50-engineering/t-0045-engineering-security-architecture-review.md`. Remediation not started. |
+| First-line engineering, security, and architecture review | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | owner direction 2026-07-23 | Split out of `T-0043`; preceded `T-0041`. Discovery and remediation are complete; findings and dispositions are persisted in `docs/archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md`, with F3/F5 durably deferred by owner decision. |
 | Run the accessibility audit and remediation pass | [T-0041](./tasks/T-0041-v1-1-accessibility-qa.md) | `T-0033`, reconciled temporary backlog, owner direction 2026-07-22 | Done; also closed the Binders-table ID-chip mobile-card fix deferred from `T-0039`. Independently verified 2026-07-25 (live browser re-check, not source-reading alone); residual, non-blocking observations from that verification are tracked separately as Phase 4 backlog items. |
 | Update final product screenshots after UI changes | [T-0040](./tasks/T-0040-v1-1-documentation-truth-pruning.md) | owner direction 2026-07-22 and 2026-07-23 | Bundled into documentation cleanup rather than tracked as a separate task |
-| Insert the planned poison-pill implementation item before the final major review if it still applies | [T-0043](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) | reconciled temporary backlog | Decide near final review |
+| Resolve the planned provenance/attribution verification item before the final major review if it still applies | [T-0043](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) | reconciled temporary backlog | Use owner-approved provenance wording; no product behavior or implementation scope is implied. |
 | Wire up, replace, or remove the orphaned `TenantImpersonationBanner` component | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | owner direction 2026-07-23, `T-0039` responsive QA | Defined but never rendered; found incidentally during `T-0039`. **Resolved 2026-07-24** (finding F9): owner sign-off received to remove; component and its duplicated `formatRole` helper deleted. |
 | Validate that `T-0044`/`T-0045` findings were actually resolved and reconcile all repo tasks and TODOs | [T-0043](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) | owner direction 2026-07-22 and 2026-07-23 | Independent acceptance pass, not first-line discovery |
 | Revisit the unrelated tenant-host users-route browser-form drift | [T-0045](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) | `2026-W10` task log note | Moved from `T-0043` since it is first-line engineering discovery. **Resolved 2026-07-24** (finding F19): already fixed by `T-0037`'s copy pass; the tracked "Temporary password" label now consistently reads "Workspace password" in code and tests. No further action. |
@@ -75,7 +75,7 @@ They are preserved in `taskboard-intake.md` so they do not depend on pruned temp
 These documents still matter as inputs and evidence, but they are no longer the live backlog source:
 
 - superseded temporary redesign backlog, reconciled into this taskboard before pruning
-- historical `docs/50-engineering/` batch summaries and acceptance reviews
+- historical `docs/archive/v1-1/remediation/engineering-quality/` batch summaries and acceptance reviews
 
-The historical `docs/50-engineering/` review records should remain in PaperBinder as branch and repo evidence.
+The historical engineering review records should remain in PaperBinder as branch and repo evidence under `docs/archive/`.
 They should not be treated as the active taskboard for `v1.1` execution.

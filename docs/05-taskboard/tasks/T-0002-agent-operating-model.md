@@ -33,7 +33,7 @@ Define the repo-native operating model for checkpoint execution, durable task st
 - Detailed prompt or orchestration content must stay outside the public repository.
 
 ## Acceptance Criteria
-- [x] Canonical operating-model workflow doc exists under `docs/55-execution/workflows/`
+- [x] Canonical operating-model workflow doc exists under `docs/archive/v1/checkpoints/workflows/`
 - [x] Execution workflow docs reference the operating model instead of duplicating it
 - [x] Task template captures durable review-gate state
 - [x] Checkpoint PR template captures critic review and unresolved-risk status

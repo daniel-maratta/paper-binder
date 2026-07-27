@@ -36,11 +36,11 @@ Run the first comprehensive staff-level engineering, security, and architecture 
 - [x] Tenant isolation, auth, authorization, CSRF, routing, and data-access boundaries are rechecked against `docs/30-security/`. Rechecked in the persisted review's Security section; no findings.
 - [x] View-as (impersonation) boundaries are rechecked, including whether `TenantImpersonationBanner` (was `tenant-impersonation-banner.tsx`) should be wired up, replaced, or removed — it was defined but never imported/rendered; the only live "view as" feedback is the header account-label swap to "Viewing as". **Resolved 2026-07-24 (F9): removed, per owner sign-off.**
 - [x] Demo-tenant lifecycle and cleanup behavior is rechecked against `docs/70-operations/cleanup-jobs-runbook.md` and `docs/20-architecture/worker-jobs.md`. `DapperTenantLeaseCleanupService.RunCleanupCycleAsync`'s per-tenant, FK-safe purge order was read and confirmed to match the runbook; no findings.
-- [x] Architecture and maintainability review covers hotspot seams per `docs/50-engineering/coding-standards.md` and `docs/50-engineering/code-quality-review.md`. Covered by F2, F6, F7, F14, F15, F16; F2 and F7 remediated this pass.
+- [x] Architecture and maintainability review covers hotspot seams per `docs/50-engineering/coding-standards.md` and `docs/archive/v1-1/remediation/engineering-quality/code-quality-review.md`. Covered by F2, F6, F7, F14, F15, F16; F2 and F7 remediated this pass.
 - [x] Error handling is reviewed for consistency across API and frontend error-mapping paths. Confirmed centralized and consistent on both sides; no findings.
 - [x] Dead/orphaned code is identified and either removed or explicitly tracked (starting from the `TenantImpersonationBanner` finding above). F9 removed; F6 tracked (no canonical doc requires UI exposure, no action needed).
 - [x] Test gaps are identified and tracked or closed. F13 (stale coverage-count doc) tracked as a historical-record note; no live gap found.
-- [x] Automated tests are reviewed for correctness: stale assumptions are removed, and tests validate current intended product behavior rather than historical implementation details — starting from the known `e2e/tenant-host.spec.ts` case (expects a "Tenant admin" binder-policy checkbox that `tenant-binder-detail-route.tsx` intentionally never renders; see `docs/95-delivery/v1.1.0-baseline.md`). **Resolved 2026-07-24 (F4): fixed.**
+- [x] Automated tests are reviewed for correctness: stale assumptions are removed, and tests validate current intended product behavior rather than historical implementation details — starting from the known `e2e/tenant-host.spec.ts` case (expects a "Tenant admin" binder-policy checkbox that `tenant-binder-detail-route.tsx` intentionally never renders; see `docs/archive/v1-1/baseline-and-review-infra/v1.1.0-baseline.md`). **Resolved 2026-07-24 (F4): fixed.**
 - [x] Every failing automated test is classified as exactly one of: product defect, test defect, environment/configuration issue, intentional behavior mismatch, or flaky/intermittent — and each has an explicit disposition (fixed, corrected, or durably deferred with rationale) before this task closes. Do not blindly fix tests to match a broken implementation, and do not blindly change product behavior to satisfy an outdated test. The one known failure (`e2e/tenant-host.spec.ts`, F4) was classified as a test defect and fixed; full suite re-run green (see Validation Evidence).
 - [x] Build and runtime warnings are triaged; the outstanding `npm audit` advisories noted in `docs/05-taskboard/task-log/2026-W10.md` (7 advisories: 4 high, 1 moderate, 2 low, as of 2026-07-17) are re-checked and remediated or durably deferred. 0 build warnings. 7 npm advisories re-confirmed 2026-07-24, split as F5 (1, production-relevant, durably deferred with a manual CVE-applicability check performed) and F18 (6, dev-tooling-only, durably deferred).
 - [x] The previously-deferred "tenant-host users-route browser-form drift" note (`task-log/2026-W10.md`, 2026-07-16) is resolved or explicitly re-deferred with rationale. **Resolved (F19): already fixed by `T-0037`'s copy pass; no further action.**
@@ -60,7 +60,7 @@ Run the first comprehensive staff-level engineering, security, and architecture 
 
 ## Current State
 - **Discovery and remediation both complete.** The full review is persisted in
-  [`docs/50-engineering/t-0045-engineering-security-architecture-review.md`](../../50-engineering/t-0045-engineering-security-architecture-review.md).
+  [`docs/archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md`](../../archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md).
   Bundle A (F1, F2, F4, F7, F9) is implemented and validated; F3 and F5 are durably deferred with
   recorded owner decisions; F19/F12/F13/F18 housekeeping is recorded.
 - No Critical or High-severity finding was identified: no cross-tenant data access, no auth/authz
@@ -164,7 +164,7 @@ Run the first comprehensive staff-level engineering, security, and architecture 
 ## Outcome (Fill when done)
 - **Done.** Discovery and remediation both complete.
 - Discovery outcome: a full staff-level engineering/security/architecture review was performed and
-  persisted in [`docs/50-engineering/t-0045-engineering-security-architecture-review.md`](../../50-engineering/t-0045-engineering-security-architecture-review.md).
+  persisted in [`docs/archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md`](../../archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md).
   Zero Critical/High findings. Five Medium findings (F1–F5) recorded, three needing an explicit
   owner decision. Fifteen Low/Informational findings recorded, mostly already tracked by the
   existing `code-quality-review.md` remediation plan or requiring no action.

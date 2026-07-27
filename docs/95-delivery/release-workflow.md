@@ -21,9 +21,9 @@ Define the canonical stable-release sequence for the `V1` line, its ownership bo
 - `CHANGELOG.md`
 - `docs/95-delivery/release-workflow.md`
 - `docs/95-delivery/release-checklist.md`
-- `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
+- `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
 - `docs/05-taskboard/tasks/T-0032-cp17-release-preparation-and-reviewer-snapshot.md`
-- `docs/55-execution/checkpoint-status.md`
+- `docs/archive/v1/checkpoints/checkpoint-status.md`
 
 ## Sequence
 

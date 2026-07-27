@@ -11,7 +11,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Now (WIP 1-3)
 
-- [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) — blocked; agent-performable review/validation/release-evidence work complete on `2026-07-26`, blocked on owner-controlled PR 5 merge, tag, and production deploy/smoke validation
+- (empty)
 
 ## Next
 
@@ -23,7 +23,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Blocked
 
-- (empty)
+- [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) — agent-performable review/validation/release-evidence work complete on `2026-07-26`; PR 5 merged into `release/v1.1.0` via PR #50; unblock condition: owner-controlled merge to `main`, tag creation, production deploy, and production smoke validation complete.
 
 ## Recently Done
 

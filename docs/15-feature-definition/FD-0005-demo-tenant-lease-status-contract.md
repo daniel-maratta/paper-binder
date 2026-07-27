@@ -79,7 +79,7 @@ ProblemDetails expectations:
 
 ## Canonical updates required
 - `docs/10-product/user-stories.md` (lease acceptance criteria details)
-- `docs/10-product/information-architecture.md` and `docs/10-product/ux-notes.md` (lease indicator behavior)
+- `docs/10-product/information-architecture.md` and `docs/archive/presentation-history/v1-shipped/ux-notes.md` (lease indicator behavior)
 - `docs/20-architecture/demo-tenant-lease.md` (lease endpoint contract)
 - `docs/40-contracts/api-contract.md` (tenant lease payload and extension errors)
 - `docs/70-operations/cleanup-jobs-runbook.md` and `docs/70-operations/runbook-local.md` (status and extension verification)

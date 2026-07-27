@@ -115,7 +115,7 @@ Local Visual Studio process launches now load missing configuration keys from th
 - Before declaring any checkpoint done, run `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1`.
 - Prefer `powershell -ExecutionPolicy Bypass -File .\scripts\validate-checkpoint.ps1 -Configuration Release -DockerIntegrationMode Require` for the standard scripted checkpoint-validation bundle.
 - Browser-surface checkpoint closeout also requires `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1`; this browser suite now owns root-host, tenant-host, and impersonation flows, remains a separate required gate, and is not bundled into `scripts/validate-checkpoint.ps1`.
-- `V1` release closeout additionally records `docs/95-delivery/release-checklist.md` and the CP17 release artifact under `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/`.
+- `V1` release closeout additionally records `docs/95-delivery/release-checklist.md` and the CP17 release artifact under `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/`.
 - Record manual launch verification for every checked-in launch surface in the checkpoint PR artifact's `Validation Evidence` section.
 - `scripts/validate-checkpoint.ps1` does not replace the required manual VS Code and Visual Studio verification evidence.
 - Manual VS Code verification must cover:

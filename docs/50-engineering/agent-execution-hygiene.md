@@ -77,6 +77,6 @@ When command friction repeats:
 
 - update `scripts/`
 - update this document
-- update the relevant workflow doc under `docs/55-execution/workflows/`
+- update the relevant workflow doc under `docs/archive/v1/checkpoints/workflows/`
 
 That keeps the remediation durable instead of session-local.

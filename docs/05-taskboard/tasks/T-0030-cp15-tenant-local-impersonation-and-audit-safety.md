@@ -28,7 +28,7 @@ Phase 4
 Implement CP15 so a `TenantAdmin` can safely view as a same-tenant user from the tenant host, the browser clearly signals active impersonation, the request pipeline preserves both actor and effective identity, durable tenant-scoped audit events record impersonation start and stop, and the task, PR, and canonical docs stay synchronized without widening into generic audit UI, cross-tenant impersonation, or CP16 hardening work.
 
 ## Context
-- CP15 scope is locked by `docs/55-execution/execution-plan.md`, `docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md`, and `docs/95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md`.
+- CP15 scope is locked by `docs/archive/v1/checkpoints/execution-plan.md`, `docs/archive/v1/checkpoints/pr/cp15-tenant-local-impersonation-and-audit-safety/implementation-plan.md`, and `docs/archive/v1/checkpoints/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md`.
 - CP14 shipped the authenticated tenant-host SPA and `/app/users` administration surface, so CP15 can add a bounded tenant-local impersonation flow on top of the existing shared client and cookie-auth baseline.
 - The locked design requires tenant-host-only impersonation, server-issued impersonation state, effective-role authorization during impersonation, durable append-only tenant-scoped audit evidence, and explicit actor-vs-effective identity preservation across the retrofitted mutation seams.
 - Checkpoint closeout is complete: the post-implementation critic review is ship-ready, and manual VS Code plus Visual Studio launch verification is now recorded with the challenge-limited scope noted explicitly.
@@ -53,9 +53,9 @@ Implement CP15 so a `TenantAdmin` can safely view as a same-tenant user from the
 - (none)
 
 ## Review Gates
-- Scope Lock: Passed via [critic-review.md](../../95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md) on `2026-04-17`; implementation must honor the locked decisions and stay inside CP15.
+- Scope Lock: Passed via [critic-review.md](../../archive/v1/checkpoints/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md) on `2026-04-17`; implementation must honor the locked decisions and stay inside CP15.
 - Pre-PR Critique: Scope-lock critique completed. The blocking findings were resolved in the implementation plan before code changes broadened.
-- Post-Implementation Critique: Completed via [critic-review.md](../../95-delivery/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md) on `2026-04-17`; ship-ready verdict and no blocking findings remain.
+- Post-Implementation Critique: Completed via [critic-review.md](../../archive/v1/checkpoints/pr/cp15-tenant-local-impersonation-and-audit-safety/critic-review.md) on `2026-04-17`; ship-ready verdict and no blocking findings remain.
 - Escalation Notes: Stop rather than widening scope if CP15 appears to need root-host or cross-tenant impersonation, a server-side session store, token auth or JWTs, generic audit browsing or export, or broader CP16 hardening and refactoring work.
 
 ## Current State

@@ -12,7 +12,7 @@ Own the canonical release gate list for the published stable `V1` release and th
 - [x] Repository version metadata matched the current published stable `V1` release tag `v1.0.5` / `1.0.5` on `main` for that release cut; the active V1.1 branch now stages `1.1.0` metadata for final close-out.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
 - [x] `.github/workflows/release.yml` defines the tag-driven release validation pipeline for stable SemVer tags.
-- [x] `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` records shipped scope, validation evidence, reviewer walkthrough, and author notes for the critic.
+- [x] `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` records shipped scope, validation evidence, reviewer walkthrough, and author notes for the critic.
 - [x] `README.md`, `REVIEWERS.md`, `review/`, `docs/60-ai/`, operations docs, testing docs, taskboard state, and checkpoint ledger describe the shipped `V1` system only.
 
 ## Scripted Validation
@@ -53,6 +53,11 @@ Own the canonical release gate list for the published stable `V1` release and th
 - [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require` passed on `2026-07-26` for the `T-0043` close-out pass: `64/64` frontend, `142/142` unit, `32/32` non-Docker integration, `102/102` Docker-backed integration — all green.
 - [x] [run-browser-e2e.ps1](../../scripts/run-browser-e2e.ps1) passed on `2026-07-26` for the `T-0043` close-out pass: `e2e/root-host.spec.ts` `3/3`, `e2e/tenant-host.spec.ts` `3/3`.
 - [x] [reviewer-full-stack.ps1](../../scripts/reviewer-full-stack.ps1) `-NoBrowser` passed on `2026-07-26` for the `T-0043` close-out pass: `app`/`db`/`proxy`/`worker` came up healthy, health endpoints reachable, worker completed a clean lease-cleanup cycle; stack torn down afterward.
+- [x] [validate-no-tracked-secrets.ps1](../../scripts/validate-no-tracked-secrets.ps1) added and passed on `2026-07-27` on branch review/v1.1.0-rc2-remediation, confirming the removed local Data Protection key material stays untracked.
+- [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-07-27` for the hiring-review remediation pass — `0 Warning(s), 0 Error(s)`.
+- [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require` passed on `2026-07-27` for the hiring-review remediation pass: `64/64` frontend, `142/142` unit, `33/33` non-Docker integration (new security-response-headers test added), `102/102` Docker-backed integration — all green.
+- [x] `dotnet list PaperBinder.sln package --vulnerable --include-transitive` and `npm audit --audit-level=moderate` re-run fresh on `2026-07-27` — see Dependency / Vulnerability Disposition below.
+- [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed on `2026-07-27` after the hiring-review remediation pass (key-material removal, security headers, archive/unarchive reviewer note, dependency-audit refresh).
 - [x] `.github/workflows/release.yml` succeeded for `v1.0.1` from commit `63025570f3c259e5116a0e1064cb70cdc11721d3` on `2026-06-28`.
 - [x] `.github/workflows/deploy-test.yml` succeeded for `1.0.1` from commit `63025570f3c259e5116a0e1064cb70cdc11721d3` on `2026-06-29`.
 - [x] `.github/workflows/deploy-prod.yml` succeeded for `1.0.1` from commit `63025570f3c259e5116a0e1064cb70cdc11721d3` on `2026-06-29`.
@@ -91,7 +96,7 @@ not replace the historical `V1` sections above.
 - [x] PR 3 product/responsive/accessibility review — merged (`T-0041`/`T-0039`, PR #47).
 - [x] PR 4 RC1 independent acceptance and residual remediation — merged (PR #48).
 - [x] PR 4.5 documentation canonicality / engineering-truth alignment — merged (PR #49).
-- [ ] PR 5 (this `T-0043` close-out pass, branch review/v1.1.0-final) — **not yet opened/merged; owner-controlled.**
+- [x] PR 5 (`T-0043` close-out pass, branch review/v1.1.0-final) — merged into `release/v1.1.0` via PR #50 (commit `06e306c`).
 
 ### Findings Disposition (`T-0044` / `T-0045` / `T-0041`)
 
@@ -114,19 +119,31 @@ not replace the historical `V1` sections above.
 
 - [x] `dotnet list package --vulnerable --include-transitive` — re-run fresh on `2026-07-26` against
   review/v1.1.0-final: zero vulnerable packages across all 8 projects.
-- [x] `npm audit --audit-level=moderate` disposition recorded, **not freshly re-verified this
-  session**: attempted twice on `2026-07-26` from `src/PaperBinder.Web`; both attempts failed with
-  `npm error audit endpoint returned an error` because the registry's advisories-bulk response
-  failed local gzip decoding. A direct `curl` to the same endpoint returned `200` outside npm,
-  indicating an environment/network-layer limitation in this execution session rather than a
-  registry outage or a new advisory. Carrying forward the most recent verified disposition
-  (`T-0045`, `2026-07-24`, same dependency tree): 7 advisories (2 low, 5 high); only
-  `react-router-dom` (production dependency) is release-relevant and is durably deferred to its own
-  future major-version-migration task per the owner decision recorded in
-  `docs/05-taskboard/v1-1-backlog.md` (manual open-redirect CVE-applicability check performed and
-  found not applicable to this app's `<Link>`/`useNavigate` usage); the remaining 6 advisories are
-  dev-tooling-only. Re-run `npm audit` fresh at the next opportunity when network conditions allow,
-  before or shortly after tagging.
+- [x] `dotnet list PaperBinder.sln package --vulnerable --include-transitive` — re-run fresh again on
+  `2026-07-27` on branch review/v1.1.0-rc2-remediation as part of a hiring-review remediation
+  pass: zero vulnerable packages across all 8 projects, unchanged.
+- [x] `npm audit --audit-level=moderate` — successfully re-run fresh on `2026-07-27` from
+  `src/PaperBinder.Web` (Node 24.13.1 / npm 11.8.0, matching `.nvmrc`/`package.json`), resolving the
+  prior session's local gzip-decoding/network limitation recorded below. Result: **7 vulnerabilities
+  (2 low, 5 high)**, unchanged from the `T-0045` disposition (`2026-07-24`). Advisory status:
+  - `react-router` / `react-router-dom` (production dependency, installed `7.13.2`): the one
+    release-relevant advisory. Fix is a major-version migration (7 to 8), not a patch. Durably
+    deferred to its own future task per the owner decision recorded in
+    `docs/05-taskboard/v1-1-backlog.md`. Manual validation performed: every `<Link to>`/`navigate()`
+    call in `src/PaperBinder.Web/src` uses a static route literal or a server-returned tenant-scoped
+    resource id (never raw client/URL-param input), and the app's cross-origin redirects (login,
+    provisioning, logout) go through `window.location.assign()` outside react-router's navigation
+    stack entirely — so the open-redirect/RSC/SSR-hydration/`__manifest`-DoS advisories in this
+    range do not apply to this app's plain client-rendered-SPA usage. Future remediation: migrate to
+    React Router 8.x in a dedicated task with its own validation pass.
+  - `@babel/core`, `esbuild`, `postcss`, `vite`, `undici` (6 of the 7 advisories, `undici` transitive
+    via the dev/build toolchain): dev-tooling-only — none are shipped in the built `dist/` output.
+    Legitimate to durably defer; no production exposure.
+  - Historical note (previous session, `2026-07-26`, branch review/v1.1.0-final): `npm audit` failed
+    twice with `npm error audit endpoint returned an error` (local gzip decoding of the registry's
+    advisories-bulk response failed) — an environment/network-layer limitation in that execution
+    session, not a registry outage or a new advisory. This `2026-07-27` re-run confirms the carried-
+    forward disposition was accurate.
 
 ### Version Consistency
 
@@ -143,8 +160,8 @@ not replace the historical `V1` sections above.
 
 ### Remaining Owner-Controlled Steps
 
-- [ ] Merge PR 5 (review/v1.1.0-final) into release/v1.1.0, then merge release/v1.1.0 into
-  `main` per repo convention.
+- [x] Merge PR 5 (review/v1.1.0-final) into `release/v1.1.0` — done via PR #50 (commit `06e306c`).
+- [ ] Merge `release/v1.1.0` into `main` per repo convention.
 - [ ] Create and push the `v1.1.0` SemVer tag (or use the `release.yml` `workflow_dispatch` input),
   which starts `.github/workflows/release.yml`.
 - [ ] After tagged-image publishing succeeds, run `.github/workflows/deploy-test.yml`, then
@@ -163,10 +180,12 @@ not replace the historical `V1` sections above.
 - Published stable SemVer version: `1.0.5`
 - Active branch SemVer metadata: `1.1.0`
 - Status: `main` was aligned and taggable for `v1.0.5` as of `2026-07-03`. `release/v1.1.0`
-  (commit `58f6172`) has completed `T-0043` final-review validation as of `2026-07-26` — findings
-  resolved, full scripted and browser validation green, version metadata consistent, no unresolved
-  High/Critical findings — but is **not yet taggable-complete**: PR 5 merge, tag creation, production
-  deployment, and production smoke validation remain owner-controlled and have not occurred.
+  had completed `T-0043` final-review validation as of `2026-07-26` — findings resolved, full
+  scripted and browser validation green, version metadata consistent, no unresolved High/Critical
+  findings — and PR 5 (review/v1.1.0-final) has since merged into `release/v1.1.0` via PR #50
+  (commit `06e306c`). `release/v1.1.0` is still **not yet taggable-complete**: merge into `main`,
+  tag creation, production deployment, and production smoke validation remain owner-controlled and
+  have not occurred.
 - Executor attestation: `main`, `CHANGELOG.md`, repo version metadata, and current-state delivery
   docs were aligned for `v1.0.5` at that release cut; `release/v1.1.0` now carries validated `1.1.0`
   metadata and this `T-0043` pass records the final pre-tag release attestation. Tag creation and
@@ -174,9 +193,10 @@ not replace the historical `V1` sections above.
 - Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore;
   it is disclosed above (`react-router-dom`, `T-0045` finding F5) and durably deferred to its own
   future task; it does not block this validation bundle.
-- Owner-controlled actions pending: merge PR 5 into `release/v1.1.0`, merge to `main`, create tag
-  `v1.1.0`, run the deploy workflows, complete production smoke validation, and publish the GitHub
-  Release. See "Remaining Owner-Controlled Steps" above.
+- Owner-controlled actions pending: merge `release/v1.1.0` into `main`, create tag `v1.1.0`, run
+  the deploy workflows, complete production smoke validation, and publish the GitHub Release. PR 5
+  has already merged into `release/v1.1.0` (PR #50, commit `06e306c`). See "Remaining
+  Owner-Controlled Steps" above.
 - Mirrors:
-  - `docs/95-delivery/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
-  - `docs/55-execution/checkpoint-status.md`
+  - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
+  - `docs/archive/v1/checkpoints/checkpoint-status.md`

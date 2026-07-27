@@ -58,6 +58,25 @@ If a secret is committed:
 3. Record remediation in changelog or incident notes.
 4. Add a preventive lint/check if pattern-based.
 
+### Remediation Record: Tracked Data Protection Key Material
+
+A local ASP.NET Core Data Protection key ring XML file (`src/PaperBinder.Api/paperbinder-local-keys/key-*.xml`,
+containing an unencrypted master key per the framework's own on-disk format) was found tracked in
+git during a hiring-style review pass. It was local/demo-scoped — never the production key ring,
+which is a Docker volume at `/data/keys` per `PAPERBINDER_AUTH_KEY_RING_PATH` (see
+`docs/30-security/secrets-and-config.md`) — but tracking it still violated this document's "No
+Secrets in Git" rule. Remediation:
+- Removed the tracked file and directory from the current tree (`git rm --cached`).
+- Added `paperbinder-local-keys/` to `.gitignore` so the default local key-ring path (set in
+  `.env.example`) is never re-tracked.
+- Added `scripts/validate-no-tracked-secrets.ps1`, wired into `scripts/preflight.ps1` and
+  `.github/workflows/ci.yml`, which fails the build if any `paperbinder-local-keys*` path or
+  `key-*.xml` Data Protection artifact is tracked.
+- Not rewriting git history for this pass: the key only ever protected local/demo sessions (not a
+  production or shared-test secret), and history rewrites on a shared branch carry their own risk;
+  if this repository's threat model changes, revisit per the "Remove from history (best effort)"
+  step above.
+
 ## AI-Assisted Hygiene
 
 - Never paste real secrets into prompts.
