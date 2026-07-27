@@ -96,7 +96,7 @@ not replace the historical `V1` sections above.
 - [x] PR 3 product/responsive/accessibility review — merged (`T-0041`/`T-0039`, PR #47).
 - [x] PR 4 RC1 independent acceptance and residual remediation — merged (PR #48).
 - [x] PR 4.5 documentation canonicality / engineering-truth alignment — merged (PR #49).
-- [ ] PR 5 (this `T-0043` close-out pass, branch review/v1.1.0-final) — **not yet opened/merged; owner-controlled.**
+- [x] PR 5 (`T-0043` close-out pass, branch review/v1.1.0-final) — merged into `release/v1.1.0` via PR #50 (commit `06e306c`).
 
 ### Findings Disposition (`T-0044` / `T-0045` / `T-0041`)
 
@@ -160,8 +160,8 @@ not replace the historical `V1` sections above.
 
 ### Remaining Owner-Controlled Steps
 
-- [ ] Merge PR 5 (review/v1.1.0-final) into release/v1.1.0, then merge release/v1.1.0 into
-  `main` per repo convention.
+- [x] Merge PR 5 (review/v1.1.0-final) into `release/v1.1.0` — done via PR #50 (commit `06e306c`).
+- [ ] Merge `release/v1.1.0` into `main` per repo convention.
 - [ ] Create and push the `v1.1.0` SemVer tag (or use the `release.yml` `workflow_dispatch` input),
   which starts `.github/workflows/release.yml`.
 - [ ] After tagged-image publishing succeeds, run `.github/workflows/deploy-test.yml`, then
@@ -180,10 +180,12 @@ not replace the historical `V1` sections above.
 - Published stable SemVer version: `1.0.5`
 - Active branch SemVer metadata: `1.1.0`
 - Status: `main` was aligned and taggable for `v1.0.5` as of `2026-07-03`. `release/v1.1.0`
-  (commit `58f6172`) has completed `T-0043` final-review validation as of `2026-07-26` — findings
-  resolved, full scripted and browser validation green, version metadata consistent, no unresolved
-  High/Critical findings — but is **not yet taggable-complete**: PR 5 merge, tag creation, production
-  deployment, and production smoke validation remain owner-controlled and have not occurred.
+  had completed `T-0043` final-review validation as of `2026-07-26` — findings resolved, full
+  scripted and browser validation green, version metadata consistent, no unresolved High/Critical
+  findings — and PR 5 (review/v1.1.0-final) has since merged into `release/v1.1.0` via PR #50
+  (commit `06e306c`). `release/v1.1.0` is still **not yet taggable-complete**: merge into `main`,
+  tag creation, production deployment, and production smoke validation remain owner-controlled and
+  have not occurred.
 - Executor attestation: `main`, `CHANGELOG.md`, repo version metadata, and current-state delivery
   docs were aligned for `v1.0.5` at that release cut; `release/v1.1.0` now carries validated `1.1.0`
   metadata and this `T-0043` pass records the final pre-tag release attestation. Tag creation and
@@ -191,9 +193,10 @@ not replace the historical `V1` sections above.
 - Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore;
   it is disclosed above (`react-router-dom`, `T-0045` finding F5) and durably deferred to its own
   future task; it does not block this validation bundle.
-- Owner-controlled actions pending: merge PR 5 into `release/v1.1.0`, merge to `main`, create tag
-  `v1.1.0`, run the deploy workflows, complete production smoke validation, and publish the GitHub
-  Release. See "Remaining Owner-Controlled Steps" above.
+- Owner-controlled actions pending: merge `release/v1.1.0` into `main`, create tag `v1.1.0`, run
+  the deploy workflows, complete production smoke validation, and publish the GitHub Release. PR 5
+  has already merged into `release/v1.1.0` (PR #50, commit `06e306c`). See "Remaining
+  Owner-Controlled Steps" above.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`

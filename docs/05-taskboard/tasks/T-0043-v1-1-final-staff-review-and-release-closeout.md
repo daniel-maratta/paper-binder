@@ -62,8 +62,9 @@ Perform the final independent acceptance review after `T-0044` (baseline), `T-00
   exactly. `docs/95-delivery/release-checklist.md` was extended with the final v1.1.0 release-evidence
   record. `CHANGELOG.md` keeps the `v1.1.0` RC2 notes under `Unreleased` until owner-controlled
   tag/deploy completion.
-  Blocked on: PR 5 merge into `release/v1.1.0`, merge to `main`, tag creation, production deployment,
-  and production smoke validation — all explicitly owner-controlled per task instructions.
+  PR 5 (review/v1.1.0-final) has since merged into `release/v1.1.0` (PR #50, commit `06e306c`).
+  Blocked on: merge `release/v1.1.0` into `main`, tag creation, production deployment, and
+  production smoke validation — all explicitly owner-controlled per task instructions.
 
 ## Touch Points
 - `src/`
@@ -81,11 +82,11 @@ Perform the final independent acceptance review after `T-0044` (baseline), `T-00
 - Prepare release close-out docs (merge, tag, deploy, production smoke validation).
 
 ## Next Action
-- Owner opens PR 5 (review/v1.1.0-final -> release/v1.1.0), merges it, merges release/v1.1.0
-  into `main`, creates/pushes the `v1.1.0` tag, runs the deploy workflows, completes production
-  smoke validation, and publishes the GitHub Release. See "Remaining Owner-Controlled Steps" in
-  `docs/95-delivery/release-checklist.md`. No further agent action is expected unless owner review
-  of this pass surfaces a true release blocker.
+- PR 5 (review/v1.1.0-final -> release/v1.1.0) has since merged (PR #50, commit `06e306c`). Owner
+  merges `release/v1.1.0` into `main`, creates/pushes the `v1.1.0` tag, runs the deploy workflows,
+  completes production smoke validation, and publishes the GitHub Release. See "Remaining
+  Owner-Controlled Steps" in `docs/95-delivery/release-checklist.md`. No further agent action is
+  expected unless owner review of this pass surfaces a true release blocker.
 
 ## Validation Evidence
 - `validate-docs.ps1` — passed (before and after doc edits).
@@ -164,9 +165,10 @@ Perform the final independent acceptance review after `T-0044` (baseline), `T-00
   until tag/deploy/publish completion.
 - No application code changed by this task; this was release-mechanics/documentation/validation
   work only, per scope.
-- Not performed, explicitly owner-controlled: opening/merging PR 5, merging to `main`, creating the
+- Not performed as of this task pass, explicitly owner-controlled: merging to `main`, creating the
   `v1.1.0` tag, running the deploy workflows, production smoke validation, and publishing the GitHub
-  Release. See "Remaining Owner-Controlled Steps" in `docs/95-delivery/release-checklist.md`.
+  Release. (PR 5 has since merged into `release/v1.1.0` via PR #50, commit `06e306c`.) See
+  "Remaining Owner-Controlled Steps" in `docs/95-delivery/release-checklist.md`.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/`.

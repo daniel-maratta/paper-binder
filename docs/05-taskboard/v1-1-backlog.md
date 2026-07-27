@@ -29,15 +29,15 @@ After this reconciliation:
 8. [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md) - done
 9. [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md) - done (discovery and remediation both complete; F3/F5 durably deferred with recorded decisions — see task file and `docs/archive/v1-1/engineering-security-architecture/t-0045-engineering-security-architecture-review.md`)
 10. [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md) - done (independently verified 2026-07-25: 11 findings across 3 release-blocking/4 medium/4 low tiers, all fixed and live-verified against the running app; ACCEPT WITH NON-BLOCKING RESIDUALS at the time of RC1 — the two Phase 4 follow-ups below were both identified during RC1 verification and resolved during Phase 4 RC remediation)
-11. [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) - blocked (agent-performable work complete 2026-07-26; blocked on owner-controlled PR 5 merge, tag, and production deploy/smoke validation)
+11. [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) - blocked (agent-performable work complete 2026-07-26; PR 5 merged into `release/v1.1.0` via PR #50; blocked on owner-controlled merge to `main`, tag, and production deploy/smoke validation)
 
 Cancelled/superseded:
 
 - [T-0042: V1.1 Product Screenshot Refresh](./tasks/T-0042-v1-1-product-screenshot-refresh.md) - cancelled; scope bundled into `T-0040`
 
 `T-0044`, `T-0039`, `T-0045`, and `T-0041` are all complete. `T-0043`'s agent-performable work is
-complete; it is blocked on owner-controlled PR 5 merge, tag creation, and production deploy/smoke
-validation.
+complete; PR 5 merged into `release/v1.1.0` via PR #50. It is blocked on owner-controlled merge to
+`main`, tag creation, and production deploy/smoke validation.
 
 ## Active Backlog Map
 
