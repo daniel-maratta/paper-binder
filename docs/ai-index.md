@@ -27,10 +27,10 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 - [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) `(Approved)`
 - [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md) `(Approved)`
 
-## Current V1.1.1 Patch Execution
+## Completed V1.1.1 Patch Execution
 
-- [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md) `(Current checkpoint and commit plan for the v1.1.1 patch)`
-- [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) `(Current canonical backlog and execution order for the v1.1.1 patch)`
+- [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md) `(Completed checkpoint and commit plan for the v1.1.1 patch)`
+- [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) `(Completed canonical backlog and execution order for the v1.1.1 patch)`
 
 ## V1.1 Presentation History And Completed Execution
 
@@ -74,7 +74,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 ## Focused Retrieval
 
 - For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md` or `release-checklist.md`. Open a specific PR artifact only when historical delivery context is needed.
-- For the current `v1.1.1` patch, start with [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md), then load [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) and the matching `T-0046` through `T-0052` task files.
+- For the completed `v1.1.1` patch, start with [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md), then load [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) and the matching `T-0046` through `T-0052` task files.
 - For checkpoint history, start with [docs/archive/v1/checkpoints/checkpoint-status.md](./archive/v1/checkpoints/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on internal V1 execution history.
 - For v1.1 presentation-governance work, start with [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) and [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md). Use current V1 presentation docs, including `docs/archive/presentation-history/v1-shipped/ux-notes.md`, as historical shipped-surface references only.
 - For repo-specific `v1.1` presentation adoption history, load [docs/archive/presentation-history/presentation-adoption-plan-v1-1.md](./archive/presentation-history/presentation-adoption-plan-v1-1.md).
@@ -84,6 +84,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 - For implementation guidance, start with [docs/50-engineering/README.md](./50-engineering/README.md), then load the active standards in that lane. Use the code-quality audit and batch documents only when historical remediation context is needed.
 - For the `T-0049` API ceremony and code-shape review, load [docs/archive/v1-1/remediation/engineering-quality/t-0049-api-surface-code-shape-review.md](./archive/v1-1/remediation/engineering-quality/t-0049-api-surface-code-shape-review.md).
 - For the `T-0050` maintainability review, load [docs/archive/v1-1/remediation/engineering-quality/t-0050-maintainability-review.md](./archive/v1-1/remediation/engineering-quality/t-0050-maintainability-review.md).
+- For the `T-0052` final hiring assessment review, load [docs/archive/v1-1/remediation/engineering-quality/t-0052-final-hiring-assessment-review.md](./archive/v1-1/remediation/engineering-quality/t-0052-final-hiring-assessment-review.md).
 - For local command execution, validation, or git-write workflows, then load [docs/50-engineering/agent-execution-hygiene.md](./50-engineering/agent-execution-hygiene.md) before composing commands.
 - Treat `docs/archive/v1/release-evidence/pipeline-setup/` as historical setup analysis, not a default read set.
 - For canonical term definitions (tenant, workspace, binder, document, view-as/impersonation, actor/effective user, caller role, binder policy, application service, command/query/outcome record, historical artifact, ADR), see [docs/00-intent/glossary.md](./00-intent/glossary.md). It is a reference to consult when a term is ambiguous, not required first reading.

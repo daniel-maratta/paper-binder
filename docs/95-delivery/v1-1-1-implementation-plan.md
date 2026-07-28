@@ -1,6 +1,6 @@
 # V1.1.1 Patch Implementation Plan
 
-Status: Active
+Status: Complete
 Target release: `v1.1.1`
 Authority: This file defines the checkpoint and commit plan for the `v1.1.1` patch. The matching taskboard source is `docs/05-taskboard/v1-1-1-backlog.md`.
 
@@ -26,7 +26,7 @@ Included:
 Out of scope unless the owner explicitly changes the patch scope:
 
 - Archive/unarchive frontend controls.
-- React Router 7 to 8 migration.
+- Broader React Router follow-up after same-major audit remediation.
 - Light / Dark / System theme preference.
 - Fun `404` game treatment.
 - New product features, new endpoint behavior, new deployment topology, or speculative abstraction.
@@ -72,4 +72,3 @@ Final release validation before the hiring assessment review:
 - `powershell -ExecutionPolicy Bypass -File .\scripts\reviewer-full-stack.ps1 -NoBrowser`
 
 The final hiring assessment review happens only after those gates pass or have explicit, owner-approved waivers. Any findings from that review are remediated before the `v1.1.1` release is called clean, except for explicit carry-forwards recorded in the taskboard.
-

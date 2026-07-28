@@ -7,9 +7,11 @@ Own the canonical release gate list for the published stable `V1` release.
 
 ## Required Artifacts
 
+- [x] `CHANGELOG.md` contains the current `## [1.1.1] - 2026-07-28` release-ready candidate entry above the `## [1.1.0] - 2026-07-28` published stable entry, with a fresh empty `## Unreleased`.
+- [x] Repository version metadata matches the `v1.1.1` / `1.1.1` release-ready candidate.
 - [x] `CHANGELOG.md` contains the current `## [1.1.0] - 2026-07-28` published stable entry above the `## [1.0.5] - 2026-07-03` stable entry and the historical `## [V1] - 2026-04-19` first-cut release summary, with a fresh empty `## Unreleased`.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, the active branch metadata distinction, the command surface, and ownership.
-- [x] Repository version metadata matches the current published stable `V1` release tag `v1.1.0` / `1.1.0` on `main`.
+- [x] Repository version metadata matched the published stable `V1` release tag `v1.1.0` / `1.1.0` on `main` at the `v1.1.0` release cut.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
 - [x] `.github/workflows/release.yml` defines the tag-driven release validation pipeline for stable SemVer tags.
 - [x] `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` records shipped scope, validation evidence, reviewer walkthrough, and author notes for the critic.
@@ -173,13 +175,73 @@ not replace the historical `V1` sections above.
 - [x] Record the resulting tag, Test deploy, Prod deploy, and smoke-validation evidence back into this
   checklist - completed by this update.
 
+## V1.1.1 Patch Release Evidence (T-0052)
+
+This section records the `v1.1.1` patch candidate validation and final hiring assessment review. It does
+not replace the historical `V1.1.0` evidence above.
+
+### Checkpoint Completion
+
+- [x] `T-0046` through `T-0051` are done.
+- [x] `T-0052` final validation and hiring assessment review completed on `2026-07-28`.
+- [x] No new product features, API contracts, tenant-boundary changes, authorization changes, CSRF
+  changes, or deployment topology changes were introduced.
+
+### Scripted Validation
+
+- [x] [validate-version.ps1](../../scripts/validate-version.ps1) passed for `1.1.1` on `2026-07-28`.
+- [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-07-28` after
+  dependency remediation: Vite `7.3.6`, `0 Warning(s)`, `0 Error(s)`.
+- [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require`
+  passed on `2026-07-28` after dependency remediation: `65/65` frontend, `142/142` unit, `33/33`
+  non-Docker integration, `102/102` Docker-backed integration.
+- [x] [run-browser-e2e.ps1](../../scripts/run-browser-e2e.ps1) passed on `2026-07-28` after
+  dependency remediation: root-host `3/3`, tenant-host `3/3`.
+- [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed on `2026-07-28` after
+  release-doc updates.
+- [x] [validate-launch-profiles.ps1](../../scripts/validate-launch-profiles.ps1) passed on
+  `2026-07-28`.
+- [x] [reviewer-full-stack.ps1](../../scripts/reviewer-full-stack.ps1) `-NoBrowser` passed on
+  `2026-07-28` after dependency remediation and release-doc updates.
+
+### Hiring Assessment Review
+
+- [x] Final review artifact:
+  [docs/archive/v1-1/remediation/engineering-quality/t-0052-final-hiring-assessment-review.md](../archive/v1-1/remediation/engineering-quality/t-0052-final-hiring-assessment-review.md).
+- [x] Finding F1 fixed: tenant-shell version-display test now derives expected text from
+  `package.json` instead of hard-coding `v1.1.0`.
+- [x] Finding F2 fixed: same-major `npm audit fix` remediation updated frontend lockfile
+  dependencies, reducing `npm audit --audit-level=moderate` from 7 advisories to 2.
+- [x] Finding F3 explicitly rejected as not applicable to the shipped runtime mode: the remaining
+  React Router advisory is RSC-mode specific, while PaperBinder is a client-rendered SPA and does
+  not use React Router RSC mode, framework actions, SSR, or document request action handling.
+- [x] Finding F4 fixed: release-facing docs now distinguish the `v1.1.1` release-ready candidate
+  from the currently published `v1.1.0` stable tag.
+
+### Dependency / Vulnerability Disposition
+
+- [x] `dotnet list PaperBinder.sln package --vulnerable --include-transitive` passed on
+  `2026-07-28`: zero vulnerable NuGet packages across all 8 projects.
+- [x] `npm.cmd audit --audit-level=moderate` re-run on `2026-07-28`: 2 high advisories remain
+  through `react-router` / `react-router-dom`, both tied to the React Router RSC-mode CSRF advisory.
+  This is explicitly rejected as not applicable to PaperBinder's shipped client-rendered SPA runtime
+  mode and does not block `v1.1.1` release readiness.
+
+### Owner-Controlled Steps
+
+- [ ] Merge the `v1.1.1` candidate branch to the release target.
+- [ ] Create and push the `v1.1.1` SemVer tag.
+- [ ] Run the tag-driven release workflow and owner-controlled deploy follow-through.
+
 ## Release Readiness
 
 - Release line: `V1`
 - Historical first stable tag: `v1.0.0`
 - Current published stable tag: `v1.1.0`
 - Published stable SemVer version: `1.1.0`
-- Active branch SemVer metadata: `1.1.0`
+- Release-ready candidate tag: `v1.1.1`
+- Release-ready candidate SemVer metadata: `1.1.1`
+- Active branch SemVer metadata: `1.1.1`
 - Status: `main` was aligned and taggable for `v1.0.5` as of `2026-07-03`. `release/v1.1.0`
   completed `T-0043` final-review validation on `2026-07-26` — findings resolved, full
   scripted and browser validation green, version metadata consistent, no unresolved High/Critical
@@ -192,12 +254,24 @@ not replace the historical `V1` sections above.
   docs were aligned for `v1.0.5` at that release cut; `release/v1.1.0` now carries validated `1.1.0`
   metadata, the completed `T-0043` pass records the final pre-tag release attestation, and this
   update records the owner-attested merge/tag/Test-deploy/Prod-deploy/smoke evidence.
-- Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore;
-  it is disclosed above (`react-router-dom`, `T-0045` finding F5) and durably deferred to its own
-  future task; it does not block this validation bundle.
+- Deferred follow-up note: `npm ci` still reports 2 high-severity React Router RSC-mode advisories
+  during restore. The final `T-0052` review explicitly rejects them as not applicable to
+  PaperBinder's client-rendered SPA runtime mode; broader router follow-up remains outside this
+  patch and does not block this validation bundle.
 - Owner-controlled actions outside `T-0043`: merge-to-`main`, tag creation, release workflow, Test
   deployment, Prod deployment, production smoke validation, and release publication are recorded
   above as complete. No follow-up docs-only checklist PR is expected.
+- V1.1.1 readiness update: the `v1.1.1` patch candidate completed final validation and hiring
+  assessment review on `2026-07-28`. Version metadata is consistent, build/test/browser/docs/launch
+  and reviewer-stack gates are green or recorded with final rerun evidence in `T-0052`, NuGet has
+  zero vulnerable packages, same-major frontend audit remediation was applied, and the remaining
+  React Router RSC-mode audit advisory is explicitly rejected as not applicable to PaperBinder's
+  shipped runtime mode. No unresolved release-blocking issue remains outside the explicit taskboard
+  carry-forwards.
+- V1.1.1 executor attestation: `CHANGELOG.md`, repo version metadata, current-state delivery docs,
+  and the taskboard are aligned for `v1.1.1` release readiness. Owner-controlled merge, tag
+  creation, release workflow, deployment, smoke validation, and release publication remain separate
+  follow-up actions and are not claimed by this checklist update.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`

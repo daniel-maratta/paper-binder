@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import packageJson from "../../package.json";
 import { AppRouter } from "../App";
 import { PaperBinderApiError, type PaperBinderApiClient } from "../api/client";
 import {
@@ -111,7 +112,7 @@ describe("tenant shell", () => {
     expect(screen.getByText("Copyright")).toBeInTheDocument();
     expect(screen.getByText("© 2026 PaperBinder")).toBeInTheDocument();
     expect(screen.getByText("Version")).toBeInTheDocument();
-    expect(screen.getByText("v1.1.0")).toBeInTheDocument();
+    expect(screen.getByText(`v${packageJson.version}`)).toBeInTheDocument();
     expect(screen.getByText("Designed by")).toBeInTheDocument();
     expect(screen.getByText("Daniel Maratta")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute(

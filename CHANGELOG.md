@@ -6,6 +6,24 @@ All notable changes to this project are documented in this file.
 
 No unreleased changes.
 
+## [1.1.1] - 2026-07-28
+
+### V1.1.1 Release Notes
+
+These notes describe the `v1.1.1` patch release-ready candidate.
+
+### Changed
+- Generalized release documentation validation so future release-checklist structure checks are not pinned to the historical CP17 artifact path.
+- Quieted optional Docker Compose lease-extension variable warnings by adding explicit defaults that match the existing local environment contract.
+- Reduced small API ceremony by centralizing tenant membership context resolution and consolidating repeated text trimming.
+- Split binder and document application contract types by responsibility so command, outcome, failure, and model types are easier to navigate without changing public behavior.
+- Updated frontend lockfile dependencies with same-major `npm audit fix` remediation, reducing the audit report from 7 advisories to 2 React Router RSC-mode entries that do not apply to PaperBinder's client-rendered SPA runtime mode.
+
+### Docs
+- Polished README provenance and reviewer entry-point copy.
+- Added the PaperBinder-hosted flagship article route and restored the About page article link to that hosted article.
+- Recorded final validation and hiring assessment review evidence for `v1.1.1` release readiness.
+
 ## [1.1.0] - 2026-07-28
 
 ### V1.1.0 Release Notes

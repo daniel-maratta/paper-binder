@@ -2,7 +2,7 @@
 
 This guide is for interviewers and technical reviewers who want a fast, accurate read of the shipped `V1` system and its release evidence.
 
-PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current published stable release tag is `v1.1.0`.
+PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current release-ready candidate is `v1.1.1`; the current published stable tag remains `v1.1.0` until owner-controlled tag and deployment follow-through completes.
 
 ## Fast Review Path (10-15 Minutes)
 
@@ -105,10 +105,11 @@ silent omission:
   `v1.1.0`. See
   [`docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md`](docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md)
   for the full gap and deferral rationale.
-- **`react-router-dom` sits in a vulnerable version range** (`npm audit`); the fix is a major-version
-  migration (React Router 7 to 8), not a patch. A manual open-redirect check found no
-  attacker-controlled value reaches the app's route resolution. Durably deferred; see
-  [`docs/05-taskboard/v1-1-backlog.md`](docs/05-taskboard/v1-1-backlog.md).
+- **`react-router-dom` still has an npm audit advisory in React Router RSC mode.** The `v1.1.1`
+  patch applied same-major audit remediation and reduced the report to the remaining RSC-mode CSRF
+  advisory. PaperBinder is a client-rendered SPA and does not use React Router RSC mode, framework
+  actions, SSR, or document request action handling. The broader router follow-up remains deferred;
+  see [`docs/05-taskboard/v1-1-1-backlog.md`](docs/05-taskboard/v1-1-1-backlog.md).
 
 ## Local Validation
 

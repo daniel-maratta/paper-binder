@@ -1,6 +1,6 @@
 # V1.1.1 Backlog
 
-Status: Active
+Status: Complete
 Authority: This file is the single source of truth for the `v1.1.1` patch backlog and must agree with `docs/95-delivery/v1-1-1-implementation-plan.md`.
 
 ## Purpose
@@ -17,7 +17,7 @@ The patch is cleanup, release validation hardening, reviewer-artifact polish, an
 4. [T-0049: V1.1.1 API Surface And Ceremony Review](./tasks/T-0049-v1-1-1-api-surface-and-ceremony-review.md) - done
 5. [T-0050: V1.1.1 Maintainability Review](./tasks/T-0050-v1-1-1-maintainability-review.md) - done
 6. [T-0051: V1.1.1 README Provenance And About Article Link](./tasks/T-0051-v1-1-1-readme-provenance-and-about-article-link.md) - done
-7. [T-0052: V1.1.1 Final Validation And Hiring Assessment Review](./tasks/T-0052-v1-1-1-final-validation-and-hiring-assessment-review.md) - queued
+7. [T-0052: V1.1.1 Final Validation And Hiring Assessment Review](./tasks/T-0052-v1-1-1-final-validation-and-hiring-assessment-review.md) - done
 
 ## Checkpoint Agreement
 
@@ -37,7 +37,7 @@ These are known, intentional carry-forwards. They are not part of the `v1.1.1` p
 | Carry-forward | Source | Disposition |
 | --- | --- | --- |
 | Build a frontend archive/unarchive control for documents. | `T-0045` finding F3 | Deferred beyond `v1.1.1`; backend/API capability remains documented, frontend UI is separate product work. |
-| React Router 7 to 8 migration. | `T-0045` finding F5 | Deferred beyond `v1.1.1`; major-version dependency migration requires its own task and validation pass. |
+| Broader React Router follow-up. | `T-0045` finding F5 / `T-0052` finding F3 | Deferred beyond `v1.1.1`; same-major audit remediation updated React Router 7 packages, and the remaining RSC-mode advisory is not applicable to PaperBinder's client-rendered SPA runtime mode. Any later router major/version migration requires its own task and validation pass. |
 | Add a Light / Dark / System theme preference. | `taskboard-intake.md` | Deferred future feature. |
 | Add a fun `404` game treatment. | `taskboard-intake.md` | Deferred future feature. |
 
