@@ -273,7 +273,7 @@ function ArticleCard({
   meta: string;
   title: string;
   children: ReactNode;
-  href: string;
+  href?: string;
   cta: string;
 }) {
   return (
@@ -283,9 +283,7 @@ function ArticleCard({
         <h3>{title}</h3>
         <p>{children}</p>
       </div>
-      <a href={href} onClick={href === "#" ? (event) => event.preventDefault() : undefined}>
-        {cta}
-      </a>
+      {href ? <a href={href}>{cta}</a> : <span className="pb-public-about-article-status">{cta}</span>}
     </article>
   );
 }
@@ -1288,8 +1286,7 @@ function RootAboutPage() {
             </p>
           </div>
           <ArticleCard
-            cta="Read article"
-            href="#"
+            cta="Coming Soon"
             meta="Architecture / SaaS demo / AI-assisted development"
             title="Building PaperBinder: A Production-Shaped SaaS Demo"
           >

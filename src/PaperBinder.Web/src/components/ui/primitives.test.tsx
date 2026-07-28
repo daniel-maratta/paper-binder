@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { Alert, AlertBody, AlertTitle } from "./alert";
@@ -89,9 +89,11 @@ describe("ui primitives", () => {
     expect(screen.getByRole("button", { name: "Dismiss notification: Toast notification" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
-    expect(await screen.findByRole("dialog")).toHaveTextContent("Dialog title");
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toHaveTextContent("Dialog title");
+    expect(within(dialog).queryByRole("button", { name: "Close dialog" })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText("Close dialog"));
+    fireEvent.click(within(dialog).getByRole("button", { name: "Close dialog body" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
