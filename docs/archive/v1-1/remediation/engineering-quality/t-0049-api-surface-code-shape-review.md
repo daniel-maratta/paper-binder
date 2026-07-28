@@ -40,7 +40,7 @@ That matters for a hiring artifact because a senior reviewer often samples a few
 | Concern | Evidence | Interpretation |
 | --- | --- | --- |
 | Repeated endpoint ceremony | Five API endpoint files define local `GetRequiredTenant`, `GetRequiredMembership`, and/or `WriteFailureAsync` helpers with the same shape: `PaperBinderBinderEndpoints.cs`, `PaperBinderDocumentEndpoints.cs`, `PaperBinderImpersonationEndpoints.cs`, `PaperBinderTenantLeaseEndpoints.cs`, `PaperBinderTenantUserEndpoints.cs`. | Valid review signal. The repetition is behaviorally clear, but visually noisy. |
-| Outcome/failure proliferation | `BinderContracts.cs` and `DocumentContracts.cs` each group summaries/details, commands, failure kinds, failures, and several outcome records in one public contract file. | Valid review signal. Explicit results are useful, but the grouping contributes to ceremony. |
+| Outcome/failure proliferation | Before `T-0050`, the binder and document application contract families each grouped summaries/details, commands, failure kinds, failures, and several outcome records in one public contract file. | Valid review signal. Explicit results are useful, but the grouping contributed to ceremony. |
 | Large infrastructure services | `DapperDocumentService.cs` is 786 lines; `DapperBinderService.cs` and `DapperTenantUserAdministrationService.cs` are also among the largest infrastructure files. | Valid maintainability signal. The data access is tenant-scoped, but the file shape mixes SQL, transactions, mapping records, validation, and result construction. |
 | Large frontend surfaces | `root-host.tsx` is 1314 lines; `tenant-shell.tsx` is 1017 lines. | Valid maintainability signal, but not an API-surface issue. Route/shell decomposition belongs to `T-0050` or later. |
 | Transcript-style integration tests | `DocumentDomainAndImmutableDocumentRulesIntegrationTests.cs` is 761 lines; `AuthorizationPoliciesAndTenantUserAdministrationIntegrationTests.cs` is 728 lines; `BinderDomainAndPolicyModelIntegrationTests.cs` is 575 lines. | Valid test-shape signal. The coverage is valuable, but setup/assertion flow is hard to scan. |
@@ -81,11 +81,11 @@ Rationale:
 
 These are the safest next cleanup candidates for the maintainability checkpoint:
 
-1. Split `DocumentContracts.cs` into responsibility-named files if the diff stays mechanical:
+1. Split the document application contract family into responsibility-named files if the diff stays mechanical:
    - document read models
    - document commands/queries
    - document failures/outcomes
-2. Split `BinderContracts.cs` on the same model if the document split is clean.
+2. Split the binder application contract family on the same model if the document split is clean.
 3. Move local Dapper record/mapper types out of `DapperDocumentService.cs` only if the split is mechanical and no SQL/control flow changes are needed.
 4. Add shared test fixture/assertion helpers only where they shorten repeated setup without hiding the scenario's security purpose.
 
@@ -112,4 +112,3 @@ Use this checklist when a future change touches API, service, or test hotspots:
 ## Outcome
 
 The reviewer statements describe a real code-shape risk, not a correctness failure. The recommended remediation is disciplined pruning: keep PaperBinder's explicit boundary model, reduce bulk through mechanical splits first, and avoid generalized abstractions unless they make a security or contract invariant easier to see.
-

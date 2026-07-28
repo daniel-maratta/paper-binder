@@ -74,7 +74,7 @@ Inputs reviewed:
 
 ### Application layer design
 
-- **Clean domain contracts.** `BinderContracts.cs` defines focused records for commands, outcomes, and domain types. No leaky abstractions. `BinderPolicy`, `BinderPolicyMode`, `BinderSummary`, `BinderDetail` are well-bounded.
+- **Clean domain contracts.** The binder contract types define focused records for commands, outcomes, and domain types. No leaky abstractions. `BinderPolicy`, `BinderPolicyMode`, `BinderSummary`, `BinderDetail` are well-bounded.
 
 - **Policy evaluator is injectable and testable.** `IBinderPolicyEvaluator` is an interface with a concrete `BinderPolicyEvaluator` implementation. Registered as singleton (stateless). Unit-tested independently.
 

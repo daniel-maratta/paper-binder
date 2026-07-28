@@ -31,12 +31,11 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
    - `DocumentRules.TryNormalizeTitle` was renamed to `DocumentRules.TryTrimToValidTitle`, `BinderNameRules.TryNormalize` to `BinderNameRules.TryTrimToValidName`, and `TryNormalizeEmail` to `PaperBinderTenantUserRequestValidation.TryTrimToValidEmailAddress` — the last of which now also validates via `System.Net.Mail.MailAddress.TryCreate` with a round-trip check, a real behavior improvement, not just a rename.
    - Risk (historical): maintainability risk, code-inspection risk.
 
-3. **Multi-type files are common in exactly the places engineers expect deliberate boundaries** — **Partially fixed by `batch-1a`.**
+3. **Multi-type files are common in exactly the places engineers expect deliberate boundaries** — **Partially fixed by `batch-1a` and `T-0050`.**
    - Why it matters: packing interfaces, records, enums, failures, outcomes, and rule helpers into one file makes the codebase feel mechanically grouped by checkpoint or feature slice instead of by responsibility.
    - `src/PaperBinder.Application/Tenancy/ITenantUserAdministrationService.cs` is now a clean interface-only file; its command/result/failure family moved to `TenantUserAdministrationContracts.cs`.
+   - `T-0050` split the document and binder application contract families into responsibility-named model, command, failure, and outcome files without changing public type names or namespaces.
    - Still unsplit — representative examples:
-     - `src/PaperBinder.Application/Documents/DocumentContracts.cs`
-     - `src/PaperBinder.Application/Binders/BinderContracts.cs`
      - `src/PaperBinder.Application/Provisioning/ITenantProvisioningService.cs`
      - `src/PaperBinder.Infrastructure/Configuration/PaperBinderRuntimeSettings.cs`
    - Risk: maintainability risk, code-inspection risk.
@@ -97,7 +96,7 @@ The repository has real strengths: tenant scoping is explicit, the boundary mode
 | --- | --- | --- |
 | Trim-only "normalization" helpers | Overclaims semantics and hides weak invariants behind confident names | **Fixed by `batch-1a`** — see item 2 above |
 | Fragile string-to-enum matching | Suggests platform primitives were skipped and contract semantics were not thought through deeply | **Fixed by `batch-1a`** — see item 1 above |
-| Multi-type files without a clear exception rule | Makes the code feel bundled by implementation burst rather than stable ownership | `DocumentContracts.cs`, `BinderContracts.cs`, `ITenantProvisioningService.cs` (`ITenantUserAdministrationService.cs` fixed by `batch-1a`) |
+| Multi-type files without a clear exception rule | Makes the code feel bundled by implementation burst rather than stable ownership | Document and binder application contract families fixed by `T-0050`; `ITenantProvisioningService.cs` remains (`ITenantUserAdministrationService.cs` fixed by `batch-1a`) |
 | Generic result/failure scaffolding repeated per feature | Reads like codegen boilerplate and adds browse noise | `*Outcome`, `*Failure`, `*FailureKind`, problem mapping files |
 | Large service classes with nested record/DTO types | Hides domain intent inside long files that mix concerns | `DapperDocumentService`, `DapperBinderService`, `DapperTenantUserAdministrationService` |
 | Local transport models embedded in endpoint files | Couples route handlers, DTO shape, local validation, and mapping too tightly | `PaperBinderBinderEndpoints`, `PaperBinderDocumentEndpoints`, `PaperBinderTenantUserEndpoints` |
