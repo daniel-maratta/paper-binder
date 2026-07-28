@@ -15,7 +15,6 @@ This is the active PaperBinder task board for agent execution.
 
 ## Next
 
-- [T-0049: V1.1.1 API Surface And Ceremony Review](./tasks/T-0049-v1-1-1-api-surface-and-ceremony-review.md)
 - [T-0050: V1.1.1 Maintainability Review](./tasks/T-0050-v1-1-1-maintainability-review.md)
 - [T-0051: V1.1.1 README Provenance And About Article Link](./tasks/T-0051-v1-1-1-readme-provenance-and-about-article-link.md)
 - [T-0052: V1.1.1 Final Validation And Hiring Assessment Review](./tasks/T-0052-v1-1-1-final-validation-and-hiring-assessment-review.md)
@@ -30,6 +29,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0049: V1.1.1 API Surface And Ceremony Review](./tasks/T-0049-v1-1-1-api-surface-and-ceremony-review.md)
 - [T-0048: V1.1.1 Compose Configuration Noise Cleanup](./tasks/T-0048-v1-1-1-compose-configuration-noise-cleanup.md)
 - [T-0047: V1.1.1 Release Validation Generalization](./tasks/T-0047-v1-1-1-release-validation-generalization.md)
 - [T-0046: V1.1.1 Patch Planning And Taskboard Alignment](./tasks/T-0046-v1-1-1-patch-planning-and-taskboard-alignment.md)

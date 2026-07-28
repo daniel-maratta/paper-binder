@@ -31,6 +31,7 @@ Review maintainability hotspots and apply only safe mechanical splits when the b
 - Existing engineering-quality records already call out large service, route, and test-file hotspots.
 - This patch should not become a broad refactor.
 - Mechanical splits are allowed only where they reduce file size or ownership confusion without changing behavior.
+- `T-0049`'s code-shape review routes the safest mechanical split candidates here: `DocumentContracts.cs`, `BinderContracts.cs`, local Dapper record/mapper extraction from `DapperDocumentService.cs`, and repeated integration-test setup/assertion helpers.
 
 ## Acceptance Criteria
 - [ ] Maintainability findings are recorded with file references and disposition.
@@ -80,4 +81,3 @@ Review maintainability hotspots and apply only safe mechanical splits when the b
 
 ## Outcome (Fill when done)
 - Pending.
-

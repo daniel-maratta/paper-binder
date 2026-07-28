@@ -14,7 +14,7 @@ The patch is cleanup, release validation hardening, reviewer-artifact polish, an
 1. [T-0046: V1.1.1 Patch Planning And Taskboard Alignment](./tasks/T-0046-v1-1-1-patch-planning-and-taskboard-alignment.md) - done
 2. [T-0047: V1.1.1 Release Validation Generalization](./tasks/T-0047-v1-1-1-release-validation-generalization.md) - done
 3. [T-0048: V1.1.1 Compose Configuration Noise Cleanup](./tasks/T-0048-v1-1-1-compose-configuration-noise-cleanup.md) - done
-4. [T-0049: V1.1.1 API Surface And Ceremony Review](./tasks/T-0049-v1-1-1-api-surface-and-ceremony-review.md) - queued
+4. [T-0049: V1.1.1 API Surface And Ceremony Review](./tasks/T-0049-v1-1-1-api-surface-and-ceremony-review.md) - done
 5. [T-0050: V1.1.1 Maintainability Review](./tasks/T-0050-v1-1-1-maintainability-review.md) - queued
 6. [T-0051: V1.1.1 README Provenance And About Article Link](./tasks/T-0051-v1-1-1-readme-provenance-and-about-article-link.md) - queued
 7. [T-0052: V1.1.1 Final Validation And Hiring Assessment Review](./tasks/T-0052-v1-1-1-final-validation-and-hiring-assessment-review.md) - queued
