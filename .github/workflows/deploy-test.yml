@@ -133,7 +133,7 @@ jobs:
             "PAPERBINDER_CHALLENGE_SITE_KEY=$(Format-EnvValue $env:TEST_TURNSTILE_SITE_KEY)",
             "PAPERBINDER_CHALLENGE_SECRET_KEY=$(Format-EnvValue $env:TEST_TURNSTILE_SECRET_KEY)",
             "PAPERBINDER_LEASE_DEFAULT_MINUTES=$(Format-EnvValue '60')",
-            "PAPERBINDER_LEASE_EXTENSION_MINUTES=$(Format-EnvValue '10')",
+            "PAPERBINDER_LEASE_EXTENSION_MINUTES=$(Format-EnvValue '15')",
             "PAPERBINDER_LEASE_MAX_EXTENSIONS=$(Format-EnvValue '3')",
             "PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS=$(Format-EnvValue '60')",
             "PAPERBINDER_RATE_LIMIT_PREAUTH_PER_MINUTE=$(Format-EnvValue '30')",
