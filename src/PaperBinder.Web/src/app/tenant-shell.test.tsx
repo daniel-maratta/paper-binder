@@ -755,6 +755,37 @@ describe("tenant shell", () => {
     expect(screen.queryByText("# Archived detail")).not.toBeInTheDocument();
   });
 
+  it("Should_OffsetMarkdownHeadingLevels_When_DocumentContentHasAllHeadingLevels", async () => {
+    renderTenantRoute({
+      route: "/app/documents/document-1",
+      apiClient: createApiClientStub({
+        getDocumentDetail: vi.fn(async () => ({
+          documentId: "document-1",
+          binderId: "binder-1",
+          title: "Heading Levels",
+          contentType: "markdown",
+          content:
+            "# Heading One\n\n## Heading Two\n\n### Heading Three\n\n#### Heading Four\n\n##### Heading Five\n\n###### Heading Six",
+          supersedesDocumentId: null,
+          createdAt: "2026-04-16T11:20:00Z",
+          archivedAt: null
+        })) as PaperBinderApiClient["getDocumentDetail"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { level: 3, name: "Heading One" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 4, name: "Heading Two" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 5, name: "Heading Three" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 6, name: "Heading Four" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 6, name: "Heading Five" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 6, name: "Heading Six" })).toBeInTheDocument();
+
+    expect(screen.queryByRole("heading", { level: 1, name: "Heading One" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Heading One" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1, name: "Heading Two" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Heading Two" })).not.toBeInTheDocument();
+  });
+
   it("Should_DeleteDocument_When_ConfirmationMatches", async () => {
     const deleteDocument = vi.fn(async () => undefined);
 

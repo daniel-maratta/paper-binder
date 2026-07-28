@@ -16,6 +16,8 @@ Set-PaperBinderDotNetEnvironment
 
 Write-Host "Running PaperBinder preflight ($Profile)..."
 
+& (Join-Path $PSScriptRoot "validate-no-tracked-secrets.ps1")
+
 switch ($Profile) {
   "Restore" {
     Assert-PaperBinderDotNetSdkAvailable

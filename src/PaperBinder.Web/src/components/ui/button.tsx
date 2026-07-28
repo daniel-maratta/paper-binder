@@ -1,5 +1,5 @@
 import { Slot } from "@radix-ui/react-slot";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 import { cn } from "../../lib/cn";
 
 type ButtonVariant = "primary" | "secondary" | "danger";
@@ -9,6 +9,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   isLoading?: boolean;
   children: ReactNode;
+  ref?: Ref<HTMLButtonElement>;
 };
 
 const buttonVariants: Record<ButtonVariant, string> = {

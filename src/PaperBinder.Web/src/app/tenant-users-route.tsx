@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { TenantRole, TenantUser } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
@@ -72,6 +72,7 @@ export function UsersPage() {
   const [isStartingImpersonationForUserId, setIsStartingImpersonationForUserId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const deleteUserTriggerRef = useRef<HTMLButtonElement>(null);
   const [deleteConfirmationEmail, setDeleteConfirmationEmail] = useState("");
   const [deleteError, setDeleteError] = useState<TenantHostErrorViewModel | null>(null);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
@@ -398,7 +399,7 @@ export function UsersPage() {
                 />
               </div>
             ) : (
-              <div aria-label="Workspace users" className="pb-auth-user-mobile-list" role="list">
+              <div aria-label="Workspace users" className="pb-auth-mobile-list" role="list">
                 {isLoading ? (
                   <div className="pb-auth-selection-empty" role="status">
                     Loading workspace users...
@@ -407,15 +408,15 @@ export function UsersPage() {
                   <div className="pb-auth-selection-empty">No workspace users are available.</div>
                 ) : (
                   orderedUsers.map((user) => (
-                    <article className="pb-auth-user-mobile-card" key={user.userId} role="listitem">
-                      <div className="pb-auth-user-mobile-card__header">
-                        <div className="pb-auth-user-mobile-card__identity">
+                    <article className="pb-auth-mobile-list-card" key={user.userId} role="listitem">
+                      <div className="pb-auth-mobile-list-card__header">
+                        <div className="pb-auth-mobile-list-card__identity">
                           <p className="pb-auth-stat-label">Email</p>
-                          <p className="pb-auth-user-mobile-card__email">{user.email}</p>
+                          <p className="pb-auth-mobile-list-card__title">{user.email}</p>
                         </div>
                         {user.isOwner ? <StatusBadge>Owner</StatusBadge> : <StatusBadge>Member</StatusBadge>}
                       </div>
-                      <div className="pb-auth-user-mobile-card__meta">
+                      <div className="pb-auth-mobile-list-card__meta">
                         <div>
                           <p className="pb-auth-stat-label">Role</p>
                           <p>{formatRole(user.role)}</p>
@@ -638,6 +639,7 @@ export function UsersPage() {
                             setDeleteConfirmationEmail("");
                             setIsDeleteDialogOpen(true);
                           }}
+                          ref={deleteUserTriggerRef}
                           type="button"
                           variant="danger"
                         >
@@ -706,64 +708,6 @@ export function UsersPage() {
                 </select>
               </Field>
               <TenantHostErrorNotice error={createError} />
-              {createdCredentials ? (
-                <Alert variant="success">
-                  <AlertTitle>User added.</AlertTitle>
-                  <AlertBody>{createdCredentials.email} was added to this workspace.</AlertBody>
-                  <AlertBody>Save these credentials now if you need to hand them to the user.</AlertBody>
-                  <div className="mt-4 space-y-3">
-                    <CredentialDisplayField
-                      copyButtonLabel={`Copy workspace email for ${createdCredentials.email}`}
-                      hint="Use this email for the user's first sign-in."
-                      label="Workspace email"
-                      onCopyResult={(copied) => {
-                        if (!copied) {
-                          showToast({
-                            title: "Could not copy user email.",
-                            body: "Clipboard access is not available in this browser session.",
-                            variant: "warning"
-                          });
-                          return;
-                        }
-
-                        showToast({
-                          title: "User email copied.",
-                          body: "User email is ready to paste.",
-                          variant: "success"
-                        });
-                      }}
-                      value={createdCredentials.email}
-                      variant="auth"
-                    />
-                    <CredentialDisplayField
-                      copyButtonLabel={`Copy workspace password for ${createdCredentials.email}`}
-                      hideButtonLabel="Hide workspace password"
-                      hint="This password won't be shown again."
-                      label="Workspace password"
-                      onCopyResult={(copied) => {
-                        if (!copied) {
-                          showToast({
-                            title: "Could not copy temporary password.",
-                            body: "Clipboard access is not available in this browser session.",
-                            variant: "warning"
-                          });
-                          return;
-                        }
-
-                        showToast({
-                          title: "Temporary password copied.",
-                          body: "Temporary password is ready to paste.",
-                          variant: "success"
-                        });
-                      }}
-                      sensitive
-                      showButtonLabel="Show workspace password"
-                      value={createdCredentials.password}
-                      variant="auth"
-                    />
-                  </div>
-                </Alert>
-              ) : null}
               <Button
                 className="w-full justify-center sm:w-auto"
                 disabled={!tenantUserEmail.trim() || isCreating}
@@ -773,6 +717,64 @@ export function UsersPage() {
                 Add user
               </Button>
             </form>
+            {createdCredentials ? (
+              <Alert className="mt-4" variant="success">
+                <AlertTitle>User added.</AlertTitle>
+                <AlertBody>{createdCredentials.email} was added to this workspace.</AlertBody>
+                <AlertBody>Save these credentials now if you need to hand them to the user.</AlertBody>
+                <div className="mt-4 space-y-3">
+                  <CredentialDisplayField
+                    copyButtonLabel={`Copy workspace email for ${createdCredentials.email}`}
+                    hint="Use this email for the user's first sign-in."
+                    label="Workspace email"
+                    onCopyResult={(copied) => {
+                      if (!copied) {
+                        showToast({
+                          title: "Could not copy user email.",
+                          body: "Clipboard access is not available in this browser session.",
+                          variant: "warning"
+                        });
+                        return;
+                      }
+
+                      showToast({
+                        title: "User email copied.",
+                        body: "User email is ready to paste.",
+                        variant: "success"
+                      });
+                    }}
+                    value={createdCredentials.email}
+                    variant="auth"
+                  />
+                  <CredentialDisplayField
+                    copyButtonLabel={`Copy workspace password for ${createdCredentials.email}`}
+                    hideButtonLabel="Hide workspace password"
+                    hint="This password won't be shown again."
+                    label="Workspace password"
+                    onCopyResult={(copied) => {
+                      if (!copied) {
+                        showToast({
+                          title: "Could not copy temporary password.",
+                          body: "Clipboard access is not available in this browser session.",
+                          variant: "warning"
+                        });
+                        return;
+                      }
+
+                      showToast({
+                        title: "Temporary password copied.",
+                        body: "Temporary password is ready to paste.",
+                        variant: "success"
+                      });
+                    }}
+                    sensitive
+                    showButtonLabel="Show workspace password"
+                    value={createdCredentials.password}
+                    variant="auth"
+                  />
+                </div>
+              </Alert>
+            ) : null}
           </div>
         </section>
       </div>
@@ -781,6 +783,10 @@ export function UsersPage() {
         <Dialog onOpenChange={setIsDeleteDialogOpen} open={isDeleteDialogOpen}>
           <DialogContent
             description={`Type ${selectedUser.email} to confirm removal from this workspace.`}
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              deleteUserTriggerRef.current?.focus();
+            }}
             title={`Delete ${selectedUser.email}?`}
           >
             <Field

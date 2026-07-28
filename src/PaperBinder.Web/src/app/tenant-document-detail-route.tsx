@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import type { DocumentDetail } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
@@ -89,14 +89,16 @@ function isMarkdownBlockBoundary(line: string) {
   );
 }
 
+// Document markdown must never render as page-level h1/h2, so every markdown heading level is
+// offset by 2 (H1 -> h3) and capped at h6 (HTML has no h7/h8, so H4-H6 all land on h6). This
+// preserves as much of the document's own heading hierarchy as HTML allows while keeping it out
+// of the page's h1/h2 chrome levels.
+const markdownHeadingLevelOffset = 2;
+
 function renderMarkdownHeading(level: number, content: string, key: string) {
   const children = renderInlineMarkdown(content.trim(), `${key}-inline`);
 
-  switch (level) {
-    case 1:
-      return <h1 key={key}>{children}</h1>;
-    case 2:
-      return <h2 key={key}>{children}</h2>;
+  switch (Math.min(level + markdownHeadingLevelOffset, 6)) {
     case 3:
       return <h3 key={key}>{children}</h3>;
     case 4:
@@ -264,6 +266,7 @@ export function DocumentDetailPage() {
   const [deleteConfirmationTitle, setDeleteConfirmationTitle] = useState("");
   const [deleteError, setDeleteError] = useState<TenantHostErrorViewModel | null>(null);
   const [isDeletingDocument, setIsDeletingDocument] = useState(false);
+  const deleteTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -540,6 +543,7 @@ export function DocumentDetailPage() {
                 setDeleteError(null);
                 setIsDeleteDialogOpen(true);
               }}
+              ref={deleteTriggerRef}
               type="button"
               variant="danger"
             >
@@ -552,6 +556,10 @@ export function DocumentDetailPage() {
       <Dialog onOpenChange={setIsDeleteDialogOpen} open={isDeleteDialogOpen}>
         <DialogContent
           description={`Type ${documentDetail.title} to confirm permanent removal of this document.`}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            deleteTriggerRef.current?.focus();
+          }}
           title={`Delete ${documentDetail.title}?`}
         >
           <Field hint="This action permanently removes the current document." label="Confirm document name">

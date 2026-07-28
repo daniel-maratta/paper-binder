@@ -29,7 +29,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 
 ## V1.1 Presentation History And Current Execution
 
-- [docs/10-product/presentation-adoption-plan-v1-1.md](./10-product/presentation-adoption-plan-v1-1.md) `(Historical implementation planning under approved canon)`
+- [docs/archive/presentation-history/presentation-adoption-plan-v1-1.md](./archive/presentation-history/presentation-adoption-plan-v1-1.md) `(Historical implementation planning under approved canon)`
 - [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) `(Current canonical backlog and execution order for the remaining v1.1 work)`
 - [docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md](./05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md) `(Completed Phase 4.1 presentation/UI tranche record)`
 - [docs/05-taskboard/tasks/T-0038-v1-1-authenticated-mobile-layout.md](./05-taskboard/tasks/T-0038-v1-1-authenticated-mobile-layout.md) `(Completed authenticated mobile shell baseline)`
@@ -45,12 +45,13 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 - [docs/30-security/README.md](./30-security/README.md)
 - [docs/40-contracts/README.md](./40-contracts/README.md)
 - [docs/50-engineering/README.md](./50-engineering/README.md) `(active standards plus historical remediation records)`
-- [docs/55-execution/README.md](./55-execution/README.md) `(internal V1 execution history)`
+- [docs/55-execution/README.md](./55-execution/README.md) `(pointer to archived internal V1 execution history)`
 - [docs/60-ai/README.md](./60-ai/README.md)
 - [docs/70-operations/README.md](./70-operations/README.md)
 - [docs/80-testing/README.md](./80-testing/README.md)
 - [docs/90-adr/README.md](./90-adr/README.md)
 - [docs/95-delivery/README.md](./95-delivery/README.md) `(active release guidance plus historical PR artifacts)`
+- [docs/archive/README.md](./archive/README.md) `(historical execution evidence; not current product/release contract)`
 
 ## Key ADRs
 
@@ -63,19 +64,21 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 - [docs/90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md](./90-adr/ADR-0012-ghcr-production-deployment-and-public-indexing.md)
 - [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md)
 - [docs/90-adr/ADR-0014-tenant-host-failure-externalization-and-trusted-expiry-disclosure.md](./90-adr/ADR-0014-tenant-host-failure-externalization-and-trusted-expiry-disclosure.md)
+- [docs/90-adr/ADR-0015-responsive-breakpoint-policy.md](./90-adr/ADR-0015-responsive-breakpoint-policy.md)
 
 ## Focused Retrieval
 
 - For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md` or `release-checklist.md`. Open a specific PR artifact only when historical delivery context is needed.
-- For checkpoint history, start with [docs/55-execution/checkpoint-status.md](./55-execution/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on internal V1 execution history.
-- For v1.1 presentation-governance work, start with [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) and [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md). Use current V1 presentation docs, including `docs/10-product/ux-notes.md`, as historical shipped-surface references only.
-- For repo-specific `v1.1` presentation adoption history, load [docs/10-product/presentation-adoption-plan-v1-1.md](./10-product/presentation-adoption-plan-v1-1.md).
+- For checkpoint history, start with [docs/archive/v1/checkpoints/checkpoint-status.md](./archive/v1/checkpoints/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on internal V1 execution history.
+- For v1.1 presentation-governance work, start with [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) and [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md). Use current V1 presentation docs, including `docs/archive/presentation-history/v1-shipped/ux-notes.md`, as historical shipped-surface references only.
+- For repo-specific `v1.1` presentation adoption history, load [docs/archive/presentation-history/presentation-adoption-plan-v1-1.md](./archive/presentation-history/presentation-adoption-plan-v1-1.md).
 - For the current remaining `v1.1` execution lane, then load [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) first and follow the queued successor tasks it points to.
 - For the completed detailed `Phase 4.1` presentation tranche, load [docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md](./05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md) as the execution record.
 - For curated reviewer-support context that the public path should eventually reference, start with `REVIEWERS.md`, then `review/README.md`, then the selected canonical docs those files point to.
 - For implementation guidance, start with [docs/50-engineering/README.md](./50-engineering/README.md), then load the active standards in that lane. Use the code-quality audit and batch documents only when historical remediation context is needed.
 - For local command execution, validation, or git-write workflows, then load [docs/50-engineering/agent-execution-hygiene.md](./50-engineering/agent-execution-hygiene.md) before composing commands.
-- Treat `docs/70-operations/pipeline-setup/` as historical setup analysis, not a default read set.
+- Treat `docs/archive/v1/release-evidence/pipeline-setup/` as historical setup analysis, not a default read set.
+- For canonical term definitions (tenant, workspace, binder, document, view-as/impersonation, actor/effective user, caller role, binder policy, application service, command/query/outcome record, historical artifact, ADR), see [docs/00-intent/glossary.md](./00-intent/glossary.md). It is a reference to consult when a term is ambiguous, not required first reading.
 
 ## Local-Only Overrides
 

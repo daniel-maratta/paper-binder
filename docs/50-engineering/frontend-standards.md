@@ -43,5 +43,5 @@ Define repo-native frontend rules for the PaperBinder SPA.
 ## Related Documents
 
 - `docs/20-architecture/frontend-spa.md`
-- `docs/10-product/ui-ux-contract-v1.md`
+- `docs/archive/presentation-history/v1-shipped/ui-ux-contract-v1.md`
 - `docs/80-testing/e2e-tests.md`

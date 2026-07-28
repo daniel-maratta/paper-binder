@@ -3,7 +3,7 @@
 ## AI Summary
 
 - Testing prioritizes deterministic tenant-boundary and authorization correctness.
-- Integration tests prove cross-boundary behaviors; unit tests protect invariants/handler logic.
+- Integration tests prove cross-boundary behaviors; unit tests protect invariants/application-service logic.
 - Non-negotiable coverage includes tenancy, policy enforcement, provisioning, lease-expiration cleanup, and impersonation constraints.
 
 Related standards:
@@ -13,7 +13,7 @@ Related standards:
 
 - Tests must be deterministic and isolated.
 - Prefer integration tests for boundary behavior.
-- Prefer unit tests for domain invariants and handler logic.
+- Prefer unit tests for domain invariants and application-service logic.
 - Repository test scripts should separate environment-light validation from Docker-backed validation so local feedback stays useful without hiding skipped merge-gate coverage.
 
 ## Non-Negotiable Coverage
@@ -40,7 +40,7 @@ Related standards:
   - Split repo execution into non-Docker and Docker-backed buckets when Docker is required for only part of the suite.
 - Unit tests:
   - Domain invariants.
-  - Command/query handler behavior under explicit preconditions.
+  - Command/query application-service behavior under explicit preconditions.
 
 ## Validation Contract
 

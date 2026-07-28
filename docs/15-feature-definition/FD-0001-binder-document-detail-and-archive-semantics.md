@@ -8,7 +8,11 @@
 - Supersedes chains remain valid regardless of archive/unarchive transitions.
 
 ## Status
-Resolved — integrated into canonical documentation
+Resolved — integrated into canonical documentation. **v1.1.0 note (2026-07-24, T-0045 F3):** the
+archive/unarchive capability described below is fully implemented and tested at the API layer, but
+the `v1.1.0` frontend has no UI control to trigger it (see "User-visible behavior" below). Owner
+decision: defer the frontend control past `v1.1.0` rather than expand this closeout task's scope;
+tracked as a follow-up in `docs/05-taskboard/v1-1-backlog.md`.
 
 ## Canonical locations
 - docs/40-contracts/api-contract.md
@@ -44,7 +48,10 @@ Rules:
 ## User-visible behavior
 - Binder and document lists hide archived documents by default.
 - Document detail can show that a document is archived.
-- Users with write access can archive and unarchive documents.
+- Users with write access can archive and unarchive documents via the API
+  (`POST /api/documents/{documentId}/archive` / `/unarchive`). **As of `v1.1.0`, there is no
+  frontend UI control for this** — the capability exists and is tested at the API layer only;
+  `tenant-document-detail-route.tsx` displays `archivedAt` but has no button to change it.
 - Attempting write actions without policy authorization returns `403`.
 
 ## API / contract impact

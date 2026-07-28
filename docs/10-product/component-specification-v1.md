@@ -210,7 +210,7 @@ Toast notifications:
 
 - are separate from inline alerts and are used for async success, warning, error, and informational feedback
 - appear as top-center overlays above page content
-- require manual dismissal
+- auto-dismiss on a timed countdown, but always remain manually dismissible; the countdown pauses on hover or keyboard focus so a reader is never raced against the timer
 - use conventional status coloring:
   - success: green
   - warning: yellow
@@ -469,6 +469,10 @@ This combination provides:
 - minimal custom logic
 
 This frontend stack baseline is adopted as part of the PaperBinder v1 UI contract.
+
+## Responsive Breakpoints
+
+Layout-collapsing CSS and JS viewport logic must reuse one of four canonical breakpoints — 420px, 768px, 1024px, and 1180px — rather than introducing a new value per component. See `docs/90-adr/ADR-0015-responsive-breakpoint-policy.md` for the full rationale, the exact meaning of each tier, and the reference QA widths used to verify them.
 
 ---
 

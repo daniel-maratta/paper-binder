@@ -49,7 +49,7 @@ Tenant admin
 Tenant admin reads lease state
   -> GET /api/tenant/lease
   -> If remaining <= 10 minutes and extension count < 3
-     -> POST /api/tenant/lease/extend (+10 minutes)
+     -> POST /api/tenant/lease/extend (+15 minutes)
   -> Else -> 409 conflict
 ```
 

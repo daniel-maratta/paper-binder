@@ -74,7 +74,7 @@ Use these as authoritative topic guides:
 - If task touches tests: read `docs/80-testing/test-strategy.md` and `docs/80-testing/testing-standards.md`.
 - If task involves local command execution, validation workflows, or git write operations: read `docs/50-engineering/agent-execution-hygiene.md`.
 - If task touches config/secrets/operations: read `docs/70-operations/README.md`.
-- If task touches implementation quality, hotspot cleanup, or audit remediation: read `docs/50-engineering/coding-standards.md`, `docs/50-engineering/code-quality-review.md`, and `docs/50-engineering/code-quality-gap-analysis.md`.
+- If task touches implementation quality, hotspot cleanup, or audit remediation: read `docs/50-engineering/coding-standards.md`, `docs/archive/v1-1/remediation/engineering-quality/code-quality-review.md`, and `docs/archive/v1-1/remediation/engineering-quality/code-quality-gap-analysis.md`.
 - If task touches product scope or non-goals: read `docs/00-intent/AGENTS.md`, `docs/00-intent/project-scope.md`, and `docs/00-intent/non-goals.md`.
 - If task touches docs structure or docs navigation: read `docs/ai-index.md` and `docs/repo-map.json`.
 - If task changes file paths, headings, contracts, or canonical terms: read and apply `docs/00-intent/documentation-integrity-contract.md`.

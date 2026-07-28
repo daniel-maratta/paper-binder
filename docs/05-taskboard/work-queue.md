@@ -15,9 +15,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Next
 
-- [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md)
-- [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md)
-- [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md)
+- (empty)
 
 ## Later
 
@@ -25,10 +23,14 @@ This is the active PaperBinder task board for agent execution.
 
 ## Blocked
 
-- (empty)
+- [T-0043: V1.1 Final Staff Review And Release Close-Out](./tasks/T-0043-v1-1-final-staff-review-and-release-closeout.md) — agent-performable review/validation/release-evidence work complete on `2026-07-26`; PR 5 merged into `release/v1.1.0` via PR #50; unblock condition: owner-controlled merge to `main`, tag creation, production deploy, and production smoke validation complete.
 
 ## Recently Done
 
+- [T-0041: V1.1 Accessibility QA And Documentation](./tasks/T-0041-v1-1-accessibility-qa.md)
+- [T-0045: Engineering, Security, And Architecture Closeout Review](./tasks/T-0045-v1-1-engineering-security-architecture-closeout.md)
+- [T-0044: Establish V1.1.0 Release Baseline](./tasks/T-0044-v1-1-establish-release-baseline.md)
+- [T-0039: V1.1 Comprehensive Responsive QA](./tasks/T-0039-v1-1-responsive-qa.md)
 - [T-0040: V1.1 Documentation Truth, Pruning, And Product Screenshot Refresh](./tasks/T-0040-v1-1-documentation-truth-pruning.md)
 - [T-0038: V1.1 Authenticated Mobile Layout](./tasks/T-0038-v1-1-authenticated-mobile-layout.md)
 - [T-0037: V1.1 Controlled Copy And Public Proof Refresh](./tasks/T-0037-v1-1-final-validation-and-close-out.md)

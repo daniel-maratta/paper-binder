@@ -50,9 +50,9 @@ Implement CP11 so tenant lease state becomes a real tenant-host API surface, exp
 - (none)
 
 ## Review Gates
-- Scope Lock: Passed via [critic-review.md](../../95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/critic-review.md) on `2026-04-10`; no blocking findings remain.
+- Scope Lock: Passed via [critic-review.md](../../archive/v1/checkpoints/pr/cp11-worker-runtime-and-lease-lifecycle/critic-review.md) on `2026-04-10`; no blocking findings remain.
 - Pre-PR Critique: Scope-locked. Implementation and automated validation completed against the locked plan before final closeout.
-- Post-Implementation Critique: Completed via [critic-review.md](../../95-delivery/pr/cp11-worker-runtime-and-lease-lifecycle/critic-review.md) on `2026-04-10`; ship-ready verdict, no blockers, and no required fixes before merge. The exact `LeaseExtensionMinutes` boundary coverage gap was closed in follow-up; `NB-POST-2` and `NB-POST-3` remain deferred as low-risk follow-ups because they depend on brittle structured-log suppression assertions or the documented v1 single-tenant-per-user invariant.
+- Post-Implementation Critique: Completed via [critic-review.md](../../archive/v1/checkpoints/pr/cp11-worker-runtime-and-lease-lifecycle/critic-review.md) on `2026-04-10`; ship-ready verdict, no blockers, and no required fixes before merge. The exact `LeaseExtensionMinutes` boundary coverage gap was closed in follow-up; `NB-POST-2` and `NB-POST-3` remain deferred as low-risk follow-ups because they depend on brittle structured-log suppression assertions or the documented v1 single-tenant-per-user invariant.
 - Escalation Notes: Docker-backed validation and the canonical checkpoint-validation bundle required unsandboxed execution because the sandbox blocks Docker access and nested frontend build child-process creation.
 
 ## Current State

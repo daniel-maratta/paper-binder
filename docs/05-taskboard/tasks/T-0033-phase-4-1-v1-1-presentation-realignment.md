@@ -46,7 +46,7 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
 - Toast notifications must render at top-center above page content, use in-theme green/yellow/red/blue status coloring, and require manual dismissal.
 - Public reviewer-facing notes and supporting material may be reachable from the unauthenticated public surface as secondary content, but the main story remains product-first.
 - The current code already has the right structural seams in `src/PaperBinder.Web/src/app/root-host.tsx`, `tenant-shell.tsx`, and the route-level files. This work is primarily route composition, shared-primitive expansion, copy/layout redesign, and test/audit reconciliation.
-- Auth handling, redirect trust, host-derived tenant identity, lease state, and API-authoritative policy boundaries remain non-negotiable. This task explicitly includes a final post-implementation hotspot audit in the style of `docs/50-engineering/code-quality-review.md` and `docs/50-engineering/code-quality-gap-analysis.md`.
+- Auth handling, redirect trust, host-derived tenant identity, lease state, and API-authoritative policy boundaries remain non-negotiable. This task explicitly includes a final post-implementation hotspot audit in the style of `docs/archive/v1-1/remediation/engineering-quality/code-quality-review.md` and `docs/archive/v1-1/remediation/engineering-quality/code-quality-gap-analysis.md`.
 - `main` is normally protected from direct pushes. `v1.1.0` closeout must therefore plan for branch completion, PR-based merge to `main`, then tag and deploy from the merged `main` commit.
 
 ## Acceptance Criteria
@@ -67,7 +67,7 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
 ## Dependencies
 - `docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md`
 - `docs/10-product/presentation-contract-v1-1.md`
-- `docs/10-product/presentation-adoption-plan-v1-1.md`
+- `docs/archive/presentation-history/presentation-adoption-plan-v1-1.md`
 
 ## Blocked By
 - (none)
@@ -107,12 +107,12 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
 - `src/PaperBinder.Web/src/app/tenant-document-detail-route.tsx`
 - `src/PaperBinder.Web/src/app/tenant-users-route.tsx`
 - `src/PaperBinder.Web/src/app/tenant-lease-banner.tsx`
-- `src/PaperBinder.Web/src/app/tenant-impersonation-banner.tsx`
+- `tenant-impersonation-banner.tsx` (removed 2026-07-24, see `T-0045`)
 - `src/PaperBinder.Web/src/app/challenge-widget.tsx`
 - `src/PaperBinder.Web/src/components/ui/`
 - `src/PaperBinder.Web/e2e/root-host.spec.ts`
 - `src/PaperBinder.Web/e2e/tenant-host.spec.ts`
-- `docs/10-product/presentation-adoption-plan-v1-1.md`
+- `docs/archive/presentation-history/presentation-adoption-plan-v1-1.md`
 - `docs/20-architecture/frontend-app-route-map.md`
 - `docs/20-architecture/frontend-spa.md`
 - `docs/10-product/prd.md`
@@ -121,8 +121,8 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
 - `docs/80-testing/test-strategy.md`
 - `docs/80-testing/testing-standards.md`
 - `docs/50-engineering/coding-standards.md`
-- `docs/50-engineering/code-quality-review.md`
-- `docs/50-engineering/code-quality-gap-analysis.md`
+- `docs/archive/v1-1/remediation/engineering-quality/code-quality-review.md`
+- `docs/archive/v1-1/remediation/engineering-quality/code-quality-gap-analysis.md`
 
 ## Implementation Plan
 - Planning sequence:
@@ -302,7 +302,7 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
 - `2026-07-10`: `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1` passed after revalidating the updated authenticated workspace shell, dashboard actions, users language, and tenant-host reviewer flow; both root-host and tenant-host Playwright suites are green against the isolated browser runtime.
 
 ## Decision Notes
-- `Phase 4.1` is the next logical numbered execution cut under the broad Phase 4 presentation work already captured in `docs/10-product/presentation-adoption-plan-v1-1.md`.
+- `Phase 4.1` is the next logical numbered execution cut under the broad Phase 4 presentation work already captured in `docs/archive/presentation-history/presentation-adoption-plan-v1-1.md`.
 - This task does not create a new checkpoint. It is tracked as cross-checkpoint, post-`V1` owner-directed work.
 - The public landing to `Start Demo` split is a presentation and flow-composition change, not a scope expansion of the auth model.
 - `/start-demo` is the canonical `Start Demo` route for this cut; `/login` remains the direct-login route and logout return target.

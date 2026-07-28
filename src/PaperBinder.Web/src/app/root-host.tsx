@@ -584,6 +584,7 @@ function PublicShell({ hostContext }: { hostContext: RootHostContext }) {
       <main
         className={cn("pb-public-main", isLandingRoute ? "pb-public-main--landing" : "pb-public-main--inner")}
         id="public-main"
+        tabIndex={-1}
       >
         <Outlet />
       </main>

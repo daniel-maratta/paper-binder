@@ -14,7 +14,7 @@ This document removes route-level ambiguity for the React SPA described in:
 
 - `docs/20-architecture/frontend-spa.md`
 - `docs/10-product/information-architecture.md`
-- `docs/10-product/ux-notes.md`
+- `docs/archive/presentation-history/v1-shipped/ux-notes.md`
 - `docs/40-contracts/api-contract.md`
 
 ## Host Contexts

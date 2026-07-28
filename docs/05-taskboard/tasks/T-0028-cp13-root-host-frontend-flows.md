@@ -29,7 +29,7 @@ Implement CP13 so the CP12 root-host placeholder shell becomes a live browser on
 
 ## Context
 - CP12 shipped the single-SPA foundation, shared API client, shared UI primitives, and route skeletons, but deliberately left root-host forms disabled.
-- CP13 scope is locked by `docs/55-execution/execution-plan.md`, `docs/95-delivery/pr/cp13-root-host-frontend-flows/implementation-plan.md`, and `docs/95-delivery/pr/cp13-root-host-frontend-flows/critic-review.md`.
+- CP13 scope is locked by `docs/archive/v1/checkpoints/execution-plan.md`, `docs/archive/v1/checkpoints/pr/cp13-root-host-frontend-flows/implementation-plan.md`, and `docs/archive/v1/checkpoints/pr/cp13-root-host-frontend-flows/critic-review.md`.
 - The live backend contracts for `POST /api/provision` and `POST /api/auth/login` already exist and remain authoritative for redirects, challenge enforcement, error codes, and session establishment.
 - Root-host challenge UX must stay a thin local adapter over the existing provider contract; no wrapper dependency, BFF, SSR layer, second SPA, or browser token storage is allowed.
 - The remaining explicit `CHALLENGE_FAILED` test gap tracked in `T-0024` must close at the browser boundary as part of this checkpoint.
@@ -54,9 +54,9 @@ Implement CP13 so the CP12 root-host placeholder shell becomes a live browser on
 - (none)
 
 ## Review Gates
-- Scope Lock: Passed via [critic-review.md](../../95-delivery/pr/cp13-root-host-frontend-flows/critic-review.md) on `2026-04-16`; implementation must honor the locked decisions and complete the doc reconciliation pass before broad code changes.
+- Scope Lock: Passed via [critic-review.md](../../archive/v1/checkpoints/pr/cp13-root-host-frontend-flows/critic-review.md) on `2026-04-16`; implementation must honor the locked decisions and complete the doc reconciliation pass before broad code changes.
 - Pre-PR Critique: Completed. The post-implementation critic review recorded a ship-ready verdict with no blockers on `2026-04-16`.
-- Post-Implementation Critique: Completed via [critic-review.md](../../95-delivery/pr/cp13-root-host-frontend-flows/critic-review.md) on `2026-04-16`; no blocking findings remain.
+- Post-Implementation Critique: Completed via [critic-review.md](../../archive/v1/checkpoints/pr/cp13-root-host-frontend-flows/critic-review.md) on `2026-04-16`; no blocking findings remain.
 - Escalation Notes: Stop rather than widening scope if challenge integration requires a new dependency, if `PB_ENV=Test` cannot stay isolated to the explicit E2E runtime, or if redirect handling would require browser credential persistence or client-built tenant URLs.
 
 ## Current State

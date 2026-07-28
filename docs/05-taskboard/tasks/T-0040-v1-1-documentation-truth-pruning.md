@@ -95,7 +95,7 @@ Clean up documentation so it describes the code and release state truthfully, pr
 
 ## Decision Notes
 - `T-0042` remains cancelled/superseded; product screenshot refresh is bundled into `T-0040`.
-- The superseded temporary redesign packet was pruned. Durable decision history remains in `review/product-design-audit-2026-07-03.md`, `ADR-0013`, `presentation-contract-v1-1.md`, `presentation-adoption-plan-v1-1.md`, and the taskboard records.
+- The superseded temporary redesign packet was pruned. Durable decision history remains in `docs/archive/presentation-history/product-design-audit-2026-07-03.md`, `ADR-0013`, `presentation-contract-v1-1.md`, `presentation-adoption-plan-v1-1.md`, and the taskboard records.
 
 ## Validation Plan
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`

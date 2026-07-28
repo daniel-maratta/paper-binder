@@ -28,7 +28,7 @@ Phase 5
 Implement CP16 so PaperBinder closes the remaining hardening and consistency gaps before release: authenticated tenant-host mutations are rate-limited safely, redirect/XSS/browser-runtime claims match the shipped implementation, the minimum OpenTelemetry baseline is real, the browser E2E runtime is isolated from the default build, the tenant-host shell is decomposed into smaller modules, and the task/PR/docs stay synchronized without widening into CP17 release packaging.
 
 ## Context
-- CP16 scope is locked by `docs/55-execution/execution-plan.md`, `docs/95-delivery/pr/cp16-hardening-and-consistency-pass/implementation-plan.md`, and `docs/95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md`.
+- CP16 scope is locked by `docs/archive/v1/checkpoints/execution-plan.md`, `docs/archive/v1/checkpoints/pr/cp16-hardening-and-consistency-pass/implementation-plan.md`, and `docs/archive/v1/checkpoints/pr/cp16-hardening-and-consistency-pass/critic-review.md`.
 - CP13 through CP15 carried forward three explicit CP16 hardening items: the browser-gate naming drift, the E2E-only challenge fixture leaking into the default public tree, and the oversized `tenant-host.tsx` shell module.
 - CP16 also turns the observability docs into a real runtime contract by landing `ADR-0011`, wiring OpenTelemetry for API/worker/representative database paths, and locking the low-cardinality metric set.
 - Scripted validation is complete, the post-implementation critic review is recorded with a ship-ready verdict, and manual VS Code plus Visual Studio launch verification completed and passed on `2026-04-19`.
@@ -53,9 +53,9 @@ Implement CP16 so PaperBinder closes the remaining hardening and consistency gap
 - (none)
 
 ## Review Gates
-- Scope Lock: Passed via [critic-review.md](../../95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md) on `2026-04-18`; implementation must honor the locked CP16 decisions.
+- Scope Lock: Passed via [critic-review.md](../../archive/v1/checkpoints/pr/cp16-hardening-and-consistency-pass/critic-review.md) on `2026-04-18`; implementation must honor the locked CP16 decisions.
 - Pre-PR Critique: Completed; the same-day plan revision resolved every blocker and non-blocker before implementation broadened.
-- Post-Implementation Critique: Completed via [critic-review.md](../../95-delivery/pr/cp16-hardening-and-consistency-pass/critic-review.md) on `2026-04-18`; ship-ready verdict, no blocking findings, and no required fixes before merge.
+- Post-Implementation Critique: Completed via [critic-review.md](../../archive/v1/checkpoints/pr/cp16-hardening-and-consistency-pass/critic-review.md) on `2026-04-18`; ship-ready verdict, no blocking findings, and no required fixes before merge.
 - Escalation Notes: Stop rather than widening into CP17 release packaging, CSP/header middleware, generalized audit tooling, a session store, JWT/token auth, distributed rate limiting, or broader reviewer-flow redesign.
 
 ## Current State

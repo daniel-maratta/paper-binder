@@ -43,7 +43,7 @@ Reconcile the remaining `v1.1` planning and copy surfaces so active work no long
 ## Dependencies
 - [T-0033](./T-0033-phase-4-1-v1-1-presentation-realignment.md)
 - [T-0035](./T-0035-tenant-host-failure-externalization-and-trusted-expiry-recovery.md) when public failure wording depends on the finalized trust split
-- `docs/10-product/presentation-adoption-plan-v1-1.md`
+- `docs/archive/presentation-history/presentation-adoption-plan-v1-1.md`
 
 ## Blocked By
 - (none)
