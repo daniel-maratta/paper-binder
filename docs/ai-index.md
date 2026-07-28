@@ -27,10 +27,15 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 - [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) `(Approved)`
 - [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md) `(Approved)`
 
-## V1.1 Presentation History And Current Execution
+## Current V1.1.1 Patch Execution
+
+- [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md) `(Current checkpoint and commit plan for the v1.1.1 patch)`
+- [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) `(Current canonical backlog and execution order for the v1.1.1 patch)`
+
+## V1.1 Presentation History And Completed Execution
 
 - [docs/archive/presentation-history/presentation-adoption-plan-v1-1.md](./archive/presentation-history/presentation-adoption-plan-v1-1.md) `(Historical implementation planning under approved canon)`
-- [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) `(Current canonical backlog and execution order for the remaining v1.1 work)`
+- [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) `(Historical completed v1.1.0 backlog and carry-forward source)`
 - [docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md](./05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md) `(Completed Phase 4.1 presentation/UI tranche record)`
 - [docs/05-taskboard/tasks/T-0038-v1-1-authenticated-mobile-layout.md](./05-taskboard/tasks/T-0038-v1-1-authenticated-mobile-layout.md) `(Completed authenticated mobile shell baseline)`
 - [docs/05-taskboard/tasks/T-0040-v1-1-documentation-truth-pruning.md](./05-taskboard/tasks/T-0040-v1-1-documentation-truth-pruning.md) `(Completed documentation and screenshot refresh task)`
@@ -69,10 +74,11 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 ## Focused Retrieval
 
 - For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md` or `release-checklist.md`. Open a specific PR artifact only when historical delivery context is needed.
+- For the current `v1.1.1` patch, start with [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md), then load [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) and the matching `T-0046` through `T-0052` task files.
 - For checkpoint history, start with [docs/archive/v1/checkpoints/checkpoint-status.md](./archive/v1/checkpoints/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on internal V1 execution history.
 - For v1.1 presentation-governance work, start with [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) and [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md). Use current V1 presentation docs, including `docs/archive/presentation-history/v1-shipped/ux-notes.md`, as historical shipped-surface references only.
 - For repo-specific `v1.1` presentation adoption history, load [docs/archive/presentation-history/presentation-adoption-plan-v1-1.md](./archive/presentation-history/presentation-adoption-plan-v1-1.md).
-- For the current remaining `v1.1` execution lane, then load [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) first and follow the queued successor tasks it points to.
+- For the completed `v1.1.0` execution lane, load [docs/05-taskboard/v1-1-backlog.md](./05-taskboard/v1-1-backlog.md) only when historical backlog or carry-forward context is needed.
 - For the completed detailed `Phase 4.1` presentation tranche, load [docs/05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md](./05-taskboard/tasks/T-0033-phase-4-1-v1-1-presentation-realignment.md) as the execution record.
 - For curated reviewer-support context that the public path should eventually reference, start with `REVIEWERS.md`, then `review/README.md`, then the selected canonical docs those files point to.
 - For implementation guidance, start with [docs/50-engineering/README.md](./50-engineering/README.md), then load the active standards in that lane. Use the code-quality audit and batch documents only when historical remediation context is needed.

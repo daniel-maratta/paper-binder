@@ -1,7 +1,7 @@
 # V1.1 Backlog
 
-Status: Active
-Authority: This file is the single source of truth for the remaining `v1.1.0` backlog on the current branch.
+Status: Historical
+Authority: This file records the completed `v1.1.0` backlog. The active `v1.1.1` patch backlog is `docs/05-taskboard/v1-1-1-backlog.md`.
 
 ## Purpose
 
@@ -16,6 +16,8 @@ After this reconciliation:
 - no active `v1.1` to-do should live only in superseded temporary planning notes
 - `T-0033` should be treated as the completed presentation/UI tranche unless it explicitly says otherwise
 - remaining implementation work should be tracked through the successor tasks listed below
+
+`v1.1.0` has shipped. Post-`v1.1.0` items selected for the `v1.1.1` patch were promoted into `docs/05-taskboard/v1-1-1-backlog.md` and tasks `T-0046` through `T-0052`.
 
 ## Reconciled Execution Order
 

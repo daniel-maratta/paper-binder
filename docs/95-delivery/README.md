@@ -11,6 +11,7 @@
 - `docs/95-delivery/staging-and-versioning.md`
 - `docs/95-delivery/release-workflow.md`
 - `docs/95-delivery/release-checklist.md`
+- `docs/95-delivery/v1-1-1-implementation-plan.md`
 
 ## Automation
 
