@@ -1,7 +1,7 @@
 # T-0047: V1.1.1 Release Validation Generalization
 
 ## Status
-queued
+done
 
 ## Type
 debt
@@ -32,10 +32,10 @@ Generalize release-document validation so future release cycles do not depend on
 - The current behavior passed for `v1.1.0`, but it is noisy and brittle for later patch releases.
 
 ## Acceptance Criteria
-- [ ] Release validation no longer requires a permanently pinned `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` gate for non-CP17 release cycles.
-- [ ] The generalized check still validates the current release checklist/workflow artifacts.
-- [ ] Historical CP17 links remain valid and are preserved as historical evidence.
-- [ ] Docs and focused script validation pass.
+- [x] Release validation no longer requires a permanently pinned `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` gate for non-CP17 release cycles.
+- [x] The generalized check still validates the current release checklist/workflow artifacts.
+- [x] Historical CP17 links remain valid and are preserved as historical evidence.
+- [x] Docs and focused script validation pass.
 
 ## Dependencies
 - [T-0046](./T-0046-v1-1-1-patch-planning-and-taskboard-alignment.md)
@@ -49,7 +49,7 @@ Generalize release-document validation so future release cycles do not depend on
 - Escalation Notes: Validation scripts may require elevated execution if sandbox friction appears.
 
 ## Current State
-- Queued.
+- Done. `Assert-ReleaseChecklistStructure` now validates the active release checklist/workflow contract without requiring the archived CP17 artifact as a release gate.
 
 ## Touch Points
 - `scripts/validate-docs.ps1`
@@ -64,10 +64,10 @@ Generalize release-document validation so future release cycles do not depend on
 - Run focused validation and docs validation.
 
 ## Next Action
-- Pull after CP1 and inspect `Assert-ReleaseChecklistStructure`.
+- None for this task. Continue with `T-0049`.
 
 ## Validation Evidence
-- Pending.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` - passed on 2026-07-28.
 
 ## Decision Notes
 - This task should improve future patch-release maintainability without weakening documentation integrity.
@@ -77,5 +77,4 @@ Generalize release-document validation so future release cycles do not depend on
 - Focused script/parser checks as needed.
 
 ## Outcome (Fill when done)
-- Pending.
-
+- Done on 2026-07-28. Removed the CP17-specific artifact path and `## Validation Evidence` assertion from the active release checklist structure gate. Historical CP17 artifact links remain protected by normal docs link validation and repo-map path validation.

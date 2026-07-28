@@ -1,7 +1,7 @@
 # T-0048: V1.1.1 Compose Configuration Noise Cleanup
 
 ## Status
-queued
+done
 
 ## Type
 debt
@@ -33,10 +33,10 @@ Quiet optional Docker Compose lease-extension variable warnings by aligning loca
 - The cleanup must reduce operational noise without hiding genuinely required configuration.
 
 ## Acceptance Criteria
-- [ ] Local and test Compose files no longer warn about unset optional lease-extension variables in Compose versions that emit optional-variable warnings.
-- [ ] Defaults match `.env.example` and documented canonical values.
-- [ ] Required secrets/configuration remain explicit and are not silently defaulted.
-- [ ] Focused Compose/config validation passes.
+- [x] Local and test Compose files no longer warn about unset optional lease-extension variables in Compose versions that emit optional-variable warnings.
+- [x] Defaults match `.env.example` and documented canonical values.
+- [x] Required secrets/configuration remain explicit and are not silently defaulted.
+- [x] Focused Compose/config validation passes.
 
 ## Dependencies
 - [T-0046](./T-0046-v1-1-1-patch-planning-and-taskboard-alignment.md)
@@ -50,11 +50,12 @@ Quiet optional Docker Compose lease-extension variable warnings by aligning loca
 - Escalation Notes: Docker-backed validation may require approval.
 
 ## Current State
-- Queued.
+- Done. Local/test Compose lease-extension defaults now match `.env.example`; shared-test deploy also has the explicit extension-window default that the task context expected.
 
 ## Touch Points
 - `docker-compose.yml`
 - `docker-compose.test.yml`
+- `docker-compose.test-deploy.yml`
 - `.env.example`
 - configuration docs only if drift is found
 
@@ -64,18 +65,21 @@ Quiet optional Docker Compose lease-extension variable warnings by aligning loca
 - Run focused Compose config rendering and docs validation.
 
 ## Next Action
-- Pull with `T-0047` in CP2.
+- None for this task. Continue with `T-0049`.
 
 ## Validation Evidence
-- Pending.
+- `docker compose --env-file .env.example -f docker-compose.yml config --quiet` - passed on 2026-07-28; Docker config-file access warning was environmental and non-fatal.
+- `docker compose --env-file .env.example -f docker-compose.test.yml config --quiet` - passed on 2026-07-28; expected unset Namecheap warnings remained, and no lease-extension variable warning appeared.
+- `$env:PAPERBINDER_IMAGE_REGISTRY='example.local/paperbinder'; $env:PAPERBINDER_IMAGE_TAG='v1.1.1-test'; docker compose --env-file .env.example -f docker-compose.test-deploy.yml config --quiet` - passed on 2026-07-28; expected unset Namecheap warnings remained.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` - passed on 2026-07-28.
 
 ## Decision Notes
 - The intended values are `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES=10` and `PAPERBINDER_LEASE_EXTENSION_MINUTES=15`.
+- `docker-compose.test-deploy.yml` was included because inspection showed it did not explicitly pass `PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES`; adding the `10` default is behavior-preserving because the runtime default is already `10`.
 
 ## Validation Plan
 - Render/validate affected Compose files.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
 
 ## Outcome (Fill when done)
-- Pending.
-
+- Done on 2026-07-28. Added explicit `10`/`15` defaults for lease-extension window/minutes in local and source-build test Compose files, and restored the explicit `10` extension-window default in shared-test deploy Compose. Required secrets and deploy-only DNS variables remain unset unless provided by the environment.

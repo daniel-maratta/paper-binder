@@ -8,7 +8,6 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $anchorCache = @{}
 $releaseChecklistPath = Join-Path $repoRoot "docs/95-delivery/release-checklist.md"
 $releaseWorkflowPath = Join-Path $repoRoot "docs/95-delivery/release-workflow.md"
-$releaseArtifactPath = Join-Path $repoRoot "docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
 $privateGuardTargets = @(
   (Join-Path $repoRoot "README.md"),
   (Join-Path $repoRoot "REVIEWERS.md"),
@@ -113,7 +112,6 @@ function Assert-PathExists {
 function Assert-ReleaseChecklistStructure {
   Assert-PathExists -RelativePath "docs/95-delivery/release-checklist.md"
   Assert-PathExists -RelativePath "docs/95-delivery/release-workflow.md"
-  Assert-PathExists -RelativePath "docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
 
   $releaseChecklistContent = Get-Content -Path $releaseChecklistPath -Raw
   $requiredHeadings = @(
@@ -150,11 +148,6 @@ function Assert-ReleaseChecklistStructure {
   $releaseWorkflowContent = Get-Content -Path $releaseWorkflowPath -Raw
   if ($releaseWorkflowContent -notmatch [regex]::Escape("docs/95-delivery/release-checklist.md")) {
     throw "Release workflow must reference the canonical release checklist."
-  }
-
-  $releaseArtifactContent = Get-Content -Path $releaseArtifactPath -Raw
-  if ($releaseArtifactContent -notmatch [regex]::Escape("## Validation Evidence")) {
-    throw "CP17 release artifact must contain a Validation Evidence section."
   }
 }
 
