@@ -44,6 +44,7 @@ Out of scope:
   - `/` owns the product-first public landing experience.
   - `/start-demo` owns live provisioning, demo-entry login, and the one-time credential handoff state.
   - `/login` remains the direct-login route and logout return target.
+  - `/articles/building-paperbinder-production-shaped-saas-demo` hosts the public flagship article linked from About.
   - challenge/rate-limit handling stays server-authoritative and routes through the shared browser client.
 - Tenant host (`{tenant}.paperbinder.danielmaratta.com`):
   - `/app` dashboard plus lease visibility

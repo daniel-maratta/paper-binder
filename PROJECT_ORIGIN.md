@@ -5,6 +5,7 @@ PaperBinder was designed and built by Daniel Maratta as a public engineering por
 ## Canonical Project References
 
 - Canonical demo site: `https://paperbinder.danielmaratta.com`
+- Flagship article: `https://paperbinder.danielmaratta.com/articles/building-paperbinder-production-shaped-saas-demo`
 - Canonical author site: `https://danielmaratta.com`
 - Canonical repository: `https://github.com/daniel-maratta/paper-binder.git`
 

@@ -30,6 +30,7 @@ type PublicDemoStep = {
 export type RootHostNavigator = (redirectUrl: string) => void;
 
 const localChallengeBypassToken = "paperbinder-test-challenge-pass";
+const flagshipArticlePath = "/articles/building-paperbinder-production-shaped-saas-demo";
 
 const publicValuePillars: PublicValuePillar[] = [
   {
@@ -106,6 +107,10 @@ function setDocumentTitle(pageTitle: string) {
 function resolveRootPageTitle(pathname: string): string {
   if (pathname === "/login") {
     return "Sign in";
+  }
+
+  if (pathname === flagshipArticlePath) {
+    return "Building PaperBinder: A Production-Shaped SaaS Demo";
   }
 
   const matchingRoute = rootRouteDefinitions.find((route) => route.path === pathname);
@@ -1286,7 +1291,8 @@ function RootAboutPage() {
             </p>
           </div>
           <ArticleCard
-            cta="Coming Soon"
+            cta="Read article"
+            href={flagshipArticlePath}
             meta="Architecture / SaaS demo / AI-assisted development"
             title="Building PaperBinder: A Production-Shaped SaaS Demo"
           >
@@ -1406,6 +1412,69 @@ function RootAboutPage() {
   );
 }
 
+function RootFlagshipArticlePage() {
+  return (
+    <PublicPage className="pb-public-article-page">
+      <PublicHero
+        eyebrow="Architecture / SaaS demo / AI-assisted development"
+        title="Building PaperBinder: A Production-Shaped SaaS Demo"
+      >
+        PaperBinder is a deliberately small SaaS demo: tenant-scoped workspaces, role-aware binders, immutable text
+        documents, and an expiring demo lifecycle.
+      </PublicHero>
+
+      <article className="pb-public-story-stack">
+        <PublicStorySection>
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">PROJECT SHAPE</p>
+            <h2>Why the scope stays narrow</h2>
+            <p>
+              PaperBinder is not trying to become a full document-management platform. Its job is to make a few
+              production SaaS concerns easy to inspect: tenant resolution, role-aware authorization, durable document
+              records, and repeatable release discipline.
+            </p>
+            <p>
+              The product stays small so reviewers can follow the important choices from the public UI down through the
+              API, application services, Dapper persistence, migrations, tests, and operational scripts.
+            </p>
+          </div>
+        </PublicStorySection>
+
+        <PublicStorySection variant="accent">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">SECURITY MODEL</p>
+            <h2>The security boundary</h2>
+            <p>
+              Tenant isolation is the primary engineering boundary. Public routes establish root-host intent, tenant
+              routes derive workspace context from the host, and backend data access predicates by tenant before data is
+              returned.
+            </p>
+            <p>
+              That explicitness is intentional. It keeps authorization and tenant scoping visible at the code seams a
+              reviewer is most likely to audit.
+            </p>
+          </div>
+        </PublicStorySection>
+
+        <PublicStorySection>
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">BUILD NOTES</p>
+            <h2>What to inspect</h2>
+            <p>
+              The repo is organized around reviewable checkpoints, tenant-boundary tests, and deployment scripts that
+              make the demo reproducible. The interesting signal is not feature breadth; it is whether the small system
+              stays coherent under realistic SaaS constraints.
+            </p>
+          </div>
+          <PublicShellLink className="pb-public-button-link" to="/about">
+            Back to About
+          </PublicShellLink>
+        </PublicStorySection>
+      </article>
+    </PublicPage>
+  );
+}
+
 function RootNotFoundPage() {
   return (
     <PublicPage>
@@ -1450,6 +1519,7 @@ export function RootHostRoutes({
         <Route element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/start-demo" />
         <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/login" />
         <Route element={<RootAboutPage />} path="/about" />
+        <Route element={<RootFlagshipArticlePage />} path={flagshipArticlePath} />
         <Route element={<RootNotFoundPage />} path="*" />
       </Route>
     </Fragment>

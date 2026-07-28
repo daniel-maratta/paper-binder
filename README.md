@@ -2,7 +2,7 @@
 
 PaperBinder is a constrained multi-tenant SaaS demonstration designed to exhibit architectural discipline.
 
-It is intentionally narrow in scope: the goal is to demonstrate senior-level system design, security posture, and delivery discipline without building a "kitchen sink" platform.
+It is intentionally narrow in scope: the goal is to demonstrate senior-level system design, security posture, and delivery discipline without building a broad document-management platform.
 
 ---
 
@@ -10,7 +10,7 @@ It is intentionally narrow in scope: the goal is to demonstrate senior-level sys
 
 If you are reviewing this repository as part of a technical interview or architecture discussion, see:
 
-REVIEWERS.md
+[REVIEWERS.md](./REVIEWERS.md)
 
 ---
 
@@ -25,9 +25,10 @@ This is not intended to become a commercial product.
 
 ## Project Provenance
 
-PaperBinder was designed and built by Daniel Maratta as a public engineering portfolio/demo SaaS project.
+PaperBinder was designed and built by Daniel Maratta as a public engineering portfolio and multi-tenant SaaS demonstration.
 
 - Canonical demo: `https://paperbinder.danielmaratta.com`
+- Flagship article: `https://paperbinder.danielmaratta.com/articles/building-paperbinder-production-shaped-saas-demo`
 - Author site: `https://danielmaratta.com`
 - Canonical repository: `https://github.com/daniel-maratta/paper-binder.git`
 - Provenance and verification notes: `PROJECT_ORIGIN.md`
@@ -155,6 +156,6 @@ Policy:
 
 ## Status
 
-PaperBinder is reviewer-ready at `V1`.
+PaperBinder is reviewer-ready at `v1.1.0`.
 The current stable release tag is `v1.1.0`.
 Release readiness is recorded in `docs/95-delivery/release-checklist.md`, with the release snapshot in `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`.

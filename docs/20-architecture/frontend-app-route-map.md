@@ -35,6 +35,7 @@ Root-host flows are live in CP13, tenant-host routes are live in CP14, and CP15 
 | `/start-demo` | Dedicated demo-entry flow for provision, login, and handoff | `POST /api/provision`; `POST /api/auth/login` | Anonymous allowed | Owns challenge-protected provisioning, direct-login affordances, and the one-time generated-credentials handoff state. Successful provision or login still navigates only through the server-provided `redirectUrl`. |
 | `/login` | Dedicated direct-login view | `POST /api/auth/login` | Anonymous allowed | Remains the direct login route and logout return target. Login uses `email`, password, and challenge proof only; redirect uses the server-provided `redirectUrl`. |
 | `/about` | Static product/repo context | none | Anonymous allowed | May be a route or in-page section. |
+| `/articles/building-paperbinder-production-shaped-saas-demo` | Hosted flagship article for the PaperBinder build and architecture story | none | Anonymous allowed | Linked from the About page. This is static public content and does not establish tenant context or call APIs. |
 
 ## Tenant Host Route Map
 

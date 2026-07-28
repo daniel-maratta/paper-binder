@@ -233,8 +233,11 @@ describe("root-host flows", () => {
         "A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind PaperBinder."
       )
     ).toBeInTheDocument();
-    expect(articleScope.getByText("Coming Soon")).toBeInTheDocument();
-    expect(articleScope.queryByRole("link")).not.toBeInTheDocument();
+    expect(articleScope.getByRole("link", { name: "Read article" })).toHaveAttribute(
+      "href",
+      "/articles/building-paperbinder-production-shaped-saas-demo"
+    );
+    expect(articleScope.queryByText(/coming soon/i)).not.toBeInTheDocument();
     expect(screen.getByText("WHAT THIS DEMONSTRATES")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "A narrow product scope with real SaaS boundaries." })
@@ -284,6 +287,26 @@ describe("root-host flows", () => {
     expect(screen.queryByText(/WCAG compliant/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/fully accessible/i)).not.toBeInTheDocument();
     expect(document.title).toBe("About PaperBinder | PaperBinder");
+  });
+
+  it("Should_RenderHostedFlagshipArticle_When_ArticleRouteLoads", async () => {
+    renderRootRoute({
+      route: "/articles/building-paperbinder-production-shaped-saas-demo"
+    });
+
+    expect(
+      screen.getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Architecture / SaaS demo / AI-assisted development")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "PaperBinder is a deliberately small SaaS demo: tenant-scoped workspaces, role-aware binders, immutable text documents, and an expiring demo lifecycle."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Why the scope stays narrow" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "The security boundary" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to About" })).toHaveAttribute("href", "/about");
+    expect(document.title).toBe("Building PaperBinder: A Production-Shaped SaaS Demo | PaperBinder");
   });
 
   it("Should_LinkBackToWorkspace_When_PublicHomeReceivesWorkspaceHint", async () => {

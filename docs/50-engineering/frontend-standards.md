@@ -13,7 +13,7 @@ Define repo-native frontend rules for the PaperBinder SPA.
 - The SPA must send `X-Api-Version` on `/api/*` calls.
 - Do not store auth tokens in localStorage or sessionStorage.
 - Root-host and tenant-host experiences remain in one SPA with host-aware routing/guards.
-- Root-host `/` owns the product-first public landing, root-host `/start-demo` owns provisioning and one-time credential handoff, and root-host `/login` remains the direct-login route; tenant-host `/app`, `/app/binders`, `/app/binders/:binderId`, `/app/documents/:documentId`, and `/app/users` own the live product flows.
+- Root-host `/` owns the product-first public landing, root-host `/start-demo` owns provisioning and one-time credential handoff, root-host `/login` remains the direct-login route, and root-host `/articles/building-paperbinder-production-shaped-saas-demo` hosts the public flagship article; tenant-host `/app`, `/app/binders`, `/app/binders/:binderId`, `/app/documents/:documentId`, and `/app/users` own the live product flows.
 
 ## UI and Dependency Rules
 

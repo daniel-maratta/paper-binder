@@ -95,7 +95,7 @@
     { "id": "task-t0048", "type": "doc", "path": "docs/05-taskboard/tasks/T-0048-v1-1-1-compose-configuration-noise-cleanup.md", "tags": ["task", "v1.1.1", "compose", "configuration", "done", "internal"] },
     { "id": "task-t0049", "type": "doc", "path": "docs/05-taskboard/tasks/T-0049-v1-1-1-api-surface-and-ceremony-review.md", "tags": ["task", "v1.1.1", "api", "review", "done", "internal"] },
     { "id": "task-t0050", "type": "doc", "path": "docs/05-taskboard/tasks/T-0050-v1-1-1-maintainability-review.md", "tags": ["task", "v1.1.1", "maintainability", "review", "done", "internal"] },
-    { "id": "task-t0051", "type": "doc", "path": "docs/05-taskboard/tasks/T-0051-v1-1-1-readme-provenance-and-about-article-link.md", "tags": ["task", "v1.1.1", "readme", "provenance", "about", "queued", "internal"] },
+    { "id": "task-t0051", "type": "doc", "path": "docs/05-taskboard/tasks/T-0051-v1-1-1-readme-provenance-and-about-article-link.md", "tags": ["task", "v1.1.1", "readme", "provenance", "about", "done", "internal"] },
     { "id": "task-t0052", "type": "doc", "path": "docs/05-taskboard/tasks/T-0052-v1-1-1-final-validation-and-hiring-assessment-review.md", "tags": ["task", "v1.1.1", "validation", "review", "release", "queued", "internal"] },
     { "id": "delivery", "type": "doc", "path": "docs/95-delivery/README.md", "tags": ["delivery"] },
     { "id": "delivery-release-workflow", "type": "doc", "path": "docs/95-delivery/release-workflow.md", "tags": ["delivery", "release", "workflow"] },
