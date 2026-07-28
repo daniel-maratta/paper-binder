@@ -4,11 +4,13 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
-### V1.1.0 RC2 Candidate Notes
+No unreleased changes.
 
-These notes describe the current `v1.1.0` release candidate. They must stay under `Unreleased`
-until the owner-controlled merge, tag, deployment, production smoke validation, and GitHub Release
-publication steps are complete.
+## [1.1.0] - 2026-07-28
+
+### V1.1.0 Release Notes
+
+These notes describe the published `v1.1.0` stable release.
 
 ### Security
 - Removed a tracked local ASP.NET Core Data Protection key ring XML file
@@ -52,7 +54,7 @@ publication steps are complete.
 ### Docs
 - Reconciled V1.1 documentation truth, pruned superseded temporary redesign notes, and refreshed public/authenticated product screenshots.
 - Completed a documentation canonicality / engineering-truth alignment pass correcting CQRS/dispatcher and caller-role claims, labeling historical CP-era and V1 presentation artifacts explicitly, and syncing `docs/ai-index.md`/`docs/repo-map.json` with actual task/ADR state.
-- Recorded `v1.1.0` RC2 validation evidence in `docs/95-delivery/release-checklist.md`: docs validation, Release build (0 warnings/0 errors), full test suite (64/64 frontend, 142/142 unit, 32/32 non-Docker integration, 102/102 Docker-backed integration), and browser E2E (root-host 3/3, tenant-host 3/3) all green; NuGet has zero vulnerable packages. Final tag/deploy evidence remains pending.
+- Recorded `v1.1.0` release validation evidence in `docs/95-delivery/release-checklist.md`: docs validation, Release build (0 warnings/0 errors), full test suite (64/64 frontend, 142/142 unit, 32/32 non-Docker integration, 102/102 Docker-backed integration), and browser E2E (root-host 3/3, tenant-host 3/3) all green; NuGet has zero vulnerable packages. Merge, tag, Test deploy, Prod deploy, smoke-validation, and release-publication evidence is recorded in the release checklist.
 
 ## [1.0.5] - 2026-07-03
 

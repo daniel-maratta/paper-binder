@@ -38,12 +38,6 @@ export function DialogContent({
           ) : null}
         </div>
         <div className="mt-5 space-y-4">{children}</div>
-        <DialogPrimitive.Close
-          aria-label="Close dialog"
-          className="absolute right-4 top-4 rounded-full border border-[var(--pb-border-subtle)] px-2 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--pb-text-muted)] transition hover:bg-[var(--pb-surface-subtle)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pb-focus-ring)]"
-        >
-          Close
-        </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   );

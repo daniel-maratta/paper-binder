@@ -3,13 +3,13 @@ Status: Current (`V1`)
 
 ## Purpose
 
-Own the canonical release gate list for the published stable `V1` release and the handoff shape for the active V1.1 release candidate.
+Own the canonical release gate list for the published stable `V1` release.
 
 ## Required Artifacts
 
-- [x] `CHANGELOG.md` contains the current `## [1.0.5] - 2026-07-03` published stable entry above the historical `## [V1] - 2026-04-19` first-cut release summary, with active V1.1 release-candidate notes under `## Unreleased`.
+- [x] `CHANGELOG.md` contains the current `## [1.1.0] - 2026-07-28` published stable entry above the `## [1.0.5] - 2026-07-03` stable entry and the historical `## [V1] - 2026-04-19` first-cut release summary, with a fresh empty `## Unreleased`.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, the active branch metadata distinction, the command surface, and ownership.
-- [x] Repository version metadata matched the current published stable `V1` release tag `v1.0.5` / `1.0.5` on `main` for that release cut; the active V1.1 branch now stages `1.1.0` metadata for final close-out.
+- [x] Repository version metadata matches the current published stable `V1` release tag `v1.1.0` / `1.1.0` on `main`.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
 - [x] `.github/workflows/release.yml` defines the tag-driven release validation pipeline for stable SemVer tags.
 - [x] `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` records shipped scope, validation evidence, reviewer walkthrough, and author notes for the critic.
@@ -149,9 +149,9 @@ not replace the historical `V1` sections above.
 
 - [x] `Directory.Build.props` (`VersionPrefix`/`AssemblyVersion`/`FileVersion`), `package.json`, and
   `package-lock.json` all agree on `1.1.0`; `validate-version.ps1` passed on `2026-07-26`.
-- [x] `README.md` and `REVIEWERS.md` correctly distinguish the current published stable tag
-  (`v1.0.5`) from the pending `v1.1.0` release, which remains untagged and undeployed.
-- [x] No active doc claims `v1.1.0` is already tagged or deployed.
+- [x] `README.md` and `REVIEWERS.md` correctly identify the current published stable tag as
+  `v1.1.0`.
+- [x] Active docs record `v1.1.0` as deployed through Test and Prod.
 
 ### Documentation Synchronization
 
@@ -161,42 +161,43 @@ not replace the historical `V1` sections above.
 ### Remaining Owner-Controlled Steps
 
 - [x] Merge PR 5 (review/v1.1.0-final) into `release/v1.1.0` — done via PR #50 (commit `06e306c`).
-- [ ] Merge `release/v1.1.0` into `main` per repo convention.
-- [ ] Create and push the `v1.1.0` SemVer tag (or use the `release.yml` `workflow_dispatch` input),
-  which starts `.github/workflows/release.yml`.
-- [ ] After tagged-image publishing succeeds, run `.github/workflows/deploy-test.yml`, then
-  `.github/workflows/deploy-prod.yml` per `docs/70-operations/deployment.md`.
-- [ ] Complete production smoke validation per the Deploy Procedure verification checklist in
-  `docs/70-operations/deployment.md`.
-- [ ] Publish the tag-driven draft GitHub Release.
-- [ ] Record the resulting tag, deploy, and smoke-validation evidence back into this checklist and
-  into `T-0043`.
+- [x] Merge `release/v1.1.0` into `main` per repo convention - done via PR #52 at commit `ed40c4d`.
+- [x] Create and push the `v1.1.0` SemVer tag - done; local Git verifies annotated tag `v1.1.0`
+  points at `ed40c4d52a75e62c68b105102a06afb3cf354893`.
+- [x] Run `.github/workflows/release.yml` for `v1.1.0` and deploy the tagged release to Test -
+  owner-attested complete on `2026-07-28`.
+- [x] Deploy the tagged release to Prod and complete production smoke validation - owner-attested
+  complete on `2026-07-28`.
+- [x] Publish or prepare the tag-driven GitHub Release per owner-controlled release workflow -
+  owner-attested complete on `2026-07-28`.
+- [x] Record the resulting tag, Test deploy, Prod deploy, and smoke-validation evidence back into this
+  checklist - completed by this update.
 
 ## Release Readiness
 
 - Release line: `V1`
 - Historical first stable tag: `v1.0.0`
-- Current published stable tag: `v1.0.5`
-- Published stable SemVer version: `1.0.5`
+- Current published stable tag: `v1.1.0`
+- Published stable SemVer version: `1.1.0`
 - Active branch SemVer metadata: `1.1.0`
 - Status: `main` was aligned and taggable for `v1.0.5` as of `2026-07-03`. `release/v1.1.0`
-  had completed `T-0043` final-review validation as of `2026-07-26` — findings resolved, full
+  completed `T-0043` final-review validation on `2026-07-26` — findings resolved, full
   scripted and browser validation green, version metadata consistent, no unresolved High/Critical
   findings — and PR 5 (review/v1.1.0-final) has since merged into `release/v1.1.0` via PR #50
-  (commit `06e306c`). `release/v1.1.0` is still **not yet taggable-complete**: merge into `main`,
-  tag creation, production deployment, and production smoke validation remain owner-controlled and
-  have not occurred.
+  (commit `06e306c`). The owner declared `T-0043` done on `2026-07-28`. `release/v1.1.0` has since
+  merged to `main` via PR #52 at commit `ed40c4d`, and annotated tag `v1.1.0` points at the same
+  commit. The owner attests that the tagged release has deployed through Test and Prod and that
+  production smoke validation is complete.
 - Executor attestation: `main`, `CHANGELOG.md`, repo version metadata, and current-state delivery
   docs were aligned for `v1.0.5` at that release cut; `release/v1.1.0` now carries validated `1.1.0`
-  metadata and this `T-0043` pass records the final pre-tag release attestation. Tag creation and
-  deployment remain outstanding and are explicitly not claimed here.
+  metadata, the completed `T-0043` pass records the final pre-tag release attestation, and this
+  update records the owner-attested merge/tag/Test-deploy/Prod-deploy/smoke evidence.
 - Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore;
   it is disclosed above (`react-router-dom`, `T-0045` finding F5) and durably deferred to its own
   future task; it does not block this validation bundle.
-- Owner-controlled actions pending: merge `release/v1.1.0` into `main`, create tag `v1.1.0`, run
-  the deploy workflows, complete production smoke validation, and publish the GitHub Release. PR 5
-  has already merged into `release/v1.1.0` (PR #50, commit `06e306c`). See "Remaining
-  Owner-Controlled Steps" above.
+- Owner-controlled actions outside `T-0043`: merge-to-`main`, tag creation, release workflow, Test
+  deployment, Prod deployment, production smoke validation, and release publication are recorded
+  above as complete. No follow-up docs-only checklist PR is expected.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`

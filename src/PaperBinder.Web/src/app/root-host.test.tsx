@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppRouter } from "../App";
@@ -222,13 +222,19 @@ describe("root-host flows", () => {
     expect(
       screen.getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
     ).toBeInTheDocument();
+    const articleCard = screen
+      .getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
+      .closest("article");
+    expect(articleCard).not.toBeNull();
+    const articleScope = within(articleCard!);
     expect(screen.getByText("Architecture / SaaS demo / AI-assisted development")).toBeInTheDocument();
     expect(
       screen.getByText(
         "A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind PaperBinder."
       )
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Read article" })).toHaveAttribute("href", "#");
+    expect(articleScope.getByText("Coming Soon")).toBeInTheDocument();
+    expect(articleScope.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.getByText("WHAT THIS DEMONSTRATES")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "A narrow product scope with real SaaS boundaries." })
@@ -274,7 +280,6 @@ describe("root-host flows", () => {
       "https://github.com/daniel-maratta/paper-binder.git"
     );
     expect(screen.queryByText(/in progress/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/coming soon/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/placeholder/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/WCAG compliant/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/fully accessible/i)).not.toBeInTheDocument();
