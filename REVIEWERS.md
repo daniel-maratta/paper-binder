@@ -2,7 +2,7 @@
 
 This guide is for interviewers and technical reviewers who want a fast, accurate read of the shipped `V1` system and its release evidence.
 
-PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current published stable release tag is `v1.0.5`; the active V1.1 branch stages `1.1.0` metadata and remains in close-out until the final release task completes.
+PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current published stable release tag is `v1.1.0`.
 
 ## Fast Review Path (10-15 Minutes)
 
