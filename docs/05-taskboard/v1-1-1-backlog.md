@@ -37,7 +37,8 @@ These are known, intentional carry-forwards. They are not part of the `v1.1.1` p
 | Carry-forward | Source | Disposition |
 | --- | --- | --- |
 | Build a frontend archive/unarchive control for documents. | `T-0045` finding F3 | Deferred beyond `v1.1.1`; backend/API capability remains documented, frontend UI is separate product work. |
-| Broader React Router follow-up. | `T-0045` finding F5 / `T-0052` finding F3 | Deferred beyond `v1.1.1`; same-major audit remediation updated React Router 7 packages, and the remaining RSC-mode advisory is not applicable to PaperBinder's client-rendered SPA runtime mode. Any later router major/version migration requires its own task and validation pass. |
+| React Router major-version upgrade. | `T-0045` finding F5 / `T-0052` finding F3 / [T-0053](./tasks/T-0053-react-router-major-version-upgrade.md) | Deferred beyond `v1.1.1`; same-major audit remediation updated React Router 7 packages, and the remaining RSC-mode advisory is not applicable to PaperBinder's client-rendered SPA runtime mode. The carry-forward is still the router major-version upgrade, not merely audit remediation, and requires its own minor-version task and validation pass. |
+| Overall API shape and over-ceremony remediation. | `T-0049` / `T-0050` / `T-0052` / [T-0054](./tasks/T-0054-minor-version-api-shape-and-ceremony-review.md) | Deferred beyond `v1.1.1`; patch work completed discovery and safe mechanical splits only. The broader PaperBinder API/code-shape cleanup is tracked as minor-version engineering-quality work so endpoint ceremony, application contracts, service/file size, test shape, and naming can be addressed without weakening tenant isolation or reviewer clarity. |
 | Add a Light / Dark / System theme preference. | `taskboard-intake.md` | Deferred future feature. |
 | Add a fun `404` game treatment. | `taskboard-intake.md` | Deferred future feature. |
 

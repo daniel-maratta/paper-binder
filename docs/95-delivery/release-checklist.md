@@ -256,8 +256,8 @@ not replace the historical `V1.1.0` evidence above.
   update records the owner-attested merge/tag/Test-deploy/Prod-deploy/smoke evidence.
 - Deferred follow-up note: `npm ci` still reports 2 high-severity React Router RSC-mode advisories
   during restore. The final `T-0052` review explicitly rejects them as not applicable to
-  PaperBinder's client-rendered SPA runtime mode; broader router follow-up remains outside this
-  patch and does not block this validation bundle.
+  PaperBinder's client-rendered SPA runtime mode; the React Router major-version upgrade is tracked
+  as `T-0053`, remains outside this patch, and does not block this validation bundle.
 - Owner-controlled actions outside `T-0043`: merge-to-`main`, tag creation, release workflow, Test
   deployment, Prod deployment, production smoke validation, and release publication are recorded
   above as complete. No follow-up docs-only checklist PR is expected.
@@ -272,6 +272,8 @@ not replace the historical `V1.1.0` evidence above.
   and the taskboard are aligned for `v1.1.1` release readiness. Owner-controlled merge, tag
   creation, release workflow, deployment, smoke validation, and release publication remain separate
   follow-up actions and are not claimed by this checklist update.
+- V1.1.1 carry-forward attestation: `T-0053` tracks the React Router major-version upgrade, and
+  `T-0054` tracks overall API shape and over-ceremony remediation as future minor-version work.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`

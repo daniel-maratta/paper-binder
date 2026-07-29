@@ -105,11 +105,13 @@ silent omission:
   `v1.1.0`. See
   [`docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md`](docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md)
   for the full gap and deferral rationale.
-- **`react-router-dom` still has an npm audit advisory in React Router RSC mode.** The `v1.1.1`
-  patch applied same-major audit remediation and reduced the report to the remaining RSC-mode CSRF
-  advisory. PaperBinder is a client-rendered SPA and does not use React Router RSC mode, framework
-  actions, SSR, or document request action handling. The broader router follow-up remains deferred;
-  see [`docs/05-taskboard/v1-1-1-backlog.md`](docs/05-taskboard/v1-1-1-backlog.md).
+- **React Router still needs a major-version upgrade.** The `v1.1.1` patch applied same-major audit
+  remediation and reduced the report to the remaining React Router RSC-mode advisory. PaperBinder is
+  a client-rendered SPA and does not use React Router RSC mode, framework actions, SSR, or document
+  request action handling. The future work is still tracked as a router major-version upgrade, not
+  merely audit cleanup; see [`T-0053`](docs/05-taskboard/tasks/T-0053-react-router-major-version-upgrade.md)
+  and the carry-forward table in
+  [`docs/05-taskboard/v1-1-1-backlog.md`](docs/05-taskboard/v1-1-1-backlog.md).
 
 ## Local Validation
 

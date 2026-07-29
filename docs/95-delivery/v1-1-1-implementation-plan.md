@@ -26,7 +26,8 @@ Included:
 Out of scope unless the owner explicitly changes the patch scope:
 
 - Archive/unarchive frontend controls.
-- Broader React Router follow-up after same-major audit remediation.
+- React Router major-version upgrade after same-major audit remediation (`T-0053`).
+- Overall API shape and over-ceremony remediation as minor-version engineering-quality work (`T-0054`).
 - Light / Dark / System theme preference.
 - Fun `404` game treatment.
 - New product features, new endpoint behavior, new deployment topology, or speculative abstraction.

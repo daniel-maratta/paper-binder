@@ -19,7 +19,8 @@ This is the active PaperBinder task board for agent execution.
 
 ## Later
 
-- (empty)
+- [T-0053: React Router Major-Version Upgrade](./tasks/T-0053-react-router-major-version-upgrade.md)
+- [T-0054: Minor-Version API Shape And Ceremony Review](./tasks/T-0054-minor-version-api-shape-and-ceremony-review.md)
 
 ## Blocked
 
