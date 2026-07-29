@@ -30,7 +30,8 @@ Track and remediate PaperBinder's overall API shape and over-ceremony concerns a
 ## Context
 - `T-0049` reviewed API surface and ceremony for the `v1.1.1` patch and intentionally avoided broad application-code changes.
 - `T-0050` handled only safe, mechanical maintainability splits that were obviously beneficial inside the patch scope.
-- Reviewer feedback called out repeated endpoint ceremony, outcome/failure/problem-mapping records, large Dapper services, large frontend shell files, transcript-style tests, and names that repeat `PaperBinder` where namespace context already carries it.
+- Reviewer feedback called out repeated endpoint ceremony, outcome/failure/problem-mapping records, broad Dapper service responsibilities, frontend shell composition hotspots, transcript-style tests, and names that repeat `PaperBinder` where namespace context already carries it.
+- Final hiring-assessment polish confirmed `src/PaperBinder.Web/src/app/root-host.tsx` still concentrates route ownership, public-shell composition, view-state assembly, and auth/redirect flow handling in one seam. Backend maintainability hotspots were split during `v1.1.x` work; a future frontend pass should extract route sections, shell composition, and view-model helpers around stable responsibilities without changing user-facing behavior.
 - This work is too broad for a patch. It should be planned as minor-version work so code-shape changes can be reviewed with enough time for security, tenant-isolation, API-contract, and regression validation.
 
 ## Acceptance Criteria
@@ -57,7 +58,7 @@ Track and remediate PaperBinder's overall API shape and over-ceremony concerns a
 - Escalation Notes: Backend, frontend, Docker-backed integration, and browser validation may require elevated execution.
 
 ## Current State
-- Deferred. Patch-safe cleanup has landed where appropriate; broader API shape and over-ceremony work remains tracked here.
+- Deferred. Patch-safe cleanup has landed where appropriate; broader API shape, frontend composition, and over-ceremony work remains tracked here.
 
 ## Touch Points
 - `src/PaperBinder.Api/`

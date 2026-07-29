@@ -4,6 +4,10 @@ This guide is for interviewers and technical reviewers who want a fast, accurate
 
 PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current release-ready candidate is `v1.1.1`; the current published stable tag remains `v1.1.0` until owner-controlled tag and deployment follow-through completes.
 
+PaperBinder was designed, directed, reviewed, and validated by Daniel Maratta using AI coding agents as implementation accelerators. Large portions of implementation were generated or modified by AI agents under explicit task prompts; architecture, scope, security model, acceptance criteria, review process, remediation decisions, and the final quality bar remained human-directed. Evaluate it as an example of modern AI-augmented software delivery, not purely hand-typed keystroke authorship.
+
+The repo intentionally uses more documentation, gates, and validation artifacts than a typical paid engagement because it is a public hiring artifact. In client work, the process should scale to risk: lighter for low-risk features and internal tools, heavier for security boundaries, data migrations, tenant isolation, authentication, payments, and production releases.
+
 ## Fast Review Path (10-15 Minutes)
 
 Read these first:
@@ -111,6 +115,13 @@ silent omission:
   request action handling. The future work is still tracked as a router major-version upgrade, not
   merely audit cleanup; see [`T-0053`](docs/05-taskboard/tasks/T-0053-react-router-major-version-upgrade.md)
   and the carry-forward table in
+  [`docs/05-taskboard/v1-1-1-backlog.md`](docs/05-taskboard/v1-1-1-backlog.md).
+- **Frontend composition hotspots remain.** `src/PaperBinder.Web/src/app/root-host.tsx` still
+  concentrates route ownership, public-shell composition, view-state assembly, and auth/redirect
+  flow handling in one seam. Backend maintainability hotspots were split during `v1.1.x` work; a
+  future frontend pass should extract route sections, shell composition, and view-model helpers
+  around stable responsibilities without changing user-facing behavior. This is recorded in the
+  carry-forward table in
   [`docs/05-taskboard/v1-1-1-backlog.md`](docs/05-taskboard/v1-1-1-backlog.md).
 
 ## Local Validation
