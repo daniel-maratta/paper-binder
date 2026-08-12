@@ -11,6 +11,9 @@
 - Post-auth tenant context is derived server-side from membership and routing context and is materialized only after membership and tenant-expiry validation succeed.
 - Root-host provisioning and login now require server-side challenge verification plus shared per-IP pre-auth rate limiting before expensive auth/provision work runs.
 - The normal reviewer and production runtime keeps that challenge path enabled by default; only the isolated test runtime and explicit local-development bypass flags may short-circuit it.
+- Provisioning and tenant-user creation issue server-generated workspace passwords that are disclosed only in the creation handoff response. They are "shown once" credentials, not single-use passwords; no forced password-change or reset flow exists in v1 because tenants are temporary demo workspaces.
+- Password verification and storage use ASP.NET Core Identity primitives. Raw generated passwords are hashed before persistence, and only the `password_hash` value is stored.
+- Identity account lockout is disabled in v1 to avoid turning public-demo login attempts into an account-level denial-of-service path. Challenge verification plus the shared root-host pre-auth rate limiter are the intended brute-force controls for this demo scope.
 - Authenticated unsafe tenant-host `/api/*` mutations now also use a fixed-window limiter keyed by `(tenant_id, effective_user_id)` after membership is established.
 - `POST /api/auth/logout` and `DELETE /api/tenant/impersonation` stay exempt from that authenticated mutation limiter so session teardown remains available under downgraded effective roles.
 

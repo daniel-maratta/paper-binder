@@ -182,7 +182,7 @@ Before the first rollout of certificate-backed Data Protection key protection on
    - health payloads are minimal and non-sensitive (no dependency internals, no version metadata)
    - root host loads
    - production root and tenant hosts are crawlable and do not emit blanket `noindex` policy
-   - root-host provisioning requires challenge proof, returns one-time credentials, and redirects to the server-resolved tenant host
+   - root-host provisioning requires challenge proof, returns generated workspace credentials once, and redirects to the server-resolved tenant host
    - root-host login works and redirects to the server-resolved tenant host
    - tenant-host logout requires CSRF, clears both auth and CSRF cookies, and returns a root-host `redirectUrl` anchored to `PAPERBINDER_PUBLIC_ROOT_URL`
    - root-host provisioning/login return `429` with `Retry-After` when the shared pre-auth rate-limit budget is exhausted

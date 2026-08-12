@@ -59,7 +59,7 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 
 ## Current State
 - Historical slice outcome: the `v1.1` backend carry-forwards landed and were validated before merge.
-- Server-authoritative lifecycle endpoints, binder-policy admin-safety rules, backend document-title uniqueness, server-issued one-time credentials, and lease-cleanup retention validation are now part of current repo truth.
+- Server-authoritative lifecycle endpoints, binder-policy admin-safety rules, backend document-title uniqueness, server-issued shown-once credentials, and lease-cleanup retention validation are now part of current repo truth.
 - The remaining `v1.1` execution lane is `T-0037` final validation and close-out.
 
 ## Touch Points
@@ -92,7 +92,7 @@ Complete the API and backend carry-forward work surfaced by the `v1.1` authentic
 
 ## Outcome (Fill when done)
 - Complete. The authenticated-surface backend carry-forwards landed: tenant-scoped binder rename/delete, tenant-user delete, admin-manageability safeguards for binder policy state, and backend-authoritative document-title uniqueness.
-- Complete. Temporary tenant-user credentials are now generated server-side and only disclosed as one-time handoff values after the server creates the user.
+- Complete. Tenant-user workspace passwords are now generated server-side and only disclosed as shown-once handoff values after the server creates the user.
 - Complete. Integration coverage now proves active-lease tenants are not purged early, retained-expiry tenants remain in the `410` window until the intended cleanup threshold, and recent-activity retention still protects already-provisioned PaperBinder tenants.
 - Complete. The slice was validated through the merged backend/frontend/integration change sets, including Docker-backed integration coverage and the broader release validation bundle that accompanied closure.
 

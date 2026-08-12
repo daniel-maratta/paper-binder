@@ -30,6 +30,7 @@ Out of scope:
 - Tokens are not stored in local/session storage.
 - Impersonation state is not stored in local/session storage, query params, or custom headers; the shell reads it only from `GET /api/tenant/impersonation`.
 - Generated provisioning credentials are never stored in browser storage, cookies, or query params; CP13 keeps them in transient in-memory UI state only until the user continues to the tenant host.
+- Generated credentials are shown once in the handoff UI and are not re-fetchable. They are not single-use passwords; they remain valid for later login while the temporary demo tenant exists.
 - SPA sends `X-Api-Version` on all API requests (v1 value: `1`).
 - `X-Api-Version` negotiation is enforced server-side for `/api/*` routes.
 - Non-API SPA document/asset requests do not participate in API version negotiation.
@@ -42,7 +43,7 @@ Out of scope:
 
 - Root host (`paperbinder.danielmaratta.com`):
   - `/` owns the product-first public landing experience.
-  - `/start-demo` owns live provisioning, demo-entry login, and the one-time credential handoff state.
+  - `/start-demo` owns live provisioning, demo-entry login, and the shown-once credential handoff state.
   - `/login` remains the direct-login route and logout return target.
   - `/articles/building-paperbinder-production-shaped-saas-demo` hosts the public flagship article linked from About.
   - challenge/rate-limit handling stays server-authoritative and routes through the shared browser client.

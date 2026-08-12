@@ -11,6 +11,7 @@ As a visitor, I can provision a demo tenant and receive generated credentials so
 - Given a valid provisioning request, `POST /api/provision` returns `201` and includes generated credentials, tenant subdomain, and redirect URL.
 - Root-host `/start-demo` owns the provisioning form and submits only `tenantName` plus `challengeToken` through the shared SPA client.
 - After provisioning succeeds, generated credentials are shown exactly once in a root-host handoff state and remain transient in memory only.
+- Generated credentials are shown once, not single-use; the generated password remains valid for later login while the temporary demo tenant exists.
 - The handoff state keeps the user signed in and continues to the tenant host only when the user activates the explicit continue action that uses the server-provided `redirectUrl`.
 - Provision response includes `expiresAt` set to approximately 1 hour from provision time.
 - `GET /api/tenant/lease` returns authoritative lease state including `expiresAt`, `secondsRemaining`, `extensionCount`, `maxExtensions`, and `canExtend`.
@@ -105,7 +106,7 @@ As a tenant admin, I can manage tenant users and assign roles without crossing t
 
 ### Acceptance Criteria
 - `GET /api/tenant/users` returns only users for the current tenant.
-- `POST /api/tenant/users` creates a tenant-scoped user with an initial role and returns one-time server-generated credentials.
+- `POST /api/tenant/users` creates a tenant-scoped user with an initial role and returns server-generated workspace credentials in a shown-once handoff.
 - `POST /api/tenant/users/{userId}/role` changes role only for tenant-scoped users.
 - `DELETE /api/tenant/users/{userId}` removes tenant-scoped non-owner users without allowing workspace owner deletion.
 - Tenant-host `/app/users` exposes list, create, and role-change behavior only for `TenantAdmin`.

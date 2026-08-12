@@ -46,7 +46,7 @@ A full product/responsive/accessibility review found and fixed:
   focus-ring convention, plus the public logo link missing the same treatment its sibling nav
   links already had.
 - A toast-timer keyboard-parity gap (auto-dismiss paused on mouse hover but not keyboard focus).
-- A product-experience/form-boundary issue on Add User (the generated one-time password sharing
+- A product-experience/form-boundary issue on Add User (the generated workspace password sharing
   a `<form>` with an email input, the classic browser password-manager heuristic trigger).
 
 All fixes are committed on the review/v1.1.0-product branch, one commit per finding, each validated against
