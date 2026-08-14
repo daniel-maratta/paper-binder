@@ -82,6 +82,13 @@ public partial class Program
             MapE2ETurnstileFixture(app);
             app.UseDefaultFiles();
             app.UseStaticFiles();
+            app.MapGet(FlagshipArticleFrontendHtml.Path, async () =>
+            {
+                var frontendHtml = await File.ReadAllTextAsync(frontendEntryPoint);
+                return Results.Content(
+                    FlagshipArticleFrontendHtml.Render(frontendHtml),
+                    "text/html; charset=utf-8");
+            });
             app.MapFallbackToFile("index.html");
             return;
         }

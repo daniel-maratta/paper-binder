@@ -186,6 +186,9 @@ not replace the historical `V1.1.0` evidence above.
 - [x] `T-0052` final validation and hiring assessment review completed on `2026-07-28`.
 - [x] No new product features, API contracts, tenant-boundary changes, authorization changes, CSRF
   changes, or deployment topology changes were introduced.
+- [x] The hosted flagship article route is part of the v1.1.1 public reviewer surface. Its accepted
+  prose remains sourced from RC2, while the web Markdown representation, publication chrome, and
+  metadata are maintained under the frontend publication contract.
 
 ### Scripted Validation
 

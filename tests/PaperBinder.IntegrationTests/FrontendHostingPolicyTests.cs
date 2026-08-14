@@ -57,4 +57,40 @@ public sealed class FrontendHostingPolicyTests
         Assert.Contains("backend-process live-state page", html);
         Assert.Contains(Environments.Development, html);
     }
+
+    [Fact]
+    public void FlagshipArticleFrontendHtml_RendersArticleMetadataInInitialHtml()
+    {
+        const string frontendHtml = """
+            <html>
+              <head>
+                <title>PaperBinder | Secure multi-tenant document workspace</title>
+                <meta name="description" content="Generic app description." />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="PaperBinder" />
+                <meta property="og:description" content="Generic Open Graph description." />
+                <meta property="og:image" content="/brand/pb-full-logo-color.png" />
+                <script type="application/ld+json">
+                  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"PaperBinder"}
+                </script>
+              </head>
+              <body><div id="root"></div></body>
+            </html>
+            """;
+
+        var html = FlagshipArticleFrontendHtml.Render(frontendHtml);
+
+        Assert.Contains(
+            "<title>Building PaperBinder: From AI-Generated Code to Shippable Software | PaperBinder</title>",
+            html);
+        Assert.Contains("""<meta property="og:type" content="article" />""", html);
+        Assert.Contains(
+            """<link rel="canonical" href="https://paperbinder.danielmaratta.com/articles/building-paperbinder-production-shaped-saas-demo" />""",
+            html);
+        Assert.Contains("""<meta name="twitter:card" content="summary_large_image" />""", html);
+        Assert.Contains("""<meta property="og:image" content="https://paperbinder.danielmaratta.com/presentation/after-redesign.png" />""", html);
+        Assert.Contains("""<script id="paperbinder-flagship-article-jsonld" type="application/ld+json">""", html);
+        Assert.Contains(""""@type":"Article"""", html);
+        Assert.DoesNotContain("SoftwareApplication", html);
+    }
 }

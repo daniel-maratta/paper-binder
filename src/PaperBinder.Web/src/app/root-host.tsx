@@ -1,4 +1,4 @@
-import { Fragment, type ComponentPropsWithoutRef, type FormEvent, type ReactNode, useEffect, useState } from "react";
+import { Fragment, type ComponentPropsWithoutRef, type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, Route, useLocation } from "react-router-dom";
 import type { LoginResponse, PaperBinderApiClient, ProvisionResponse } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
@@ -13,6 +13,8 @@ import type { RootHostContext } from "./host-context";
 import type { FrontendEnvironment } from "../environment";
 import { rootRouteDefinitions } from "./route-registry";
 import { mapRootHostError, type RootHostErrorViewModel } from "./root-host-errors";
+import { getMarkdownArticleHeadings, MarkdownArticle } from "./markdown-article";
+import { flagshipArticle } from "../content/articles/flagship-article";
 
 type RootHostFieldErrors = Partial<Record<"tenantName" | "email" | "password" | "challenge", string>>;
 
@@ -30,7 +32,10 @@ type PublicDemoStep = {
 export type RootHostNavigator = (redirectUrl: string) => void;
 
 const localChallengeBypassToken = "paperbinder-test-challenge-pass";
-const flagshipArticlePath = "/articles/building-paperbinder-production-shaped-saas-demo";
+const flagshipArticlePath = flagshipArticle.path;
+const articleNavigationMediaQuery = "(min-width: 1181px)";
+const flagshipArticleReviewGuideUrl = "https://github.com/daniel-maratta/paper-binder/blob/main/review/README.md";
+const flagshipArticleHeadings = getMarkdownArticleHeadings(flagshipArticle.body);
 
 const publicValuePillars: PublicValuePillar[] = [
   {
@@ -104,13 +109,330 @@ function setDocumentTitle(pageTitle: string) {
   document.title = `${pageTitle} | ${productIdentity.productName}`;
 }
 
+function createAbsolutePublicUrl(path: string): string {
+  return new URL(path, productIdentity.canonicalDemoUrl).toString();
+}
+
+function upsertHeadMeta(attributeName: "name" | "property", attributeValue: string, content: string) {
+  let element = document.head.querySelector<HTMLMetaElement>(`meta[${attributeName}="${attributeValue}"]`);
+  const created = element === null;
+  if (element === null) {
+    element = document.createElement("meta");
+    element.setAttribute(attributeName, attributeValue);
+    document.head.append(element);
+  }
+
+  const previousContent = element.getAttribute("content");
+  element.setAttribute("content", content);
+
+  return () => {
+    if (created) {
+      element.remove();
+      return;
+    }
+
+    if (previousContent === null) {
+      element.removeAttribute("content");
+      return;
+    }
+
+    element.setAttribute("content", previousContent);
+  };
+}
+
+function upsertCanonicalLink(href: string) {
+  let element = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  const created = element === null;
+  if (element === null) {
+    element = document.createElement("link");
+    element.setAttribute("rel", "canonical");
+    document.head.append(element);
+  }
+
+  const previousHref = element.getAttribute("href");
+  element.setAttribute("href", href);
+
+  return () => {
+    if (created) {
+      element.remove();
+      return;
+    }
+
+    if (previousHref === null) {
+      element.removeAttribute("href");
+      return;
+    }
+
+    element.setAttribute("href", previousHref);
+  };
+}
+
+function upsertJsonLdScript(id: string, structuredData: Record<string, unknown>) {
+  let element = document.head.querySelector<HTMLScriptElement>(`script#${id}`);
+  const created = element === null;
+  if (element === null) {
+    element = document.createElement("script");
+    element.id = id;
+    element.type = "application/ld+json";
+    document.head.append(element);
+  }
+
+  const previousText = element.textContent;
+  element.textContent = JSON.stringify(structuredData);
+
+  return () => {
+    if (created) {
+      element.remove();
+      return;
+    }
+
+    element.textContent = previousText;
+  };
+}
+
+function useFlagshipArticleMetadata() {
+  useEffect(() => {
+    const canonicalUrl = createAbsolutePublicUrl(flagshipArticle.path);
+    const socialImageUrl = createAbsolutePublicUrl(flagshipArticle.socialImagePath);
+    const restoreTitle = document.title;
+    document.title = `${flagshipArticle.title} | ${productIdentity.productName}`;
+
+    const restoreHead = [
+      upsertHeadMeta("name", "description", flagshipArticle.description),
+      upsertHeadMeta("name", "author", productIdentity.authorName),
+      upsertHeadMeta("property", "og:type", "article"),
+      upsertHeadMeta("property", "og:title", flagshipArticle.title),
+      upsertHeadMeta("property", "og:description", flagshipArticle.description),
+      upsertHeadMeta("property", "og:url", canonicalUrl),
+      upsertHeadMeta("property", "og:image", socialImageUrl),
+      upsertHeadMeta("name", "twitter:card", "summary_large_image"),
+      upsertHeadMeta("name", "twitter:title", flagshipArticle.title),
+      upsertHeadMeta("name", "twitter:description", flagshipArticle.description),
+      upsertHeadMeta("name", "twitter:image", socialImageUrl),
+      upsertCanonicalLink(canonicalUrl),
+      upsertJsonLdScript("paperbinder-flagship-article-jsonld", {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: flagshipArticle.title,
+        description: flagshipArticle.description,
+        image: socialImageUrl,
+        url: canonicalUrl,
+        mainEntityOfPage: canonicalUrl,
+        author: {
+          "@type": "Person",
+          name: productIdentity.authorName,
+          url: productIdentity.authorUrl
+        },
+        publisher: {
+          "@type": "Organization",
+          name: productIdentity.productName,
+          url: productIdentity.canonicalDemoUrl
+        }
+      })
+    ];
+
+    return () => {
+      document.title = restoreTitle;
+      restoreHead.forEach((restore) => {
+        restore();
+      });
+    };
+  }, []);
+}
+
+function useIsDesktopArticleNavigation() {
+  const getMatches = () =>
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(articleNavigationMediaQuery).matches
+      : true;
+  const [isDesktopArticleNavigation, setIsDesktopArticleNavigation] = useState(getMatches);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      setIsDesktopArticleNavigation(true);
+      return;
+    }
+
+    const mediaQueryList = window.matchMedia(articleNavigationMediaQuery);
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsDesktopArticleNavigation(event.matches);
+    };
+
+    setIsDesktopArticleNavigation(mediaQueryList.matches);
+    mediaQueryList.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQueryList.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  return isDesktopArticleNavigation;
+}
+
+function ArticleSectionNavigation() {
+  const isDesktopArticleNavigation = useIsDesktopArticleNavigation();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [activeHeadingId, setActiveHeadingId] = useState(flagshipArticleHeadings[0]?.id ?? "");
+  const navigationRef = useRef<HTMLElement>(null);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
+  const sectionListId = "paperbinder-article-section-links";
+  const activeHeading = flagshipArticleHeadings.find((heading) => heading.id === activeHeadingId) ?? flagshipArticleHeadings[0];
+  const shouldShowLinks = isDesktopArticleNavigation || isExpanded;
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    function updateActiveHeading() {
+      const firstHeadingId = flagshipArticleHeadings[0]?.id;
+      if (firstHeadingId === undefined) {
+        return;
+      }
+
+      const headingThreshold = 128;
+      const pageHasScrollableHeight = document.documentElement.scrollHeight > window.innerHeight + 8;
+      let nextActiveHeadingId = firstHeadingId;
+
+      if (!pageHasScrollableHeight && window.scrollY === 0) {
+        setActiveHeadingId(nextActiveHeadingId);
+        return;
+      }
+
+      for (const heading of flagshipArticleHeadings) {
+        const element = document.getElementById(heading.id);
+        if (element === null) {
+          continue;
+        }
+
+        if (element.getBoundingClientRect().top <= headingThreshold) {
+          nextActiveHeadingId = heading.id;
+        }
+      }
+
+      const isNearPageEnd =
+        pageHasScrollableHeight && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 8;
+      if (isNearPageEnd) {
+        nextActiveHeadingId = flagshipArticleHeadings[flagshipArticleHeadings.length - 1]?.id ?? nextActiveHeadingId;
+      }
+
+      setActiveHeadingId(nextActiveHeadingId);
+    }
+
+    updateActiveHeading();
+    window.addEventListener("scroll", updateActiveHeading, { passive: true });
+    window.addEventListener("resize", updateActiveHeading);
+
+    return () => {
+      window.removeEventListener("scroll", updateActiveHeading);
+      window.removeEventListener("resize", updateActiveHeading);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isDesktopArticleNavigation || !isExpanded || typeof document === "undefined") {
+      return;
+    }
+
+    function closeMenuWhenPointerStartsOutside(event: PointerEvent) {
+      const target = event.target;
+      if (target instanceof Node && navigationRef.current?.contains(target)) {
+        return;
+      }
+
+      setIsExpanded(false);
+    }
+
+    document.addEventListener("pointerdown", closeMenuWhenPointerStartsOutside);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeMenuWhenPointerStartsOutside);
+    };
+  }, [isDesktopArticleNavigation, isExpanded]);
+
+  useEffect(() => {
+    if (isDesktopArticleNavigation || !isExpanded || typeof document === "undefined") {
+      return;
+    }
+
+    function closeMenuWhenEscapeIsPressed(event: KeyboardEvent) {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      event.preventDefault();
+      setIsExpanded(false);
+      toggleButtonRef.current?.focus();
+    }
+
+    document.addEventListener("keydown", closeMenuWhenEscapeIsPressed);
+
+    return () => {
+      document.removeEventListener("keydown", closeMenuWhenEscapeIsPressed);
+    };
+  }, [isDesktopArticleNavigation, isExpanded]);
+
+  return (
+    <nav
+      aria-label="Article sections"
+      className={cn(
+        "pb-public-article-sections",
+        isDesktopArticleNavigation
+          ? "pb-public-article-sections--desktop"
+          : "pb-public-article-sections--collapsed"
+      )}
+      ref={navigationRef}
+    >
+      {isDesktopArticleNavigation ? (
+        <p className="pb-public-panel-eyebrow">Sections</p>
+      ) : (
+        <button
+          aria-controls={sectionListId}
+          aria-expanded={shouldShowLinks}
+          aria-label={`Sections, current section: ${activeHeading?.text ?? "Introduction"}`}
+          className="pb-public-article-sections-toggle"
+          onClick={() => {
+            setIsExpanded((currentValue) => !currentValue);
+          }}
+          ref={toggleButtonRef}
+          type="button"
+        >
+          <span className="pb-public-article-sections-toggle-copy">
+            <span>Sections</span>
+            <span className="pb-public-article-sections-current">{activeHeading?.text ?? "Introduction"}</span>
+          </span>
+          <span aria-hidden="true" className="pb-public-article-sections-toggle-icon" />
+        </button>
+      )}
+      <ol hidden={!shouldShowLinks} id={sectionListId}>
+        {flagshipArticleHeadings.map((heading) => (
+          <li className={`pb-public-article-section-link--depth-${heading.depth}`} key={heading.id}>
+            <a
+              aria-current={heading.id === activeHeadingId ? "location" : undefined}
+              className={heading.id === activeHeadingId ? "pb-public-article-section-link--active" : undefined}
+              href={`#${heading.id}`}
+              onClick={() => {
+                if (!isDesktopArticleNavigation) {
+                  setIsExpanded(false);
+                }
+              }}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
 function resolveRootPageTitle(pathname: string): string {
   if (pathname === "/login") {
     return "Sign in";
   }
 
   if (pathname === flagshipArticlePath) {
-    return "Building PaperBinder: A Production-Shaped SaaS Demo";
+    return flagshipArticle.title;
   }
 
   const matchingRoute = rootRouteDefinitions.find((route) => route.path === pathname);
@@ -1294,7 +1616,7 @@ function RootAboutPage() {
             cta="Read article"
             href={flagshipArticlePath}
             meta="Architecture / SaaS demo / AI-assisted development"
-            title="Building PaperBinder: A Production-Shaped SaaS Demo"
+            title={flagshipArticle.title}
           >
             A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind
             PaperBinder.
@@ -1413,64 +1735,107 @@ function RootAboutPage() {
 }
 
 function RootFlagshipArticlePage() {
+  useFlagshipArticleMetadata();
+
   return (
     <PublicPage className="pb-public-article-page">
       <PublicHero
-        eyebrow="Architecture / SaaS demo / AI-assisted development"
-        title="Building PaperBinder: A Production-Shaped SaaS Demo"
+        actions={
+          <>
+            <a
+              className="pb-public-button-link pb-public-button-link--light"
+              href={productIdentity.canonicalDemoUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Live demo
+            </a>
+            <a
+              className="pb-public-button-link pb-public-button-link--ghost"
+              href={productIdentity.canonicalRepositoryUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Repository
+            </a>
+          </>
+        }
+        eyebrow={flagshipArticle.category}
+        title={flagshipArticle.title}
       >
-        PaperBinder is a deliberately small SaaS demo: tenant-scoped workspaces, role-aware binders, immutable text
-        documents, and an expiring demo lifecycle.
+        {flagshipArticle.subtitle}
       </PublicHero>
 
-      <article className="pb-public-story-stack">
-        <PublicStorySection>
-          <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">PROJECT SHAPE</p>
-            <h2>Why the scope stays narrow</h2>
+      <div className="pb-public-article-shell">
+        <section aria-labelledby="article-evidence-title" className="pb-public-article-evidence">
+          <img
+            alt="PaperBinder redesigned public interface showing the product entry page."
+            className="pb-public-article-evidence-image"
+            src={flagshipArticle.socialImagePath}
+          />
+          <div className="pb-public-article-evidence-copy">
+            <p className="pb-public-panel-eyebrow">Project evidence</p>
+            <h2 id="article-evidence-title">Inspect the product, source, and review guide.</h2>
             <p>
-              PaperBinder is not trying to become a full document-management platform. Its job is to make a few
-              production SaaS concerns easy to inspect: tenant resolution, role-aware authorization, durable document
-              records, and repeatable release discipline.
+              The article is the narrative layer. These links provide the live product surface, implementation record,
+              and reviewer entry point that support it.
             </p>
-            <p>
-              The product stays small so reviewers can follow the important choices from the public UI down through the
-              API, application services, Dapper persistence, migrations, tests, and operational scripts.
-            </p>
+            <div className="pb-public-article-evidence-links">
+              <a href={productIdentity.canonicalDemoUrl} rel="noreferrer" target="_blank">
+                Live demo
+              </a>
+              <a href={productIdentity.canonicalRepositoryUrl} rel="noreferrer" target="_blank">
+                Repository
+              </a>
+              <a href={flagshipArticleReviewGuideUrl} rel="noreferrer" target="_blank">
+                Review guide
+              </a>
+            </div>
           </div>
-        </PublicStorySection>
+        </section>
 
-        <PublicStorySection variant="accent">
-          <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">SECURITY MODEL</p>
-            <h2>The security boundary</h2>
-            <p>
-              Tenant isolation is the primary engineering boundary. Public routes establish root-host intent, tenant
-              routes derive workspace context from the host, and backend data access predicates by tenant before data is
-              returned.
-            </p>
-            <p>
-              That explicitness is intentional. It keeps authorization and tenant scoping visible at the code seams a
-              reviewer is most likely to audit.
-            </p>
-          </div>
-        </PublicStorySection>
+        <aside aria-label="Article metadata" className="pb-public-article-meta">
+          <span>Flagship article</span>
+          <span>Daniel Maratta</span>
+          <span>{flagshipArticle.readingTimeLabel}</span>
+          <span>{flagshipArticle.artifactLabel}</span>
+        </aside>
 
-        <PublicStorySection>
+        <div className="pb-public-article-layout">
+          <ArticleSectionNavigation />
+
+          <MarkdownArticle source={flagshipArticle.body} />
+        </div>
+
+        <PublicStorySection className="pb-public-article-project-card" variant="accent">
           <div className="pb-public-story-copy">
-            <p className="pb-public-panel-eyebrow">BUILD NOTES</p>
-            <h2>What to inspect</h2>
+            <p className="pb-public-panel-eyebrow">PAPERBINDER PROJECT</p>
+            <h2>Review the running demo and the source history.</h2>
             <p>
-              The repo is organized around reviewable checkpoints, tenant-boundary tests, and deployment scripts that
-              make the demo reproducible. The interesting signal is not feature breadth; it is whether the small system
-              stays coherent under realistic SaaS constraints.
+              The article is part of the PaperBinder public hiring artifact. Use the live demo for the product surface
+              and the repository for the implementation record, documentation, validation scripts, and review evidence.
             </p>
           </div>
-          <PublicShellLink className="pb-public-button-link" to="/about">
-            Back to About
-          </PublicShellLink>
+          <div className="pb-public-article-cta-actions">
+            <a
+              className="pb-public-button-link pb-public-button-link--light"
+              href={productIdentity.canonicalDemoUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open live demo
+            </a>
+            <a
+              className="pb-public-button-link pb-public-button-link--ghost"
+              href={productIdentity.canonicalRepositoryUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              View repository
+            </a>
+          </div>
         </PublicStorySection>
-      </article>
+      </div>
     </PublicPage>
   );
 }

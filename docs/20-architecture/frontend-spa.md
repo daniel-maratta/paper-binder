@@ -38,6 +38,7 @@ Out of scope:
 - Tenant-shell auth-aware bootstrap uses `GET /api/tenant/lease` as the authoritative shell seam; CP14 layers feature-specific calls on top of that shell-owned lease state.
 - CP15 adds `GET /api/tenant/impersonation` to that shell bootstrap so impersonation banner ownership stays centralized.
 - No route-module server logic executes in V1.
+- The API host serves route-specific initial HTML metadata for `/articles/building-paperbinder-production-shaped-saas-demo`; the client-rendered SPA still owns article rendering and refreshes the same metadata after hydration.
 
 ## Host Contexts
 
@@ -45,7 +46,7 @@ Out of scope:
   - `/` owns the product-first public landing experience.
   - `/start-demo` owns live provisioning, demo-entry login, and the shown-once credential handoff state.
   - `/login` remains the direct-login route and logout return target.
-  - `/articles/building-paperbinder-production-shaped-saas-demo` hosts the public flagship article linked from About.
+  - `/articles/building-paperbinder-production-shaped-saas-demo` hosts the public flagship article linked from About. The route renders the web Markdown representation of the accepted RC2 article body and surrounds it with PaperBinder-specific publication chrome.
   - challenge/rate-limit handling stays server-authoritative and routes through the shared browser client.
 - Tenant host (`{tenant}.paperbinder.danielmaratta.com`):
   - `/app` dashboard plus lease visibility

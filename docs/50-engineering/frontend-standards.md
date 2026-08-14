@@ -40,6 +40,15 @@ Define repo-native frontend rules for the PaperBinder SPA.
 - The repo-native browser gate now covers the public landing, root-host demo-entry or login flows, and tenant-host navigation, lease, forbidden, expired, and logout/login-cycle flows.
 - Prefer Playwright for E2E coverage in V1.
 
+## Flagship Article Publication
+
+- The accepted editorial source for the flagship article is `artifacts/Flagship Article - Release Candidate 2.docx`.
+- The web representation of that article body lives at `src/PaperBinder.Web/src/content/articles/building-paperbinder-production-shaped-saas-demo.md` and renders on `/articles/building-paperbinder-production-shaped-saas-demo`.
+- RC2 is the source of truth for article prose, headings, lists, links, figure order, and captions. Do not casually rewrite the article body in the Markdown representation.
+- Publication chrome, article route composition, SEO/social metadata, JSON-LD, and calls to action are web-specific concerns and may evolve independently without changing accepted article prose.
+- Article figures use the existing presentation assets in `src/PaperBinder.Web/public/presentation`; do not extract or regenerate DOCX images unless a required canonical presentation asset is missing.
+- The article is part of the public reviewer and hiring artifact, not a separate blog design system or CMS.
+
 ## Related Documents
 
 - `docs/20-architecture/frontend-spa.md`

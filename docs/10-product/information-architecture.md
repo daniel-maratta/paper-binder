@@ -10,7 +10,7 @@ Primary views:
 - Start Demo flow
 - Login
 - About
-- Hosted flagship article
+- Hosted flagship article rendered from the accepted article body's Markdown web representation
 - Reviewer-support content (secondary public path or section)
 
 Navigation:

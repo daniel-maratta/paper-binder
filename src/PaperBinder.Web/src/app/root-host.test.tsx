@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppRouter } from "../App";
 import { PaperBinderApiError, type PaperBinderApiClient } from "../api/client";
+import { flagshipArticle } from "../content/articles/flagship-article";
 import {
   createApiClientStub,
   createProvisionResponse,
@@ -72,6 +73,22 @@ function installTurnstileStub(token = "paperbinder-test-challenge-pass") {
   };
 }
 
+function installMatchMediaStub(matches: boolean) {
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn((query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn()
+    }))
+  );
+}
+
 function renderRootRoute({
   route = "/",
   apiClient,
@@ -113,6 +130,7 @@ function renderRootRoute({
 
 afterEach(() => {
   delete window.turnstile;
+  vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
@@ -220,10 +238,10 @@ describe("root-host flows", () => {
       )
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
+      screen.getByRole("heading", { name: "Building PaperBinder: From AI-Generated Code to Shippable Software" })
     ).toBeInTheDocument();
     const articleCard = screen
-      .getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
+      .getByRole("heading", { name: "Building PaperBinder: From AI-Generated Code to Shippable Software" })
       .closest("article");
     expect(articleCard).not.toBeNull();
     const articleScope = within(articleCard!);
@@ -295,18 +313,114 @@ describe("root-host flows", () => {
     });
 
     expect(
-      screen.getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
+      screen.getByRole("heading", { name: "Building PaperBinder: From AI-Generated Code to Shippable Software" })
     ).toBeInTheDocument();
     expect(screen.getByText("Architecture / SaaS demo / AI-assisted development")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "PaperBinder is a deliberately small SaaS demo: tenant-scoped workspaces, role-aware binders, immutable text documents, and an expiring demo lifecycle."
+        "How architecture, documentation, testing, independent review, and human judgment turned AI-generated implementation into a production-shaped SaaS application."
       )
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Why the scope stays narrow" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "The security boundary" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Back to About" })).toHaveAttribute("href", "/about");
-    expect(document.title).toBe("Building PaperBinder: A Production-Shaped SaaS Demo | PaperBinder");
+    expect(screen.getByText("Flagship article")).toBeInTheDocument();
+    expect(screen.getByText("Daniel Maratta")).toBeInTheDocument();
+    expect(screen.getByText(flagshipArticle.readingTimeLabel)).toBeInTheDocument();
+    expect(screen.getByText("V1.1.1 public artifact")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Inspect the product, source, and review guide." })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review guide" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder/blob/main/review/README.md"
+    );
+    expect(screen.getByRole("navigation", { name: "Article sections" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Where AI Helped" })).toHaveAttribute("href", "#where-ai-helped");
+    expect(screen.getByRole("link", { name: "Introduction" })).toHaveAttribute("aria-current", "location");
+    expect(screen.getByRole("heading", { name: "Introduction" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What is PaperBinder, and why build it?" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Five Major Categories of AI Work" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Generation" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Today, LLMs have made it easier than ever to generate and modify large volumes of application code. However, the challenge is no longer obtaining functional output. Rather, it is turning that output into software that is reliable, coherent, secure, maintainable, and safe to operate."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "V1 execution plan" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder/blob/main/docs/archive/v1/checkpoints/execution-plan.md"
+    );
+    expect(screen.getByRole("link", { name: "ADR-0007" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder/blob/main/docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md"
+    );
+    expect(screen.getByText(".gitignore")).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", {
+        name: "Dependency diagram showing PaperBinder Domain and Application projects at the center, with Infrastructure, API, Worker, Web, and Migrations around them."
+      })
+    ).toHaveAttribute("src", "/presentation/dependency-architecture-diagram.svg");
+    expect(
+      screen.getByRole("img", {
+        name: "Workflow diagram showing PaperBinder development moving from implementation through validation, audit, remediation, verification, and release acceptance."
+      })
+    ).toHaveAttribute("src", "/presentation/workflow-diagram.svg");
+    expect(
+      screen.getByRole("img", { name: "PaperBinder v1 public interface before the frontend redesign." })
+    ).toHaveAttribute("src", "/presentation/before-redesign.png");
+    expect(
+      screen.getByRole("img", { name: "PaperBinder public interface after the v1.1 frontend redesign." })
+    ).toHaveAttribute("src", "/presentation/after-redesign.png");
+    expect(screen.getByText("Figure 1. PaperBinder solution structure.")).toBeInTheDocument();
+    expect(screen.getByText("Figure 2. The process that governed most of PaperBinder's development.")).toBeInTheDocument();
+    expect(screen.getByText("Figure 3. PaperBinder as it looked during v1.")).toBeInTheDocument();
+    expect(screen.getByText("Figure 4. PaperBinder after the successful front-end rewrite.")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Live demo" })[0]).toHaveAttribute(
+      "href",
+      "https://paperbinder.danielmaratta.com"
+    );
+    expect(screen.getAllByRole("link", { name: "Repository" })[0]).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder.git"
+    );
+    expect(screen.getByRole("heading", { name: "Review the running demo and the source history." })).toBeInTheDocument();
+    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      "https://paperbinder.danielmaratta.com/articles/building-paperbinder-production-shaped-saas-demo"
+    );
+    expect(document.querySelector('meta[property="og:type"]')).toHaveAttribute("content", "article");
+    expect(document.querySelector("#paperbinder-flagship-article-jsonld")?.textContent).toContain(
+      '"@type":"Article"'
+    );
+    expect(document.title).toBe("Building PaperBinder: From AI-Generated Code to Shippable Software | PaperBinder");
+  });
+
+  it("Should_CollapseArticleSections_When_ArticleRouteRendersBelowDesktopNavigationWidth", () => {
+    installMatchMediaStub(false);
+
+    renderRootRoute({
+      route: "/articles/building-paperbinder-production-shaped-saas-demo"
+    });
+
+    const sectionsToggle = screen.getByRole("button", { name: /Sections/ });
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("link", { name: "Where AI Helped" })).not.toBeInTheDocument();
+
+    fireEvent.click(sectionsToggle);
+
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("link", { name: "Introduction" })).toHaveAttribute("aria-current", "location");
+    expect(screen.getByRole("link", { name: "Where AI Helped" })).toHaveAttribute("href", "#where-ai-helped");
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("link", { name: "Where AI Helped" })).not.toBeInTheDocument();
+
+    fireEvent.click(sectionsToggle);
+
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "true");
+
+    fireEvent.pointerDown(document.body);
+
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("link", { name: "Where AI Helped" })).not.toBeInTheDocument();
   });
 
   it("Should_LinkBackToWorkspace_When_PublicHomeReceivesWorkspaceHint", async () => {

@@ -13,6 +13,74 @@ let provisionedTenantSlug: string | null = null;
 
 test.describe.configure({ mode: "serial" });
 
+test("Should_RenderFlagshipArticleRoute_InBrowserAcrossResponsiveWidths", async ({ page }) => {
+  const articleResponse = await page.request.get("/articles/building-paperbinder-production-shaped-saas-demo");
+  expect(articleResponse.status()).toBe(200);
+  const articleHtml = await articleResponse.text();
+  expect(articleHtml).toContain(
+    "<title>Building PaperBinder: From AI-Generated Code to Shippable Software | PaperBinder</title>"
+  );
+  expect(articleHtml).toContain('<meta property="og:type" content="article" />');
+  expect(articleHtml).toContain(
+    '<link rel="canonical" href="https://paperbinder.danielmaratta.com/articles/building-paperbinder-production-shaped-saas-demo" />'
+  );
+  expect(articleHtml).toContain('<script id="paperbinder-flagship-article-jsonld" type="application/ld+json">');
+  expect(articleHtml).toContain('"@type":"Article"');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/articles/building-paperbinder-production-shaped-saas-demo");
+
+  await expect(
+    page.getByRole("heading", { name: "Building PaperBinder: From AI-Generated Code to Shippable Software" })
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Introduction" })).toBeVisible();
+  await expect(
+    page.getByRole("img", {
+      name: "PaperBinder public interface after the v1.1 frontend redesign."
+    })
+  ).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+    true
+  );
+  expect(await page.evaluate(() => document.querySelectorAll("#paperbinder-flagship-article-jsonld").length)).toBe(1);
+
+  await page.setViewportSize({ width: 1180, height: 768 });
+  await page.reload();
+
+  const sectionsToggle = page.getByRole("button", { name: /Sections/ });
+  await expect(sectionsToggle).toBeVisible();
+  await expect(sectionsToggle).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByRole("link", { name: "Where AI Helped" })).toBeHidden();
+
+  await sectionsToggle.click();
+
+  await expect(sectionsToggle).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByRole("link", { name: "Where AI Helped" })).toBeVisible();
+
+  await page.keyboard.press("Escape");
+
+  await expect(sectionsToggle).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByRole("link", { name: "Where AI Helped" })).toBeHidden();
+
+  await page.setViewportSize({ width: 1181, height: 768 });
+  await page.reload();
+
+  await expect(page.getByRole("button", { name: /Sections/ })).toBeHidden();
+  await expect(page.getByRole("link", { name: "Where AI Helped" })).toBeVisible();
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.reload();
+
+  await expect(page.getByRole("heading", { name: "Conclusion" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open live demo" }).first()).toHaveAttribute(
+    "href",
+    "https://paperbinder.danielmaratta.com"
+  );
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+    true
+  );
+});
+
 test("Should_ProvisionAndAutoLogin_FromRootHost_InBrowser_AgainstTheExplicitE2ERuntime", async ({ page }) => {
   const provisionedTenant = await provisionTenantAndContinue(page, `Acme CP13 ${Date.now()}`);
 
