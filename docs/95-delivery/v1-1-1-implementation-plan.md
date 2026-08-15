@@ -1,6 +1,6 @@
 # V1.1.1 Patch Implementation Plan
 
-Status: Complete
+Status: Complete through CP6; legal-readiness addendum queued
 Target release: `v1.1.1`
 Authority: This file defines the checkpoint and commit plan for the `v1.1.1` patch. The matching taskboard source is `docs/05-taskboard/v1-1-1-backlog.md`.
 
@@ -22,6 +22,7 @@ Included:
 - Restore the About-page link to the real flagship article.
 - Final validation before the hiring assessment review.
 - Remediation of findings surfaced by that final review before release.
+- Legal readiness addendum after the legality audit.
 
 Out of scope unless the owner explicitly changes the patch scope:
 
@@ -42,16 +43,20 @@ Out of scope unless the owner explicitly changes the patch scope:
 | CP4 | `T-0050` | Run the maintainability review. Apply only safe mechanical splits if they are clearly beneficial and low-risk; otherwise record findings and defer. | `refactor: Split obvious maintainability hotspots` |
 | CP5 | `T-0051` | Polish `README.md` provenance/reviewer copy and restore the real flagship-article link on the About page. | `docs(readme): Polish provenance and restore article link` |
 | CP6 | `T-0052` | Run final validation, complete the hiring assessment review, remediate any findings that are in patch scope, and record release readiness. | `chore(release): Validate v1.1.1 release readiness` |
+| CP7 | `T-0055` | Close public legal-surface gaps: Privacy Policy, Terms of Use, Cookie Notice, Legal footer exposure, retention inventory, licensing/asset provenance, security maintenance policy, and logging/privacy alignment. | See `docs/95-delivery/v1-1-1-legal-readiness-plan.md` |
 
 If CP6 surfaces findings that need code changes, remediation happens after the review and before release. Small, same-area fixes may stay in CP6; larger or cross-cutting findings must become new taskboard tasks and checkpoint commits before `v1.1.1` is declared clean.
+CP7 was added after the legality audit and is now release-blocking for treating `v1.1.1` as legally ready.
 
 ## Execution Rules
 
 - Keep one cohesive commit per checkpoint.
+- CP7 may use multiple cohesive commits as defined by `docs/95-delivery/v1-1-1-legal-readiness-plan.md` because legal readiness crosses public UI, notices, documentation, licensing, and logging behavior.
 - Preserve tenant isolation, authorization, CSRF, validation, and problem-response consistency as non-negotiable.
 - Do discovery before cleanup for CP3 and CP4; do not refactor for aesthetics alone.
 - If a cleanup would require broad behavior changes, new abstractions, new dependencies, or uncertain reviewer value, record it as a deferred finding instead.
 - Keep plan changes synchronized across this file, `docs/05-taskboard/v1-1-1-backlog.md`, `docs/05-taskboard/work-queue.md`, and the relevant `T-####` task files.
+- Keep CP7 synchronized with `docs/95-delivery/v1-1-1-legal-readiness-plan.md` and `docs/05-taskboard/tasks/T-0055-v1-1-1-legal-readiness.md`.
 
 ## Validation Gates
 

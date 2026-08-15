@@ -11,7 +11,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Now (WIP 1-3)
 
-- (empty)
+- [T-0055: V1.1.1 Legal Readiness](./tasks/T-0055-v1-1-1-legal-readiness.md)
 
 ## Next
 

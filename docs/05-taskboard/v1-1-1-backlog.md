@@ -1,6 +1,6 @@
 # V1.1.1 Backlog
 
-Status: Complete
+Status: Complete through T-0052; T-0055 legal-readiness addendum queued
 Authority: This file is the single source of truth for the `v1.1.1` patch backlog and must agree with `docs/95-delivery/v1-1-1-implementation-plan.md`.
 
 ## Purpose
@@ -18,6 +18,7 @@ The patch is cleanup, release validation hardening, reviewer-artifact polish, an
 5. [T-0050: V1.1.1 Maintainability Review](./tasks/T-0050-v1-1-1-maintainability-review.md) - done
 6. [T-0051: V1.1.1 README Provenance And About Article Link](./tasks/T-0051-v1-1-1-readme-provenance-and-about-article-link.md) - done
 7. [T-0052: V1.1.1 Final Validation And Hiring Assessment Review](./tasks/T-0052-v1-1-1-final-validation-and-hiring-assessment-review.md) - done
+8. [T-0055: V1.1.1 Legal Readiness](./tasks/T-0055-v1-1-1-legal-readiness.md) - queued
 
 ## Checkpoint Agreement
 
@@ -29,6 +30,7 @@ The patch is cleanup, release validation hardening, reviewer-artifact polish, an
 | CP4 | `T-0050` | Maintainability review is recorded; only safe mechanical splits land if obviously beneficial. |
 | CP5 | `T-0051` | README provenance polish and real flagship-article About link are restored and tested. |
 | CP6 | `T-0052` | Full validation passes, hiring assessment review is completed, review findings are remediated or explicitly carried forward, and release readiness is recorded. |
+| CP7 | `T-0055` | Public legal pages, footer exposure, data/retention inventory, license/asset notices, security maintenance policy, and logging/privacy alignment are complete. |
 
 ## Explicit Carry-Forwards Not In V1.1.1
 
@@ -51,3 +53,4 @@ Any change to checkpoint order, task ownership, or release scope must update all
 - `docs/95-delivery/v1-1-1-implementation-plan.md`
 - `docs/05-taskboard/work-queue.md`
 - the affected `docs/05-taskboard/tasks/T-####-*.md` files
+- `docs/95-delivery/v1-1-1-legal-readiness-plan.md` when legal-readiness scope changes

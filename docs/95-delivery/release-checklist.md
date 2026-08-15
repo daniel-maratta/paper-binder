@@ -179,6 +179,8 @@ not replace the historical `V1` sections above.
 
 This section records the `v1.1.1` patch candidate validation and final hiring assessment review. It does
 not replace the historical `V1.1.0` evidence above.
+The later legality audit added a release-blocking legal-readiness addendum tracked by `T-0055`; `v1.1.1`
+should not be treated as legally ready until that addendum is complete.
 
 ### Checkpoint Completion
 
@@ -232,6 +234,7 @@ not replace the historical `V1.1.0` evidence above.
 
 ### Owner-Controlled Steps
 
+- [ ] Complete `T-0055` legal-readiness addendum.
 - [ ] Merge the `v1.1.1` candidate branch to the release target.
 - [ ] Create and push the `v1.1.1` SemVer tag.
 - [ ] Run the tag-driven release workflow and owner-controlled deploy follow-through.
@@ -269,8 +272,8 @@ not replace the historical `V1.1.0` evidence above.
   and reviewer-stack gates are green or recorded with final rerun evidence in `T-0052`, NuGet has
   zero vulnerable packages, same-major frontend audit remediation was applied, and the remaining
   React Router RSC-mode audit advisory is explicitly rejected as not applicable to PaperBinder's
-  shipped runtime mode. No unresolved release-blocking issue remains outside the explicit taskboard
-  carry-forwards.
+  shipped runtime mode. A later legality audit added `T-0055` as a release-blocking legal-readiness
+  addendum before publication.
 - V1.1.1 executor attestation: `CHANGELOG.md`, repo version metadata, current-state delivery docs,
   and the taskboard are aligned for `v1.1.1` release readiness. Owner-controlled merge, tag
   creation, release workflow, deployment, smoke validation, and release publication remain separate
