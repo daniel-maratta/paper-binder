@@ -15,6 +15,12 @@ import { rootRouteDefinitions } from "./route-registry";
 import { mapRootHostError, type RootHostErrorViewModel } from "./root-host-errors";
 import { getMarkdownArticleHeadings, MarkdownArticle } from "./markdown-article";
 import { flagshipArticle } from "../content/articles/flagship-article";
+import {
+  findLegalDocumentByPath,
+  legalDocuments,
+  legalPolicyDocuments,
+  type LegalDocument
+} from "../content/legal/legal-documents";
 
 type RootHostFieldErrors = Partial<Record<"tenantName" | "email" | "password" | "challenge", string>>;
 
@@ -433,6 +439,11 @@ function resolveRootPageTitle(pathname: string): string {
 
   if (pathname === flagshipArticlePath) {
     return flagshipArticle.title;
+  }
+
+  const legalDocument = findLegalDocumentByPath(pathname);
+  if (legalDocument !== undefined) {
+    return legalDocument.title;
   }
 
   const matchingRoute = rootRouteDefinitions.find((route) => route.path === pathname);
@@ -1840,6 +1851,61 @@ function RootFlagshipArticlePage() {
   );
 }
 
+function useLegalDocumentMetadata(document: LegalDocument) {
+  useEffect(() => {
+    const canonicalUrl = createAbsolutePublicUrl(document.path);
+
+    const restoreHead = [
+      upsertHeadMeta("name", "description", document.description),
+      upsertHeadMeta("property", "og:type", "website"),
+      upsertHeadMeta("property", "og:title", `${document.title} | ${productIdentity.productName}`),
+      upsertHeadMeta("property", "og:description", document.description),
+      upsertHeadMeta("property", "og:url", canonicalUrl),
+      upsertCanonicalLink(canonicalUrl)
+    ];
+
+    return () => {
+      restoreHead.forEach((restore) => {
+        restore();
+      });
+    };
+  }, [document]);
+}
+
+function LegalDocumentPage({ document }: { document: LegalDocument }) {
+  useLegalDocumentMetadata(document);
+
+  return (
+    <PublicPage>
+      <PublicHero eyebrow="Legal" title={document.title}>
+        {document.description}
+      </PublicHero>
+
+      <section aria-label={`${document.title} content`}>
+        <p className="pb-public-panel-eyebrow">Effective date: {document.effectiveDate}</p>
+        <MarkdownArticle source={document.body} />
+      </section>
+
+      {document.documentType === "index" ? (
+        <PublicPanel aria-labelledby="legal-document-list-title" variant="soft">
+          <PublicPanelHeading eyebrow="Legal documents" title="Notices" titleId="legal-document-list-title">
+            Current legal notices for the PaperBinder public demo.
+          </PublicPanelHeading>
+          <ul className="pb-public-bullet-list">
+            {legalPolicyDocuments.map((policyDocument) => (
+              <li key={policyDocument.path}>
+                <NavLink className="pb-public-footer-link" to={policyDocument.path}>
+                  {policyDocument.title}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </PublicPanel>
+      ) : null}
+    </PublicPage>
+  );
+}
+
 function RootNotFoundPage() {
   return (
     <PublicPage>
@@ -1861,6 +1927,9 @@ function RootNotFoundPage() {
           </li>
           <li>
             <code>/about</code> for product and scope notes
+          </li>
+          <li>
+            <code>/legal</code> for legal notices
           </li>
         </ul>
       </PublicPanel>
@@ -1885,6 +1954,9 @@ export function RootHostRoutes({
         <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/login" />
         <Route element={<RootAboutPage />} path="/about" />
         <Route element={<RootFlagshipArticlePage />} path={flagshipArticlePath} />
+        {legalDocuments.map((document) => (
+          <Route element={<LegalDocumentPage document={document} />} key={document.path} path={document.path} />
+        ))}
         <Route element={<RootNotFoundPage />} path="*" />
       </Route>
     </Fragment>

@@ -71,7 +71,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - Escalation Notes: Frontend Vite/Vitest and browser checks may require known elevated workflows for this repo.
 
 ## Current State
-- L1 complete. The legal audit findings have been converted into a committable v1.1.1 addendum plan, and the technical retention inventory has been added at `docs/95-delivery/v1-1-1-legal-retention-inventory.md`.
+- L2 complete. The legal audit findings have been converted into a committable v1.1.1 addendum plan, the technical retention inventory has been added at `docs/95-delivery/v1-1-1-legal-retention-inventory.md`, and public legal policy routes now render from a dedicated frontend legal content collection.
 
 ## Touch Points
 - `docs/95-delivery/v1-1-1-legal-readiness-plan.md`
@@ -101,10 +101,12 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - L7: Validate legal readiness and update release evidence.
 
 ## Next Action
-- Review the L1 inventory, then proceed to L2 policy-page implementation after owner decisions on any policy wording that depends on provider snapshot/backups or exact operational log retention.
+- Proceed to L3 by exposing legal notices in public and tenant shell surfaces and adding point-of-collection warnings using existing UI patterns.
 
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L1 documentation update.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` passed on 2026-08-15 for the L2 legal-route implementation.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` passed on 2026-08-15 for the L2 legal-route implementation; existing `NU1903` warning remains for `SSH.NET` in `tests/PaperBinder.IntegrationTests`.
 
 ## Decision Notes
 - The article and presentation images/SVGs are owner-created and should be recorded as such in the public notice/provenance surface.

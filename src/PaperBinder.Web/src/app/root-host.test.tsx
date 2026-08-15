@@ -391,6 +391,98 @@ describe("root-host flows", () => {
     expect(document.title).toBe("Building PaperBinder: From AI-Generated Code to Shippable Software | PaperBinder");
   });
 
+  it("Should_RenderLegalIndex_FromDedicatedLegalCollection_When_LegalRouteLoads", () => {
+    renderRootRoute({
+      route: "/legal"
+    });
+
+    expect(screen.getByRole("heading", { name: "Legal" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "PaperBinder legal notices" })).toBeInTheDocument();
+    expect(screen.getByText("Effective date: To be set on deployment")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "PaperBinder is a demonstration and hiring artifact operated by Daniel Maratta. It is not a production SaaS service and should not be used for confidential, sensitive, regulated, proprietary, personal, medical, financial, credential, or otherwise important real business information."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Privacy Policy" }).some((link) => link.getAttribute("href") === "/privacy")).toBe(true);
+    expect(screen.getAllByRole("link", { name: "Terms of Use" }).some((link) => link.getAttribute("href") === "/terms")).toBe(true);
+    expect(screen.getAllByRole("link", { name: "Cookie Notice" }).some((link) => link.getAttribute("href") === "/cookies")).toBe(true);
+    expect(screen.queryByRole("navigation", { name: "Article sections" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Project evidence")).not.toBeInTheDocument();
+    expect(document.title).toBe("Legal | PaperBinder");
+  });
+
+  it("Should_RenderPrivacyPolicy_WithTemporaryWorkspaceRetentionBoundaries_When_PrivacyRouteLoads", () => {
+    renderRootRoute({
+      route: "/privacy"
+    });
+
+    expect(screen.getByRole("heading", { name: "Privacy Policy" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Temporary workspace retention" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Demo workspaces are temporary and expire according to the lease period displayed in the application. After the actual workspace expiry timestamp, PaperBinder denies authenticated tenant-host access."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Expiry is not the same event as deletion. Tenant-owned database rows may remain until the cleanup worker finds the workspace eligible for purge. Cleanup eligibility can be affected by worker schedule, recent authenticated activity, operational failures, and host maintenance."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("PaperBinder does not sell personal information.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "privacy@danielmaratta.com" })).toHaveAttribute(
+      "href",
+      "mailto:privacy@danielmaratta.com"
+    );
+    expect(screen.queryByText(/60-minute/i)).not.toBeInTheDocument();
+    expect(document.title).toBe("Privacy Policy | PaperBinder");
+  });
+
+  it("Should_RenderTermsOfUse_WithDemoOnlyAndTennesseeTerms_When_TermsRouteLoads", () => {
+    renderRootRoute({
+      route: "/terms"
+    });
+
+    expect(screen.getByRole("heading", { name: "Terms of Use" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Demo-only use" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "PaperBinder is a demonstration and hiring artifact operated by Daniel Maratta. It is not a production SaaS service, customer service, storage service, document-management service, backup service, or compliance platform."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("There are no backup, restoration, recovery, continuity, availability, or support guarantees.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Prohibited conduct" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "These terms are governed by Tennessee law, without regard to conflict-of-law rules. Venue belongs in Tennessee state or federal courts appropriate to the operator's residence or operation, unless applicable law requires otherwise."
+      )
+    ).toBeInTheDocument();
+    expect(document.title).toBe("Terms of Use | PaperBinder");
+  });
+
+  it("Should_RenderCookieNotice_AsInformationalDisclosureOnly_When_CookiesRouteLoads", () => {
+    renderRootRoute({
+      route: "/cookies"
+    });
+
+    expect(screen.getByRole("heading", { name: "Cookie Notice" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Current posture" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "This Cookie Notice is an informational disclosure for PaperBinder's current strictly necessary cookie posture. PaperBinder should not add a consent-management platform or cookie banner unless a future inventory identifies non-essential cookies, analytics, advertising, or telemetry requiring consent."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("An authentication cookie used to keep a user signed in to a temporary workspace. This cookie is HttpOnly and server-readable.")).toBeInTheDocument();
+    expect(
+      screen.getByText((_content, element) =>
+        element?.textContent ===
+        "Static review for this release did not find localStorage or sessionStorage usage in the current frontend."
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/accept cookies/i)).not.toBeInTheDocument();
+    expect(document.title).toBe("Cookie Notice | PaperBinder");
+  });
+
   it("Should_CollapseArticleSections_When_ArticleRouteRendersBelowDesktopNavigationWidth", () => {
     installMatchMediaStub(false);
 
