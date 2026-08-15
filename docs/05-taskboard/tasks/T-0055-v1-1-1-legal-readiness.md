@@ -1,7 +1,7 @@
 # T-0055: V1.1.1 Legal Readiness
 
 ## Status
-queued
+in_progress
 
 ## Type
 risk
@@ -71,10 +71,11 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - Escalation Notes: Frontend Vite/Vitest and browser checks may require known elevated workflows for this repo.
 
 ## Current State
-- Queued. The legal audit findings have been converted into a committable v1.1.1 addendum plan.
+- L1 complete. The legal audit findings have been converted into a committable v1.1.1 addendum plan, and the technical retention inventory has been added at `docs/95-delivery/v1-1-1-legal-retention-inventory.md`.
 
 ## Touch Points
 - `docs/95-delivery/v1-1-1-legal-readiness-plan.md`
+- `docs/95-delivery/v1-1-1-legal-retention-inventory.md`
 - `docs/95-delivery/v1-1-1-implementation-plan.md`
 - `docs/95-delivery/release-checklist.md`
 - `docs/05-taskboard/v1-1-1-backlog.md`
@@ -100,10 +101,10 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - L7: Validate legal readiness and update release evidence.
 
 ## Next Action
-- Start L1 by creating the technical data/retention inventory and confirming provider/log/snapshot retention assumptions that need owner answers.
+- Review the L1 inventory, then proceed to L2 policy-page implementation after owner decisions on any policy wording that depends on provider snapshot/backups or exact operational log retention.
 
 ## Validation Evidence
-- Pending.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L1 documentation update.
 
 ## Decision Notes
 - The article and presentation images/SVGs are owner-created and should be recorded as such in the public notice/provenance surface.

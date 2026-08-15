@@ -32,6 +32,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 - [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md) `(Completed checkpoint and commit plan for the v1.1.1 patch)`
 - [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) `(Completed canonical backlog and execution order for the v1.1.1 patch)`
 - [docs/95-delivery/v1-1-1-legal-readiness-plan.md](./95-delivery/v1-1-1-legal-readiness-plan.md) `(Queued legal-readiness addendum for the v1.1.1 patch)`
+- [docs/95-delivery/v1-1-1-legal-retention-inventory.md](./95-delivery/v1-1-1-legal-retention-inventory.md) `(L1 evidence inventory for privacy, retention, cookies, telemetry, providers, and purge behavior)`
 
 ## V1.1 Presentation History And Completed Execution
 
@@ -75,7 +76,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 ## Focused Retrieval
 
 - For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md` or `release-checklist.md`. Open a specific PR artifact only when historical delivery context is needed.
-- For the `v1.1.1` patch, start with [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md), then load [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) and the matching `T-0046` through `T-0052` task files. For the legal-readiness addendum, also load [docs/95-delivery/v1-1-1-legal-readiness-plan.md](./95-delivery/v1-1-1-legal-readiness-plan.md) and [T-0055](./05-taskboard/tasks/T-0055-v1-1-1-legal-readiness.md).
+- For the `v1.1.1` patch, start with [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md), then load [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) and the matching `T-0046` through `T-0052` task files. For the legal-readiness addendum, also load [docs/95-delivery/v1-1-1-legal-readiness-plan.md](./95-delivery/v1-1-1-legal-readiness-plan.md), [docs/95-delivery/v1-1-1-legal-retention-inventory.md](./95-delivery/v1-1-1-legal-retention-inventory.md), and [T-0055](./05-taskboard/tasks/T-0055-v1-1-1-legal-readiness.md).
 - For future minor-version carry-forwards from `v1.1.1`, load [docs/05-taskboard/work-queue.md](./05-taskboard/work-queue.md), then [T-0053](./05-taskboard/tasks/T-0053-react-router-major-version-upgrade.md) for the React Router major-version upgrade or [T-0054](./05-taskboard/tasks/T-0054-minor-version-api-shape-and-ceremony-review.md) for PaperBinder API shape, frontend composition, and over-ceremony remediation.
 - For checkpoint history, start with [docs/archive/v1/checkpoints/checkpoint-status.md](./archive/v1/checkpoints/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on internal V1 execution history.
 - For v1.1 presentation-governance work, start with [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) and [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md). Use current V1 presentation docs, including `docs/archive/presentation-history/v1-shipped/ux-notes.md`, as historical shipped-surface references only.

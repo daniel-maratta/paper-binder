@@ -1,6 +1,6 @@
 # V1.1.1 Legal Readiness Plan
 
-Status: Queued
+Status: L1 complete; L2 queued
 Target release: `v1.1.1`
 Authority: This file defines the legal-readiness addendum for the `v1.1.1` release candidate. The matching taskboard source is `docs/05-taskboard/tasks/T-0055-v1-1-1-legal-readiness.md`.
 
@@ -41,7 +41,7 @@ Out of scope unless the owner explicitly changes release scope:
 
 | Slice | Commit intent | Scope | Acceptance target |
 | --- | --- | --- | --- |
-| L1 | `docs(legal): Inventory privacy and retention surfaces` | Add a legal data/retention inventory covering automatically collected data, voluntary user input, cookies, security logs, Turnstile, providers, telemetry, tenant purge, backups/snapshots, and operational logs. Establish retention behavior from repo evidence and production configuration wherever possible before asking the owner. | Inventory maps every data entity/surface to collection purpose, storage location, retention behavior, deletion behavior, and policy wording constraints. L1 must prove the deletion boundary from runtime behavior instead of assuming deletion at any minute-based boundary. |
+| L1 | `docs(legal): Inventory privacy and retention surfaces` | Add a legal data/retention inventory covering automatically collected data, voluntary user input, cookies, security logs, Turnstile, providers, telemetry, tenant purge, backups/snapshots, and operational logs. Establish retention behavior from repo evidence and production configuration wherever possible before asking the owner. | Inventory maps every data entity/surface to collection purpose, storage location, retention behavior, deletion behavior, and policy wording constraints. L1 must prove the deletion boundary from runtime behavior instead of assuming deletion at any minute-based boundary. Artifact: `docs/95-delivery/v1-1-1-legal-retention-inventory.md`. |
 | L2 | `feat(legal): Add public legal policy pages` | Add `/legal`, `/privacy`, `/terms`, and `/cookies` or an equivalent route set, with accessible page chrome and route tests. Legal content must be markdown/MDX-style files with frontmatter in a dedicated legal collection, rendered by a shared `LegalDocumentPage`-style template using the existing unauthenticated theme. | Public pages state demo-only status, temporary tenants, no recovery guarantee, prohibited data/use, no sale of personal information, provider processing, analytics posture, contact path, as-is terms, liability limits, law/jurisdiction placeholders for owner approval, and change terms. |
 | L3 | `feat(legal): Expose legal notices in product surfaces` | Add a Legal footer section to public and tenant shells; add concise point-of-collection warnings on demo creation and document/content-entry flows. Reuse existing links, public-shell layout primitives, and typography. | A reasonable visitor can find legal pages before starting a demo and while inside a tenant; sensitive-data warnings appear before user-provided content is submitted. No new controls or standalone styling system are introduced. |
 | L4 | `docs(legal): Document notices licensing and asset provenance` | Add or update `THIRD-PARTY-NOTICES.md`, `NOTICE.md`, asset provenance notes, and copyright wording. | Repo distinguishes PaperBinder MIT licensing from third-party package licenses and owner-created site/article/presentation assets. |
@@ -127,6 +127,8 @@ The Cookie Notice must cover:
 - Do not add a consent-management platform or cookie banner unless the inventory identifies non-essential cookies or telemetry requiring consent.
 
 ## Technical Audit Checklist
+
+L1 evidence lives in `docs/95-delivery/v1-1-1-legal-retention-inventory.md`. Later legal-page implementation must use that artifact as the source for retention, cookie, telemetry, provider, and unresolved owner-verification facts.
 
 L1 must produce a retention table with this shape or a materially equivalent shape:
 
