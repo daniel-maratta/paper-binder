@@ -47,6 +47,8 @@ Third-party dependency notices are generated in `THIRD-PARTY-NOTICES.md`. Verify
 npm.cmd run third-party-notices:check
 ```
 
+Security reporting and dependency-maintenance posture are documented in `SECURITY.md`.
+
 ---
 
 ## What PaperBinder Is

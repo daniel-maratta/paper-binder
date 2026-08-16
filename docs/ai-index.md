@@ -20,6 +20,7 @@ Start here, then load only the lane docs relevant to the task.
 
 - [PROJECT_ORIGIN.md](../PROJECT_ORIGIN.md) `(Project provenance, canonical public references, and verification guidance)`
 - [NOTICE.md](../NOTICE.md) `(Project notice, copyright contact, and owner-created asset provenance)`
+- [SECURITY.md](../SECURITY.md) `(Security reporting and dependency-maintenance policy)`
 - [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) `(Generated third-party dependency license inventory)`
 
 ## Active V1.1 Presentation Canon
