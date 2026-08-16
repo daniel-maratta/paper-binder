@@ -81,6 +81,36 @@ test("Should_RenderFlagshipArticleRoute_InBrowserAcrossResponsiveWidths", async 
   );
 });
 
+test("Should_ReachLegalPolicyPages_FromRootHostFooter_InBrowser", async ({ page }) => {
+  await page.goto("/");
+
+  const footer = page.getByRole("contentinfo");
+  await expect(footer.getByRole("link", { name: "Legal", exact: true })).toHaveAttribute("href", "/legal");
+  await expect(footer.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
+  await expect(footer.getByRole("link", { name: "Terms of Use" })).toHaveAttribute("href", "/terms");
+  await expect(footer.getByRole("link", { name: "Cookie Notice" })).toHaveAttribute("href", "/cookies");
+
+  await footer.getByRole("link", { name: "Legal", exact: true }).click();
+  await expect(page).toHaveURL(/\/legal$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Legal" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "PaperBinder legal notices" })).toBeVisible();
+
+  await footer.getByRole("link", { name: "Privacy Policy" }).click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Privacy Policy" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Temporary workspace retention" })).toBeVisible();
+
+  await footer.getByRole("link", { name: "Terms of Use" }).click();
+  await expect(page).toHaveURL(/\/terms$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Terms of Use" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Demo-only use" })).toBeVisible();
+
+  await footer.getByRole("link", { name: "Cookie Notice" }).click();
+  await expect(page).toHaveURL(/\/cookies$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Cookie Notice" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Current posture" })).toBeVisible();
+});
+
 test("Should_ProvisionAndAutoLogin_FromRootHost_InBrowser_AgainstTheExplicitE2ERuntime", async ({ page }) => {
   const provisionedTenant = await provisionTenantAndContinue(page, `Acme CP13 ${Date.now()}`);
 
