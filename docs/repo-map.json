@@ -105,7 +105,7 @@
     { "id": "delivery-release-workflow", "type": "doc", "path": "docs/95-delivery/release-workflow.md", "tags": ["delivery", "release", "workflow"] },
     { "id": "delivery-release-checklist", "type": "doc", "path": "docs/95-delivery/release-checklist.md", "tags": ["delivery", "release", "checklist"] },
     { "id": "delivery-v1-1-1-plan", "type": "doc", "path": "docs/95-delivery/v1-1-1-implementation-plan.md", "tags": ["delivery", "release", "plan", "v1.1.1", "complete"] },
-    { "id": "delivery-v1-1-1-legal", "type": "doc", "path": "docs/95-delivery/v1-1-1-legal-readiness-plan.md", "tags": ["delivery", "release", "plan", "v1.1.1", "legal", "l2-complete"] },
+    { "id": "delivery-v1-1-1-legal", "type": "doc", "path": "docs/95-delivery/v1-1-1-legal-readiness-plan.md", "tags": ["delivery", "release", "plan", "v1.1.1", "legal", "l3-complete"] },
     { "id": "delivery-v1-1-1-legal-retention", "type": "doc", "path": "docs/95-delivery/v1-1-1-legal-retention-inventory.md", "tags": ["delivery", "release", "v1.1.1", "legal", "privacy", "retention", "inventory"] },
     { "id": "delivery-pipeline-setup-review", "type": "doc", "path": "docs/archive/v1/release-evidence/pipeline-setup/critic-review.md", "tags": ["delivery", "review", "pipeline", "deployment", "historical", "internal"] },
     { "id": "delivery-cp6", "type": "doc", "path": "docs/archive/v1/checkpoints/pr/cp6-identity-cookie-auth-and-tenant-membership-validation/description.md", "tags": ["delivery", "pr", "cp6", "historical"] },

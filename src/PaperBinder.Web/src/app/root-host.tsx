@@ -18,6 +18,7 @@ import { flagshipArticle } from "../content/articles/flagship-article";
 import {
   findLegalDocumentByPath,
   legalDocuments,
+  legalIndexDocument,
   legalPolicyDocuments,
   type LegalDocument
 } from "../content/legal/legal-documents";
@@ -889,6 +890,19 @@ function PublicFooter() {
               </li>
             </ul>
           </section>
+
+          <section aria-labelledby="public-footer-legal">
+            <h2 id="public-footer-legal">Legal</h2>
+            <ul>
+              {[legalIndexDocument, ...legalPolicyDocuments].map((document) => (
+                <li key={document.path}>
+                  <NavLink className="pb-public-footer-link" to={document.path}>
+                    {document.title}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
       </div>
 
@@ -1280,6 +1294,14 @@ function RootWelcomePage({
             </PublicPanelHeading>
 
             <form className="pb-public-form-stack" onSubmit={handleProvisionSubmit}>
+              <Alert variant="warning">
+                <AlertTitle>Demo data warning</AlertTitle>
+                <AlertBody>
+                  Do not submit confidential, sensitive, regulated, proprietary, personal, medical, financial,
+                  credential, or important real business information.
+                </AlertBody>
+              </Alert>
+
               <Field
                 error={fieldErrors.tenantName}
                 hint="This name is used only for the temporary demo workspace."

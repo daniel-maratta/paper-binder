@@ -124,31 +124,25 @@ function normalizeCountdownSeconds(secondsRemaining: number): number {
   return Math.max(0, Math.ceil(secondsRemaining));
 }
 
-function toRootLoginUrl(rootUrl: string, tenantSlug?: string): string {
-  const url = new URL("/login", rootUrl);
+function toRootPathUrl(rootUrl: string, path: string, tenantSlug?: string): string {
+  const url = new URL(path, rootUrl);
   if (tenantSlug) {
     url.searchParams.set("workspace", tenantSlug);
   }
 
   return url.toString();
+}
+
+function toRootLoginUrl(rootUrl: string, tenantSlug?: string): string {
+  return toRootPathUrl(rootUrl, "/login", tenantSlug);
 }
 
 function toRootHomeUrl(rootUrl: string, tenantSlug?: string): string {
-  const url = new URL("/", rootUrl);
-  if (tenantSlug) {
-    url.searchParams.set("workspace", tenantSlug);
-  }
-
-  return url.toString();
+  return toRootPathUrl(rootUrl, "/", tenantSlug);
 }
 
 function toRootAboutUrl(rootUrl: string, tenantSlug?: string): string {
-  const url = new URL("/about", rootUrl);
-  if (tenantSlug) {
-    url.searchParams.set("workspace", tenantSlug);
-  }
-
-  return url.toString();
+  return toRootPathUrl(rootUrl, "/about", tenantSlug);
 }
 
 function setDocumentTitle(pageTitle: string) {
@@ -526,9 +520,17 @@ function TenantNavigation({
 }
 
 function TenantShellFooter({
-  aboutUrl
+  aboutUrl,
+  cookiesUrl,
+  legalUrl,
+  privacyUrl,
+  termsUrl
 }: {
   aboutUrl: string;
+  cookiesUrl: string;
+  legalUrl: string;
+  privacyUrl: string;
+  termsUrl: string;
 }) {
   return (
     <div className="pb-auth-sidebar-footer">
@@ -548,6 +550,18 @@ function TenantShellFooter({
       </div>
       <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
         About PaperBinder
+      </a>
+      <a className="pb-auth-sidebar-footer-link" href={legalUrl} rel="noreferrer" target="_blank">
+        Legal
+      </a>
+      <a className="pb-auth-sidebar-footer-link" href={privacyUrl} rel="noreferrer" target="_blank">
+        Privacy Policy
+      </a>
+      <a className="pb-auth-sidebar-footer-link" href={termsUrl} rel="noreferrer" target="_blank">
+        Terms of Use
+      </a>
+      <a className="pb-auth-sidebar-footer-link" href={cookiesUrl} rel="noreferrer" target="_blank">
+        Cookie Notice
       </a>
     </div>
   );
@@ -965,6 +979,10 @@ export function TenantShell({
   const queuedToastCount = Math.max(0, toasts.length - visibleToasts.length);
   const isViewingAs = impersonation.isImpersonating;
   const aboutUrl = toRootAboutUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+  const legalUrl = toRootPathUrl(hostContext.environment.rootUrl, "/legal", hostContext.tenantSlug);
+  const privacyUrl = toRootPathUrl(hostContext.environment.rootUrl, "/privacy", hostContext.tenantSlug);
+  const termsUrl = toRootPathUrl(hostContext.environment.rootUrl, "/terms", hostContext.tenantSlug);
+  const cookiesUrl = toRootPathUrl(hostContext.environment.rootUrl, "/cookies", hostContext.tenantSlug);
   const accountEmail = isViewingAs ? impersonation.effective.email : impersonation.actor.email;
   const accountLabel = isViewingAs ? "Viewing as" : "Logged in as";
 
@@ -1001,7 +1019,13 @@ export function TenantShell({
 
             <TenantNavigation />
 
-            <TenantShellFooter aboutUrl={aboutUrl} />
+            <TenantShellFooter
+              aboutUrl={aboutUrl}
+              cookiesUrl={cookiesUrl}
+              legalUrl={legalUrl}
+              privacyUrl={privacyUrl}
+              termsUrl={termsUrl}
+            />
           </aside>
         ) : null}
 
@@ -1147,7 +1171,13 @@ export function TenantShell({
 
           {!isDesktopShell ? (
             <footer className="pb-auth-mobile-footer">
-              <TenantShellFooter aboutUrl={aboutUrl} />
+              <TenantShellFooter
+                aboutUrl={aboutUrl}
+                cookiesUrl={cookiesUrl}
+                legalUrl={legalUrl}
+                privacyUrl={privacyUrl}
+                termsUrl={termsUrl}
+              />
             </footer>
           ) : null}
         </main>

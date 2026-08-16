@@ -71,7 +71,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - Escalation Notes: Frontend Vite/Vitest and browser checks may require known elevated workflows for this repo.
 
 ## Current State
-- L2 complete. The legal audit findings have been converted into a committable v1.1.1 addendum plan, the technical retention inventory has been added at `docs/95-delivery/v1-1-1-legal-retention-inventory.md`, and public legal policy routes now render from a dedicated frontend legal content collection.
+- L3 complete. The legal audit findings have been converted into a committable v1.1.1 addendum plan, the technical retention inventory has been added at `docs/95-delivery/v1-1-1-legal-retention-inventory.md`, public legal policy routes render from a dedicated frontend legal content collection, and public/tenant product surfaces now expose legal links and point-of-collection sensitive-data warnings.
 
 ## Touch Points
 - `docs/95-delivery/v1-1-1-legal-readiness-plan.md`
@@ -101,12 +101,16 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - L7: Validate legal readiness and update release evidence.
 
 ## Next Action
-- Proceed to L3 by exposing legal notices in public and tenant shell surfaces and adding point-of-collection warnings using existing UI patterns.
+- Proceed to L4 by documenting third-party notices, licensing boundaries, and owner-created asset provenance.
 
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L1 documentation update.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` passed on 2026-08-15 for the L2 legal-route implementation.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` passed on 2026-08-15 for the L2 legal-route implementation; existing `NU1903` warning remains for `SSH.NET` in `tests/PaperBinder.IntegrationTests`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` passed on 2026-08-15 for the L3 public legal footer and demo warning implementation.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/tenant-shell.test.tsx` passed on 2026-08-15 for the L3 tenant legal footer and document-entry warning implementation.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` passed on 2026-08-15 for the L3 implementation; existing `NU1903` warning remains for `SSH.NET` in `tests/PaperBinder.IntegrationTests`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L3 documentation update.
 
 ## Decision Notes
 - The article and presentation images/SVGs are owner-created and should be recorded as such in the public notice/provenance surface.

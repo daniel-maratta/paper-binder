@@ -206,6 +206,11 @@ describe("root-host flows", () => {
       "href",
       "https://github.com/daniel-maratta/paper-binder.git"
     );
+    expect(screen.getByRole("heading", { level: 2, name: "Legal" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Legal" })).toHaveAttribute("href", "/legal");
+    expect(screen.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
+    expect(screen.getByRole("link", { name: "Terms of Use" })).toHaveAttribute("href", "/terms");
+    expect(screen.getByRole("link", { name: "Cookie Notice" })).toHaveAttribute("href", "/cookies");
     expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
@@ -396,7 +401,7 @@ describe("root-host flows", () => {
       route: "/legal"
     });
 
-    expect(screen.getByRole("heading", { name: "Legal" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Legal" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "PaperBinder legal notices" })).toBeInTheDocument();
     expect(screen.getByText("Effective date: To be set on deployment")).toBeInTheDocument();
     expect(
@@ -713,6 +718,12 @@ describe("root-host flows", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText("Demo workspaces are temporary and removed during cleanup.")
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Demo data warning" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Do not submit confidential, sensitive, regulated, proprietary, personal, medical, financial, credential, or important real business information."
+      )
     ).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Workspace name"), {
