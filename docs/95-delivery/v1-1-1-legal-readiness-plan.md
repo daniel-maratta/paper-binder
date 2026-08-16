@@ -1,6 +1,6 @@
 # V1.1.1 Legal Readiness Plan
 
-Status: L6 complete; L7 queued
+Status: L7 complete
 Target release: `v1.1.1`
 Authority: This file defines the legal-readiness addendum for the `v1.1.1` release candidate. The matching taskboard source is `docs/05-taskboard/tasks/T-0055-v1-1-1-legal-readiness.md`.
 
@@ -189,6 +189,17 @@ Minimum closeout:
 - Static search confirming no newly introduced references to private local paths.
 
 Full release closeout may reuse the final v1.1.1 validation bundle after L1-L7 complete.
+
+## L7 Closeout
+
+Completed on 2026-08-16.
+
+- Public legal pages are reachable at `/legal`, `/privacy`, `/terms`, and `/cookies`.
+- Public and tenant footer exposure is covered by frontend tests, and public root-host legal reachability is covered by browser E2E.
+- Runtime logging privacy is covered by a backend source-level guard.
+- Third-party notices are generated from the current dependency graph and validated by the repo-native check.
+- Final policy public effectiveness remains owner-controlled: legal document frontmatter still uses `effectiveDate: To be set on deployment`, and the legal index/notice docs retain the explicit owner-approval gate before public release.
+- Provider snapshot/backup retention and any live external OTLP export remain owner/provider facts. The current public wording stays general and does not claim an exact provider retention period or any fixed-minute deletion boundary.
 
 ## Owner Approval Required
 

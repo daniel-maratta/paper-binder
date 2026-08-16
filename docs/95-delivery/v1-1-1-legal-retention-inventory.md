@@ -1,6 +1,6 @@
 # V1.1.1 Legal Retention Inventory
 
-Status: Draft L6 evidence update
+Status: L7 evidence update
 Task: `T-0055`
 Date: 2026-08-15
 
@@ -99,14 +99,13 @@ Public policy should avoid implying that build/deploy/support providers process 
 - Say current cookies are strictly necessary auth/CSRF cookies and the Cookie Notice is informational disclosure only. Do not add a consent-management platform or banner unless future inventory identifies nonessential cookies, analytics, advertising, or consent-triggering telemetry.
 - Warn users not to submit sensitive, regulated, confidential, proprietary, personal, medical, financial, credential, or important real business information.
 
-## Remediation Items For Later Slices
+## Closeout Notes
 
-- L2/L3: Public legal pages and legal footer exposure are missing.
-- L2: Policy text must use the temporary-workspace wording above and avoid exact deletion intervals.
-- L4: Third-party notices and asset provenance still need durable notice files.
-- L5: Add dependency/security maintenance policy.
-- L6: Logging privacy alignment removed identified runtime log fields for tenant slug, email, and binder name and added a source-level guard against user-submitted names/content, emails, passwords, and credentials in logger templates. Remaining path, host, IP-derived data, tenant/user identifiers, and correlation identifiers are disclosed operational/security metadata in the Privacy Policy.
-- L7: If provider snapshots/backups are enabled, document their retention before release or keep policy wording general enough to avoid an exact retention claim.
+- L2/L3 added public legal pages, legal footer exposure, and point-of-collection sensitive-data warnings.
+- L4 added durable third-party notices and owner-created asset provenance.
+- L5 added the root security and dependency-maintenance policy.
+- L6 removed identified runtime log fields for tenant slug, email, and binder name and added a source-level guard against user-submitted names/content, emails, passwords, and credentials in logger templates. Remaining path, host, IP-derived data, tenant/user identifiers, and correlation identifiers are disclosed operational/security metadata in the Privacy Policy.
+- L7 kept provider snapshot/backup and external OTLP wording general because exact provider-side retention remains an owner/provider verification fact. No public policy wording claims an exact provider retention period or fixed-minute deletion boundary.
 
 ## Open Questions
 

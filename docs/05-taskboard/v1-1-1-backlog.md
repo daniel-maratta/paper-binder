@@ -1,6 +1,6 @@
 # V1.1.1 Backlog
 
-Status: Complete through T-0052; T-0055 legal-readiness addendum queued
+Status: Complete through T-0055
 Authority: This file is the single source of truth for the `v1.1.1` patch backlog and must agree with `docs/95-delivery/v1-1-1-implementation-plan.md`.
 
 ## Purpose
@@ -18,7 +18,7 @@ The patch is cleanup, release validation hardening, reviewer-artifact polish, an
 5. [T-0050: V1.1.1 Maintainability Review](./tasks/T-0050-v1-1-1-maintainability-review.md) - done
 6. [T-0051: V1.1.1 README Provenance And About Article Link](./tasks/T-0051-v1-1-1-readme-provenance-and-about-article-link.md) - done
 7. [T-0052: V1.1.1 Final Validation And Hiring Assessment Review](./tasks/T-0052-v1-1-1-final-validation-and-hiring-assessment-review.md) - done
-8. [T-0055: V1.1.1 Legal Readiness](./tasks/T-0055-v1-1-1-legal-readiness.md) - queued
+8. [T-0055: V1.1.1 Legal Readiness](./tasks/T-0055-v1-1-1-legal-readiness.md) - done
 
 ## Checkpoint Agreement
 
