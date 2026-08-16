@@ -58,12 +58,11 @@ public sealed class DapperTenantUserAdministrationService(
         if (passwordValidationMessages.Count > 0)
         {
             logger.LogError(
-                "Tenant user creation generated a password that failed the configured password rules. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email} ValidationMessageCount={ValidationMessageCount}",
+                "Tenant user creation generated a password that failed the configured password rules. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} ValidationMessageCount={ValidationMessageCount}",
                 command.TenantId,
                 command.ActorUserId,
                 command.EffectiveUserId,
                 command.IsImpersonated,
-                normalizedEmailInput,
                 passwordValidationMessages.Count);
 
             throw new InvalidOperationException(
@@ -145,13 +144,11 @@ public sealed class DapperTenantUserAdministrationService(
         catch (PostgresException ex) when (IsEmailConflict(ex))
         {
             logger.LogWarning(
-                ex,
-                "Tenant user creation detected an email conflict. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated} Email={Email}",
+                "Tenant user creation detected an email conflict. TenantId={TenantId} ActorUserId={ActorUserId} EffectiveUserId={EffectiveUserId} IsImpersonated={IsImpersonated}",
                 command.TenantId,
                 command.ActorUserId,
                 command.EffectiveUserId,
-                command.IsImpersonated,
-                normalizedEmailInput);
+                command.IsImpersonated);
 
             return TenantUserCreateOutcome.Failed(
                 new TenantUserAdministrationFailure(

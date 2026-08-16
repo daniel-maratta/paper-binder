@@ -71,7 +71,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - Escalation Notes: Frontend Vite/Vitest and browser checks may require known elevated workflows for this repo.
 
 ## Current State
-- L5 complete. The legal audit findings have been converted into a committable v1.1.1 addendum plan, the technical retention inventory has been added at `docs/95-delivery/v1-1-1-legal-retention-inventory.md`, public legal policy routes render from a dedicated frontend legal content collection, public/tenant product surfaces now expose legal links and point-of-collection sensitive-data warnings, notice/licensing/provenance files now distinguish PaperBinder MIT licensing from third-party dependencies and owner-created public assets, and the root `SECURITY.md` documents vulnerability reporting plus dependency/security maintenance posture.
+- L6 complete. The legal audit findings have been converted into a committable v1.1.1 addendum plan, the technical retention inventory has been added at `docs/95-delivery/v1-1-1-legal-retention-inventory.md`, public legal policy routes render from a dedicated frontend legal content collection, public/tenant product surfaces now expose legal links and point-of-collection sensitive-data warnings, notice/licensing/provenance files now distinguish PaperBinder MIT licensing from third-party dependencies and owner-created public assets, the root `SECURITY.md` documents vulnerability reporting plus dependency/security maintenance posture, and runtime logging no longer includes the identified tenant slug, email, or binder name fields from app log templates.
 
 ## Touch Points
 - `docs/95-delivery/v1-1-1-legal-readiness-plan.md`
@@ -101,7 +101,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - L7: Validate legal readiness and update release evidence.
 
 ## Next Action
-- Proceed to L6 by aligning runtime logging with legal disclosures.
+- Proceed to L7 by running final legal-readiness validation and recording final owner-approval status.
 
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L1 documentation update.
@@ -118,6 +118,9 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L4 documentation update.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L5 `SECURITY.md` and documentation-index update.
 - `npm.cmd run third-party-notices:check` passed on 2026-08-15 for the L5 dependency-notice maintenance check.
+- `dotnet test tests/PaperBinder.UnitTests/PaperBinder.UnitTests.csproj -c Release --no-restore -p:SkipFrontendBuild=true --filter FullyQualifiedName~RuntimeLoggingPrivacyTests --logger "console;verbosity=detailed"` passed on 2026-08-16 for the L6 runtime logging privacy guard.
+- `dotnet build PaperBinder.sln -c Release --no-restore -p:SkipFrontendBuild=true -v minimal` passed on 2026-08-16 for the L6 backend logging changes; existing `NU1903` warning remains for `SSH.NET` in `tests/PaperBinder.IntegrationTests`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-16 for the L6 documentation update.
 - `git diff --check` passed on 2026-08-15 for the L5 documentation-only change set.
 
 ## Decision Notes

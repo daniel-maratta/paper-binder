@@ -1,6 +1,6 @@
 # V1.1.1 Legal Retention Inventory
 
-Status: Draft L1 evidence
+Status: Draft L6 evidence update
 Task: `T-0055`
 Date: 2026-08-15
 
@@ -57,7 +57,7 @@ Evidence limits:
 | Browser storage | No `localStorage` or `sessionStorage` usage found; clipboard API used only for user-initiated copy actions | N/A | N/A | N/A | No current Web Storage retention surface found | Cookie Notice |
 | Turnstile challenge | Browser challenge token; server sends challenge secret, token response, and remote IP when available to Cloudflare Siteverify | Cloudflare Turnstile widget and server verification service | N/A to tenant expiry; Turnstile is pre-auth and provider-side | Provider retention governed by Cloudflare; app does not persist token response in database | Provider retention unknown from repo; app logs some failed verification metadata, including remote IP | Yes |
 | Pre-auth rate limiting | Remote IP partition, path/host, retry metadata on rejections | ASP.NET rate limiter and rejection logger | N/A to tenant expiry | In-memory limiter state and operational logging; no database row | Runtime memory plus logs; log retention is host/runtime dependent | Aggregate description |
-| API/app logs | Security denials, rate-limit rejections, auth boundary failures, tenant/user ids where scoped, path, host, correlation id; some current warnings include tenant slug, email, or binder name | API runtime structured logs | N/A; logs may outlive tenant expiry and purge | Docker/container log handling, host maintenance, deploy log collection | Production containers use Docker `json-file` logging without visible rotation config; exact retention is host/runtime dependent | Aggregate description |
+| API/app logs | Security denials, rate-limit rejections, auth boundary failures, tenant/user ids where scoped, path, host, correlation id; L6 removed identified app log fields for tenant slug, email, and binder name from runtime logger templates | API runtime structured logs | N/A; logs may outlive tenant expiry and purge | Docker/container log handling, host maintenance, deploy log collection | Production containers use Docker `json-file` logging without visible rotation config; exact retention is host/runtime dependent | Aggregate description |
 | Worker logs | Cleanup cycle start/complete/failure, selected/purged/skipped/failed counts, tenant id on purge/failure, optional deleted-row summary | Worker runtime | N/A; logs may outlive tenant expiry and purge | Docker/container log handling and host maintenance | Production containers use Docker `json-file` logging without visible rotation config; exact retention is host/runtime dependent | Aggregate description |
 | Caddy/proxy logs | Reverse-proxy operational logs; Caddyfile does not configure a dedicated access-log block, but container stdout/stderr may include proxy/TLS events | Caddy container | N/A | Docker/container log handling and host maintenance | Production proxy container uses Docker `json-file` logging without visible rotation config; exact retention is host/runtime dependent | Aggregate description |
 | OpenTelemetry traces/metrics | Operational request/worker traces and metrics; tenant/user/correlation tags where available; no marketing analytics found | API and worker OpenTelemetry wiring | N/A; traces/metrics may outlive tenant expiry if exported | Console exporter in dev/test; optional OTLP exporter only when configured | Production non-secret config did not show an active OTLP endpoint; if enabled later, provider retention must be disclosed | Yes if active; otherwise aggregate no-analytics statement |
@@ -105,7 +105,7 @@ Public policy should avoid implying that build/deploy/support providers process 
 - L2: Policy text must use the temporary-workspace wording above and avoid exact deletion intervals.
 - L4: Third-party notices and asset provenance still need durable notice files.
 - L5: Add dependency/security maintenance policy.
-- L6: Logging privacy alignment is required. Current logs can include user-supplied or user-identifying fields such as tenant slug, email, and binder name. These should be reduced, documented, or owner-approved before final policy wording claims a strict no-PII logging posture.
+- L6: Logging privacy alignment removed identified runtime log fields for tenant slug, email, and binder name and added a source-level guard against user-submitted names/content, emails, passwords, and credentials in logger templates. Remaining path, host, IP-derived data, tenant/user identifiers, and correlation identifiers are disclosed operational/security metadata in the Privacy Policy.
 - L7: If provider snapshots/backups are enabled, document their retention before release or keep policy wording general enough to avoid an exact retention claim.
 
 ## Open Questions

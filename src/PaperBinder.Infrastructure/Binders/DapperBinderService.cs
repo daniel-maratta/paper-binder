@@ -263,14 +263,13 @@ public sealed class DapperBinderService(
         }
 
         logger.LogInformation(
-            "Binder renamed. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id} binder_name={binder_name}",
+            "Binder renamed. event_name={event_name} tenant_id={tenant_id} actor_user_id={actor_user_id} effective_user_id={effective_user_id} is_impersonated={is_impersonated} binder_id={binder_id}",
             executionResult.WasUpdated ? "binder_renamed" : "binder_rename_noop",
             command.Tenant.TenantId,
             command.ActorUserId,
             command.EffectiveUserId,
             command.IsImpersonated,
-            command.BinderId,
-            executionResult.Outcome.Binder!.Name);
+            command.BinderId);
 
         return executionResult.Outcome;
     }

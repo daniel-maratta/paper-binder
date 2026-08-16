@@ -1,6 +1,6 @@
 # V1.1.1 Legal Readiness Plan
 
-Status: L5 complete; L6 queued
+Status: L6 complete; L7 queued
 Target release: `v1.1.1`
 Authority: This file defines the legal-readiness addendum for the `v1.1.1` release candidate. The matching taskboard source is `docs/05-taskboard/tasks/T-0055-v1-1-1-legal-readiness.md`.
 

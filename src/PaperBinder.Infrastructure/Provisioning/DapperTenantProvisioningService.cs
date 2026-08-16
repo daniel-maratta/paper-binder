@@ -132,9 +132,8 @@ public sealed class DapperTenantProvisioningService(
         catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
         {
             logger.LogWarning(
-                ex,
-                "Tenant provisioning detected a name conflict. TenantSlug={TenantSlug}",
-                normalized.TenantSlug);
+                "Tenant provisioning detected a name conflict. TenantId={TenantId}",
+                tenantId);
 
             return TenantProvisioningOutcome.TenantNameConflict(
                 "That tenant name is unavailable. Choose a different tenant name and try again.");
@@ -143,8 +142,8 @@ public sealed class DapperTenantProvisioningService(
         {
             logger.LogError(
                 ex,
-                "Tenant provisioning failed unexpectedly. TenantSlug={TenantSlug}",
-                normalized.TenantSlug);
+                "Tenant provisioning failed unexpectedly. TenantId={TenantId}",
+                tenantId);
             throw;
         }
 
