@@ -907,7 +907,7 @@ function PublicFooter() {
       </div>
 
       <div className="pb-public-footer-meta">
-        <p className="pb-public-footer-copyright">&copy; 2026 {productIdentity.productName}</p>
+        <p className="pb-public-footer-copyright">Copyright 2026 {productIdentity.authorName}</p>
       </div>
     </footer>
   );

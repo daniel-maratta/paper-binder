@@ -19,6 +19,8 @@ Start here, then load only the lane docs relevant to the task.
 ## Root Reviewer Artifacts
 
 - [PROJECT_ORIGIN.md](../PROJECT_ORIGIN.md) `(Project provenance, canonical public references, and verification guidance)`
+- [NOTICE.md](../NOTICE.md) `(Project notice, copyright contact, and owner-created asset provenance)`
+- [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) `(Generated third-party dependency license inventory)`
 
 ## Active V1.1 Presentation Canon
 
@@ -31,7 +33,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 
 - [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md) `(Completed checkpoint and commit plan for the v1.1.1 patch)`
 - [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) `(Completed canonical backlog and execution order for the v1.1.1 patch)`
-- [docs/95-delivery/v1-1-1-legal-readiness-plan.md](./95-delivery/v1-1-1-legal-readiness-plan.md) `(Queued legal-readiness addendum for the v1.1.1 patch)`
+- [docs/95-delivery/v1-1-1-legal-readiness-plan.md](./95-delivery/v1-1-1-legal-readiness-plan.md) `(In-progress legal-readiness addendum for the v1.1.1 patch)`
 - [docs/95-delivery/v1-1-1-legal-retention-inventory.md](./95-delivery/v1-1-1-legal-retention-inventory.md) `(L1 evidence inventory for privacy, retention, cookies, telemetry, providers, and purge behavior)`
 
 ## V1.1 Presentation History And Completed Execution

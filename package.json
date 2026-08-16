@@ -8,6 +8,10 @@
     "type": "git",
     "url": "https://github.com/daniel-maratta/paper-binder.git"
   },
+  "scripts": {
+    "third-party-notices": "node scripts/generate-third-party-notices.mjs --write",
+    "third-party-notices:check": "node scripts/generate-third-party-notices.mjs --check"
+  },
   "packageManager": "npm@11.8.0",
   "engines": {
     "node": "24.13.x",

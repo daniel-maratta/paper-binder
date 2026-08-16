@@ -193,6 +193,7 @@ describe("root-host flows", () => {
     expect(
       screen.getByText("A production-shaped SaaS demo designed and built by Daniel Maratta.")
     ).toBeInTheDocument();
+    expect(screen.getByText("Copyright 2026 Daniel Maratta")).toBeInTheDocument();
     expect(document.title).toBe("Home | PaperBinder");
     expect(screen.getByRole("link", { name: "Live project" })).toHaveAttribute(
       "href",

@@ -536,7 +536,7 @@ function TenantShellFooter({
     <div className="pb-auth-sidebar-footer">
       <div className="pb-auth-sidebar-footer-row">
         <p className="pb-auth-sidebar-context-label">Copyright</p>
-        <p className="pb-auth-sidebar-context-value">&copy; 2026 PaperBinder</p>
+        <p className="pb-auth-sidebar-context-value">Copyright 2026 {productIdentity.authorName}</p>
       </div>
       <div className="pb-auth-sidebar-footer-row">
         <p className="pb-auth-sidebar-context-label">Version</p>

@@ -41,6 +41,12 @@ The documentation, gates, and validation artifacts are intentionally heavier tha
 
 PaperBinder is available under the MIT License. See `LICENSE` and `NOTICE.md`.
 
+Third-party dependency notices are generated in `THIRD-PARTY-NOTICES.md`. Verify the notice inventory with:
+
+```powershell
+npm.cmd run third-party-notices:check
+```
+
 ---
 
 ## What PaperBinder Is

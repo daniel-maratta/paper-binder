@@ -126,7 +126,7 @@ describe("tenant shell", () => {
     await waitFor(() => expect(navigator).toHaveBeenCalledWith("https://paperbinder.example.test/login"));
 
     expect(screen.getByText("Copyright")).toBeInTheDocument();
-    expect(screen.getByText("© 2026 PaperBinder")).toBeInTheDocument();
+    expect(screen.getByText("Copyright 2026 Daniel Maratta")).toBeInTheDocument();
     expect(screen.getByText("Version")).toBeInTheDocument();
     expect(screen.getByText(`v${packageJson.version}`)).toBeInTheDocument();
     expect(screen.getByText("Designed by")).toBeInTheDocument();
