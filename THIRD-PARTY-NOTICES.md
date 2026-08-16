@@ -240,7 +240,7 @@ Source: `src/PaperBinder.Web/package-lock.json`
 | `mdn-data` | `2.27.1` | CC0-1.0 | transitive |
 | `min-indent` | `1.0.1` | MIT | transitive |
 | `ms` | `2.1.3` | MIT | transitive |
-| `nanoid` | `3.3.16` | MIT | transitive |
+| `nanoid` | `3.3.18` | MIT | transitive |
 | `node-releases` | `2.0.51` | MIT | transitive |
 | `obug` | `2.1.1` | MIT | transitive |
 | `parse5` | `8.0.0` | MIT | transitive |
@@ -257,8 +257,8 @@ Source: `src/PaperBinder.Web/package-lock.json`
 | `react-refresh` | `0.18.0` | MIT | transitive |
 | `react-remove-scroll-bar` | `2.3.8` | MIT | transitive |
 | `react-remove-scroll` | `2.7.2` | MIT | transitive |
-| `react-router-dom` | `7.18.1` | MIT | runtime-direct |
-| `react-router` | `7.18.1` | MIT | transitive |
+| `react-router-dom` | `7.18.2` | MIT | runtime-direct |
+| `react-router` | `7.18.2` | MIT | transitive |
 | `react-style-singleton` | `2.2.3` | MIT | transitive |
 | `react` | `19.2.4` | MIT | runtime-direct |
 | `redent` | `3.0.0` | MIT | transitive |
