@@ -25,6 +25,7 @@
     <PaperBinderNpgsqlVersion>10.0.2</PaperBinderNpgsqlVersion>
     <PaperBinderNpgsqlEntityFrameworkCorePostgreSqlVersion>10.0.1</PaperBinderNpgsqlEntityFrameworkCorePostgreSqlVersion>
     <PaperBinderOpenTelemetryVersion>1.16.0</PaperBinderOpenTelemetryVersion>
+    <PaperBinderSshNetVersion>2026.0.0</PaperBinderSshNetVersion>
     <PaperBinderTestcontainersPostgreSqlVersion>4.11.0</PaperBinderTestcontainersPostgreSqlVersion>
     <PaperBinderXunitVersion>2.9.3</PaperBinderXunitVersion>
     <PaperBinderXunitRunnerVisualStudioVersion>3.1.4</PaperBinderXunitRunnerVisualStudioVersion>

@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(PaperBinderMicrosoftNetTestSdkVersion)" />
     <PackageReference Include="Dapper" Version="$(PaperBinderDapperVersion)" />
     <PackageReference Include="Npgsql" Version="$(PaperBinderNpgsqlVersion)" />
+    <PackageReference Include="SSH.NET" Version="$(PaperBinderSshNetVersion)" PrivateAssets="all" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="$(PaperBinderTestcontainersPostgreSqlVersion)" />
     <PackageReference Include="xunit" Version="$(PaperBinderXunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(PaperBinderXunitRunnerVisualStudioVersion)" />

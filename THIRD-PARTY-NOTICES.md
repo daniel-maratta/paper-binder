@@ -321,6 +321,7 @@ Source: direct `PackageReference` entries in `src/**/*.csproj` and `tests/**/*.c
 | `OpenTelemetry.Exporter.OpenTelemetryProtocol` | `1.16.0` | Apache-2.0 | runtime | `src/PaperBinder.Api/PaperBinder.Api.csproj`<br>`src/PaperBinder.Worker/PaperBinder.Worker.csproj` | https://github.com/open-telemetry/opentelemetry-dotnet |
 | `OpenTelemetry.Extensions.Hosting` | `1.16.0` | Apache-2.0 | runtime | `src/PaperBinder.Api/PaperBinder.Api.csproj`<br>`src/PaperBinder.Worker/PaperBinder.Worker.csproj` | https://github.com/open-telemetry/opentelemetry-dotnet |
 | `OpenTelemetry.Instrumentation.AspNetCore` | `1.16.0` | Apache-2.0 | runtime | `src/PaperBinder.Api/PaperBinder.Api.csproj` | https://github.com/open-telemetry/opentelemetry-dotnet-contrib |
+| `SSH.NET` | `2026.0.0` | MIT | test | `tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj` | https://github.com/sshnet/SSH.NET |
 | `Testcontainers.PostgreSql` | `4.11.0` | MIT | test | `tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj` | https://github.com/testcontainers/testcontainers-dotnet |
 | `xunit.runner.visualstudio` | `3.1.4` | Apache-2.0 | test | `tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj`<br>`tests/PaperBinder.UnitTests/PaperBinder.UnitTests.csproj` | https://github.com/xunit/visualstudio.xunit |
 | `xunit` | `2.9.3` | Apache-2.0 | test | `tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj`<br>`tests/PaperBinder.UnitTests/PaperBinder.UnitTests.csproj` | https://github.com/xunit/xunit |

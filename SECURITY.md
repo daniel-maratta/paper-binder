@@ -109,7 +109,7 @@ Use Docker-backed integration tests and browser E2E when the dependency, advisor
 ### Current Known Carry-Forwards
 
 - React Router major-version upgrade remains tracked in `docs/05-taskboard/tasks/T-0053-react-router-major-version-upgrade.md`. Existing React Router RSC-mode advisories were previously dispositioned as not applicable to PaperBinder's shipped client-rendered SPA runtime, but the major-version upgrade remains future minor-version maintenance work.
-- The current Release build emits an existing `NU1903` warning for transitive `SSH.NET` under `tests/PaperBinder.IntegrationTests`. Treat this as test-tooling dependency debt until remediated or replaced; do not describe the build as warning-free while it remains.
+- `SSH.NET` is pinned as a test-only direct dependency in `tests/PaperBinder.IntegrationTests` to override the vulnerable transitive version pulled through Testcontainers until the upstream dependency lower bound moves past the affected release.
 
 ## Disclosure And Remediation
 

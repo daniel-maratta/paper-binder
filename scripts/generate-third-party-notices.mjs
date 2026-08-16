@@ -33,6 +33,7 @@ const nugetLicenseMetadata = {
     license: "Apache-2.0",
     projectUrl: "https://github.com/open-telemetry/opentelemetry-dotnet-contrib"
   },
+  "SSH.NET": { license: "MIT", projectUrl: "https://github.com/sshnet/SSH.NET" },
   "Testcontainers.PostgreSql": { license: "MIT", projectUrl: "https://github.com/testcontainers/testcontainers-dotnet" },
   xunit: { license: "Apache-2.0", projectUrl: "https://github.com/xunit/xunit" },
   "xunit.runner.visualstudio": { license: "Apache-2.0", projectUrl: "https://github.com/xunit/visualstudio.xunit" }

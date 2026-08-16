@@ -256,7 +256,10 @@ merge, tag, deployment, and smoke validation remain owner-controlled release act
 - [x] `npm.cmd audit --audit-level=moderate` passed on `2026-08-16`: zero vulnerabilities after
   same-major/patch remediation for `nanoid`, `react-router`, and `react-router-dom`.
 - [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-08-16`;
-  existing `NU1903` warning remains for `SSH.NET` in `tests/PaperBinder.IntegrationTests`.
+  the prior `NU1903` warning for transitive `SSH.NET` was remediated by a test-only
+  `SSH.NET 2026.0.0` override in `tests/PaperBinder.IntegrationTests`.
+- [x] `dotnet list tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj package --vulnerable --include-transitive`
+  passed on `2026-08-16`: no vulnerable packages after the `SSH.NET` override.
 - [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require`
   passed on `2026-08-16`: frontend `70/70`, unit `143/143`, non-Docker integration `34/34`,
   Docker-backed integration `103/103`.
@@ -300,8 +303,9 @@ merge, tag, deployment, and smoke validation remain owner-controlled release act
   `2026-08-16`. Version metadata is consistent, build/test/browser/docs/launch and reviewer-stack
   gates are green or recorded with final rerun evidence in `T-0052` and `T-0055`; `npm audit` now
   reports zero vulnerabilities after same-major/patch remediation for `nanoid`, `react-router`, and
-  `react-router-dom`. Final legal effective-date selection, merge, tag, deployment, smoke
-  validation, and release publication remain owner-controlled actions.
+  `react-router-dom`, and the prior test-tooling `SSH.NET` vulnerability warning is remediated by a
+  test-only `SSH.NET 2026.0.0` override. Final legal effective-date selection, merge, tag,
+  deployment, smoke validation, and release publication remain owner-controlled actions.
 - V1.1.1 executor attestation: `CHANGELOG.md`, repo version metadata, current-state delivery docs,
   and the taskboard are aligned for `v1.1.1` release readiness. Owner-controlled merge, tag
   creation, release workflow, deployment, smoke validation, and release publication remain separate
