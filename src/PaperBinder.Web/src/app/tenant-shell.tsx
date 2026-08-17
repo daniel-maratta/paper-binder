@@ -58,6 +58,7 @@ type TenantBootstrapViewModel = {
   detail: string;
   correlationId: string | null;
   retryAfterLabel: string | null;
+  returnHomeClearsWorkspace: boolean;
   showSignInAction: boolean;
 };
 
@@ -204,6 +205,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: error.detail ?? "Sign in again from the main site before returning to this workspace.",
           correlationId: error.correlationId,
           retryAfterLabel: null,
+          returnHomeClearsWorkspace: false,
           showSignInAction: true
         };
       case "TENANT_FORBIDDEN":
@@ -212,6 +214,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: error.detail ?? "This session is not allowed to open the requested workspace.",
           correlationId: error.correlationId,
           retryAfterLabel: null,
+          returnHomeClearsWorkspace: false,
           showSignInAction: false
         };
       case "TENANT_EXPIRED":
@@ -222,6 +225,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
               "This demo workspace has expired. PaperBinder is keeping it briefly because there was recent activity, but access is already closed and cleanup will remove it soon.",
             correlationId: error.correlationId,
             retryAfterLabel: null,
+            returnHomeClearsWorkspace: true,
             showSignInAction: false
           };
         }
@@ -231,6 +235,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: error.detail ?? "This demo workspace has expired and is no longer available.",
           correlationId: error.correlationId,
           retryAfterLabel: null,
+          returnHomeClearsWorkspace: true,
           showSignInAction: false
         };
       case "TENANT_NOT_FOUND":
@@ -239,6 +244,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: error.detail ?? "This workspace is not available from the current address.",
           correlationId: error.correlationId,
           retryAfterLabel: null,
+          returnHomeClearsWorkspace: true,
           showSignInAction: false
         };
       default: {
@@ -248,6 +254,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: mappedError.detail,
           correlationId: mappedError.correlationId,
           retryAfterLabel: mappedError.retryAfterLabel,
+          returnHomeClearsWorkspace: false,
           showSignInAction: error.status === 401
         };
       }
@@ -259,6 +266,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
     detail: "PaperBinder could not load this workspace. Check your connection and try again in a moment.",
     correlationId: null,
     retryAfterLabel: null,
+    returnHomeClearsWorkspace: false,
     showSignInAction: false
   };
 }
@@ -522,13 +530,11 @@ function TenantNavigation({
 function TenantShellFooter({
   aboutUrl,
   cookiesUrl,
-  legalUrl,
   privacyUrl,
   termsUrl
 }: {
   aboutUrl: string;
   cookiesUrl: string;
-  legalUrl: string;
   privacyUrl: string;
   termsUrl: string;
 }) {
@@ -536,7 +542,7 @@ function TenantShellFooter({
     <div className="pb-auth-sidebar-footer">
       <div className="pb-auth-sidebar-footer-row">
         <p className="pb-auth-sidebar-context-label">Copyright</p>
-        <p className="pb-auth-sidebar-context-value">Copyright 2026 {productIdentity.authorName}</p>
+        <p className="pb-auth-sidebar-context-value">&copy; 2026 {productIdentity.authorName}</p>
       </div>
       <div className="pb-auth-sidebar-footer-row">
         <p className="pb-auth-sidebar-context-label">Version</p>
@@ -548,21 +554,28 @@ function TenantShellFooter({
         <p className="pb-auth-sidebar-context-label">Designed by</p>
         <p className="pb-auth-sidebar-context-value">{productIdentity.authorName}</p>
       </div>
-      <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
-        About PaperBinder
-      </a>
-      <a className="pb-auth-sidebar-footer-link" href={legalUrl} rel="noreferrer" target="_blank">
-        Legal
-      </a>
-      <a className="pb-auth-sidebar-footer-link" href={privacyUrl} rel="noreferrer" target="_blank">
-        Privacy Policy
-      </a>
-      <a className="pb-auth-sidebar-footer-link" href={termsUrl} rel="noreferrer" target="_blank">
-        Terms of Use
-      </a>
-      <a className="pb-auth-sidebar-footer-link" href={cookiesUrl} rel="noreferrer" target="_blank">
-        Cookie Notice
-      </a>
+      <div className="pb-auth-sidebar-footer-row">
+        <p className="pb-auth-sidebar-context-label">Project</p>
+        <p className="pb-auth-sidebar-context-value pb-auth-sidebar-context-value--links">
+          <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
+            About
+          </a>
+        </p>
+      </div>
+      <div className="pb-auth-sidebar-footer-row">
+        <p className="pb-auth-sidebar-context-label">Legal</p>
+        <p className="pb-auth-sidebar-context-value pb-auth-sidebar-context-value--links">
+          <a className="pb-auth-sidebar-footer-link" href={privacyUrl} rel="noreferrer" target="_blank">
+            Privacy
+          </a>
+          <a className="pb-auth-sidebar-footer-link" href={termsUrl} rel="noreferrer" target="_blank">
+            Terms
+          </a>
+          <a className="pb-auth-sidebar-footer-link" href={cookiesUrl} rel="noreferrer" target="_blank">
+            Cookies
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
@@ -596,7 +609,7 @@ export function TenantShell({
   const mobileMenuRef = useRef<HTMLElement | null>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
   const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
-  const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+  const cleanRootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl);
   const rootHomeUrlWithWorkspace = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
   const isDesktopShell = useIsDesktopShell();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -966,10 +979,15 @@ export function TenantShell({
   }
 
   if (bootstrapError !== null || lease === null || impersonation === null) {
+    const resolvedBootstrapError = bootstrapError ?? createBootstrapViewModel(null);
+    const failureRootHomeUrl = resolvedBootstrapError.returnHomeClearsWorkspace
+      ? cleanRootHomeUrl
+      : rootHomeUrlWithWorkspace;
+
     return (
       <TenantBootstrapFailurePage
-        error={bootstrapError ?? createBootstrapViewModel(null)}
-        rootHomeUrl={rootHomeUrl}
+        error={resolvedBootstrapError}
+        rootHomeUrl={failureRootHomeUrl}
         rootLoginUrl={rootLoginUrl}
       />
     );
@@ -979,7 +997,6 @@ export function TenantShell({
   const queuedToastCount = Math.max(0, toasts.length - visibleToasts.length);
   const isViewingAs = impersonation.isImpersonating;
   const aboutUrl = toRootAboutUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
-  const legalUrl = toRootPathUrl(hostContext.environment.rootUrl, "/legal", hostContext.tenantSlug);
   const privacyUrl = toRootPathUrl(hostContext.environment.rootUrl, "/privacy", hostContext.tenantSlug);
   const termsUrl = toRootPathUrl(hostContext.environment.rootUrl, "/terms", hostContext.tenantSlug);
   const cookiesUrl = toRootPathUrl(hostContext.environment.rootUrl, "/cookies", hostContext.tenantSlug);
@@ -1022,7 +1039,6 @@ export function TenantShell({
             <TenantShellFooter
               aboutUrl={aboutUrl}
               cookiesUrl={cookiesUrl}
-              legalUrl={legalUrl}
               privacyUrl={privacyUrl}
               termsUrl={termsUrl}
             />
@@ -1174,7 +1190,6 @@ export function TenantShell({
               <TenantShellFooter
                 aboutUrl={aboutUrl}
                 cookiesUrl={cookiesUrl}
-                legalUrl={legalUrl}
                 privacyUrl={privacyUrl}
                 termsUrl={termsUrl}
               />

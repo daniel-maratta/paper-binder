@@ -1,6 +1,6 @@
 # V1.1.1 Legal Readiness Plan
 
-Status: L7 complete
+Status: L7 complete with 2026-08-17 follow-up
 Target release: `v1.1.1`
 Authority: This file defines the legal-readiness addendum for the `v1.1.1` release candidate. The matching taskboard source is `docs/05-taskboard/tasks/T-0055-v1-1-1-legal-readiness.md`.
 
@@ -68,7 +68,7 @@ Use these owner decisions unless later owner direction changes them:
 
 | Item | Decision |
 | --- | --- |
-| Data contact | Prefer a dedicated `privacy@danielmaratta.com` address for the Privacy Policy. A broader `legal@danielmaratta.com` may be used if one address is preferred across all legal pages. |
+| Data contact | Use the configured PaperBinder intake alias: `paperbinder@danielmaratta.com`. |
 | Operator identity | Use `Daniel Maratta` unless PaperBinder is actually owned or operated by a separate legal entity. Do not attribute PaperBinder to an LLC for polish. |
 | Governing law | Tennessee. |
 | Venue | Tennessee state or federal courts appropriate to the owner's residence or operation; avoid aggressive or over-specific venue wording unless attorney-reviewed. |
@@ -198,14 +198,24 @@ Completed on 2026-08-16.
 - Public and tenant footer exposure is covered by frontend tests, and public root-host legal reachability is covered by browser E2E.
 - Runtime logging privacy is covered by a backend source-level guard.
 - Third-party notices are generated from the current dependency graph and validated by the repo-native check.
-- Final policy public effectiveness remains owner-controlled: legal document frontmatter still uses `effectiveDate: To be set on deployment`, and the legal index/notice docs retain the explicit owner-approval gate before public release.
+- Legal document frontmatter now uses `effectiveDate: August 17, 2026`, and public legal copy no longer exposes draft/audit-process wording.
 - Provider snapshot/backup retention and any live external OTLP export remain owner/provider facts. The current public wording stays general and does not claim an exact provider retention period or any fixed-minute deletion boundary.
+
+## Review Passes And Outcomes
+
+| Date | Pass | Outcome |
+| --- | --- | --- |
+| 2026-08-17 | Legal surface audit | Confirmed the legal-readiness addendum had strong core coverage, but found publication blockers: placeholder effective dates, draft/approval language in public legal pages, unresolved contact routing, missing children-under-13 wording, ambiguous content-rights boundaries, and unbounded Docker container log retention. |
+| 2026-08-17 | AI wording-shape pass | Removed public legal wording that sounded like internal audit evidence or generated compliance filler, including phrases such as `Static review for this release`, draft/owner-approval language, and policy instructions written as `should` statements. Added a `validate-docs.ps1` guard so public legal Markdown fails validation if similar draft/audit phrasing returns. |
+| 2026-08-17 | Public legal content remediation | Set all public legal effective dates to `August 17, 2026`, added children-under-13 language, changed legal/privacy/security/copyright contact paths to the configured `paperbinder@danielmaratta.com` alias, clarified MIT-vs-owner-content rights, and tightened the `/legal` policy-list card spacing. |
+| 2026-08-17 | Operational retention remediation | Configured the repo-owned Compose files to use Docker's `local` logging driver with five 10 MB files per container, and documented that deployed containers must be recreated before the logging-driver contract applies. |
+| 2026-08-17 | Validation | `scripts/validate-docs.ps1` passed, focused `root-host.test.tsx` frontend tests passed with `22/22`, and Docker Compose config rendering passed for local/e2e and production compose shapes. Compose emitted a local Docker config read warning in the sandbox, but still rendered the config successfully. |
 
 ## Owner Approval Required
 
-- Final Privacy Policy and Terms wording.
-- Data contact email or URL.
-- Governing law and venue.
+- Final Privacy Policy and Terms wording after the 2026-08-17 public-copy remediation.
+- Data contact email is configured as `paperbinder@danielmaratta.com`.
+- Governing law and venue remain Tennessee unless attorney review changes them.
 - Whether to add a formal DMCA registered-agent workflow now or defer it.
 - Whether optional OTLP export is enabled in the live production environment.
 - Whether provider snapshots/backups are enabled and their retention period.

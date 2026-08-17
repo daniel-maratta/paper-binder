@@ -16,7 +16,7 @@ agent
 2026-08-15
 
 ## Updated
-2026-08-16
+2026-08-17
 
 ## Checkpoint
 CP7
@@ -51,7 +51,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - [x] Third-party dependency notices and asset provenance are documented.
 - [x] `SECURITY.md` or equivalent dependency/security maintenance policy is added.
 - [x] Runtime logging is aligned with the stated no-PII-by-default posture or any exceptions are explicitly documented and owner-approved.
-- [x] Final policy wording retains the explicit owner approval and public-effective-date gate before public release.
+- [x] Final policy wording has a concrete public effective date and does not expose draft/audit-process wording.
 - [x] Validation evidence is captured before marking the task done.
 
 ## Dependencies
@@ -63,7 +63,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - `docs/30-security/secrets-and-config.md`
 
 ## Blocked By
-- None. Owner approval and public-effective-date selection remain explicit owner-controlled release actions before publication.
+- None. Owner approval, merge, tag, deployment, and smoke validation remain explicit owner-controlled release actions before publication.
 
 ## Review Gates
 - Scope Lock: Legal readiness for the current public demo only; no commercial SaaS expansion.
@@ -71,7 +71,14 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - Escalation Notes: Frontend Vite/Vitest and browser checks may require known elevated workflows for this repo.
 
 ## Current State
-- L7 complete. The legal audit findings have been converted into a committable v1.1.1 addendum plan, the technical retention inventory has been added at `docs/95-delivery/v1-1-1-legal-retention-inventory.md`, public legal policy routes render from a dedicated frontend legal content collection, public/tenant product surfaces now expose legal links and point-of-collection sensitive-data warnings, notice/licensing/provenance files now distinguish PaperBinder MIT licensing from third-party dependencies and owner-created public assets, the root `SECURITY.md` documents vulnerability reporting plus dependency/security maintenance posture, runtime logging no longer includes the identified tenant slug, email, or binder name fields from app log templates, and final validation evidence is recorded.
+- L7 complete, with a 2026-08-17 public-copy and logging follow-up. The legal audit findings have been converted into a committable v1.1.1 addendum plan, the technical retention inventory has been added at `docs/95-delivery/v1-1-1-legal-retention-inventory.md`, public legal policy routes render from a dedicated frontend legal content collection, public/tenant product surfaces now expose legal links and point-of-collection sensitive-data warnings, notice/licensing/provenance files now distinguish PaperBinder MIT licensing from third-party dependencies and owner-created public assets, the root `SECURITY.md` documents vulnerability reporting plus dependency/security maintenance posture, runtime logging no longer includes the identified tenant slug, email, or binder name fields from app log templates, public legal copy uses the August 17, 2026 effective date, and repo-owned Compose files now bound container log retention.
+
+## Review Passes And Outcomes
+- Legal surface audit on 2026-08-17 found publication blockers in the legal surface: placeholder effective dates, public draft/approval wording, missing children-under-13 language, ambiguous contact routing, ambiguous MIT-vs-owner-content rights, and unbounded Docker container logs.
+- AI wording-shape pass on 2026-08-17 removed generated/audit-like public legal phrasing such as `Static review for this release`, draft/approval language, and policy instructions written as `should` statements. `scripts/validate-docs.ps1` now fails when those phrases appear in public legal Markdown.
+- Public legal content remediation on 2026-08-17 set the effective date to `August 17, 2026`, added children-under-13 wording, changed the public contact path to `paperbinder@danielmaratta.com`, clarified content-rights boundaries, and tightened the `/legal` policy-list card spacing.
+- Operational retention remediation on 2026-08-17 configured Docker Compose logging with the `local` driver, `max-size=10m`, and `max-file=5` across repo-owned compose shapes. Deployed containers must be recreated before the new logging driver applies.
+- Validation on 2026-08-17 passed for docs validation, focused root-host legal route tests, and Compose config rendering. Compose emitted a local Docker config read warning in the sandbox but still rendered the config successfully.
 
 ## Touch Points
 - `docs/95-delivery/v1-1-1-legal-readiness-plan.md`
@@ -101,7 +108,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - L7: Validate legal readiness and update release evidence.
 
 ## Next Action
-- Owner-controlled release follow-through: set the public effective date during deployment, approve the final legal wording for publication, merge the `v1.1.1` candidate branch, tag, deploy, and smoke test.
+- Owner-controlled release follow-through: approve the final legal wording for publication, merge the `v1.1.1` candidate branch, tag, deploy with recreated containers so the logging driver applies, and smoke test.
 
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L1 documentation update.
@@ -131,6 +138,10 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1` passed on 2026-08-16 after the L7 legal browser test and dependency remediation: root-host `5/5`, tenant-host `3/3`.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-16 for the L7 closeout update.
 - `git diff --check` passed on 2026-08-15 for the L5 documentation-only change set.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-17 after the public legal copy, configured contact alias, and validation-guard updates.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` passed on 2026-08-17 after the legal route copy/contact updates: `22/22`.
+- `docker compose -f docker-compose.yml -f docker-compose.e2e.yml config --no-interpolate` rendered successfully on 2026-08-17 after adding the shared logging block. Docker emitted a local config-file access warning in the sandbox.
+- `docker compose -f docker-compose.prod.yml config --no-interpolate` rendered successfully on 2026-08-17 after adding the shared logging block. Docker emitted a local config-file access warning in the sandbox.
 
 ## Decision Notes
 - The article and presentation images/SVGs are owner-created and should be recorded as such in the public notice/provenance surface.
@@ -148,4 +159,4 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - Static searches for legal-route exposure, private-path leakage, and accidental user-supplied logging fields.
 
 ## Outcome (Fill when done)
-- Done on 2026-08-16. T-0055 legal-readiness implementation is complete for `v1.1.1`: public legal pages, footer exposure, point-of-collection warnings, retention/provider inventory, generated third-party notices, owner-created asset provenance, security/dependency maintenance policy, runtime logging privacy alignment, browser reachability coverage, and final validation evidence are in place. Public policy effectiveness and final publication approval remain owner-controlled release actions.
+- Done on 2026-08-16, with the 2026-08-17 review follow-up recorded. T-0055 legal-readiness implementation is complete for `v1.1.1`: public legal pages, footer exposure, point-of-collection warnings, retention/provider inventory, generated third-party notices, owner-created asset provenance, security/dependency maintenance policy, runtime logging privacy alignment, browser reachability coverage, effective dated public policy copy, configured public contact alias, bounded Compose container logging, and final validation evidence are in place. Final publication approval, merge, tag, deploy, container recreation, and smoke validation remain owner-controlled release actions.

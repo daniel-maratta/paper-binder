@@ -180,8 +180,9 @@ not replace the historical `V1` sections above.
 This section records the `v1.1.1` patch candidate validation and final hiring assessment review. It does
 not replace the historical `V1.1.0` evidence above.
 The later legality audit added a release-blocking legal-readiness addendum tracked by `T-0055`; that
-addendum completed on `2026-08-16`. Final legal wording approval, public effective date selection,
-merge, tag, deployment, and smoke validation remain owner-controlled release actions.
+addendum completed on `2026-08-16`, with a follow-up public-copy and logging pass on `2026-08-17`.
+Final legal wording approval, merge, tag, deployment, and smoke validation remain owner-controlled
+release actions.
 
 ### Checkpoint Completion
 
@@ -241,14 +242,27 @@ merge, tag, deployment, and smoke validation remain owner-controlled release act
 ### Legal Readiness Addendum
 
 - [x] `T-0055` completed on `2026-08-16`.
+- [x] Follow-up legal surface audit, AI wording-shape pass, public-copy remediation, and Docker
+  logging remediation were completed on `2026-08-17`.
 - [x] Public legal pages are reachable at `/legal`, `/privacy`, `/terms`, and `/cookies`.
 - [x] Public and tenant footers expose Legal, Privacy Policy, Terms of Use, and Cookie Notice links.
+- [x] Public legal pages use `August 17, 2026` as the effective date.
+- [x] Legal, privacy, cookie, copyright, and security contact paths use the configured
+  `paperbinder@danielmaratta.com` alias.
 - [x] Point-of-collection warnings tell users not to submit sensitive, regulated, confidential,
   proprietary, personal, medical, financial, credential, or important real business information.
+- [x] Children-under-13 wording is present in the public Legal, Privacy Policy, and Terms of Use
+  surfaces.
 - [x] Legal documents are frontmatter-backed Markdown content in a dedicated legal collection.
+- [x] Public legal copy no longer exposes draft, owner-approval, or audit-process wording such as
+  `Static review for this release`; `scripts/validate-docs.ps1` now guards against those phrases in
+  public legal Markdown.
 - [x] Retention/provider wording avoids fixed-minute deletion promises and keeps provider
   snapshot/backup and external OTLP retention wording general unless owner/provider facts are
   later verified.
+- [x] Repo-owned Compose files bound container stdout/stderr retention through Docker's `local`
+  logging driver with `max-size=10m` and `max-file=5`; deployed containers must be recreated before
+  the logging-driver change applies.
 - [x] The Cookie Notice remains informational disclosure only for the current strictly necessary
   cookie posture; no consent-management platform or cookie banner was added.
 - [x] `NOTICE.md`, `THIRD-PARTY-NOTICES.md`, and `SECURITY.md` cover asset provenance,

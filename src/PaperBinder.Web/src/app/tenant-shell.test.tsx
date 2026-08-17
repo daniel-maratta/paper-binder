@@ -103,19 +103,15 @@ describe("tenant shell", () => {
     expect(screen.getByRole("link", { name: "Binders" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Users" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Legal" })).toHaveAttribute(
-      "href",
-      "https://paperbinder.example.test/legal?workspace=acme"
-    );
-    expect(screen.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute(
       "href",
       "https://paperbinder.example.test/privacy?workspace=acme"
     );
-    expect(screen.getByRole("link", { name: "Terms of Use" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Terms" })).toHaveAttribute(
       "href",
       "https://paperbinder.example.test/terms?workspace=acme"
     );
-    expect(screen.getByRole("link", { name: "Cookie Notice" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Cookies" })).toHaveAttribute(
       "href",
       "https://paperbinder.example.test/cookies?workspace=acme"
     );
@@ -126,12 +122,12 @@ describe("tenant shell", () => {
     await waitFor(() => expect(navigator).toHaveBeenCalledWith("https://paperbinder.example.test/login"));
 
     expect(screen.getByText("Copyright")).toBeInTheDocument();
-    expect(screen.getByText("Copyright 2026 Daniel Maratta")).toBeInTheDocument();
+    expect(screen.getByText("\u00a9 2026 Daniel Maratta")).toBeInTheDocument();
     expect(screen.getByText("Version")).toBeInTheDocument();
     expect(screen.getByText(`v${packageJson.version}`)).toBeInTheDocument();
     expect(screen.getByText("Designed by")).toBeInTheDocument();
     expect(screen.getByText("Daniel Maratta")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
       "href",
       "https://paperbinder.example.test/about?workspace=acme"
     );
@@ -212,7 +208,8 @@ describe("tenant shell", () => {
           traceId: null,
           validationErrors: null
         }),
-        heading: "Workspace access denied"
+        heading: "Workspace access denied",
+        returnHomeUrl: "https://paperbinder.example.test/?workspace=acme"
       },
       {
         error: new PaperBinderApiError({
@@ -225,7 +222,8 @@ describe("tenant shell", () => {
           traceId: null,
           validationErrors: null
         }),
-        heading: "Demo expired"
+        heading: "Demo expired",
+        returnHomeUrl: "https://paperbinder.example.test/"
       },
       {
         error: new PaperBinderApiError({
@@ -238,7 +236,8 @@ describe("tenant shell", () => {
           traceId: null,
           validationErrors: null
         }),
-        heading: "Workspace unavailable"
+        heading: "Workspace unavailable",
+        returnHomeUrl: "https://paperbinder.example.test/"
       }
     ];
 
@@ -252,7 +251,10 @@ describe("tenant shell", () => {
       });
 
       expect(await screen.findByRole("heading", { name: testCase.heading })).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Return to main site" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Return to main site" })).toHaveAttribute(
+        "href",
+        testCase.returnHomeUrl
+      );
 
       view.unmount();
     }
@@ -306,7 +308,7 @@ describe("tenant shell", () => {
     expect(document.title).toBe("Dashboard | PaperBinder");
   });
 
-  it("Should_LinkLogoToLandingPage_AndOpenAboutInNewTab_When_HeaderActionsRender", async () => {
+  it("Should_LinkLogoToLandingPage_AndOpenFooterLinksInNewTabs_When_ShellRenders", async () => {
     renderTenantRoute({});
 
     expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
@@ -314,24 +316,20 @@ describe("tenant shell", () => {
       "href",
       "https://paperbinder.example.test/?workspace=acme"
     );
-    expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
       "href",
       "https://paperbinder.example.test/about?workspace=acme"
     );
-    expect(screen.getByRole("link", { name: "About PaperBinder" })).toHaveAttribute("target", "_blank");
-    expect(screen.getByRole("link", { name: "Legal" })).toHaveAttribute(
-      "href",
-      "https://paperbinder.example.test/legal?workspace=acme"
-    );
-    expect(screen.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("target", "_blank");
+    expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute(
       "href",
       "https://paperbinder.example.test/privacy?workspace=acme"
     );
-    expect(screen.getByRole("link", { name: "Terms of Use" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Terms" })).toHaveAttribute(
       "href",
       "https://paperbinder.example.test/terms?workspace=acme"
     );
-    expect(screen.getByRole("link", { name: "Cookie Notice" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Cookies" })).toHaveAttribute(
       "href",
       "https://paperbinder.example.test/cookies?workspace=acme"
     );
@@ -429,7 +427,7 @@ describe("tenant shell", () => {
     expect(await screen.findByRole("heading", { name: "Demo expired" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Return to main site" })).toHaveAttribute(
       "href",
-      "https://paperbinder.example.test/?workspace=acme"
+      "https://paperbinder.example.test/"
     );
   });
 

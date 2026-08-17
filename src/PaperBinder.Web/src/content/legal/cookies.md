@@ -2,36 +2,36 @@
 slug: cookies
 path: /cookies
 title: Cookie Notice
-description: Current cookie and browser-storage posture for PaperBinder.
+description: How the PaperBinder public demo uses cookies and browser storage.
 documentType: cookies
-effectiveDate: To be set on deployment
+effectiveDate: August 17, 2026
 ---
 
-# Current posture
+# Cookie use
 
-This Cookie Notice is an informational disclosure for PaperBinder's current strictly necessary cookie posture. PaperBinder should not add a consent-management platform or cookie banner unless a future inventory identifies non-essential cookies, analytics, advertising, or telemetry requiring consent.
+This Cookie Notice explains how the PaperBinder public demo uses cookies and browser storage. PaperBinder uses only strictly necessary authentication and CSRF cookies. It does not use marketing analytics or advertising cookies.
 
 # Strictly necessary cookies
 
-PaperBinder currently uses:
+PaperBinder uses:
 
 - An authentication cookie used to keep a user signed in to a temporary workspace. This cookie is HttpOnly and server-readable.
-- A CSRF cookie used to protect unsafe requests. This cookie is browser-readable by design so the frontend can copy its value into the `X-CSRF-TOKEN` request header.
+- A CSRF cookie used to protect unsafe requests. PaperBinder reads this cookie to send the `X-CSRF-TOKEN` request header.
 
 These cookies are necessary for authentication, tenant access, and request protection.
 
 # Browser storage
 
-Static review for this release did not find `localStorage` or `sessionStorage` usage in the current frontend.
+PaperBinder does not store its data in your browser's `localStorage` or `sessionStorage`.
 
 # Turnstile
 
-PaperBinder uses Cloudflare Turnstile or an equivalent challenge provider on pre-authentication surfaces such as demo creation and login. The challenge provider may process challenge tokens and remote IP information. This challenge behavior is separate from PaperBinder's auth and CSRF cookies.
+PaperBinder uses Cloudflare Turnstile on pre-authentication surfaces such as demo creation and login. Cloudflare processes challenge tokens and remote IP information when the challenge is submitted. This challenge behavior is separate from PaperBinder's authentication and CSRF cookies.
 
-# Analytics
+# Telemetry
 
-PaperBinder does not currently use marketing analytics or advertising cookies. Operational telemetry may be emitted by the API or worker for diagnostics, and optional external telemetry export should be disclosed if enabled.
+PaperBinder records operational telemetry for diagnostics.
 
 # Contact
 
-For cookie or privacy questions, contact [privacy@danielmaratta.com](mailto:privacy@danielmaratta.com).
+For cookie or privacy questions, contact [paperbinder@danielmaratta.com](mailto:paperbinder@danielmaratta.com).

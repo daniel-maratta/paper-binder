@@ -907,7 +907,7 @@ function PublicFooter() {
       </div>
 
       <div className="pb-public-footer-meta">
-        <p className="pb-public-footer-copyright">Copyright 2026 {productIdentity.authorName}</p>
+        <p className="pb-public-footer-copyright">&copy; 2026 {productIdentity.authorName}</p>
       </div>
     </footer>
   );
@@ -920,6 +920,10 @@ function PublicShell({ hostContext }: { hostContext: RootHostContext }) {
   useEffect(() => {
     setDocumentTitle(resolveRootPageTitle(location.pathname));
   }, [location.pathname]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname, location.search]);
 
   return (
     <div className="pb-public-site">
@@ -1903,20 +1907,20 @@ function LegalDocumentPage({ document }: { document: LegalDocument }) {
         {document.description}
       </PublicHero>
 
-      <section aria-label={`${document.title} content`}>
+      <section aria-label={`${document.title} content`} className="pb-public-legal-document-body">
         <p className="pb-public-panel-eyebrow">Effective date: {document.effectiveDate}</p>
         <MarkdownArticle source={document.body} />
       </section>
 
       {document.documentType === "index" ? (
-        <PublicPanel aria-labelledby="legal-document-list-title" variant="soft">
-          <PublicPanelHeading eyebrow="Legal documents" title="Notices" titleId="legal-document-list-title">
-            Current legal notices for the PaperBinder public demo.
+        <PublicPanel aria-labelledby="legal-document-list-title" className="pb-public-legal-document-list">
+          <PublicPanelHeading eyebrow="Legal documents" title="Policy notices" titleId="legal-document-list-title">
+            Legal notices for the PaperBinder public demo.
           </PublicPanelHeading>
           <ul className="pb-public-bullet-list">
             {legalPolicyDocuments.map((policyDocument) => (
               <li key={policyDocument.path}>
-                <NavLink className="pb-public-footer-link" to={policyDocument.path}>
+                <NavLink className="pb-public-legal-document-link" to={policyDocument.path}>
                   {policyDocument.title}
                 </NavLink>
               </li>

@@ -8,6 +8,7 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $anchorCache = @{}
 $releaseChecklistPath = Join-Path $repoRoot "docs/95-delivery/release-checklist.md"
 $releaseWorkflowPath = Join-Path $repoRoot "docs/95-delivery/release-workflow.md"
+$publicLegalContentRoot = Join-Path $repoRoot "src/PaperBinder.Web/src/content/legal"
 $privateGuardTargets = @(
   (Join-Path $repoRoot "README.md"),
   (Join-Path $repoRoot "REVIEWERS.md"),
@@ -165,6 +166,31 @@ function Assert-NoLocalPathLeakage {
 
     if ($content -match '(?im)[A-Z]:\\Users\\') {
       throw "Absolute local filesystem path leakage detected in $path"
+    }
+  }
+}
+
+function Assert-PublicLegalCopyReady {
+  $forbiddenPublicLegalPatterns = @(
+    "To be set",
+    "owner approval",
+    "legal-readiness",
+    "drafted",
+    "Static review",
+    "for this release",
+    "current public policy wording",
+    "should name",
+    "should not add",
+    "should be disclosed"
+  )
+
+  foreach ($file in Get-ChildItem -Path $publicLegalContentRoot -File -Filter "*.md") {
+    $content = Get-Content -Path $file.FullName -Raw
+
+    foreach ($pattern in $forbiddenPublicLegalPatterns) {
+      if ($content.IndexOf($pattern, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
+        throw "Public legal copy contains draft/audit wording in $($file.FullName): $pattern"
+      }
     }
   }
 }
@@ -328,5 +354,6 @@ foreach ($file in $markdownFiles) {
 
 Assert-ReleaseChecklistStructure
 Assert-NoLocalPathLeakage
+Assert-PublicLegalCopyReady
 
 Write-Host "Documentation validation passed."

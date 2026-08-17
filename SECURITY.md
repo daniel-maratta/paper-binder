@@ -21,7 +21,7 @@ No uptime, response-time, remediation-time, availability, backup, recovery, or c
 
 Do not submit real secrets, credentials, confidential data, regulated data, or sensitive tenant content when reporting an issue.
 
-For sensitive security reports, contact `legal@danielmaratta.com` with a subject that starts with `SECURITY:`. Include:
+For sensitive security reports, contact `paperbinder@danielmaratta.com` with a subject that starts with `SECURITY:`. Include:
 
 - A concise description of the issue.
 - Affected URL, endpoint, route, package, or file path.

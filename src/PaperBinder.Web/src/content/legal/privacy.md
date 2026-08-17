@@ -4,12 +4,16 @@ path: /privacy
 title: Privacy Policy
 description: How PaperBinder handles information in the public demo.
 documentType: privacy
-effectiveDate: To be set on deployment
+effectiveDate: August 17, 2026
 ---
 
 # What PaperBinder is
 
-PaperBinder is a demonstration and hiring artifact operated by Daniel Maratta. It is not a production SaaS service. Do not submit confidential, sensitive, regulated, proprietary, personal, medical, financial, credential, or important real business information.
+PaperBinder is a public demonstration project and hiring portfolio piece operated by Daniel Maratta. It is not a production SaaS service. Do not submit confidential, sensitive, regulated, proprietary, personal, medical, financial, credential, or important real business information.
+
+# Children
+
+PaperBinder is not intended for children under 13. Do not create or use a demo workspace if you are under 13. If you believe a child under 13 submitted information to PaperBinder, contact the operator at the email address listed below.
 
 # Information users provide
 
@@ -23,39 +27,39 @@ Users may voluntarily provide information while using the demo, including:
 
 # Information collected automatically
 
-PaperBinder may automatically process operational information needed to run and protect the demo, including:
+PaperBinder processes operational information needed to run and protect the demo, including:
 
 - Request path, host, correlation id, status, and timing information.
-- IP-derived request information for challenge verification and rate limiting.
+- IP-derived request information for security challenges and rate limiting.
 - Tenant, user, actor, and effective-user identifiers where needed for security, authorization, audit, or operational diagnostics.
-- Security-denial, rate-limit, authentication, authorization, cleanup, and worker-event logs.
-- Operational traces and metrics for API and worker behavior.
+- Operational logs for security denials, rate limits, authentication, authorization, and cleanup.
+- Operational traces and metrics for diagnostics.
 
 # Cookies and browser storage
 
-PaperBinder currently uses strictly necessary cookies for authentication and CSRF protection. The auth cookie is server-readable and HttpOnly. The CSRF cookie is browser-readable so the frontend can send the `X-CSRF-TOKEN` header on protected requests.
+PaperBinder uses strictly necessary cookies for authentication and CSRF protection. The authentication cookie is server-readable and HttpOnly. The CSRF cookie is readable by the application so PaperBinder can send the `X-CSRF-TOKEN` header on protected requests.
 
-Static review for this release did not find `localStorage` or `sessionStorage` usage. PaperBinder does not currently use marketing analytics or advertising cookies.
+PaperBinder does not store its data in your browser's `localStorage` or `sessionStorage`. PaperBinder does not use marketing analytics or advertising cookies.
 
 # Turnstile challenge processing
 
-PaperBinder uses Cloudflare Turnstile or an equivalent challenge provider on pre-authentication surfaces such as demo creation and login. Challenge verification may send the challenge token and remote IP address to the challenge provider.
+PaperBinder uses Cloudflare Turnstile on pre-authentication surfaces such as demo creation and login. When a challenge is submitted, PaperBinder sends the challenge token and remote IP address to Cloudflare.
 
 # Temporary workspace retention
 
-Demo workspaces are temporary and expire according to the lease period displayed in the application. After the actual workspace expiry timestamp, PaperBinder denies authenticated tenant-host access.
+Demo workspaces are temporary and expire according to the lease period displayed in the application. When a workspace expires, PaperBinder terminates access to that workspace.
 
-Expiry is not the same event as deletion. Tenant-owned database rows may remain until the cleanup worker finds the workspace eligible for purge. Cleanup eligibility can be affected by worker schedule, recent authenticated activity, operational failures, and host maintenance.
+Expiration is not the same as deletion. Workspace data may remain in PaperBinder's systems after expiration until automated cleanup removes it. Deletion timing can vary and may be affected by recent authenticated activity, operational failures, and host maintenance.
 
-When a workspace is purged, PaperBinder deletes tenant-owned database rows for the workspace, users, memberships, binders, binder policies, documents, and tenant impersonation audit records. Operational logs, telemetry, deployment logs, provider logs, database storage internals, and provider snapshots or backups may follow different retention behavior.
+When cleanup removes a workspace, PaperBinder deletes workspace-associated data for the workspace, users, memberships, binders, binder policies, documents, and tenant impersonation audit records. Operational logs, telemetry, provider logs, backups, and similar operational records may follow separate retention schedules.
 
 PaperBinder does not promise backups, restoration, recovery, availability, or continuity for demo workspace data.
 
 # Providers
 
-PaperBinder may use hosting, database, reverse proxy, challenge verification, DNS/TLS, deployment, container registry, administrative access, and optional telemetry providers to operate the demo. Current public policy wording should name or categorize only providers that participate in the current production data path.
+PaperBinder uses service providers for hosting, database storage, networking, DNS/TLS, security challenges, release support, and operational diagnostics. Operational telemetry is used for diagnostics and is exported outside PaperBinder only if the operator configures an external telemetry endpoint.
 
-Build and deployment providers should not be understood to process visitor document contents unless a specific operational data flow sends those contents to them.
+Some service providers help maintain and publish the PaperBinder software. They do not receive workspace documents through ordinary use, but operational logs may be shared with them for diagnostic or operational purposes.
 
 # No sale of personal information
 
@@ -63,4 +67,4 @@ PaperBinder does not sell personal information.
 
 # Contact
 
-For privacy or data questions, contact [privacy@danielmaratta.com](mailto:privacy@danielmaratta.com).
+For privacy or data questions, contact [paperbinder@danielmaratta.com](mailto:paperbinder@danielmaratta.com).

@@ -431,7 +431,7 @@ a {
 
 .pb-public-footer-nav {
   display: grid;
-  grid-template-columns: repeat(2, minmax(132px, 1fr));
+  grid-template-columns: repeat(3, minmax(132px, 1fr));
   gap: 24px;
 }
 
@@ -842,6 +842,45 @@ a {
 
 .pb-public-panel--form {
   background: var(--pb-surface-panel-strong);
+}
+
+.pb-public-legal-document-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pb-public-legal-document-body > .pb-public-panel-eyebrow {
+  width: 100%;
+  max-width: 760px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.pb-public-legal-document-list {
+  max-width: 760px;
+  padding-top: 22px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.pb-public-legal-document-list .pb-public-bullet-list {
+  margin-top: 12px;
+}
+
+.pb-public-legal-document-link {
+  color: var(--pb-action-primary);
+  font-weight: 750;
+  text-decoration: underline;
+  text-decoration-color: rgba(20, 35, 58, 0.34);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+.pb-public-legal-document-link:hover,
+.pb-public-legal-document-link:focus-visible {
+  color: var(--pb-accent-primary-hover);
+  text-decoration-color: var(--pb-accent-primary-hover);
 }
 
 .pb-public-panel--demo-form,
@@ -2332,9 +2371,16 @@ a {
   font-size: 0.82rem;
 }
 
+.pb-auth-sidebar-context-value--links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+}
+
 .pb-auth-sidebar-footer-link {
   color: rgba(241, 245, 249, 0.88);
-  font-size: 0.9rem;
+  font-size: 0.84rem;
   font-weight: 600;
 }
 

@@ -1,6 +1,6 @@
 # V1.1.1 Legal Retention Inventory
 
-Status: L7 evidence update
+Status: Post-L7 legal copy and logging follow-up
 Task: `T-0055`
 Date: 2026-08-15
 
@@ -8,7 +8,7 @@ Date: 2026-08-15
 
 This inventory records what PaperBinder collects, where it lives, and what "expire" and "purge" mean for the current public demo. It is an engineering evidence artifact for the v1.1.1 Privacy Policy, Terms of Use, Cookie Notice, and Legal index work.
 
-This is not final policy wording. Public legal docs must still receive owner approval before merge.
+This is an engineering evidence artifact, not public policy wording.
 
 ## Evidence Scope
 
@@ -30,7 +30,7 @@ Evidence limits:
 
 ## Core Findings
 
-- PaperBinder does not currently have public Privacy Policy, Terms of Use, Cookie Notice, or Legal index pages.
+- PaperBinder exposes public Privacy Policy, Terms of Use, Cookie Notice, and Legal index pages.
 - Demo tenants are created with an expiry timestamp. Authenticated tenant-host access is denied once the actual expiry timestamp has passed.
 - Deletion is not the same event as expiry. The worker selects expired tenants, then purges only if cleanup rules allow it. Recent authenticated activity can defer purge eligibility.
 - The purge deletes tenant-owned database rows for tenants, users, memberships, binders, binder policies, documents, and impersonation audit records in one transaction.
@@ -38,7 +38,7 @@ Evidence limits:
 - Browser storage review found no `localStorage` or `sessionStorage` usage. The frontend reads `document.cookie` only to echo the CSRF cookie into the `X-CSRF-TOKEN` header.
 - Current cookies are strictly necessary for auth/session and CSRF. The Cookie Notice should remain informational disclosure only unless future inventory finds nonessential cookies, analytics, advertising, or telemetry requiring consent.
 - No marketing analytics were found. OpenTelemetry exists for operational traces/metrics. Production config evidence did not show an active OTLP endpoint.
-- Production containers currently use Docker `json-file` logging with no rotation configuration visible from container inspection. Log retention is therefore host/runtime dependent until an operator policy is documented.
+- Repo-owned Compose files now configure Docker's `local` logging driver with `max-size=10m` and `max-file=5`. Existing deployed containers need to be recreated during rollout before this contract applies to them.
 
 ## Retention Table
 
@@ -56,10 +56,10 @@ Evidence limits:
 | CSRF cookie | Browser-readable random token in auth-cookie-name plus `.csrf` | Login/provisioning/sign-in and impersonation state changes | Does not grant access by itself; expired tenant still rejected server-side | Logout, invalid session checks, invalid impersonation, or browser session end | Session cookie behavior; browser-readable by design so the frontend can echo it in `X-CSRF-TOKEN` | Yes |
 | Browser storage | No `localStorage` or `sessionStorage` usage found; clipboard API used only for user-initiated copy actions | N/A | N/A | N/A | No current Web Storage retention surface found | Cookie Notice |
 | Turnstile challenge | Browser challenge token; server sends challenge secret, token response, and remote IP when available to Cloudflare Siteverify | Cloudflare Turnstile widget and server verification service | N/A to tenant expiry; Turnstile is pre-auth and provider-side | Provider retention governed by Cloudflare; app does not persist token response in database | Provider retention unknown from repo; app logs some failed verification metadata, including remote IP | Yes |
-| Pre-auth rate limiting | Remote IP partition, path/host, retry metadata on rejections | ASP.NET rate limiter and rejection logger | N/A to tenant expiry | In-memory limiter state and operational logging; no database row | Runtime memory plus logs; log retention is host/runtime dependent | Aggregate description |
-| API/app logs | Security denials, rate-limit rejections, auth boundary failures, tenant/user ids where scoped, path, host, correlation id; L6 removed identified app log fields for tenant slug, email, and binder name from runtime logger templates | API runtime structured logs | N/A; logs may outlive tenant expiry and purge | Docker/container log handling, host maintenance, deploy log collection | Production containers use Docker `json-file` logging without visible rotation config; exact retention is host/runtime dependent | Aggregate description |
-| Worker logs | Cleanup cycle start/complete/failure, selected/purged/skipped/failed counts, tenant id on purge/failure, optional deleted-row summary | Worker runtime | N/A; logs may outlive tenant expiry and purge | Docker/container log handling and host maintenance | Production containers use Docker `json-file` logging without visible rotation config; exact retention is host/runtime dependent | Aggregate description |
-| Caddy/proxy logs | Reverse-proxy operational logs; Caddyfile does not configure a dedicated access-log block, but container stdout/stderr may include proxy/TLS events | Caddy container | N/A | Docker/container log handling and host maintenance | Production proxy container uses Docker `json-file` logging without visible rotation config; exact retention is host/runtime dependent | Aggregate description |
+| Pre-auth rate limiting | Remote IP partition, path/host, retry metadata on rejections | ASP.NET rate limiter and rejection logger | N/A to tenant expiry | In-memory limiter state and operational logging; no database row | Runtime memory plus bounded container logs after recreated deployment containers pick up the Compose logging driver | Aggregate description |
+| API/app logs | Security denials, rate-limit rejections, auth boundary failures, tenant/user ids where scoped, path, host, correlation id; L6 removed identified app log fields for tenant slug, email, and binder name from runtime logger templates | API runtime structured logs | N/A; logs may outlive tenant expiry and purge | Docker/container log handling, host maintenance, deploy log collection | Bounded by the Compose `local` logging driver after container recreation: five 10 MB files per container, plus any provider snapshots, backups, deployment logs, or external telemetry retention | Aggregate description |
+| Worker logs | Cleanup cycle start/complete/failure, selected/purged/skipped/failed counts, tenant id on purge/failure, optional deleted-row summary | Worker runtime | N/A; logs may outlive tenant expiry and purge | Docker/container log handling and host maintenance | Bounded by the Compose `local` logging driver after container recreation: five 10 MB files per container, plus any provider snapshots, backups, deployment logs, or external telemetry retention | Aggregate description |
+| Caddy/proxy logs | Reverse-proxy operational logs; Caddyfile does not configure a dedicated access-log block, but container stdout/stderr may include proxy/TLS events | Caddy container | N/A | Docker/container log handling and host maintenance | Bounded by the Compose `local` logging driver after container recreation: five 10 MB files per container, plus any provider snapshots, backups, deployment logs, or external telemetry retention | Aggregate description |
 | OpenTelemetry traces/metrics | Operational request/worker traces and metrics; tenant/user/correlation tags where available; no marketing analytics found | API and worker OpenTelemetry wiring | N/A; traces/metrics may outlive tenant expiry if exported | Console exporter in dev/test; optional OTLP exporter only when configured | Production non-secret config did not show an active OTLP endpoint; if enabled later, provider retention must be disclosed | Yes if active; otherwise aggregate no-analytics statement |
 | PostgreSQL Docker volume | Persistent database files containing tenant-owned rows and operational schema | PostgreSQL container | Tenant-owned rows can remain in the volume until worker purge; inaccessible through app after expiry | Tenant purge removes tenant-owned rows; volume lifecycle is managed by Docker/host operations | Tenant-owned logical rows are purged by worker; physical storage and database internals may persist until PostgreSQL/storage reuse, vacuum, backup, or volume removal | Yes |
 | Data Protection key ring | ASP.NET Core Data Protection keys under `/data/keys`; certificate-backed protection in deployed environments | App/worker runtime and deployment secret | N/A; keys protect/validate auth cookies and other protected payloads | Key-ring rotation/volume lifecycle, not tenant purge | Operational security state persists outside tenant data lifecycle | Aggregate/security description |
@@ -93,9 +93,9 @@ Public policy should avoid implying that build/deploy/support providers process 
 - Do not say data is deleted at any fixed minute boundary.
 - Say access is denied after the actual workspace expiry timestamp, but database rows may remain until automated cleanup finds the workspace eligible for purge.
 - Say cleanup can be deferred by recent authenticated activity and operational failures.
-- Say tenant purge deletes tenant-owned database rows, but operational logs, telemetry, deployment logs, provider logs, physical database storage behavior, and snapshots/backups can have different retention.
+- Say tenant purge deletes tenant-owned database rows, but operational logs, telemetry, deployment logs, provider logs, physical database storage behavior, and snapshots/backups can have different retention. Container stdout/stderr logs are bounded by the Compose logging driver after container recreation.
 - Say there is no backup, recovery, restore, or availability guarantee for users.
-- Say no marketing analytics were found in the current implementation; operational telemetry may be emitted, and optional OTLP export should be disclosed only if enabled.
+- Say PaperBinder does not use marketing analytics in the current public demo. Operational telemetry may be emitted, and optional OTLP export belongs in public policy only when enabled.
 - Say current cookies are strictly necessary auth/CSRF cookies and the Cookie Notice is informational disclosure only. Do not add a consent-management platform or banner unless future inventory identifies nonessential cookies, analytics, advertising, or consent-triggering telemetry.
 - Warn users not to submit sensitive, regulated, confidential, proprietary, personal, medical, financial, credential, or important real business information.
 
@@ -105,11 +105,11 @@ Public policy should avoid implying that build/deploy/support providers process 
 - L4 added durable third-party notices and owner-created asset provenance.
 - L5 added the root security and dependency-maintenance policy.
 - L6 removed identified runtime log fields for tenant slug, email, and binder name and added a source-level guard against user-submitted names/content, emails, passwords, and credentials in logger templates. Remaining path, host, IP-derived data, tenant/user identifiers, and correlation identifiers are disclosed operational/security metadata in the Privacy Policy.
-- L7 kept provider snapshot/backup and external OTLP wording general because exact provider-side retention remains an owner/provider verification fact. No public policy wording claims an exact provider retention period or fixed-minute deletion boundary.
+- The 2026-08-17 follow-up set the public legal effective date, removed draft/audit-process wording from public legal copy, and configured bounded Compose container logging. Provider snapshot/backup and external OTLP wording remains general because exact provider-side retention remains an owner/provider verification fact. No public policy wording claims an exact provider retention period or fixed-minute deletion boundary.
 
 ## Open Questions
 
 - Are production provider snapshots or recurring backups enabled for the VM or volumes? If yes, what is the retention period?
 - Does the owner want public policy to name the VM/cloud host provider, or categorize it as a cloud hosting provider?
-- Should Docker log rotation be configured before final legal wording, or should policy disclose host/runtime-dependent operational log retention without a precise period?
+- Have the deployed production and shared-test containers been recreated after the Compose logging-driver change?
 - Is any external OTLP endpoint intentionally enabled outside the checked production `.env` evidence?
