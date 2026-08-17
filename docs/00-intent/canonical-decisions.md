@@ -35,7 +35,7 @@ Reviewer experience:
 
 Release boundary:
 - The shipped release line is prose `V1`; the current PaperBinder release is `v1.1.1`, fully implemented, validated, and documented, with `v1.1.0` as the prior published stable tag
-- Merging to `main`, tagging, and deployment for `v1.1.1` are the remaining owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`
+- `v1.1.1` has merged to `main` (PR #54, commit `89ad4aa`, 2026-08-17); tagging and deployment remain the outstanding owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`
 - The historical first stable tag remains `v1.0.0`
 - Release readiness is documented through the delivery lane; live public-host operation is not a `V1` release gate
 
