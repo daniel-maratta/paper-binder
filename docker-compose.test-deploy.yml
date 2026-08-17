@@ -10,6 +10,7 @@ x-paperbinder-runtime-environment: &paperbinder-runtime-environment
   PAPERBINDER_CHALLENGE_SECRET_KEY: ${PAPERBINDER_CHALLENGE_SECRET_KEY}
   PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "false"
   PAPERBINDER_LEASE_DEFAULT_MINUTES: ${PAPERBINDER_LEASE_DEFAULT_MINUTES:-60}
+  PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES: ${PAPERBINDER_LEASE_EXTENSION_WINDOW_MINUTES:-10}
   PAPERBINDER_LEASE_EXTENSION_MINUTES: ${PAPERBINDER_LEASE_EXTENSION_MINUTES:-15}
   PAPERBINDER_LEASE_MAX_EXTENSIONS: ${PAPERBINDER_LEASE_MAX_EXTENSIONS:-3}
   PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS: ${PAPERBINDER_LEASE_CLEANUP_INTERVAL_SECONDS:-60}
@@ -18,6 +19,12 @@ x-paperbinder-runtime-environment: &paperbinder-runtime-environment
   PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE: ${PAPERBINDER_RATE_LIMIT_LEASE_EXTEND_PER_MINUTE:-10}
   PAPERBINDER_AUDIT_RETENTION_MODE: ${PAPERBINDER_AUDIT_RETENTION_MODE:-RetainTenantPurgedSummary}
   PAPERBINDER_OTEL_OTLP_ENDPOINT: ${PAPERBINDER_OTEL_OTLP_ENDPOINT:-}
+
+x-paperbinder-logging: &paperbinder-logging
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "5"
 
 services:
   proxy:
@@ -39,6 +46,7 @@ services:
       NAMECHEAP_API_USER: ${NAMECHEAP_API_USER}
       NAMECHEAP_API_ENDPOINT: ${NAMECHEAP_API_ENDPOINT:-https://api.namecheap.com/xml.response}
       NAMECHEAP_CLIENT_IP: ${NAMECHEAP_CLIENT_IP}
+    logging: *paperbinder-logging
 
   app:
     image: ${PAPERBINDER_IMAGE_REGISTRY}/paperbinder-api-test:${PAPERBINDER_IMAGE_TAG}
@@ -57,6 +65,7 @@ services:
     volumes:
       - paperbinder_keys:/data/keys
       - /opt/paperbinder/secrets/data-protection.pfx:/run/paperbinder-secrets/data-protection.pfx:ro
+    logging: *paperbinder-logging
 
   worker:
     image: ${PAPERBINDER_IMAGE_REGISTRY}/paperbinder-worker:${PAPERBINDER_IMAGE_TAG}
@@ -69,6 +78,7 @@ services:
     restart: unless-stopped
     volumes:
       - paperbinder_keys:/data/keys
+    logging: *paperbinder-logging
 
   migrations:
     image: ${PAPERBINDER_IMAGE_REGISTRY}/paperbinder-migrations:${PAPERBINDER_IMAGE_TAG}
@@ -79,6 +89,7 @@ services:
       PAPERBINDER_DB_CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB:-paperbinder};Username=${POSTGRES_USER:-paperbinder};Password=${POSTGRES_PASSWORD}
       DOTNET_ENVIRONMENT: Production
     restart: "no"
+    logging: *paperbinder-logging
 
   db:
     image: postgres:17-alpine
@@ -96,6 +107,7 @@ services:
     restart: unless-stopped
     volumes:
       - paperbinder_postgres:/var/lib/postgresql/data
+    logging: *paperbinder-logging
 
 volumes:
   caddy_config:

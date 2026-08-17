@@ -12,6 +12,7 @@ services:
         VITE_PAPERBINDER_CHALLENGE_SITE_KEY: paperbinder-e2e-site-key
         VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: http://paperbinder.localhost:5081/e2e-turnstile.js
         VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "false"
+        VITE_PAPERBINDER_ANALYTICS_ENABLED: "false"
     environment:
       PAPERBINDER_PUBLIC_ROOT_URL: http://paperbinder.localhost:5081
       PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "false"

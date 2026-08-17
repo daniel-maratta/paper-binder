@@ -3,6 +3,8 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppRouter } from "../App";
 import { PaperBinderApiError, type PaperBinderApiClient } from "../api/client";
+import { publicAnalyticsEventNames } from "../analytics/goatcounter";
+import { flagshipArticle } from "../content/articles/flagship-article";
 import {
   createApiClientStub,
   createProvisionResponse,
@@ -72,6 +74,22 @@ function installTurnstileStub(token = "paperbinder-test-challenge-pass") {
   };
 }
 
+function installMatchMediaStub(matches: boolean) {
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn((query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn()
+    }))
+  );
+}
+
 function renderRootRoute({
   route = "/",
   apiClient,
@@ -111,8 +129,13 @@ function renderRootRoute({
   };
 }
 
+function expectAnalyticsEvent(element: HTMLElement, eventName: string) {
+  expect(element).toHaveAttribute("data-paperbinder-analytics-event", eventName);
+}
+
 afterEach(() => {
   delete window.turnstile;
+  vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
@@ -135,7 +158,9 @@ describe("root-host flows", () => {
         "PaperBinder demonstrates tenant isolation, role-aware access, immutable documents, and an ephemeral workspace lifecycle in a working product UI."
       )
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start demo" })).toHaveAttribute("href", "/start-demo");
+    const landingStartDemoLink = screen.getByRole("link", { name: "Start demo" });
+    expect(landingStartDemoLink).toHaveAttribute("href", "/start-demo");
+    expectAnalyticsEvent(landingStartDemoLink, publicAnalyticsEventNames.landingStartDemo);
     expect(
       screen.getByRole("img", {
         name: "PaperBinder dashboard with lease details, recent binders, and next actions."
@@ -171,10 +196,13 @@ describe("root-host flows", () => {
     expect(
       screen.getAllByRole("link", { name: "Start Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
     ).toBe(true);
-    expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
+    const learnMoreLink = screen.getByRole("link", { name: "Learn more" });
+    expect(learnMoreLink).toHaveAttribute("href", "/about");
+    expectAnalyticsEvent(learnMoreLink, publicAnalyticsEventNames.landingLearnMore);
     expect(
       screen.getByText("A production-shaped SaaS demo designed and built by Daniel Maratta.")
     ).toBeInTheDocument();
+    expect(screen.getByText("\u00a9 2026 Daniel Maratta")).toBeInTheDocument();
     expect(document.title).toBe("Home | PaperBinder");
     expect(screen.getByRole("link", { name: "Live project" })).toHaveAttribute(
       "href",
@@ -188,6 +216,19 @@ describe("root-host flows", () => {
       "href",
       "https://github.com/daniel-maratta/paper-binder.git"
     );
+    expect(screen.getByRole("heading", { level: 2, name: "Legal" })).toBeInTheDocument();
+    const legalIndexLink = screen.getByRole("link", { name: "Legal" });
+    const privacyLink = screen.getByRole("link", { name: "Privacy Policy" });
+    const termsLink = screen.getByRole("link", { name: "Terms of Use" });
+    const cookiesLink = screen.getByRole("link", { name: "Cookie Notice" });
+    expect(legalIndexLink).toHaveAttribute("href", "/legal");
+    expect(privacyLink).toHaveAttribute("href", "/privacy");
+    expect(termsLink).toHaveAttribute("href", "/terms");
+    expect(cookiesLink).toHaveAttribute("href", "/cookies");
+    expectAnalyticsEvent(legalIndexLink, publicAnalyticsEventNames.footerLegalNav);
+    expectAnalyticsEvent(privacyLink, publicAnalyticsEventNames.footerLegalNav);
+    expectAnalyticsEvent(termsLink, publicAnalyticsEventNames.footerLegalNav);
+    expectAnalyticsEvent(cookiesLink, publicAnalyticsEventNames.footerLegalNav);
     expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
@@ -220,10 +261,10 @@ describe("root-host flows", () => {
       )
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
+      screen.getByRole("heading", { name: "Building PaperBinder: From AI-Generated Code to Shippable Software" })
     ).toBeInTheDocument();
     const articleCard = screen
-      .getByRole("heading", { name: "Building PaperBinder: A Production-Shaped SaaS Demo" })
+      .getByRole("heading", { name: "Building PaperBinder: From AI-Generated Code to Shippable Software" })
       .closest("article");
     expect(articleCard).not.toBeNull();
     const articleScope = within(articleCard!);
@@ -233,8 +274,10 @@ describe("root-host flows", () => {
         "A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind PaperBinder."
       )
     ).toBeInTheDocument();
-    expect(articleScope.getByText("Coming Soon")).toBeInTheDocument();
-    expect(articleScope.queryByRole("link")).not.toBeInTheDocument();
+    const readArticleLink = articleScope.getByRole("link", { name: "Read article" });
+    expect(readArticleLink).toHaveAttribute("href", "/articles/building-paperbinder-production-shaped-saas-demo");
+    expectAnalyticsEvent(readArticleLink, publicAnalyticsEventNames.aboutReadArticle);
+    expect(articleScope.queryByText(/coming soon/i)).not.toBeInTheDocument();
     expect(screen.getByText("WHAT THIS DEMONSTRATES")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "A narrow product scope with real SaaS boundaries." })
@@ -284,6 +327,248 @@ describe("root-host flows", () => {
     expect(screen.queryByText(/WCAG compliant/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/fully accessible/i)).not.toBeInTheDocument();
     expect(document.title).toBe("About PaperBinder | PaperBinder");
+  });
+
+  it("Should_RenderHostedFlagshipArticle_When_ArticleRouteLoads", async () => {
+    renderRootRoute({
+      route: "/articles/building-paperbinder-production-shaped-saas-demo"
+    });
+
+    expect(
+      screen.getByRole("heading", { name: "Building PaperBinder: From AI-Generated Code to Shippable Software" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Architecture / SaaS demo / AI-assisted development")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "How architecture, documentation, testing, independent review, and human judgment turned AI-generated implementation into a production-shaped SaaS application."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("Flagship article")).toBeInTheDocument();
+    expect(screen.getByText("Daniel Maratta")).toBeInTheDocument();
+    expect(screen.getByText(flagshipArticle.readingTimeLabel)).toBeInTheDocument();
+    expect(screen.getByText("V1.1.1 public artifact")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Inspect the product, source, and review guide." })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review guide" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder/blob/main/review/README.md"
+    );
+    expect(screen.getByRole("navigation", { name: "Article sections" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Where AI Helped" })).toHaveAttribute("href", "#where-ai-helped");
+    expectAnalyticsEvent(
+      screen.getByRole("link", { name: "Where AI Helped" }),
+      publicAnalyticsEventNames.articleSectionNav
+    );
+    expect(screen.getByRole("link", { name: "Introduction" })).toHaveAttribute("aria-current", "location");
+    expect(screen.getByRole("heading", { name: "Introduction" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What is PaperBinder, and why build it?" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Five Major Categories of AI Work" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Generation" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Today, LLMs have made it easier than ever to generate and modify large volumes of application code. However, the challenge is no longer obtaining functional output. Rather, it is turning that output into software that is reliable, coherent, secure, maintainable, and safe to operate."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "V1 execution plan" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder/blob/main/docs/archive/v1/checkpoints/execution-plan.md"
+    );
+    expect(screen.getByRole("link", { name: "ADR-0007" })).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder/blob/main/docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md"
+    );
+    expect(screen.getByText(".gitignore")).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", {
+        name: "Dependency diagram showing PaperBinder Domain and Application projects at the center, with Infrastructure, API, Worker, Web, and Migrations around them."
+      })
+    ).toHaveAttribute("src", "/presentation/dependency-architecture-diagram.svg");
+    expect(
+      screen.getByRole("img", {
+        name: "Workflow diagram showing PaperBinder development moving from implementation through validation, audit, remediation, verification, and release acceptance."
+      })
+    ).toHaveAttribute("src", "/presentation/workflow-diagram.svg");
+    expect(
+      screen.getByRole("img", { name: "PaperBinder v1 public interface before the frontend redesign." })
+    ).toHaveAttribute("src", "/presentation/before-redesign.png");
+    expect(
+      screen.getByRole("img", { name: "PaperBinder public interface after the v1.1 frontend redesign." })
+    ).toHaveAttribute("src", "/presentation/after-redesign.png");
+    expect(screen.getByText("Figure 1. PaperBinder solution structure.")).toBeInTheDocument();
+    expect(screen.getByText("Figure 2. The process that governed most of PaperBinder's development.")).toBeInTheDocument();
+    expect(screen.getByText("Figure 3. PaperBinder as it looked during v1.")).toBeInTheDocument();
+    expect(screen.getByText("Figure 4. PaperBinder after the successful front-end rewrite.")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Live demo" })[0]).toHaveAttribute(
+      "href",
+      "https://paperbinder.danielmaratta.com"
+    );
+    expect(screen.getAllByRole("link", { name: "Repository" })[0]).toHaveAttribute(
+      "href",
+      "https://github.com/daniel-maratta/paper-binder.git"
+    );
+    expect(screen.getByRole("heading", { name: "Review the running demo and the source history." })).toBeInTheDocument();
+    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      "https://paperbinder.danielmaratta.com/articles/building-paperbinder-production-shaped-saas-demo"
+    );
+    expect(document.querySelector('meta[property="og:type"]')).toHaveAttribute("content", "article");
+    expect(document.querySelector("#paperbinder-flagship-article-jsonld")?.textContent).toContain(
+      '"@type":"Article"'
+    );
+    expect(document.title).toBe("Building PaperBinder: From AI-Generated Code to Shippable Software | PaperBinder");
+  });
+
+  it("Should_RenderLegalIndex_FromDedicatedLegalCollection_When_LegalRouteLoads", () => {
+    renderRootRoute({
+      route: "/legal"
+    });
+
+    expect(screen.getByRole("heading", { level: 1, name: "Legal" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "PaperBinder legal notices" })).toBeInTheDocument();
+    expect(screen.getByText("Effective date: August 17, 2026")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "PaperBinder is a public demonstration project and hiring portfolio piece operated by Daniel Maratta. It is not a production SaaS service. Do not use it for confidential, sensitive, regulated, proprietary, personal, medical, financial, credential, or otherwise important real business information."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("PaperBinder is not intended for children under 13.")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Privacy Policy" }).some((link) => link.getAttribute("href") === "/privacy")).toBe(true);
+    expect(screen.getAllByRole("link", { name: "Terms of Use" }).some((link) => link.getAttribute("href") === "/terms")).toBe(true);
+    expect(screen.getAllByRole("link", { name: "Cookie Notice" }).some((link) => link.getAttribute("href") === "/cookies")).toBe(true);
+    expect(screen.queryByRole("navigation", { name: "Article sections" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Project evidence")).not.toBeInTheDocument();
+    expect(document.title).toBe("Legal | PaperBinder");
+  });
+
+  it("Should_RenderPrivacyPolicy_WithTemporaryWorkspaceRetentionBoundaries_When_PrivacyRouteLoads", () => {
+    renderRootRoute({
+      route: "/privacy"
+    });
+
+    expect(screen.getByRole("heading", { name: "Privacy Policy" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Children" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Temporary workspace retention" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Demo workspaces are temporary and expire according to the lease period displayed in the application. When a workspace expires, PaperBinder terminates access to that workspace."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Expiration is not the same as deletion. Workspace data may remain in PaperBinder's systems after expiration until automated cleanup removes it. Deletion timing can vary and may be affected by recent authenticated activity, operational failures, and host maintenance."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText(/GoatCounter receives basic analytics requests from visitors' browsers/i)).toBeInTheDocument();
+    expect(screen.getByText("PaperBinder does not sell personal information.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "paperbinder@danielmaratta.com" })).toHaveAttribute(
+      "href",
+      "mailto:paperbinder@danielmaratta.com"
+    );
+    expect(screen.queryByText(/60-minute/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/static review/i)).not.toBeInTheDocument();
+    expect(document.title).toBe("Privacy Policy | PaperBinder");
+  });
+
+  it("Should_ResetViewportToTop_When_PublicRouteChanges", async () => {
+    const scrollTo = vi.fn();
+    Object.defineProperty(window, "scrollTo", {
+      configurable: true,
+      value: scrollTo
+    });
+
+    renderRootRoute({
+      route: "/privacy"
+    });
+    scrollTo.mockClear();
+
+    fireEvent.click(screen.getByRole("link", { name: "Terms of Use" }));
+
+    expect(await screen.findByRole("heading", { name: "Terms of Use" })).toBeInTheDocument();
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: "auto" });
+  });
+
+  it("Should_RenderTermsOfUse_WithDemoOnlyAndTennesseeTerms_When_TermsRouteLoads", () => {
+    renderRootRoute({
+      route: "/terms"
+    });
+
+    expect(screen.getByRole("heading", { name: "Terms of Use" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Demo-only use" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Acceptance of these terms" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Children" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "PaperBinder is a public demonstration project and hiring portfolio piece operated by Daniel Maratta. It is not a production SaaS service, commercial service, storage service, document-management service, backup service, or compliance platform."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("By creating or using a demo workspace, you agree to these terms.")).toBeInTheDocument();
+    expect(screen.getByText("There are no backup, restoration, recovery, continuity, availability, or support guarantees.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Prohibited conduct" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "These terms are governed by Tennessee law, without regard to conflict-of-law rules. Any dispute must be brought in a Tennessee state or federal court with appropriate jurisdiction, unless applicable law requires otherwise."
+      )
+    ).toBeInTheDocument();
+    expect(document.title).toBe("Terms of Use | PaperBinder");
+  });
+
+  it("Should_RenderCookieNotice_WithStrictlyNecessaryCookieDisclosure_When_CookiesRouteLoads", () => {
+    renderRootRoute({
+      route: "/cookies"
+    });
+
+    expect(screen.getByRole("heading", { name: "Cookie Notice" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Cookie use" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Telemetry" })).toBeInTheDocument();
+    expect(
+      screen.getByText((_content, element) =>
+        element?.tagName === "P" &&
+        element.textContent ===
+          "This Cookie Notice explains how the PaperBinder public demo uses cookies and browser storage. PaperBinder's only cookies are strictly necessary authentication and CSRF cookies. PaperBinder also uses GoatCounter for basic analytics without analytics cookies, advertising cookies, localStorage, or sessionStorage. PaperBinder does not use marketing analytics or advertising cookies."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("An authentication cookie used to keep a user signed in to a temporary workspace. This cookie is HttpOnly and server-readable.")).toBeInTheDocument();
+    expect(
+      screen.getByText((_content, element) =>
+        element?.textContent ===
+        "PaperBinder does not store its data in your browser's localStorage or sessionStorage."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText(/basic aggregate usage analytics through GoatCounter without analytics cookies/i)).toBeInTheDocument();
+    expect(screen.queryByText(/static review/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/accept cookies/i)).not.toBeInTheDocument();
+    expect(document.title).toBe("Cookie Notice | PaperBinder");
+  });
+
+  it("Should_CollapseArticleSections_When_ArticleRouteRendersBelowDesktopNavigationWidth", () => {
+    installMatchMediaStub(false);
+
+    renderRootRoute({
+      route: "/articles/building-paperbinder-production-shaped-saas-demo"
+    });
+
+    const sectionsToggle = screen.getByRole("button", { name: /Sections/ });
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("link", { name: "Where AI Helped" })).not.toBeInTheDocument();
+
+    fireEvent.click(sectionsToggle);
+
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("link", { name: "Introduction" })).toHaveAttribute("aria-current", "location");
+    expect(screen.getByRole("link", { name: "Where AI Helped" })).toHaveAttribute("href", "#where-ai-helped");
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("link", { name: "Where AI Helped" })).not.toBeInTheDocument();
+
+    fireEvent.click(sectionsToggle);
+
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "true");
+
+    fireEvent.pointerDown(document.body);
+
+    expect(sectionsToggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("link", { name: "Where AI Helped" })).not.toBeInTheDocument();
   });
 
   it("Should_LinkBackToWorkspace_When_PublicHomeReceivesWorkspaceHint", async () => {
@@ -484,6 +769,12 @@ describe("root-host flows", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText("Demo workspaces are temporary and removed during cleanup.")
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Demo data warning" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Do not submit confidential, sensitive, regulated, proprietary, personal, medical, financial, credential, or important real business information."
+      )
     ).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Workspace name"), {

@@ -102,8 +102,8 @@ Missing standard:
 
 This would have prevented:
 
-- `DocumentContracts.cs`
-- `BinderContracts.cs`
+- the pre-`T-0050` aggregate document contract file
+- the pre-`T-0050` aggregate binder contract file
 - `ITenantProvisioningService.cs`
 - `ITenantUserAdministrationService.cs`
 

@@ -196,7 +196,7 @@ Release validation and the non-reviewer local stack should still treat bypass-of
 
 ## Current V1 Runtime Notes
 
-- Root-host provisioning and login browser flows are now live on `/` and `/login`, including challenge handling, one-time provisioning credential display, and redirect handoff through the server-provided `redirectUrl`.
+- Root-host provisioning and login browser flows are now live on `/` and `/login`, including challenge handling, shown-once generated credential display, and redirect handoff through the server-provided `redirectUrl`.
 - Named endpoint policies plus tenant-user list/create/role-management, binder, document, and tenant-lease routes are now live at the API boundary.
 - Root-host provisioning creates the tenant, owner user, membership, lease state, and authenticated session only; binder/document seed data remains deferred.
 - The tenant-host browser UI for `/app`, `/app/binders`, `/app/binders/:binderId`, `/app/documents/:documentId`, and `/app/users` is now live, including lease countdown/extend and tenant-host logout wiring.

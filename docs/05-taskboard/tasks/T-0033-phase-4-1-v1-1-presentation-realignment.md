@@ -32,7 +32,7 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
   - no `Settings` nav item
   - replace sample `category`, `files`, and `status` fields with real PaperBinder fields
   - transfer video/proof media without inheriting the sample route model
-- The public landing should become product-first, while root-host sign-in, challenge verification, and one-time credential handoff move behind `Start Demo` on `/start-demo`.
+- The public landing should become product-first, while root-host sign-in, challenge verification, and shown-once credential handoff move behind `Start Demo` on `/start-demo`.
 - Root-host `/login` remains available as the direct-login route and the logout return target; it is no longer the primary first-time entry point.
 - Pre-implementation remediation is now part of this task: back out the stale root-host public-flow work that still assumes `/` owns demo entry, then evaluate the remaining uncommitted authenticated-surface/UI WIP and keep only the pieces that align with the locked Phase 4.1 direction.
 - The authenticated experience should mirror the sample's visual hierarchy where it fits PaperBinder truth:
@@ -53,7 +53,7 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
 - [x] `/` becomes a product-led landing page and no longer embeds the inline root-host provisioning or login workflow.
 - [x] The stale root-host public-flow implementation that still assumed `/` owned live demo entry is removed before the new public-flow direction proceeds.
 - [x] Remaining pre-implementation UI WIP is classified as salvageable or revertable, and only the aligned slices remain in scope for the presentation tranche.
-- [x] `Start Demo` leads to `/start-demo`, a dedicated root-host demo-entry flow that preserves challenge, provisioning, login, one-time credential handoff, and server-authoritative redirect behavior.
+- [x] `Start Demo` leads to `/start-demo`, a dedicated root-host demo-entry flow that preserves challenge, provisioning, login, shown-once credential handoff, and server-authoritative redirect behavior.
 - [x] The authenticated shell, dashboard, binders, document-detail, and users surfaces adopt the approved sample direction without adding unsupported product features or a `Settings` route.
 - [x] The binders/list surfaces use PaperBinder fields and semantics rather than the sample's placeholder `category`, `files`, and `status` model.
 - [x] Lease UX uses a dashboard time-remaining metric plus an extension-window banner only when the server says the extension window is open, with qualitative threshold messaging retained where no explicit contract field exists.
@@ -87,7 +87,7 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
 - Binder detail and document detail presentation seams have now been pushed onto the dedicated authenticated layout system as part of the ongoing binder/document checkpoint work, including refreshed route-level Vitest assertions and reconciled tenant-host reviewer-browser expectations.
 - The users and async-feedback slice is now complete on branch: `/app/users` keeps the list visible while same-route action panels expand inside the main users surface, and authenticated-shell toasts now provide top-center manual-dismiss mutation feedback without reintroducing the old reskinned layout language.
 - The screenshot-truth replacement slice is now complete on branch: the public landing no longer relies on the handcrafted faux workspace preview and instead reads from committed authenticated-product proof assets under `src/PaperBinder.Web/public/presentation/`.
-- The batch-4 user/admin follow-up slice landed on branch via `7842ec5` (`feat(ui): finish batch 4 workspace polish`): tenant-user creation can generate one-time passwords, visible IDs on the upgraded app surfaces are copyable through the shared chip pattern, the active impersonation stop action is intentionally high-signal, the authenticated-shell about link now opens the public supporting context in a new tab, and the landing-stage proof now combines updated desktop screenshots with a handheld preview overlay.
+- The batch-4 user/admin follow-up slice landed on branch via `7842ec5` (`feat(ui): finish batch 4 workspace polish`): tenant-user creation can generate workspace passwords, visible IDs on the upgraded app surfaces are copyable through the shared chip pattern, the active impersonation stop action is intentionally high-signal, the authenticated-shell about link now opens the public supporting context in a new tab, and the landing-stage proof now combines updated desktop screenshots with a handheld preview overlay.
 - The authenticated remediation checkpoint has now been revalidated after the dedicated shell/token rewrite: the focused tenant-shell and primitive Vitest coverage, the full frontend Vitest suite, the frontend production build, and the browser reviewer flow all pass against the updated workspace shell and users/dashboard language.
 - The current worktree now contains a smaller post-batch-4 polish tail rather than a new major presentation checkpoint: softened host/tenant outage copy, copyable correlation IDs, the default markdown document-preview surface plus source toggle, toast timeout/border integration tuning, the authenticated logo return path, the non-copyable tenant slug, and minor lease/users layout cleanup.
 - The temporary redesign workflow superseded the earlier assumption that the next step was the final audit tranche; T-0040 later pruned those temporary files after durable decisions moved into canonical docs and taskboard records.
@@ -170,7 +170,7 @@ Plan and execute the first post-`V1` presentation realignment cut: split the pub
      - Scope: product-led `/` landing only.
      - Commit when: the public home no longer embeds inline provisioning or login, and the landing story is product-first even if `/start-demo` polish is not fully finished yet.
   5. `Checkpoint E: start-demo and root-host auth flow`
-     - Scope: `/start-demo`, `/login`, one-time credential handoff, challenge flow, and redirect-safe root-host behavior.
+     - Scope: `/start-demo`, `/login`, shown-once credential handoff, challenge flow, and redirect-safe root-host behavior.
      - Commit when: the new public-to-demo entry path works end to end and root-host security truth is preserved.
   6. `Checkpoint F: authenticated shell and dashboard`
      - Scope: tenant shell, dashboard hierarchy, lease countdown metric, extension-window banner behavior, and dashboard entry-point gating.

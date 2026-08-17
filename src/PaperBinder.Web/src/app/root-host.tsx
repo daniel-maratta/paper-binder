@@ -1,9 +1,10 @@
-import { Fragment, type ComponentPropsWithoutRef, type FormEvent, type ReactNode, useEffect, useState } from "react";
+import { Fragment, type ComponentPropsWithoutRef, type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, Route, useLocation } from "react-router-dom";
 import type { LoginResponse, PaperBinderApiClient, ProvisionResponse } from "../api/client";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
+import { publicAnalyticsEventNames, trackPaperBinderEvent } from "../analytics/goatcounter";
 import { cn } from "../lib/cn";
 import { RootHostChallengeWidget } from "./challenge-widget";
 import { CredentialDisplayField } from "./credential-display-field";
@@ -11,8 +12,17 @@ import { productIdentity } from "./product-identity";
 import { writeClipboardValue } from "./copy-value-chip";
 import type { RootHostContext } from "./host-context";
 import type { FrontendEnvironment } from "../environment";
-import { rootRouteDefinitions } from "./route-registry";
+import { publicLoginRoutePath, rootRouteDefinitions } from "./route-registry";
 import { mapRootHostError, type RootHostErrorViewModel } from "./root-host-errors";
+import { getMarkdownArticleHeadings, MarkdownArticle } from "./markdown-article";
+import { flagshipArticle } from "../content/articles/flagship-article";
+import {
+  findLegalDocumentByPath,
+  legalDocuments,
+  legalIndexDocument,
+  legalPolicyDocuments,
+  type LegalDocument
+} from "../content/legal/legal-documents";
 
 type RootHostFieldErrors = Partial<Record<"tenantName" | "email" | "password" | "challenge", string>>;
 
@@ -30,6 +40,10 @@ type PublicDemoStep = {
 export type RootHostNavigator = (redirectUrl: string) => void;
 
 const localChallengeBypassToken = "paperbinder-test-challenge-pass";
+const flagshipArticlePath = flagshipArticle.path;
+const articleNavigationMediaQuery = "(min-width: 1181px)";
+const flagshipArticleReviewGuideUrl = "https://github.com/daniel-maratta/paper-binder/blob/main/review/README.md";
+const flagshipArticleHeadings = getMarkdownArticleHeadings(flagshipArticle.body);
 
 const publicValuePillars: PublicValuePillar[] = [
   {
@@ -103,9 +117,336 @@ function setDocumentTitle(pageTitle: string) {
   document.title = `${pageTitle} | ${productIdentity.productName}`;
 }
 
+function createAbsolutePublicUrl(path: string): string {
+  return new URL(path, productIdentity.canonicalDemoUrl).toString();
+}
+
+function upsertHeadMeta(attributeName: "name" | "property", attributeValue: string, content: string) {
+  let element = document.head.querySelector<HTMLMetaElement>(`meta[${attributeName}="${attributeValue}"]`);
+  const created = element === null;
+  if (element === null) {
+    element = document.createElement("meta");
+    element.setAttribute(attributeName, attributeValue);
+    document.head.append(element);
+  }
+
+  const previousContent = element.getAttribute("content");
+  element.setAttribute("content", content);
+
+  return () => {
+    if (created) {
+      element.remove();
+      return;
+    }
+
+    if (previousContent === null) {
+      element.removeAttribute("content");
+      return;
+    }
+
+    element.setAttribute("content", previousContent);
+  };
+}
+
+function upsertCanonicalLink(href: string) {
+  let element = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  const created = element === null;
+  if (element === null) {
+    element = document.createElement("link");
+    element.setAttribute("rel", "canonical");
+    document.head.append(element);
+  }
+
+  const previousHref = element.getAttribute("href");
+  element.setAttribute("href", href);
+
+  return () => {
+    if (created) {
+      element.remove();
+      return;
+    }
+
+    if (previousHref === null) {
+      element.removeAttribute("href");
+      return;
+    }
+
+    element.setAttribute("href", previousHref);
+  };
+}
+
+function upsertJsonLdScript(id: string, structuredData: Record<string, unknown>) {
+  let element = document.head.querySelector<HTMLScriptElement>(`script#${id}`);
+  const created = element === null;
+  if (element === null) {
+    element = document.createElement("script");
+    element.id = id;
+    element.type = "application/ld+json";
+    document.head.append(element);
+  }
+
+  const previousText = element.textContent;
+  element.textContent = JSON.stringify(structuredData);
+
+  return () => {
+    if (created) {
+      element.remove();
+      return;
+    }
+
+    element.textContent = previousText;
+  };
+}
+
+function useFlagshipArticleMetadata() {
+  useEffect(() => {
+    const canonicalUrl = createAbsolutePublicUrl(flagshipArticle.path);
+    const socialImageUrl = createAbsolutePublicUrl(flagshipArticle.socialImagePath);
+    const restoreTitle = document.title;
+    document.title = `${flagshipArticle.title} | ${productIdentity.productName}`;
+
+    const restoreHead = [
+      upsertHeadMeta("name", "description", flagshipArticle.description),
+      upsertHeadMeta("name", "author", productIdentity.authorName),
+      upsertHeadMeta("property", "og:type", "article"),
+      upsertHeadMeta("property", "og:title", flagshipArticle.title),
+      upsertHeadMeta("property", "og:description", flagshipArticle.description),
+      upsertHeadMeta("property", "og:url", canonicalUrl),
+      upsertHeadMeta("property", "og:image", socialImageUrl),
+      upsertHeadMeta("name", "twitter:card", "summary_large_image"),
+      upsertHeadMeta("name", "twitter:title", flagshipArticle.title),
+      upsertHeadMeta("name", "twitter:description", flagshipArticle.description),
+      upsertHeadMeta("name", "twitter:image", socialImageUrl),
+      upsertCanonicalLink(canonicalUrl),
+      upsertJsonLdScript("paperbinder-flagship-article-jsonld", {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: flagshipArticle.title,
+        description: flagshipArticle.description,
+        image: socialImageUrl,
+        url: canonicalUrl,
+        mainEntityOfPage: canonicalUrl,
+        author: {
+          "@type": "Person",
+          name: productIdentity.authorName,
+          url: productIdentity.authorUrl
+        },
+        publisher: {
+          "@type": "Organization",
+          name: productIdentity.productName,
+          url: productIdentity.canonicalDemoUrl
+        }
+      })
+    ];
+
+    return () => {
+      document.title = restoreTitle;
+      restoreHead.forEach((restore) => {
+        restore();
+      });
+    };
+  }, []);
+}
+
+function useIsDesktopArticleNavigation() {
+  const getMatches = () =>
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(articleNavigationMediaQuery).matches
+      : true;
+  const [isDesktopArticleNavigation, setIsDesktopArticleNavigation] = useState(getMatches);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      setIsDesktopArticleNavigation(true);
+      return;
+    }
+
+    const mediaQueryList = window.matchMedia(articleNavigationMediaQuery);
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsDesktopArticleNavigation(event.matches);
+    };
+
+    setIsDesktopArticleNavigation(mediaQueryList.matches);
+    mediaQueryList.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQueryList.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  return isDesktopArticleNavigation;
+}
+
+function ArticleSectionNavigation() {
+  const isDesktopArticleNavigation = useIsDesktopArticleNavigation();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [activeHeadingId, setActiveHeadingId] = useState(flagshipArticleHeadings[0]?.id ?? "");
+  const navigationRef = useRef<HTMLElement>(null);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
+  const sectionListId = "paperbinder-article-section-links";
+  const activeHeading = flagshipArticleHeadings.find((heading) => heading.id === activeHeadingId) ?? flagshipArticleHeadings[0];
+  const shouldShowLinks = isDesktopArticleNavigation || isExpanded;
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    function updateActiveHeading() {
+      const firstHeadingId = flagshipArticleHeadings[0]?.id;
+      if (firstHeadingId === undefined) {
+        return;
+      }
+
+      const headingThreshold = 128;
+      const pageHasScrollableHeight = document.documentElement.scrollHeight > window.innerHeight + 8;
+      let nextActiveHeadingId = firstHeadingId;
+
+      if (!pageHasScrollableHeight && window.scrollY === 0) {
+        setActiveHeadingId(nextActiveHeadingId);
+        return;
+      }
+
+      for (const heading of flagshipArticleHeadings) {
+        const element = document.getElementById(heading.id);
+        if (element === null) {
+          continue;
+        }
+
+        if (element.getBoundingClientRect().top <= headingThreshold) {
+          nextActiveHeadingId = heading.id;
+        }
+      }
+
+      const isNearPageEnd =
+        pageHasScrollableHeight && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 8;
+      if (isNearPageEnd) {
+        nextActiveHeadingId = flagshipArticleHeadings[flagshipArticleHeadings.length - 1]?.id ?? nextActiveHeadingId;
+      }
+
+      setActiveHeadingId(nextActiveHeadingId);
+    }
+
+    updateActiveHeading();
+    window.addEventListener("scroll", updateActiveHeading, { passive: true });
+    window.addEventListener("resize", updateActiveHeading);
+
+    return () => {
+      window.removeEventListener("scroll", updateActiveHeading);
+      window.removeEventListener("resize", updateActiveHeading);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isDesktopArticleNavigation || !isExpanded || typeof document === "undefined") {
+      return;
+    }
+
+    function closeMenuWhenPointerStartsOutside(event: PointerEvent) {
+      const target = event.target;
+      if (target instanceof Node && navigationRef.current?.contains(target)) {
+        return;
+      }
+
+      setIsExpanded(false);
+    }
+
+    document.addEventListener("pointerdown", closeMenuWhenPointerStartsOutside);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeMenuWhenPointerStartsOutside);
+    };
+  }, [isDesktopArticleNavigation, isExpanded]);
+
+  useEffect(() => {
+    if (isDesktopArticleNavigation || !isExpanded || typeof document === "undefined") {
+      return;
+    }
+
+    function closeMenuWhenEscapeIsPressed(event: KeyboardEvent) {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      event.preventDefault();
+      setIsExpanded(false);
+      toggleButtonRef.current?.focus();
+    }
+
+    document.addEventListener("keydown", closeMenuWhenEscapeIsPressed);
+
+    return () => {
+      document.removeEventListener("keydown", closeMenuWhenEscapeIsPressed);
+    };
+  }, [isDesktopArticleNavigation, isExpanded]);
+
+  return (
+    <nav
+      aria-label="Article sections"
+      className={cn(
+        "pb-public-article-sections",
+        isDesktopArticleNavigation
+          ? "pb-public-article-sections--desktop"
+          : "pb-public-article-sections--collapsed"
+      )}
+      ref={navigationRef}
+    >
+      {isDesktopArticleNavigation ? (
+        <p className="pb-public-panel-eyebrow">Sections</p>
+      ) : (
+        <button
+          aria-controls={sectionListId}
+          aria-expanded={shouldShowLinks}
+          aria-label={`Sections, current section: ${activeHeading?.text ?? "Introduction"}`}
+          className="pb-public-article-sections-toggle"
+          onClick={() => {
+            setIsExpanded((currentValue) => !currentValue);
+          }}
+          ref={toggleButtonRef}
+          type="button"
+        >
+          <span className="pb-public-article-sections-toggle-copy">
+            <span>Sections</span>
+            <span className="pb-public-article-sections-current">{activeHeading?.text ?? "Introduction"}</span>
+          </span>
+          <span aria-hidden="true" className="pb-public-article-sections-toggle-icon" />
+        </button>
+      )}
+      <ol hidden={!shouldShowLinks} id={sectionListId}>
+        {flagshipArticleHeadings.map((heading) => (
+          <li className={`pb-public-article-section-link--depth-${heading.depth}`} key={heading.id}>
+            <a
+              aria-current={heading.id === activeHeadingId ? "location" : undefined}
+              className={heading.id === activeHeadingId ? "pb-public-article-section-link--active" : undefined}
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleSectionNav}
+              href={`#${heading.id}`}
+              onClick={() => {
+                if (!isDesktopArticleNavigation) {
+                  setIsExpanded(false);
+                }
+              }}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
 function resolveRootPageTitle(pathname: string): string {
-  if (pathname === "/login") {
+  if (pathname === publicLoginRoutePath) {
     return "Sign in";
+  }
+
+  if (pathname === flagshipArticlePath) {
+    return flagshipArticle.title;
+  }
+
+  const legalDocument = findLegalDocumentByPath(pathname);
+  if (legalDocument !== undefined) {
+    return legalDocument.title;
   }
 
   const matchingRoute = rootRouteDefinitions.find((route) => route.path === pathname);
@@ -268,12 +609,14 @@ function ArticleCard({
   title,
   children,
   href,
+  analyticsEvent,
   cta
 }: {
   meta: string;
   title: string;
   children: ReactNode;
   href?: string;
+  analyticsEvent?: string;
   cta: string;
 }) {
   return (
@@ -283,7 +626,13 @@ function ArticleCard({
         <h3>{title}</h3>
         <p>{children}</p>
       </div>
-      {href ? <a href={href}>{cta}</a> : <span className="pb-public-about-article-status">{cta}</span>}
+      {href ? (
+        <a data-paperbinder-analytics-event={analyticsEvent} href={href}>
+          {cta}
+        </a>
+      ) : (
+        <span className="pb-public-about-article-status">{cta}</span>
+      )}
     </article>
   );
 }
@@ -301,17 +650,19 @@ function ReferenceCard({
   title,
   href,
   label,
+  analyticsEvent,
   children
 }: {
   title: string;
   href: string;
   label: string;
+  analyticsEvent?: string;
   children: ReactNode;
 }) {
   return (
     <li>
       <h3>{title}</h3>
-      <a href={href} rel="noreferrer" target="_blank">
+      <a data-paperbinder-analytics-event={analyticsEvent} href={href} rel="noreferrer" target="_blank">
         {label}
       </a>
       <p>{children}</p>
@@ -365,14 +716,16 @@ function PublicProofIcon({ icon }: { icon: PublicValuePillar["icon"] }) {
 function PublicShellLink({
   className,
   to,
+  analyticsEvent,
   children
 }: {
   className?: string;
   to: string;
+  analyticsEvent?: string;
   children: string;
 }) {
   return (
-    <NavLink className={cn("pb-public-button-link", className)} to={to}>
+    <NavLink className={cn("pb-public-button-link", className)} data-paperbinder-analytics-event={analyticsEvent} to={to}>
       {children}
     </NavLink>
   );
@@ -456,7 +809,12 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
 
   return (
     <header className="pb-public-topbar">
-      <NavLink aria-label="PaperBinder home" className="pb-public-brand" to="/">
+      <NavLink
+        aria-label="PaperBinder home"
+        className="pb-public-brand"
+        data-paperbinder-analytics-event={publicAnalyticsEventNames.headerBrand}
+        to="/"
+      >
         <img
           alt=""
           aria-hidden="true"
@@ -469,6 +827,13 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
         {rootRouteDefinitions.map((route) => (
           <NavLink
             className={({ isActive }) => cn("pb-public-topnav-link", isActive && "pb-public-topnav-link--active")}
+            data-paperbinder-analytics-event={
+              route.path === "/"
+                ? publicAnalyticsEventNames.headerNavProduct
+                : route.path === "/start-demo"
+                  ? publicAnalyticsEventNames.headerNavDemo
+                  : publicAnalyticsEventNames.headerNavAbout
+            }
             end={route.path === "/"}
             key={route.path}
             to={route.path}
@@ -483,11 +848,19 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
           <span className="pb-public-debug-chip">Loopback alias</span>
         ) : null}
         {workspaceReturnUrl ? (
-          <a className="pb-public-button-link pb-public-header-cta" href={workspaceReturnUrl}>
+          <a
+            className="pb-public-button-link pb-public-header-cta"
+            data-paperbinder-analytics-event={publicAnalyticsEventNames.headerOpenWorkspace}
+            href={workspaceReturnUrl}
+          >
             Open Workspace
           </a>
         ) : (
-          <PublicShellLink className="pb-public-header-cta" to="/start-demo">
+          <PublicShellLink
+            analyticsEvent={publicAnalyticsEventNames.headerStartDemo}
+            className="pb-public-header-cta"
+            to="/start-demo"
+          >
             Start Demo
           </PublicShellLink>
         )}
@@ -501,7 +874,12 @@ function PublicFooter() {
     <footer className="pb-public-footer">
       <div className="pb-public-footer-main">
         <div className="pb-public-footer-brand">
-          <NavLink aria-label="PaperBinder home" className="pb-public-footer-logo" to="/">
+          <NavLink
+            aria-label="PaperBinder home"
+            className="pb-public-footer-logo"
+            data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProductNav}
+            to="/"
+          >
             <img alt="" aria-hidden="true" src="/brand/pb-full-logo-white.png" />
           </NavLink>
           <p>A production-shaped SaaS demo designed and built by Daniel Maratta.</p>
@@ -513,7 +891,11 @@ function PublicFooter() {
             <ul>
               {rootRouteDefinitions.map((route) => (
                 <li key={route.path}>
-                  <NavLink className="pb-public-footer-link" to={route.path}>
+                  <NavLink
+                    className="pb-public-footer-link"
+                    data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProductNav}
+                    to={route.path}
+                  >
                     {route.label}
                   </NavLink>
                 </li>
@@ -527,6 +909,7 @@ function PublicFooter() {
               <li>
                 <a
                   className="pb-public-footer-link"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProjectLink}
                   href={productIdentity.canonicalDemoUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -535,13 +918,20 @@ function PublicFooter() {
                 </a>
               </li>
               <li>
-                <a className="pb-public-footer-link" href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
+                <a
+                  className="pb-public-footer-link"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProjectLink}
+                  href={productIdentity.authorUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
                   Portfolio
                 </a>
               </li>
               <li>
                 <a
                   className="pb-public-footer-link"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProjectLink}
                   href={productIdentity.canonicalRepositoryUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -551,11 +941,28 @@ function PublicFooter() {
               </li>
             </ul>
           </section>
+
+          <section aria-labelledby="public-footer-legal">
+            <h2 id="public-footer-legal">Legal</h2>
+            <ul>
+              {[legalIndexDocument, ...legalPolicyDocuments].map((document) => (
+                <li key={document.path}>
+                  <NavLink
+                    className="pb-public-footer-link"
+                    data-paperbinder-analytics-event={publicAnalyticsEventNames.footerLegalNav}
+                    to={document.path}
+                  >
+                    {document.title}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
       </div>
 
       <div className="pb-public-footer-meta">
-        <p className="pb-public-footer-copyright">&copy; 2026 {productIdentity.productName}</p>
+        <p className="pb-public-footer-copyright">&copy; 2026 {productIdentity.authorName}</p>
       </div>
     </footer>
   );
@@ -568,6 +975,10 @@ function PublicShell({ hostContext }: { hostContext: RootHostContext }) {
   useEffect(() => {
     setDocumentTitle(resolveRootPageTitle(location.pathname));
   }, [location.pathname]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname, location.search]);
 
   return (
     <div className="pb-public-site">
@@ -603,15 +1014,27 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
           actions={
             <>
               {workspaceReturnUrl ? (
-                <a className="pb-public-button-link pb-public-button-link--light" href={workspaceReturnUrl}>
+                <a
+                  className="pb-public-button-link pb-public-button-link--light"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.landingOpenWorkspace}
+                  href={workspaceReturnUrl}
+                >
                   Open workspace
                 </a>
               ) : (
-                <PublicShellLink className="pb-public-button-link--light" to="/start-demo">
+                <PublicShellLink
+                  analyticsEvent={publicAnalyticsEventNames.landingStartDemo}
+                  className="pb-public-button-link--light"
+                  to="/start-demo"
+                >
                   Start demo
                 </PublicShellLink>
               )}
-              <PublicShellLink className="pb-public-button-link--ghost" to="/about">
+              <PublicShellLink
+                analyticsEvent={publicAnalyticsEventNames.landingLearnMore}
+                className="pb-public-button-link--ghost"
+                to="/about"
+              >
                 Learn more
               </PublicShellLink>
             </>
@@ -818,11 +1241,17 @@ function ProvisionSuccessPanel({
       </div>
 
       <div className="pb-public-action-row">
-        <Button onClick={onContinue} type="button">
+        <Button
+          data-paperbinder-analytics-event={publicAnalyticsEventNames.demoOpenWorkspace}
+          onClick={onContinue}
+          type="button"
+        >
           Open workspace
         </Button>
         <Button asChild type="button" variant="secondary">
-          <NavLink to="/login">Go to sign in</NavLink>
+          <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.demoGoToSignIn} to={publicLoginRoutePath}>
+            Go to sign in
+          </NavLink>
         </Button>
       </div>
     </PublicFormPanel>
@@ -868,6 +1297,7 @@ function RootWelcomePage({
 
   async function handleProvisionSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    trackPaperBinderEvent(hostContext, publicAnalyticsEventNames.demoSubmitAttempt);
 
     const nextFieldErrors: RootHostFieldErrors = {};
     if (!tenantName.trim()) {
@@ -901,6 +1331,7 @@ function RootWelcomePage({
       }
 
       setProvisionedTenant(response);
+      trackPaperBinderEvent(hostContext, publicAnalyticsEventNames.demoSubmitSucceeded);
     } catch (caughtError) {
       const mappedError = mapRootHostError(caughtError);
       setError(mappedError);
@@ -942,6 +1373,14 @@ function RootWelcomePage({
             </PublicPanelHeading>
 
             <form className="pb-public-form-stack" onSubmit={handleProvisionSubmit}>
+              <Alert variant="warning">
+                <AlertTitle>Demo data warning</AlertTitle>
+                <AlertBody>
+                  Do not submit confidential, sensitive, regulated, proprietary, personal, medical, financial,
+                  credential, or important real business information.
+                </AlertBody>
+              </Alert>
+
               <Field
                 error={fieldErrors.tenantName}
                 hint="This name is used only for the temporary demo workspace."
@@ -985,7 +1424,9 @@ function RootWelcomePage({
                   Start demo workspace
                 </Button>
                 <Button asChild type="button" variant="secondary">
-                  <NavLink to="/login">Go to sign in</NavLink>
+                  <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.demoGoToSignIn} to={publicLoginRoutePath}>
+                    Go to sign in
+                  </NavLink>
                 </Button>
               </div>
             </form>
@@ -999,7 +1440,9 @@ function RootWelcomePage({
             </PublicPanelHeading>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
-                <NavLink to="/login">Go to sign in</NavLink>
+                <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.demoGoToSignIn} to={publicLoginRoutePath}>
+                  Go to sign in
+                </NavLink>
               </Button>
             </div>
           </GlassPanelSection>
@@ -1073,6 +1516,7 @@ function RootLoginPage({
 
   async function handleLoginSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    trackPaperBinderEvent(hostContext, publicAnalyticsEventNames.loginSubmitAttempt);
 
     const nextFieldErrors: RootHostFieldErrors = {};
     if (!email.trim()) {
@@ -1111,6 +1555,7 @@ function RootLoginPage({
       }
 
       setRedirect(response);
+      trackPaperBinderEvent(hostContext, publicAnalyticsEventNames.loginSubmitSucceeded);
     } catch (caughtError) {
       const mappedError = mapRootHostError(caughtError);
       setError(mappedError);
@@ -1212,14 +1657,21 @@ function RootLoginPage({
                 Log in
               </Button>
               <Button asChild type="button" variant="secondary">
-                <NavLink to="/start-demo">Back to start demo</NavLink>
+                <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.loginStartDemo} to="/start-demo">
+                  Back to start demo
+                </NavLink>
               </Button>
             </div>
           </form>
 
           {redirect ? (
             <div className="pb-public-action-row">
-              <Button onClick={handleContinueManually} type="button" variant="secondary">
+              <Button
+                data-paperbinder-analytics-event={publicAnalyticsEventNames.loginContinueManually}
+                onClick={handleContinueManually}
+                type="button"
+                variant="secondary"
+              >
                 Continue manually
               </Button>
             </div>
@@ -1233,7 +1685,9 @@ function RootLoginPage({
             </PublicPanelHeading>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
-                <NavLink to="/start-demo">Start demo instead</NavLink>
+                <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.loginStartDemo} to="/start-demo">
+                  Start demo instead
+                </NavLink>
               </Button>
             </div>
           </GlassPanelSection>
@@ -1286,9 +1740,11 @@ function RootAboutPage() {
             </p>
           </div>
           <ArticleCard
-            cta="Coming Soon"
+            analyticsEvent={publicAnalyticsEventNames.aboutReadArticle}
+            cta="Read article"
+            href={flagshipArticlePath}
             meta="Architecture / SaaS demo / AI-assisted development"
-            title="Building PaperBinder: A Production-Shaped SaaS Demo"
+            title={flagshipArticle.title}
           >
             A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind
             PaperBinder.
@@ -1383,16 +1839,23 @@ function RootAboutPage() {
           </div>
           <ul className="pb-public-about-reference-list">
             <ReferenceCard
+              analyticsEvent={publicAnalyticsEventNames.footerProjectLink}
               href={productIdentity.canonicalDemoUrl}
               label={productIdentity.canonicalDemoHost}
               title="Live project"
             >
               Public demo entry point and product walkthrough.
             </ReferenceCard>
-            <ReferenceCard href={productIdentity.authorUrl} label="danielmaratta.com" title="Portfolio">
+            <ReferenceCard
+              analyticsEvent={publicAnalyticsEventNames.footerProjectLink}
+              href={productIdentity.authorUrl}
+              label="danielmaratta.com"
+              title="Portfolio"
+            >
               Main portfolio and professional context.
             </ReferenceCard>
             <ReferenceCard
+              analyticsEvent={publicAnalyticsEventNames.footerProjectLink}
               href={productIdentity.canonicalRepositoryUrl}
               label="Canonical repository history"
               title="Repository history"
@@ -1402,6 +1865,190 @@ function RootAboutPage() {
           </ul>
         </PublicStorySection>
       </div>
+    </PublicPage>
+  );
+}
+
+function RootFlagshipArticlePage() {
+  useFlagshipArticleMetadata();
+
+  return (
+    <PublicPage className="pb-public-article-page">
+      <PublicHero
+        actions={
+          <>
+            <a
+              className="pb-public-button-link pb-public-button-link--light"
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+              href={productIdentity.canonicalDemoUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Live demo
+            </a>
+            <a
+              className="pb-public-button-link pb-public-button-link--ghost"
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+              href={productIdentity.canonicalRepositoryUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Repository
+            </a>
+          </>
+        }
+        eyebrow={flagshipArticle.category}
+        title={flagshipArticle.title}
+      >
+        {flagshipArticle.subtitle}
+      </PublicHero>
+
+      <div className="pb-public-article-shell">
+        <section aria-labelledby="article-evidence-title" className="pb-public-article-evidence">
+          <img
+            alt="PaperBinder redesigned public interface showing the product entry page."
+            className="pb-public-article-evidence-image"
+            src={flagshipArticle.socialImagePath}
+          />
+          <div className="pb-public-article-evidence-copy">
+            <p className="pb-public-panel-eyebrow">Project evidence</p>
+            <h2 id="article-evidence-title">Inspect the product, source, and review guide.</h2>
+            <p>
+              The article is the narrative layer. These links provide the live product surface, implementation record,
+              and reviewer entry point that support it.
+            </p>
+            <div className="pb-public-article-evidence-links">
+              <a
+                data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+                href={productIdentity.canonicalDemoUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Live demo
+              </a>
+              <a
+                data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+                href={productIdentity.canonicalRepositoryUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Repository
+              </a>
+              <a
+                data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+                href={flagshipArticleReviewGuideUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Review guide
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <aside aria-label="Article metadata" className="pb-public-article-meta">
+          <span>Flagship article</span>
+          <span>Daniel Maratta</span>
+          <span>{flagshipArticle.readingTimeLabel}</span>
+          <span>{flagshipArticle.artifactLabel}</span>
+        </aside>
+
+        <div className="pb-public-article-layout">
+          <ArticleSectionNavigation />
+
+          <MarkdownArticle source={flagshipArticle.body} />
+        </div>
+
+        <PublicStorySection className="pb-public-article-project-card" variant="accent">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">PAPERBINDER PROJECT</p>
+            <h2>Review the running demo and the source history.</h2>
+            <p>
+              The article is part of the PaperBinder public hiring artifact. Use the live demo for the product surface
+              and the repository for the implementation record, documentation, validation scripts, and review evidence.
+            </p>
+          </div>
+          <div className="pb-public-article-cta-actions">
+            <a
+              className="pb-public-button-link pb-public-button-link--light"
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+              href={productIdentity.canonicalDemoUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open live demo
+            </a>
+            <a
+              className="pb-public-button-link pb-public-button-link--ghost"
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+              href={productIdentity.canonicalRepositoryUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              View repository
+            </a>
+          </div>
+        </PublicStorySection>
+      </div>
+    </PublicPage>
+  );
+}
+
+function useLegalDocumentMetadata(document: LegalDocument) {
+  useEffect(() => {
+    const canonicalUrl = createAbsolutePublicUrl(document.path);
+
+    const restoreHead = [
+      upsertHeadMeta("name", "description", document.description),
+      upsertHeadMeta("property", "og:type", "website"),
+      upsertHeadMeta("property", "og:title", `${document.title} | ${productIdentity.productName}`),
+      upsertHeadMeta("property", "og:description", document.description),
+      upsertHeadMeta("property", "og:url", canonicalUrl),
+      upsertCanonicalLink(canonicalUrl)
+    ];
+
+    return () => {
+      restoreHead.forEach((restore) => {
+        restore();
+      });
+    };
+  }, [document]);
+}
+
+function LegalDocumentPage({ document }: { document: LegalDocument }) {
+  useLegalDocumentMetadata(document);
+
+  return (
+    <PublicPage>
+      <PublicHero eyebrow="Legal" title={document.title}>
+        {document.description}
+      </PublicHero>
+
+      <section aria-label={`${document.title} content`} className="pb-public-legal-document-body">
+        <p className="pb-public-panel-eyebrow">Effective date: {document.effectiveDate}</p>
+        <MarkdownArticle source={document.body} />
+      </section>
+
+      {document.documentType === "index" ? (
+        <PublicPanel aria-labelledby="legal-document-list-title" className="pb-public-legal-document-list">
+          <PublicPanelHeading eyebrow="Legal documents" title="Policy notices" titleId="legal-document-list-title">
+            Legal notices for the PaperBinder public demo.
+          </PublicPanelHeading>
+          <ul className="pb-public-bullet-list">
+            {legalPolicyDocuments.map((policyDocument) => (
+              <li key={policyDocument.path}>
+                <NavLink
+                  className="pb-public-legal-document-link"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.legalPolicyNav}
+                  to={policyDocument.path}
+                >
+                  {policyDocument.title}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </PublicPanel>
+      ) : null}
     </PublicPage>
   );
 }
@@ -1428,6 +2075,9 @@ function RootNotFoundPage() {
           <li>
             <code>/about</code> for product and scope notes
           </li>
+          <li>
+            <code>/legal</code> for legal notices
+          </li>
         </ul>
       </PublicPanel>
     </PublicPage>
@@ -1448,8 +2098,12 @@ export function RootHostRoutes({
       <Route element={<PublicShell hostContext={hostContext} />}>
         <Route element={<RootLandingPage hostContext={hostContext} />} path="/" />
         <Route element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/start-demo" />
-        <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/login" />
+        <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path={publicLoginRoutePath} />
         <Route element={<RootAboutPage />} path="/about" />
+        <Route element={<RootFlagshipArticlePage />} path={flagshipArticlePath} />
+        {legalDocuments.map((document) => (
+          <Route element={<LegalDocumentPage document={document} />} key={document.path} path={document.path} />
+        ))}
         <Route element={<RootNotFoundPage />} path="*" />
       </Route>
     </Fragment>

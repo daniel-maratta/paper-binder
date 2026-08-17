@@ -264,8 +264,8 @@ own Top-10 items:
   rename.
 - Item #3 (multi-type files) is **partially** fixed: `ITenantUserAdministrationService.cs` is now a
   clean 20-line interface file with its command/result/failure family moved to
-  `TenantUserAdministrationContracts.cs`. `DocumentContracts.cs` (116 lines/10 types),
-  `BinderContracts.cs` (128 lines/12 types), `ITenantProvisioningService.cs` (129 lines: interface +
+  `TenantUserAdministrationContracts.cs`. The document and binder application contract
+  families were later split by responsibility in `T-0050`; `ITenantProvisioningService.cs` (129 lines: interface +
   outcome + 2 records + enum + a rules class), and `PaperBinderRuntimeSettings.cs` (437 lines/10
   types) remain unsplit.
 
@@ -345,8 +345,7 @@ just confirms they're still current and still tracked.
 occurrences in `src/PaperBinder.Api` alone, almost all of the form `outcome.Failure!` /
 `outcome.Document!` immediately after checking `outcome.Succeeded`. The invariant (Succeeded ⇒
 payload non-null, else Failure non-null) is enforced only by convention via each Outcome record's
-static factory methods (e.g. `DocumentCreateOutcome.Success`/`.Failed`,
-`DocumentContracts.cs:84-116`), not by the type system. A `Result<TSuccess,TFailure>`-style
+static factory methods (e.g. `DocumentCreateOutcome.Success`/`.Failed`), not by the type system. A `Result<TSuccess,TFailure>`-style
 discriminated union would remove the need for `!` entirely. Systematic and consistent, not abusive
 — the same root cause as F7's outcome-scaffolding duplication.
 

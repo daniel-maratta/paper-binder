@@ -51,6 +51,7 @@ This document is implementation-governing and should be treated as required read
 - No SignalR/realtime push channels in V1
 - Baseline forms: native controlled/uncontrolled React with lightweight validation
 - `react-hook-form` + `zod` are not baseline dependencies in V1
+- GoatCounter direct `/count` image requests for cookie-less aggregate usage analytics, implemented in PaperBinder-owned frontend code without an npm dependency or analytics-provider JavaScript execution ([ADR-0016](../90-adr/ADR-0016-goatcounter-usage-analytics.md))
 - Node version pinned by repo `.nvmrc`
 - npm pinned by `package.json` `packageManager` and `engines`
 
@@ -82,6 +83,7 @@ Frontend UI stack lock-in is defined by this stack baseline plus the PaperBinder
 - Console exporter in Development and Test
 - Optional OTLP exporter when `PAPERBINDER_OTEL_OTLP_ENDPOINT` is configured
 - Correlation fields in logs/traces: tenant/user/trace/correlation identifiers
+- GoatCounter for aggregate usage analytics, kept separate from runtime diagnostics ([ADR-0016](../90-adr/ADR-0016-goatcounter-usage-analytics.md))
 
 ### Operations and Deployment
 
@@ -146,3 +148,4 @@ Frontend UI stack lock-in is defined by this stack baseline plus the PaperBinder
 - `docs/90-adr/ADR-0009-frontend-component-test-stack-for-cp12.md`
 - `docs/90-adr/ADR-0007-persistence-stack-ef-core-migrations-dapper-runtime.md`
 - `docs/90-adr/ADR-0011-observability-opentelemetry-baseline.md`
+- `docs/90-adr/ADR-0016-goatcounter-usage-analytics.md`

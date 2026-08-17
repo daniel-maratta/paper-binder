@@ -37,7 +37,7 @@ Use one tool and keep suite small/stable.
 
 1. CP13 root-host suite:
    - provision on `/` with the test-only challenge bypass token
-   - show one-time credentials and continue to the tenant host using the server-provided redirect flow
+   - show generated credentials once and continue to the tenant host using the server-provided redirect flow
    - log in on `/login` with existing credentials
    - cover deny paths for `CHALLENGE_FAILED`, `INVALID_CREDENTIALS`, and `RATE_LIMITED`
 2. CP14 tenant-host expansion:

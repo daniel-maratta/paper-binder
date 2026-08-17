@@ -126,6 +126,7 @@ jobs:
               VITE_PAPERBINDER_CHALLENGE_SITE_KEY=${{ vars.PROD_TURNSTILE_SITE_KEY }}
               VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL=https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit
               VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=false
+              VITE_PAPERBINDER_ANALYTICS_ENABLED=true
           - image: paperbinder-api-test
             dockerfile: src/PaperBinder.Api/Dockerfile
             build_args: |
@@ -135,6 +136,7 @@ jobs:
               VITE_PAPERBINDER_CHALLENGE_SITE_KEY=${{ vars.TEST_TURNSTILE_SITE_KEY }}
               VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL=https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit
               VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED=false
+              VITE_PAPERBINDER_ANALYTICS_ENABLED=false
           - image: paperbinder-worker
             dockerfile: src/PaperBinder.Worker/Dockerfile
             build_args: ""

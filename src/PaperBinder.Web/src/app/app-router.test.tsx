@@ -56,6 +56,10 @@ describe("app router", () => {
 
     expect(screen.getByRole("heading", { name: "This PaperBinder address is unavailable" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Use a known PaperBinder address" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Return to main site" })).toHaveAttribute(
+      "href",
+      "https://paperbinder.example.test/"
+    );
     expect(screen.getByText("unexpected.example.net")).toBeInTheDocument();
     expect(apiClient.getTenantLease).not.toHaveBeenCalled();
   });

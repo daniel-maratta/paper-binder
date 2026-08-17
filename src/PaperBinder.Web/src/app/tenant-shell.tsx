@@ -58,6 +58,7 @@ type TenantBootstrapViewModel = {
   detail: string;
   correlationId: string | null;
   retryAfterLabel: string | null;
+  returnHomeClearsWorkspace: boolean;
   showSignInAction: boolean;
 };
 
@@ -124,31 +125,25 @@ function normalizeCountdownSeconds(secondsRemaining: number): number {
   return Math.max(0, Math.ceil(secondsRemaining));
 }
 
-function toRootLoginUrl(rootUrl: string, tenantSlug?: string): string {
-  const url = new URL("/login", rootUrl);
+function toRootPathUrl(rootUrl: string, path: string, tenantSlug?: string): string {
+  const url = new URL(path, rootUrl);
   if (tenantSlug) {
     url.searchParams.set("workspace", tenantSlug);
   }
 
   return url.toString();
+}
+
+function toRootLoginUrl(rootUrl: string, tenantSlug?: string): string {
+  return toRootPathUrl(rootUrl, "/login", tenantSlug);
 }
 
 function toRootHomeUrl(rootUrl: string, tenantSlug?: string): string {
-  const url = new URL("/", rootUrl);
-  if (tenantSlug) {
-    url.searchParams.set("workspace", tenantSlug);
-  }
-
-  return url.toString();
+  return toRootPathUrl(rootUrl, "/", tenantSlug);
 }
 
 function toRootAboutUrl(rootUrl: string, tenantSlug?: string): string {
-  const url = new URL("/about", rootUrl);
-  if (tenantSlug) {
-    url.searchParams.set("workspace", tenantSlug);
-  }
-
-  return url.toString();
+  return toRootPathUrl(rootUrl, "/about", tenantSlug);
 }
 
 function setDocumentTitle(pageTitle: string) {
@@ -210,6 +205,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: error.detail ?? "Sign in again from the main site before returning to this workspace.",
           correlationId: error.correlationId,
           retryAfterLabel: null,
+          returnHomeClearsWorkspace: false,
           showSignInAction: true
         };
       case "TENANT_FORBIDDEN":
@@ -218,6 +214,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: error.detail ?? "This session is not allowed to open the requested workspace.",
           correlationId: error.correlationId,
           retryAfterLabel: null,
+          returnHomeClearsWorkspace: false,
           showSignInAction: false
         };
       case "TENANT_EXPIRED":
@@ -228,6 +225,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
               "This demo workspace has expired. PaperBinder is keeping it briefly because there was recent activity, but access is already closed and cleanup will remove it soon.",
             correlationId: error.correlationId,
             retryAfterLabel: null,
+            returnHomeClearsWorkspace: true,
             showSignInAction: false
           };
         }
@@ -237,6 +235,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: error.detail ?? "This demo workspace has expired and is no longer available.",
           correlationId: error.correlationId,
           retryAfterLabel: null,
+          returnHomeClearsWorkspace: true,
           showSignInAction: false
         };
       case "TENANT_NOT_FOUND":
@@ -245,6 +244,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: error.detail ?? "This workspace is not available from the current address.",
           correlationId: error.correlationId,
           retryAfterLabel: null,
+          returnHomeClearsWorkspace: true,
           showSignInAction: false
         };
       default: {
@@ -254,6 +254,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
           detail: mappedError.detail,
           correlationId: mappedError.correlationId,
           retryAfterLabel: mappedError.retryAfterLabel,
+          returnHomeClearsWorkspace: false,
           showSignInAction: error.status === 401
         };
       }
@@ -265,6 +266,7 @@ function createBootstrapViewModel(error: unknown): TenantBootstrapViewModel {
     detail: "PaperBinder could not load this workspace. Check your connection and try again in a moment.",
     correlationId: null,
     retryAfterLabel: null,
+    returnHomeClearsWorkspace: false,
     showSignInAction: false
   };
 }
@@ -526,15 +528,21 @@ function TenantNavigation({
 }
 
 function TenantShellFooter({
-  aboutUrl
+  aboutUrl,
+  cookiesUrl,
+  privacyUrl,
+  termsUrl
 }: {
   aboutUrl: string;
+  cookiesUrl: string;
+  privacyUrl: string;
+  termsUrl: string;
 }) {
   return (
     <div className="pb-auth-sidebar-footer">
       <div className="pb-auth-sidebar-footer-row">
         <p className="pb-auth-sidebar-context-label">Copyright</p>
-        <p className="pb-auth-sidebar-context-value">&copy; 2026 PaperBinder</p>
+        <p className="pb-auth-sidebar-context-value">&copy; 2026 {productIdentity.authorName}</p>
       </div>
       <div className="pb-auth-sidebar-footer-row">
         <p className="pb-auth-sidebar-context-label">Version</p>
@@ -546,9 +554,28 @@ function TenantShellFooter({
         <p className="pb-auth-sidebar-context-label">Designed by</p>
         <p className="pb-auth-sidebar-context-value">{productIdentity.authorName}</p>
       </div>
-      <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
-        About PaperBinder
-      </a>
+      <div className="pb-auth-sidebar-footer-row">
+        <p className="pb-auth-sidebar-context-label">Project</p>
+        <p className="pb-auth-sidebar-context-value pb-auth-sidebar-context-value--links">
+          <a className="pb-auth-sidebar-footer-link" href={aboutUrl} rel="noreferrer" target="_blank">
+            About
+          </a>
+        </p>
+      </div>
+      <div className="pb-auth-sidebar-footer-row">
+        <p className="pb-auth-sidebar-context-label">Legal</p>
+        <p className="pb-auth-sidebar-context-value pb-auth-sidebar-context-value--links">
+          <a className="pb-auth-sidebar-footer-link" href={privacyUrl} rel="noreferrer" target="_blank">
+            Privacy
+          </a>
+          <a className="pb-auth-sidebar-footer-link" href={termsUrl} rel="noreferrer" target="_blank">
+            Terms
+          </a>
+          <a className="pb-auth-sidebar-footer-link" href={cookiesUrl} rel="noreferrer" target="_blank">
+            Cookies
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
@@ -582,7 +609,7 @@ export function TenantShell({
   const mobileMenuRef = useRef<HTMLElement | null>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
   const rootLoginUrl = toRootLoginUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
-  const rootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+  const cleanRootHomeUrl = toRootHomeUrl(hostContext.environment.rootUrl);
   const rootHomeUrlWithWorkspace = toRootHomeUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
   const isDesktopShell = useIsDesktopShell();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -952,10 +979,15 @@ export function TenantShell({
   }
 
   if (bootstrapError !== null || lease === null || impersonation === null) {
+    const resolvedBootstrapError = bootstrapError ?? createBootstrapViewModel(null);
+    const failureRootHomeUrl = resolvedBootstrapError.returnHomeClearsWorkspace
+      ? cleanRootHomeUrl
+      : rootHomeUrlWithWorkspace;
+
     return (
       <TenantBootstrapFailurePage
-        error={bootstrapError ?? createBootstrapViewModel(null)}
-        rootHomeUrl={rootHomeUrl}
+        error={resolvedBootstrapError}
+        rootHomeUrl={failureRootHomeUrl}
         rootLoginUrl={rootLoginUrl}
       />
     );
@@ -965,6 +997,9 @@ export function TenantShell({
   const queuedToastCount = Math.max(0, toasts.length - visibleToasts.length);
   const isViewingAs = impersonation.isImpersonating;
   const aboutUrl = toRootAboutUrl(hostContext.environment.rootUrl, hostContext.tenantSlug);
+  const privacyUrl = toRootPathUrl(hostContext.environment.rootUrl, "/privacy", hostContext.tenantSlug);
+  const termsUrl = toRootPathUrl(hostContext.environment.rootUrl, "/terms", hostContext.tenantSlug);
+  const cookiesUrl = toRootPathUrl(hostContext.environment.rootUrl, "/cookies", hostContext.tenantSlug);
   const accountEmail = isViewingAs ? impersonation.effective.email : impersonation.actor.email;
   const accountLabel = isViewingAs ? "Viewing as" : "Logged in as";
 
@@ -1001,7 +1036,12 @@ export function TenantShell({
 
             <TenantNavigation />
 
-            <TenantShellFooter aboutUrl={aboutUrl} />
+            <TenantShellFooter
+              aboutUrl={aboutUrl}
+              cookiesUrl={cookiesUrl}
+              privacyUrl={privacyUrl}
+              termsUrl={termsUrl}
+            />
           </aside>
         ) : null}
 
@@ -1147,7 +1187,12 @@ export function TenantShell({
 
           {!isDesktopShell ? (
             <footer className="pb-auth-mobile-footer">
-              <TenantShellFooter aboutUrl={aboutUrl} />
+              <TenantShellFooter
+                aboutUrl={aboutUrl}
+                cookiesUrl={cookiesUrl}
+                privacyUrl={privacyUrl}
+                termsUrl={termsUrl}
+              />
             </footer>
           ) : null}
         </main>

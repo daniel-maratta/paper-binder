@@ -2,7 +2,11 @@
 
 This guide is for interviewers and technical reviewers who want a fast, accurate read of the shipped `V1` system and its release evidence.
 
-PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current published stable release tag is `v1.1.0`.
+PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current PaperBinder release is `v1.1.1`, fully implemented, validated, and documented; merging to `main`, tagging, and deployment are the remaining owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`.
+
+PaperBinder was designed, directed, reviewed, and validated by Daniel Maratta using AI coding agents as implementation accelerators. Large portions of implementation were generated or modified by AI agents under explicit task prompts; architecture, scope, security model, acceptance criteria, review process, remediation decisions, and the final quality bar remained human-directed. Evaluate it as an example of modern AI-augmented software delivery, not purely hand-typed keystroke authorship.
+
+The repo intentionally uses more documentation, gates, and validation artifacts than a typical paid engagement because it is a public hiring artifact. In client work, the process should scale to risk: lighter for low-risk features and internal tools, heavier for security boundaries, data migrations, tenant isolation, authentication, payments, and production releases.
 
 ## Fast Review Path (10-15 Minutes)
 
@@ -102,13 +106,23 @@ silent omission:
 
 - **Document archive/unarchive has no frontend UI.** The API, domain rules, and tests are complete
   (`POST /api/documents/{documentId}/archive` / `/unarchive`), but no button triggers it in
-  `v1.1.0`. See
+  `v1.1.x`. See
   [`docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md`](docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md)
   for the full gap and deferral rationale.
-- **`react-router-dom` sits in a vulnerable version range** (`npm audit`); the fix is a major-version
-  migration (React Router 7 to 8), not a patch. A manual open-redirect check found no
-  attacker-controlled value reaches the app's route resolution. Durably deferred; see
-  [`docs/05-taskboard/v1-1-backlog.md`](docs/05-taskboard/v1-1-backlog.md).
+- **React Router still needs a major-version upgrade.** The `v1.1.1` patch applied same-major audit
+  remediation and reduced the report to the remaining React Router RSC-mode advisory. PaperBinder is
+  a client-rendered SPA and does not use React Router RSC mode, framework actions, SSR, or document
+  request action handling. The future work is still tracked as a router major-version upgrade, not
+  merely audit cleanup; see [`T-0053`](docs/05-taskboard/tasks/T-0053-react-router-major-version-upgrade.md)
+  and the carry-forward table in
+  [`docs/05-taskboard/v1-1-1-backlog.md`](docs/05-taskboard/v1-1-1-backlog.md).
+- **Frontend composition hotspots remain.** `src/PaperBinder.Web/src/app/root-host.tsx` still
+  concentrates route ownership, public-shell composition, view-state assembly, and auth/redirect
+  flow handling in one seam. Backend maintainability hotspots were split during `v1.1.x` work; a
+  future frontend pass should extract route sections, shell composition, and view-model helpers
+  around stable responsibilities without changing user-facing behavior. This is recorded in the
+  carry-forward table in
+  [`docs/05-taskboard/v1-1-1-backlog.md`](docs/05-taskboard/v1-1-1-backlog.md).
 
 ## Local Validation
 

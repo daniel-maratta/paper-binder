@@ -38,7 +38,7 @@ Implement CP13 so the CP12 root-host placeholder shell becomes a live browser on
 - [x] Canonical product, architecture, engineering, testing, operations, execution, taskboard, repo-navigation, and delivery docs agree on root-host route ownership, `email` terminology, user-initiated provisioning handoff, challenge-wrapper accessibility duties, and the explicit CP13 E2E closeout rule before broad implementation begins
 - [x] The root host exposes a live provisioning flow on `/` and a live login flow on `/login`, and the CP12 disabled placeholders are removed
 - [x] Root-host API calls use only the shared browser client and typed provision/login methods; root-host route code does not call `fetch` directly
-- [x] Successful provisioning shows one-time generated credentials exactly once in transient in-memory UI state and redirects only through an explicit user-initiated continue action that uses the server-provided `redirectUrl`
+- [x] Successful provisioning shows generated credentials exactly once in transient in-memory UI state and redirects only through an explicit user-initiated continue action that uses the server-provided `redirectUrl`
 - [x] Successful login redirects using the server-provided `redirectUrl` without any client-constructed tenant URL logic
 - [x] Root-host ProblemDetails handling renders safe messages for `CHALLENGE_REQUIRED`, `CHALLENGE_FAILED`, `RATE_LIMITED`, `INVALID_CREDENTIALS`, `TENANT_EXPIRED`, `TENANT_NAME_INVALID`, `TENANT_NAME_CONFLICT`, and unexpected/network failures
 - [x] The challenge adapter requires a token before submit, resets after relevant failures, and keeps browser-owned wrapper markup aligned to the project accessibility baseline

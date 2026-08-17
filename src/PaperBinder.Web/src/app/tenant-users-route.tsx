@@ -658,7 +658,7 @@ export function UsersPage() {
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Add user</h3>
             <p className="pb-auth-panel-copy">
-              Create a workspace member with an initial role. PaperBinder issues the temporary password on the server and shows it once after creation.
+              Create a workspace member with an initial role. PaperBinder issues the workspace password on the server and shows it once after creation.
             </p>
           </div>
           <div className="pb-auth-panel-body">
@@ -754,7 +754,7 @@ export function UsersPage() {
                     onCopyResult={(copied) => {
                       if (!copied) {
                         showToast({
-                          title: "Could not copy temporary password.",
+                          title: "Could not copy workspace password.",
                           body: "Clipboard access is not available in this browser session.",
                           variant: "warning"
                         });
@@ -762,8 +762,8 @@ export function UsersPage() {
                       }
 
                       showToast({
-                        title: "Temporary password copied.",
-                        body: "Temporary password is ready to paste.",
+                        title: "Workspace password copied.",
+                        body: "Workspace password is ready to paste.",
                         variant: "success"
                       });
                     }}

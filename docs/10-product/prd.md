@@ -182,7 +182,7 @@ All entities are tenant-scoped unless explicitly global.
 ### 6.6 Tenant User Management
 
 - Tenant-admin browser flows expose tenant user list, create, and role-change behavior on tenant-host `/app/users`.
-- Tenant-admin user creation sends only email plus role; the server generates the temporary password and returns it once in the create response.
+- Tenant-admin user creation sends only email plus role; the server generates the workspace password and returns it once in the create response.
 - A demo workspace can contain up to 12 users and 20 binders.
 - Tenant-admin deletion removes non-owner workspace users only; workspace owner deletion is reserved for full tenant cleanup.
 - Non-admin callers must fail safely for tenant-admin-only user-management actions.

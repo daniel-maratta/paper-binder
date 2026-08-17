@@ -34,8 +34,8 @@ Reviewer experience:
 - Code walkthrough
 
 Release boundary:
-- The shipped release line is prose `V1` with current published stable tag `v1.0.5`
-- The active `v1.1.0` branch has version metadata staged at `1.1.0`, but final release close-out remains owned by the V1.1 taskboard sequence
+- The shipped release line is prose `V1`; the current PaperBinder release is `v1.1.1`, fully implemented, validated, and documented, with `v1.1.0` as the prior published stable tag
+- Merging to `main`, tagging, and deployment for `v1.1.1` are the remaining owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`
 - The historical first stable tag remains `v1.0.0`
 - Release readiness is documented through the delivery lane; live public-host operation is not a `V1` release gate
 
@@ -111,6 +111,7 @@ Frontend runtime:
 - No SignalR or other realtime push channels in v1
 - Baseline forms use native controlled/uncontrolled React with lightweight validation
 - `react-hook-form` + `zod` are not baseline v1 dependencies
+- GoatCounter usage analytics may count explicit public-route pageviews, tenant route-template pageviews, and approved low-cardinality public event names only; the integration uses PaperBinder-owned direct `/count` requests rather than analytics-provider JavaScript, and analytics payloads must not include tenant slugs, identifiers, query strings, names, titles, document content, form values, or high-cardinality custom events
 
 AI scope:
 - No AI feature ships in `V1`

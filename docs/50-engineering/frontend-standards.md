@@ -13,7 +13,7 @@ Define repo-native frontend rules for the PaperBinder SPA.
 - The SPA must send `X-Api-Version` on `/api/*` calls.
 - Do not store auth tokens in localStorage or sessionStorage.
 - Root-host and tenant-host experiences remain in one SPA with host-aware routing/guards.
-- Root-host `/` owns the product-first public landing, root-host `/start-demo` owns provisioning and one-time credential handoff, and root-host `/login` remains the direct-login route; tenant-host `/app`, `/app/binders`, `/app/binders/:binderId`, `/app/documents/:documentId`, and `/app/users` own the live product flows.
+- Root-host `/` owns the product-first public landing, root-host `/start-demo` owns provisioning and shown-once credential handoff, root-host `/login` remains the direct-login route, and root-host `/articles/building-paperbinder-production-shaped-saas-demo` hosts the public flagship article; tenant-host `/app`, `/app/binders`, `/app/binders/:binderId`, `/app/documents/:documentId`, and `/app/users` own the live product flows.
 
 ## UI and Dependency Rules
 
@@ -39,6 +39,15 @@ Define repo-native frontend rules for the PaperBinder SPA.
 - CP13 E2E covers root-host provisioning/login and major deny paths through the dedicated root-host browser suite.
 - The repo-native browser gate now covers the public landing, root-host demo-entry or login flows, and tenant-host navigation, lease, forbidden, expired, and logout/login-cycle flows.
 - Prefer Playwright for E2E coverage in V1.
+
+## Flagship Article Publication
+
+- The accepted editorial source for the flagship article is `artifacts/Flagship Article - Release Candidate 2.docx`.
+- The web representation of that article body lives at `src/PaperBinder.Web/src/content/articles/building-paperbinder-production-shaped-saas-demo.md` and renders on `/articles/building-paperbinder-production-shaped-saas-demo`.
+- RC2 is the source of truth for article prose, headings, lists, links, figure order, and captions. Do not casually rewrite the article body in the Markdown representation.
+- Publication chrome, article route composition, SEO/social metadata, JSON-LD, and calls to action are web-specific concerns and may evolve independently without changing accepted article prose.
+- Article figures use the existing presentation assets in `src/PaperBinder.Web/public/presentation`; do not extract or regenerate DOCX images unless a required canonical presentation asset is missing.
+- The article is part of the public reviewer and hiring artifact, not a separate blog design system or CMS.
 
 ## Related Documents
 

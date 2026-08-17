@@ -2,9 +2,11 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using Dapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using PaperBinder.Api;
 using PaperBinder.Application.Persistence;
+using PaperBinder.Infrastructure.Identity;
 using PaperBinder.Infrastructure.Configuration;
 
 namespace PaperBinder.IntegrationTests;
@@ -51,6 +53,34 @@ public sealed class ProvisioningIntegrationTests(PostgresContainerFixture postgr
         Assert.False(tenantContextPayload.IsSystemContext);
         Assert.Equal(session.ProvisionPayload.TenantId, tenantContextPayload.TenantId);
         Assert.Equal(session.ProvisionPayload.TenantSlug, tenantContextPayload.TenantSlug);
+    }
+
+    [Fact]
+    public async Task Should_PersistOnlyPasswordHash_ForGeneratedProvisioningCredentials()
+    {
+        await using var database = await postgres.CreateDatabaseAsync();
+        await using var host = await TenantResolutionIntegrationTestHost.StartDockerHostAsync(database.ConnectionString);
+
+        var session = await ProvisioningIntegrationTestClient.ProvisionAsync(host, "Password Hash Tenant");
+
+        Assert.NotNull(session.ProvisionPayload);
+        var provisionedUser = await GetProvisionedUserAsync(
+            host,
+            session.ProvisionPayload!.Credentials.Email);
+
+        Assert.False(string.IsNullOrWhiteSpace(provisionedUser.PasswordHash));
+        Assert.NotEqual(session.ProvisionPayload.Credentials.Password, provisionedUser.PasswordHash);
+
+        using var scope = host.Application.Services.CreateScope();
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<PaperBinderUser>>();
+        var verificationResult = passwordHasher.VerifyHashedPassword(
+            provisionedUser,
+            provisionedUser.PasswordHash,
+            session.ProvisionPayload.Credentials.Password);
+
+        Assert.True(
+            verificationResult is PasswordVerificationResult.Success or PasswordVerificationResult.SuccessRehashNeeded,
+            $"Expected generated password to verify against the stored hash, but verification returned {verificationResult}.");
     }
 
     [Fact]
@@ -200,6 +230,30 @@ public sealed class ProvisioningIntegrationTests(PostgresContainerFixture postgr
                 TenantSlug = tenantSlug,
                 OwnerEmail = ownerEmail
             });
+    }
+
+    private static async Task<PaperBinderUser> GetProvisionedUserAsync(
+        PaperBinderApplicationHost host,
+        string email)
+    {
+        var connectionFactory = host.Application.Services.GetRequiredService<ISqlConnectionFactory>();
+        await using var connection = await connectionFactory.OpenConnectionAsync();
+
+        return await connection.QuerySingleAsync<PaperBinderUser>(
+            """
+            select
+                id as Id,
+                user_name as UserName,
+                normalized_user_name as NormalizedUserName,
+                email as Email,
+                normalized_email as NormalizedEmail,
+                email_confirmed as EmailConfirmed,
+                password_hash as PasswordHash,
+                security_stamp as SecurityStamp
+            from users
+            where email = @Email;
+            """,
+            new { Email = email });
     }
 }
 

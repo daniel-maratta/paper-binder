@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_PAPERBINDER_CHALLENGE_SITE_KEY: string;
   readonly VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: string;
   readonly VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: string;
+  readonly VITE_PAPERBINDER_ANALYTICS_ENABLED: string;
 }
 
 interface ImportMeta {

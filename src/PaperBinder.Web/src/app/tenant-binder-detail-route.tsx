@@ -599,6 +599,14 @@ export function BinderDetailPage() {
           </div>
           <div className="pb-auth-panel-body">
             <form className="pb-auth-form-stack" onSubmit={handleCreateDocument}>
+              <Alert variant="warning">
+                <AlertTitle>Demo data warning</AlertTitle>
+                <AlertBody>
+                  Do not enter confidential, sensitive, regulated, proprietary, personal, medical, financial,
+                  credential, or important real business information.
+                </AlertBody>
+              </Alert>
+
               <Field
                 error={fieldErrors.documentTitle}
                 hint="Up to 200 characters."

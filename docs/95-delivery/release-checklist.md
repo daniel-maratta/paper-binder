@@ -7,9 +7,11 @@ Own the canonical release gate list for the published stable `V1` release.
 
 ## Required Artifacts
 
+- [x] `CHANGELOG.md` contains the current `## [1.1.1] - 2026-08-17` entry above the `## [1.1.0] - 2026-07-28` prior stable entry, with a fresh empty `## Unreleased`.
+- [x] Repository version metadata matches the current `v1.1.1` / `1.1.1` release.
 - [x] `CHANGELOG.md` contains the current `## [1.1.0] - 2026-07-28` published stable entry above the `## [1.0.5] - 2026-07-03` stable entry and the historical `## [V1] - 2026-04-19` first-cut release summary, with a fresh empty `## Unreleased`.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, the active branch metadata distinction, the command surface, and ownership.
-- [x] Repository version metadata matches the current published stable `V1` release tag `v1.1.0` / `1.1.0` on `main`.
+- [x] Repository version metadata matched the published stable `V1` release tag `v1.1.0` / `1.1.0` on `main` at the `v1.1.0` release cut.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
 - [x] `.github/workflows/release.yml` defines the tag-driven release validation pipeline for stable SemVer tags.
 - [x] `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md` records shipped scope, validation evidence, reviewer walkthrough, and author notes for the critic.
@@ -173,13 +175,128 @@ not replace the historical `V1` sections above.
 - [x] Record the resulting tag, Test deploy, Prod deploy, and smoke-validation evidence back into this
   checklist - completed by this update.
 
+## V1.1.1 Patch Release Evidence (T-0052)
+
+This section records the `v1.1.1` patch candidate validation and final hiring assessment review. It does
+not replace the historical `V1.1.0` evidence above.
+The later legality audit added a release-blocking legal-readiness addendum tracked by `T-0055`; that
+addendum completed on `2026-08-16`, with a follow-up public-copy and logging pass on `2026-08-17`.
+Final legal wording approval, merge, tag, deployment, and smoke validation remain owner-controlled
+release actions.
+
+### Checkpoint Completion
+
+- [x] `T-0046` through `T-0051` are done.
+- [x] `T-0052` final validation and hiring assessment review completed on `2026-07-28`.
+- [x] No new product features, API contracts, tenant-boundary changes, authorization changes, CSRF
+  changes, or deployment topology changes were introduced.
+- [x] The hosted flagship article route is part of the v1.1.1 public reviewer surface. Its accepted
+  prose remains sourced from RC2, while the web Markdown representation, publication chrome, and
+  metadata are maintained under the frontend publication contract.
+
+### Scripted Validation
+
+- [x] [validate-version.ps1](../../scripts/validate-version.ps1) passed for `1.1.1` on `2026-07-28`.
+- [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-07-28` after
+  dependency remediation: Vite `7.3.6`, `0 Warning(s)`, `0 Error(s)`.
+- [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require`
+  passed on `2026-07-28` after dependency remediation: `65/65` frontend, `142/142` unit, `33/33`
+  non-Docker integration, `102/102` Docker-backed integration.
+- [x] [run-browser-e2e.ps1](../../scripts/run-browser-e2e.ps1) passed on `2026-07-28` after
+  dependency remediation: root-host `3/3`, tenant-host `3/3`.
+- [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed on `2026-07-28` after
+  release-doc updates.
+- [x] [validate-launch-profiles.ps1](../../scripts/validate-launch-profiles.ps1) passed on
+  `2026-07-28`.
+- [x] [reviewer-full-stack.ps1](../../scripts/reviewer-full-stack.ps1) `-NoBrowser` passed on
+  `2026-07-28` after dependency remediation and release-doc updates.
+
+### Hiring Assessment Review
+
+- [x] Final review artifact:
+  [docs/archive/v1-1/remediation/engineering-quality/t-0052-final-hiring-assessment-review.md](../archive/v1-1/remediation/engineering-quality/t-0052-final-hiring-assessment-review.md).
+- [x] Finding F1 fixed: tenant-shell version-display test now derives expected text from
+  `package.json` instead of hard-coding `v1.1.0`.
+- [x] Finding F2 fixed: same-major `npm audit fix` remediation updated frontend lockfile
+  dependencies, reducing `npm audit --audit-level=moderate` from 7 advisories to 2.
+- [x] Finding F3 explicitly rejected as not applicable to the shipped runtime mode: the remaining
+  React Router advisory is RSC-mode specific, while PaperBinder is a client-rendered SPA and does
+  not use React Router RSC mode, framework actions, SSR, or document request action handling.
+- [x] Finding F4 fixed: release-facing docs now distinguish the `v1.1.1` release-ready candidate
+  from the currently published `v1.1.0` stable tag.
+
+### Dependency / Vulnerability Disposition
+
+- [x] `dotnet list PaperBinder.sln package --vulnerable --include-transitive` passed on
+  `2026-07-28`: zero vulnerable NuGet packages across all 8 projects.
+- [x] `npm.cmd audit --audit-level=moderate` passed on `2026-08-16`: zero vulnerabilities after
+  same-major/patch remediation for `nanoid`, `react-router`, and `react-router-dom`.
+
+### Owner-Controlled Steps
+
+- [x] Complete `T-0055` legal-readiness addendum - completed on `2026-08-16`.
+- [ ] Merge the `v1.1.1` candidate branch to the release target.
+- [ ] Create and push the `v1.1.1` SemVer tag.
+- [ ] Run the tag-driven release workflow and owner-controlled deploy follow-through.
+
+### Legal Readiness Addendum
+
+- [x] `T-0055` completed on `2026-08-16`.
+- [x] Follow-up legal surface audit, AI wording-shape pass, public-copy remediation, and Docker
+  logging remediation were completed on `2026-08-17`.
+- [x] Public legal pages are reachable at `/legal`, `/privacy`, `/terms`, and `/cookies`.
+- [x] Public and tenant footers expose Legal, Privacy Policy, Terms of Use, and Cookie Notice links.
+- [x] Public legal pages use `August 17, 2026` as the effective date.
+- [x] Legal, privacy, cookie, copyright, and security contact paths use the configured
+  `paperbinder@danielmaratta.com` alias.
+- [x] Point-of-collection warnings tell users not to submit sensitive, regulated, confidential,
+  proprietary, personal, medical, financial, credential, or important real business information.
+- [x] Children-under-13 wording is present in the public Legal, Privacy Policy, and Terms of Use
+  surfaces.
+- [x] Legal documents are frontmatter-backed Markdown content in a dedicated legal collection.
+- [x] Public legal copy no longer exposes draft, owner-approval, or audit-process wording such as
+  `Static review for this release`; `scripts/validate-docs.ps1` now guards against those phrases in
+  public legal Markdown.
+- [x] Retention/provider wording avoids fixed-minute deletion promises and keeps provider
+  snapshot/backup and external OTLP retention wording general unless owner/provider facts are
+  later verified.
+- [x] Repo-owned Compose files bound container stdout/stderr retention through Docker's `local`
+  logging driver with `max-size=10m` and `max-file=5`; deployed containers must be recreated before
+  the logging-driver change applies.
+- [x] The Cookie Notice remains informational disclosure only for the current strictly necessary
+  cookie posture; no consent-management platform or cookie banner was added.
+- [x] `NOTICE.md`, `THIRD-PARTY-NOTICES.md`, and `SECURITY.md` cover asset provenance,
+  dependency notices, vulnerability reporting, and dependency/security maintenance posture.
+- [x] `npm.cmd audit --audit-level=moderate` passed on `2026-08-16`: zero vulnerabilities after
+  same-major/patch remediation for `nanoid`, `react-router`, and `react-router-dom`.
+- [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-08-16`;
+  the prior `NU1903` warning for transitive `SSH.NET` was remediated by a test-only
+  `SSH.NET 2026.0.0` override in `tests/PaperBinder.IntegrationTests`.
+- [x] `dotnet list tests/PaperBinder.IntegrationTests/PaperBinder.IntegrationTests.csproj package --vulnerable --include-transitive`
+  passed on `2026-08-16`: no vulnerable packages after the `SSH.NET` override.
+- [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require`
+  passed on `2026-08-16`: frontend `70/70`, unit `143/143`, non-Docker integration `34/34`,
+  Docker-backed integration `103/103`.
+- [x] [run-browser-e2e.ps1](../../scripts/run-browser-e2e.ps1) passed on `2026-08-16`:
+  root-host `5/5`, tenant-host `3/3`, including public legal page reachability from the root-host
+  footer.
+- [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed on `2026-08-16`.
+- [x] `npm.cmd run third-party-notices:check` passed on `2026-08-16`.
+- [x] Set final public legal-document effective dates during deployment and approve the final
+  wording for publication - all four public legal documents (`legal-index.md`, `privacy.md`,
+  `terms.md`, `cookies.md`) carry the concrete, non-placeholder effective date `August 17, 2026`
+  with no draft/audit-process wording remaining, and the owner (Daniel Maratta) explicitly approved
+  the final wording for publication on `2026-08-17`.
+
 ## Release Readiness
 
 - Release line: `V1`
 - Historical first stable tag: `v1.0.0`
-- Current published stable tag: `v1.1.0`
-- Published stable SemVer version: `1.1.0`
-- Active branch SemVer metadata: `1.1.0`
+- Current release tag: `v1.1.1`
+- Current release SemVer metadata: `1.1.1`
+- Prior published stable tag: `v1.1.0`
+- Prior published stable SemVer version: `1.1.0`
+- Active branch SemVer metadata: `1.1.1`
 - Status: `main` was aligned and taggable for `v1.0.5` as of `2026-07-03`. `release/v1.1.0`
   completed `T-0043` final-review validation on `2026-07-26` — findings resolved, full
   scripted and browser validation green, version metadata consistent, no unresolved High/Critical
@@ -192,12 +309,34 @@ not replace the historical `V1` sections above.
   docs were aligned for `v1.0.5` at that release cut; `release/v1.1.0` now carries validated `1.1.0`
   metadata, the completed `T-0043` pass records the final pre-tag release attestation, and this
   update records the owner-attested merge/tag/Test-deploy/Prod-deploy/smoke evidence.
-- Deferred follow-up note: `npm ci` still reports one high-severity audit advisory during restore;
-  it is disclosed above (`react-router-dom`, `T-0045` finding F5) and durably deferred to its own
-  future task; it does not block this validation bundle.
+- Deferred follow-up note: the React Router major-version upgrade remains tracked as `T-0053` for
+  future minor-version maintenance, but the current same-major/patch audit remediation leaves
+  `npm audit --audit-level=moderate` at zero vulnerabilities for this release.
 - Owner-controlled actions outside `T-0043`: merge-to-`main`, tag creation, release workflow, Test
   deployment, Prod deployment, production smoke validation, and release publication are recorded
   above as complete. No follow-up docs-only checklist PR is expected.
+- V1.1.1 readiness update: the `v1.1.1` patch candidate completed final validation and hiring
+  assessment review on `2026-07-28`, and the `T-0055` legal-readiness addendum completed on
+  `2026-08-16`. Version metadata is consistent, build/test/browser/docs/launch and reviewer-stack
+  gates are green or recorded with final rerun evidence in `T-0052` and `T-0055`; `npm audit` now
+  reports zero vulnerabilities after same-major/patch remediation for `nanoid`, `react-router`, and
+  `react-router-dom`, and the prior test-tooling `SSH.NET` vulnerability warning is remediated by a
+  test-only `SSH.NET 2026.0.0` override. Final legal effective-date selection, merge, tag,
+  deployment, smoke validation, and release publication remain owner-controlled actions.
+- V1.1.1 executor attestation: `CHANGELOG.md`, repo version metadata, current-state delivery docs,
+  and the taskboard are aligned for `v1.1.1` release readiness. Owner-controlled merge, tag
+  creation, release workflow, deployment, smoke validation, and release publication remain separate
+  follow-up actions and are not claimed by this checklist update.
+- V1.1.1 carry-forward attestation: `T-0053` tracks the React Router major-version upgrade, and
+  `T-0054` tracks overall API shape and over-ceremony remediation as future minor-version work.
+- V1.1.1 current-release attestation (`2026-08-17`): `v1.1.1` is the canonical, current PaperBinder
+  release. `T-0055` recorded `main` as taggable, and `CHANGELOG.md`, `README.md`, `REVIEWERS.md`,
+  `docs/95-delivery/staging-and-versioning.md`, `docs/95-delivery/release-workflow.md`, and
+  `docs/00-intent/canonical-decisions.md` now describe `v1.1.1` as current rather than as a
+  candidate pending against `v1.1.0`. This attestation does not claim the merge to `main`, tag
+  creation, release workflow run, Test/Prod deployment, or production smoke validation have
+  happened — those remain the sole outstanding owner-controlled actions listed above, and `v1.1.0`
+  remains the actual deployed tag until they complete.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`

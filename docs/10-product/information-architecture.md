@@ -10,11 +10,13 @@ Primary views:
 - Start Demo flow
 - Login
 - About
+- Hosted flagship article rendered from the accepted article body's Markdown web representation
 - Reviewer-support content (secondary public path or section)
 
 Navigation:
 - Start Demo
 - About
+- Featured article from About
 - Reviewer Notes (secondary)
 - Repo (external link)
 - Login/Logout (contextual)

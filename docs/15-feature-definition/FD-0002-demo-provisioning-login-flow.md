@@ -3,7 +3,7 @@
 ## AI Summary
 
 - Root-host pre-auth flow combines challenge, provisioning, and login handoff.
-- Provisioning returns one-time credentials and transitions the session to tenant host context.
+- Provisioning returns generated workspace credentials in a shown-once handoff and transitions the session to tenant host context.
 - Returning users can log in from root host and are redirected to their tenant subdomain.
 - Tenant resolution remains server-controlled from host plus membership.
 
@@ -39,7 +39,7 @@ The v1 flow is:
 5. Returning users can use `POST /api/auth/login` on root host and receive tenant redirect URL.
 
 Rules:
-- Credentials from provisioning are shown once in UI and not re-fetchable.
+- Credentials from provisioning are shown once in UI and not re-fetchable. They are not single-use passwords; they remain valid for later login while the temporary demo tenant exists.
 - Tenant for login is resolved from authenticated membership; client payload tenant hints are ignored for authorization.
 - Expired tenants cannot complete login into tenant-scoped experiences.
 
@@ -50,7 +50,7 @@ Rules:
 
 ## API / contract impact
 Contract clarifications:
-- `POST /api/provision` returns `tenantId`, `tenantSlug`, `expiresAt`, one-time credentials, and `redirectUrl`.
+- `POST /api/provision` returns `tenantId`, `tenantSlug`, `expiresAt`, generated workspace credentials, and `redirectUrl`.
 - `POST /api/auth/login` returns `redirectUrl` for resolved tenant host.
 - Both endpoints return ProblemDetails on failure and preserve correlation headers.
 
@@ -64,7 +64,7 @@ Representative error codes:
 ## Domain / architecture impact
 - Provisioning remains transactional (tenant, owner user, membership, and lease state).
 - CP7 does not add a separate provisioning-state store; the tenant row plus lease timestamps remain the authoritative persisted state.
-- Raw credential values are never persisted after issuance boundary.
+- Raw credential values are never persisted after the issuance boundary; only Identity password hashes are stored.
 - Tenant context for post-auth requests remains immutable per request.
 
 ## Security / ops impact

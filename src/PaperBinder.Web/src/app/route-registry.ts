@@ -19,6 +19,17 @@ export const rootRouteDefinitions = [
   },
 ] as const;
 
+export const publicStandaloneRouteDefinitions = [
+  {
+    path: "/login" as const,
+    label: "Sign in",
+    title: "Sign in",
+    description: "Return to an existing temporary workspace with generated credentials."
+  }
+] as const;
+
+export const publicLoginRoutePath = publicStandaloneRouteDefinitions[0].path;
+
 export const tenantNavigationItems = [
   {
     path: "/app" as const,

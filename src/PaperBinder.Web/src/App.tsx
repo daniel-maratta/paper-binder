@@ -7,6 +7,7 @@ import type { TenantHostNavigator } from "./app/tenant-host";
 import { resolveHostContext } from "./app/host-context";
 import { RootHostRoutes } from "./app/root-host";
 import { TenantHostRoutes } from "./app/tenant-host";
+import { GoatCounterRouteTracker, PublicAnalyticsEventTracker } from "./analytics/goatcounter-route-tracker";
 import { frontendEnvironment } from "./environment";
 
 function createBrowserAppDefaults() {
@@ -32,13 +33,17 @@ export function AppRouter({
   tenantHostNavigator?: TenantHostNavigator;
 }) {
   return (
-    <Routes>
-      {hostContext.kind === "root" ? RootHostRoutes({ apiClient, hostContext, navigator: rootHostNavigator }) : null}
-      {hostContext.kind === "tenant"
-        ? TenantHostRoutes({ apiClient, hostContext, navigator: tenantHostNavigator })
-        : null}
-      {hostContext.kind === "invalid" ? InvalidHostRoutes({ hostContext }) : null}
-    </Routes>
+    <>
+      <GoatCounterRouteTracker hostContext={hostContext} />
+      <PublicAnalyticsEventTracker hostContext={hostContext} />
+      <Routes>
+        {hostContext.kind === "root" ? RootHostRoutes({ apiClient, hostContext, navigator: rootHostNavigator }) : null}
+        {hostContext.kind === "tenant"
+          ? TenantHostRoutes({ apiClient, hostContext, navigator: tenantHostNavigator })
+          : null}
+        {hostContext.kind === "invalid" ? InvalidHostRoutes({ hostContext }) : null}
+      </Routes>
+    </>
   );
 }
 

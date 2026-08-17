@@ -1,9 +1,12 @@
 import { Route } from "react-router-dom";
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
+import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardMeta, CardTitle } from "../components/ui/card";
 import type { InvalidHostContext } from "./host-context";
 
 function InvalidHostPage({ hostContext }: { hostContext: InvalidHostContext }) {
+  const mainSiteUrl = new URL("/", hostContext.environment.rootUrl).toString();
+
   return (
     <div className="min-h-screen bg-[var(--pb-surface-gradient)] px-6 py-10 text-[var(--pb-color-text)] lg:px-10">
       <div className="mx-auto max-w-4xl space-y-6">
@@ -24,6 +27,11 @@ function InvalidHostPage({ hostContext }: { hostContext: InvalidHostContext }) {
           <AlertTitle>Use a known PaperBinder address</AlertTitle>
           <AlertBody>{hostContext.reason}</AlertBody>
         </Alert>
+        <div className="flex flex-wrap gap-3">
+          <Button asChild type="button">
+            <a href={mainSiteUrl}>Return to main site</a>
+          </Button>
+        </div>
       </div>
     </div>
   );

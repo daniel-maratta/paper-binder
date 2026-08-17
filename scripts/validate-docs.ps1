@@ -8,7 +8,7 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $anchorCache = @{}
 $releaseChecklistPath = Join-Path $repoRoot "docs/95-delivery/release-checklist.md"
 $releaseWorkflowPath = Join-Path $repoRoot "docs/95-delivery/release-workflow.md"
-$releaseArtifactPath = Join-Path $repoRoot "docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
+$publicLegalContentRoot = Join-Path $repoRoot "src/PaperBinder.Web/src/content/legal"
 $privateGuardTargets = @(
   (Join-Path $repoRoot "README.md"),
   (Join-Path $repoRoot "REVIEWERS.md"),
@@ -113,7 +113,6 @@ function Assert-PathExists {
 function Assert-ReleaseChecklistStructure {
   Assert-PathExists -RelativePath "docs/95-delivery/release-checklist.md"
   Assert-PathExists -RelativePath "docs/95-delivery/release-workflow.md"
-  Assert-PathExists -RelativePath "docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md"
 
   $releaseChecklistContent = Get-Content -Path $releaseChecklistPath -Raw
   $requiredHeadings = @(
@@ -151,11 +150,6 @@ function Assert-ReleaseChecklistStructure {
   if ($releaseWorkflowContent -notmatch [regex]::Escape("docs/95-delivery/release-checklist.md")) {
     throw "Release workflow must reference the canonical release checklist."
   }
-
-  $releaseArtifactContent = Get-Content -Path $releaseArtifactPath -Raw
-  if ($releaseArtifactContent -notmatch [regex]::Escape("## Validation Evidence")) {
-    throw "CP17 release artifact must contain a Validation Evidence section."
-  }
 }
 
 function Assert-NoLocalPathLeakage {
@@ -172,6 +166,31 @@ function Assert-NoLocalPathLeakage {
 
     if ($content -match '(?im)[A-Z]:\\Users\\') {
       throw "Absolute local filesystem path leakage detected in $path"
+    }
+  }
+}
+
+function Assert-PublicLegalCopyReady {
+  $forbiddenPublicLegalPatterns = @(
+    "To be set",
+    "owner approval",
+    "legal-readiness",
+    "drafted",
+    "Static review",
+    "for this release",
+    "current public policy wording",
+    "should name",
+    "should not add",
+    "should be disclosed"
+  )
+
+  foreach ($file in Get-ChildItem -Path $publicLegalContentRoot -File -Filter "*.md") {
+    $content = Get-Content -Path $file.FullName -Raw
+
+    foreach ($pattern in $forbiddenPublicLegalPatterns) {
+      if ($content.IndexOf($pattern, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
+        throw "Public legal copy contains draft/audit wording in $($file.FullName): $pattern"
+      }
     }
   }
 }
@@ -335,5 +354,6 @@ foreach ($file in $markdownFiles) {
 
 Assert-ReleaseChecklistStructure
 Assert-NoLocalPathLeakage
+Assert-PublicLegalCopyReady
 
 Write-Host "Documentation validation passed."

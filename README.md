@@ -2,7 +2,7 @@
 
 PaperBinder is a constrained multi-tenant SaaS demonstration designed to exhibit architectural discipline.
 
-It is intentionally narrow in scope: the goal is to demonstrate senior-level system design, security posture, and delivery discipline without building a "kitchen sink" platform.
+It is intentionally narrow in scope: the goal is to demonstrate senior-level system design, security posture, and delivery discipline without building a broad document-management platform.
 
 ---
 
@@ -10,7 +10,7 @@ It is intentionally narrow in scope: the goal is to demonstrate senior-level sys
 
 If you are reviewing this repository as part of a technical interview or architecture discussion, see:
 
-REVIEWERS.md
+[REVIEWERS.md](./REVIEWERS.md)
 
 ---
 
@@ -25,16 +25,29 @@ This is not intended to become a commercial product.
 
 ## Project Provenance
 
-PaperBinder was designed and built by Daniel Maratta as a public engineering portfolio/demo SaaS project.
+PaperBinder was designed and built by Daniel Maratta as a public engineering portfolio and multi-tenant SaaS demonstration.
 
 - Canonical demo: `https://paperbinder.danielmaratta.com`
+- Flagship article: `https://paperbinder.danielmaratta.com/articles/building-paperbinder-production-shaped-saas-demo`
 - Author site: `https://danielmaratta.com`
 - Canonical repository: `https://github.com/daniel-maratta/paper-binder.git`
 - Provenance and verification notes: `PROJECT_ORIGIN.md`
 
+PaperBinder was designed, directed, reviewed, and validated by Daniel Maratta using AI coding agents as implementation accelerators. Large portions of implementation were generated or modified by AI agents under explicit task prompts; architecture, scope, security model, acceptance criteria, review process, remediation decisions, and the final quality bar remained human-directed. This repository intentionally demonstrates modern AI-augmented software delivery, not purely hand-typed keystroke authorship.
+
+The documentation, gates, and validation artifacts are intentionally heavier than a typical paid engagement because PaperBinder is a public hiring artifact. In client work, this process should scale to the risk profile: lighter for low-risk features and internal tools, heavier for security boundaries, data migrations, tenant isolation, authentication, payments, and production releases.
+
 ## License
 
 PaperBinder is available under the MIT License. See `LICENSE` and `NOTICE.md`.
+
+Third-party dependency notices are generated in `THIRD-PARTY-NOTICES.md`. Verify the notice inventory with:
+
+```powershell
+npm.cmd run third-party-notices:check
+```
+
+Security reporting and dependency-maintenance posture are documented in `SECURITY.md`.
 
 ---
 
@@ -155,6 +168,6 @@ Policy:
 
 ## Status
 
-PaperBinder is reviewer-ready at `V1`.
-The current stable release tag is `v1.1.0`.
+PaperBinder is reviewer-ready at `v1.1.1`, the current PaperBinder release.
+`v1.1.1` is fully implemented, validated, and documented; merging to `main`, tagging, and deployment are the remaining owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`.
 Release readiness is recorded in `docs/95-delivery/release-checklist.md`, with the release snapshot in `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`.

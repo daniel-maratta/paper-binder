@@ -6,6 +6,35 @@ All notable changes to this project are documented in this file.
 
 No unreleased changes.
 
+## [1.1.1] - 2026-08-17
+
+### V1.1.1 Release Notes
+
+These notes describe the `v1.1.1` patch release, superseding `v1.1.0` as the current PaperBinder release.
+
+### Added
+- Added public Legal, Privacy Policy, Terms of Use, and Cookie Notice pages, rendered from a dedicated frontmatter-backed legal content collection through a shared legal document template, with links exposed from both the public and tenant footers.
+- Added point-of-collection warnings telling users not to submit sensitive, regulated, confidential, proprietary, personal, medical, financial, credential, or important real business information.
+- Added production-gated GoatCounter usage analytics (`ADR-0016`): PaperBinder-owned direct `/count` requests with sanitized route-template pageviews and a small set of approved public conversion events, disabled outside the production public host and never loading GoatCounter provider JavaScript.
+- Added `SECURITY.md`, documenting vulnerability reporting and dependency/security maintenance policy.
+- Added generated `THIRD-PARTY-NOTICES.md` and expanded `NOTICE.md` distinguishing PaperBinder's MIT licensing, third-party dependency notices, and owner-created asset provenance.
+
+### Changed
+- Generalized release documentation validation so future release-checklist structure checks are not pinned to the historical CP17 artifact path.
+- Quieted optional Docker Compose lease-extension variable warnings by adding explicit defaults that match the existing local environment contract.
+- Reduced small API ceremony by centralizing tenant membership context resolution and consolidating repeated text trimming.
+- Split binder and document application contract types by responsibility so command, outcome, failure, and model types are easier to navigate without changing public behavior.
+- Updated frontend lockfile dependencies with same-major `npm audit fix`/`fix` remediation for `nanoid`, `react-router`, and `react-router-dom`, taking `npm audit --audit-level=moderate` to zero vulnerabilities.
+- Overrode the transitive `SSH.NET` test dependency to `2026.0.0` in `tests/PaperBinder.IntegrationTests`, clearing the `NU1902` vulnerability warning.
+- Bounded repo-owned Docker Compose container log retention (`local` logging driver, `max-size=10m`, `max-file=5`) across all Compose files; deployed containers must be recreated for the change to apply.
+- Aligned runtime logging with the no-PII-by-default posture by removing tenant slug, email, and binder name fields from application log templates.
+
+### Docs
+- Polished README provenance and reviewer entry-point copy.
+- Added the PaperBinder-hosted flagship article route and restored the About page article link to that hosted article.
+- Recorded final validation and hiring assessment review evidence for `v1.1.1` release readiness.
+- Added a technical retention/data inventory (`docs/95-delivery/v1-1-1-legal-retention-inventory.md`) verifying what expiration and purge mean for every data entity and operational surface, and used it to align public policy wording with actual runtime behavior instead of implying fixed-minute deletion guarantees.
+
 ## [1.1.0] - 2026-07-28
 
 ### V1.1.0 Release Notes

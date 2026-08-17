@@ -1,0 +1,121 @@
+# V1.1.1 Legal Retention Inventory
+
+Status: Post-L8 GoatCounter usage analytics follow-up
+Task: `T-0055`
+Date: 2026-08-17
+
+## Purpose
+
+This inventory records what PaperBinder collects, where it lives, and what "expire" and "purge" mean for the current public demo. It is an engineering evidence artifact for the v1.1.1 Privacy Policy, Terms of Use, Cookie Notice, and Legal index work.
+
+This is an engineering evidence artifact, not public policy wording.
+
+## Evidence Scope
+
+Evidence reviewed:
+
+- Runtime configuration and production compose files: `PaperBinderRuntimeSettings.cs`, `docker-compose.prod.yml`, `deploy/prod/Caddyfile`.
+- Tenant provisioning, lease, expiry, and cleanup services.
+- Database schema model and tenant-owned Dapper delete paths.
+- Auth, CSRF, Turnstile, rate-limit, and telemetry wiring.
+- Frontend static searches for browser storage and cookie reads.
+- Operations docs for deployment, observability, cleanup jobs, snapshots/backups, Caddy, PostgreSQL, GitHub Actions/GHCR, Namecheap, Tailscale, and DigitalOcean/equivalent VM topology.
+- Non-secret production checks on 2026-08-15 for lease/cookie/audit/OTLP environment keys and Docker container log configuration. Secret values were not queried.
+
+Evidence limits:
+
+- Provider-level snapshot/backup enablement and retention could not be proven from repository files alone.
+- External provider log retention for Cloudflare, GitHub, Namecheap, Tailscale, and the VM provider must be confirmed from the owner/provider consoles if policy wording needs exact periods.
+- This inventory avoids any public deletion promise tied to a specific minute count. The defensible public boundary is expiry according to the lease shown in the app, followed by eventual cleanup after the worker finds the tenant eligible for purge.
+
+## Core Findings
+
+- PaperBinder exposes public Privacy Policy, Terms of Use, Cookie Notice, and Legal index pages.
+- Demo tenants are created with an expiry timestamp. Authenticated tenant-host access is denied once the actual expiry timestamp has passed.
+- Deletion is not the same event as expiry. The worker selects expired tenants, then purges only if cleanup rules allow it. Recent authenticated activity can defer purge eligibility.
+- The purge deletes tenant-owned database rows for tenants, users, memberships, binders, binder policies, documents, and impersonation audit records in one transaction.
+- The successful purge may leave an operational summary log when audit retention mode is configured to retain purge summaries.
+- Browser storage review found no `localStorage` or `sessionStorage` usage. The frontend reads `document.cookie` only to echo the CSRF cookie into the `X-CSRF-TOKEN` header.
+- Current cookies are strictly necessary for auth/session and CSRF. The Cookie Notice should remain informational disclosure only unless future inventory finds nonessential cookies, analytics, advertising, or telemetry requiring consent.
+- GoatCounter usage analytics are present for aggregate route usage and public conversion/navigation events in the production frontend build only. The frontend sends constrained direct browser image requests to `https://paperbinder.goatcounter.com/count` only when `VITE_PAPERBINDER_ANALYTICS_ENABLED=true` and the current host is a configured public PaperBinder host. It does not load GoatCounter `count.js` or execute analytics-provider JavaScript. The analytics payload does not include tenant slugs, query strings, hashes, binder ids, document ids, user ids, emails, user-provided names, form values, document titles, or document content.
+- GoatCounter individual pageview collection for the `paperbinder` site was manually verified disabled on 2026-08-17. Aggregate reporting remains enabled.
+- No marketing analytics or advertising cookies were found. OpenTelemetry exists for operational traces/metrics. Production config evidence did not show an active OTLP endpoint.
+- Repo-owned Compose files now configure Docker's `local` logging driver with `max-size=10m` and `max-file=5`. Existing deployed containers need to be recreated during rollout before this contract applies to them.
+
+## Retention Table
+
+| Surface | Data | Created by | Accessibility after expiry | Deletion trigger | Actual retention | Policy-visible? |
+| --- | --- | --- | --- | --- | --- | --- |
+| Tenant/workspace row | Tenant id, slug, display name, creation timestamp, expiry timestamp, lease extension count, last authenticated activity timestamp | Provisioning API; lease extension API; tenant resolution middleware records authenticated activity | Authenticated tenant-host access returns expired-state denial after actual expiry; row may remain until cleanup purge | Worker cleanup selects expired tenants and purges when recent-activity rules allow | Until actual expiry plus eventual worker cleanup after eligibility; no exact public deletion interval should be promised | Yes |
+| Owner/generated user | Generated local owner email, normalized names/emails, password hash, security stamp | Provisioning API | User cannot access tenant after expiry, but user row may remain until tenant purge | Tenant purge deletes users associated with the tenant | Same as tenant database purge; raw generated password is returned to the user but not stored in the database | Yes |
+| Tenant-created users | User emails, normalized emails, password hashes, security stamps | Tenant user administration API | No access after tenant expiry; row may remain until tenant purge | Tenant purge deletes associated users; explicit user-delete paths can remove users earlier | Same as tenant database purge unless user is explicitly deleted earlier | Yes |
+| User memberships/roles | User id, tenant id, role, owner flag | Provisioning and tenant user administration APIs | No access after tenant expiry; rows may remain until tenant purge | Tenant purge deletes memberships | Same as tenant database purge | Yes |
+| Binders | Binder ids, tenant id, binder name, created timestamp | Binder API | No tenant-host access after expiry; rows may remain until tenant purge | Tenant purge deletes binders; explicit binder delete can remove binders earlier | Same as tenant database purge unless deleted earlier | Yes |
+| Binder policies | Binder id, tenant id, policy mode, allowed roles, timestamps | Binder policy API and binder creation defaults | No tenant-host access after expiry; rows may remain until tenant purge | Tenant purge deletes binder policies; binder delete cascades through policy data | Same as tenant database purge unless associated binder is deleted earlier | Yes |
+| Documents | Document ids, tenant id, binder id, title, markdown content, content type, superseded link, created timestamp, archive timestamp | Document API | No tenant-host access after expiry; rows may remain until tenant purge | Tenant purge deletes documents; explicit document delete can remove documents earlier | Same as tenant database purge unless deleted earlier | Yes |
+| Impersonation audit records | Session id, event name, tenant id, actor user id, effective user id, timestamp, correlation id | Impersonation service | No tenant-host access after expiry; audit rows may remain until tenant purge | Tenant purge deletes tenant impersonation audit rows | Same as tenant database purge; purge-summary logs may remain separately | Probably |
+| Auth cookie | Server auth ticket in `paperbinder.auth` or configured auth cookie name | Login/provisioning/sign-in flows; impersonation state changes | Expired tenants are rejected server-side even if cookie still exists; invalid sessions clear cookies | Logout, invalid security stamp, missing user, invalid impersonation, or browser session end | Session cookie behavior; protected by ASP.NET Core Data Protection keys; not governed by tenant row purge alone | Yes |
+| CSRF cookie | Browser-readable random token in auth-cookie-name plus `.csrf` | Login/provisioning/sign-in and impersonation state changes | Does not grant access by itself; expired tenant still rejected server-side | Logout, invalid session checks, invalid impersonation, or browser session end | Session cookie behavior; browser-readable by design so the frontend can echo it in `X-CSRF-TOKEN` | Yes |
+| Browser storage | No `localStorage` or `sessionStorage` usage found; clipboard API used only for user-initiated copy actions | N/A | N/A | N/A | No current Web Storage retention surface found | Cookie Notice |
+| GoatCounter usage analytics | Explicit public route paths, sanitized tenant route-template paths, approved low-cardinality public event names, sanitized external referrer origin/path, and aggregate browser, system, approximate location, language, and screen-width categories; GoatCounter session handling uses provider-side in-memory data for repeat-visit counting; individual pageview collection for the `paperbinder` site was manually verified disabled on 2026-08-17 | Frontend PaperBinder analytics tracker and GoatCounter.com hosted service through direct `/count` image requests | N/A to tenant expiry; analytics records may outlive workspace expiry and tenant purge | GoatCounter site/account deletion or provider retention lifecycle | Stored outside PaperBinder in GoatCounter.com; PaperBinder does not store analytics rows in its database; provider backup retention is governed by GoatCounter.com | Yes |
+| Turnstile challenge | Browser challenge token; server sends challenge secret, token response, and remote IP when available to Cloudflare Siteverify | Cloudflare Turnstile widget and server verification service | N/A to tenant expiry; Turnstile is pre-auth and provider-side | Provider retention governed by Cloudflare; app does not persist token response in database | Provider retention unknown from repo; app logs some failed verification metadata, including remote IP | Yes |
+| Pre-auth rate limiting | Remote IP partition, path/host, retry metadata on rejections | ASP.NET rate limiter and rejection logger | N/A to tenant expiry | In-memory limiter state and operational logging; no database row | Runtime memory plus bounded container logs after recreated deployment containers pick up the Compose logging driver | Aggregate description |
+| API/app logs | Security denials, rate-limit rejections, auth boundary failures, tenant/user ids where scoped, path, host, correlation id; L6 removed identified app log fields for tenant slug, email, and binder name from runtime logger templates | API runtime structured logs | N/A; logs may outlive tenant expiry and purge | Docker/container log handling, host maintenance, deploy log collection | Bounded by the Compose `local` logging driver after container recreation: five 10 MB files per container, plus any provider snapshots, backups, deployment logs, or external telemetry retention | Aggregate description |
+| Worker logs | Cleanup cycle start/complete/failure, selected/purged/skipped/failed counts, tenant id on purge/failure, optional deleted-row summary | Worker runtime | N/A; logs may outlive tenant expiry and purge | Docker/container log handling and host maintenance | Bounded by the Compose `local` logging driver after container recreation: five 10 MB files per container, plus any provider snapshots, backups, deployment logs, or external telemetry retention | Aggregate description |
+| Caddy/proxy logs | Reverse-proxy operational logs; Caddyfile does not configure a dedicated access-log block, but container stdout/stderr may include proxy/TLS events | Caddy container | N/A | Docker/container log handling and host maintenance | Bounded by the Compose `local` logging driver after container recreation: five 10 MB files per container, plus any provider snapshots, backups, deployment logs, or external telemetry retention | Aggregate description |
+| OpenTelemetry traces/metrics | Operational request/worker traces and metrics; tenant/user/correlation tags where available; separate from GoatCounter usage analytics | API and worker OpenTelemetry wiring | N/A; traces/metrics may outlive tenant expiry if exported | Console exporter in dev/test; optional OTLP exporter only when configured | Production non-secret config did not show an active OTLP endpoint; if enabled later, provider retention must be disclosed | Yes if active |
+| PostgreSQL Docker volume | Persistent database files containing tenant-owned rows and operational schema | PostgreSQL container | Tenant-owned rows can remain in the volume until worker purge; inaccessible through app after expiry | Tenant purge removes tenant-owned rows; volume lifecycle is managed by Docker/host operations | Tenant-owned logical rows are purged by worker; physical storage and database internals may persist until PostgreSQL/storage reuse, vacuum, backup, or volume removal | Yes |
+| Data Protection key ring | ASP.NET Core Data Protection keys under `/data/keys`; certificate-backed protection in deployed environments | App/worker runtime and deployment secret | N/A; keys protect/validate auth cookies and other protected payloads | Key-ring rotation/volume lifecycle, not tenant purge | Operational security state persists outside tenant data lifecycle | Aggregate/security description |
+| Server `.env` and deployment files | Runtime configuration, provider endpoints, secrets, image tags, DB credentials | GitHub deploy workflow and operator | N/A | Operator/deployment lifecycle | Production `.env` persists on host; do not treat it as tenant content | Aggregate/security description |
+| GitHub Actions logs | Build/test/deploy logs, image tags, deployment metadata; workflow can print recent app/proxy logs on deploy failure | GitHub Actions | N/A | GitHub retention policy/configuration | Build/deploy metadata may remain with GitHub; visitor document contents should not flow there except if operational logs are intentionally printed into failed deploy logs | Possibly, as build/deploy processor not ordinary visitor content processor |
+| GHCR | Tagged container images and registry metadata | Release workflow and deploy workflow | N/A | GitHub/GHCR retention policy and owner cleanup | No visitor document content expected in images; provider processes deployment artifacts | Usually not visitor policy wording except provider/legal index notes |
+| Namecheap DNS/API | DNS records, ACME DNS challenge API requests, whitelisted client IP configuration | Caddy DNS-01 flow and operator DNS setup | N/A | DNS/provider retention | DNS/TLS infrastructure provider; not evidenced as processing visitor document contents | Usually no, except infrastructure/provider description if naming providers |
+| Tailscale admin access | Tailnet admin/SSH access metadata | Operator, deploy/admin access | N/A | Tailscale/provider retention | Administrative access provider; not evidenced as processing visitor document contents | Usually no, except security/provider description if naming providers |
+| DigitalOcean or equivalent VM provider | VM, network, disk, snapshot/backup metadata, possible block-level tenant data in snapshots/backups if enabled | Operator/provider | N/A through app; provider-level snapshots/backups may contain retained block data | Provider snapshot/backup settings and operator cleanup | Snapshot/backup enablement and retention not proven from repo; owner/provider verification required | Yes if enabled or if provider hosts live data |
+
+## Provider Classification For Policy Drafting
+
+Current runtime data path:
+
+- VM/cloud host provider for the production server and attached storage.
+- Docker/Caddy/PostgreSQL runtime inside the production host.
+- Cloudflare Turnstile for challenge verification on root-host provisioning and login.
+- GoatCounter.com for hosted aggregate usage analytics on public and tenant SPA routes.
+- Optional OTLP provider only if `PAPERBINDER_OTEL_OTLP_ENDPOINT` is configured.
+
+Build/deploy/support path:
+
+- GitHub Actions and GHCR for tests, release images, deployment metadata, and deploy logs.
+- Namecheap DNS API for Caddy ACME DNS-01 wildcard certificate issuance/renewal.
+- Tailscale for administrative SSH reachability.
+
+Public policy should avoid implying that build/deploy/support providers process visitor document contents unless a specific data flow proves that they do.
+
+## Policy Wording Constraints
+
+- Say demo workspaces are temporary and expire according to the lease period displayed in the application.
+- Do not say data is deleted at any fixed minute boundary.
+- Say access is denied after the actual workspace expiry timestamp, but database rows may remain until automated cleanup finds the workspace eligible for purge.
+- Say cleanup can be deferred by recent authenticated activity and operational failures.
+- Say tenant purge deletes tenant-owned database rows, but operational logs, telemetry, deployment logs, provider logs, physical database storage behavior, and snapshots/backups can have different retention. Container stdout/stderr logs are bounded by the Compose logging driver after container recreation.
+- Say there is no backup, recovery, restore, or availability guarantee for users.
+- Say PaperBinder does not use marketing analytics in the current public demo. Operational telemetry may be emitted, and optional OTLP export belongs in public policy only when enabled.
+- Say PaperBinder uses GoatCounter for basic cookie-less usage analytics. Analytics requests are sent from the visitor's browser to GoatCounter through PaperBinder-owned direct `/count` requests. Analytics wording must not imply PaperBinder stores analytics rows or IP addresses in its database, user identity, tenant identity, document inspection, session replay, or fine-grained behavior tracking.
+- Say current cookies are strictly necessary auth/CSRF cookies and the Cookie Notice is informational disclosure only. Do not add a consent-management platform or banner unless future inventory identifies nonessential cookies, advertising, or consent-triggering telemetry.
+- Warn users not to submit sensitive, regulated, confidential, proprietary, personal, medical, financial, credential, or important real business information.
+
+## Closeout Notes
+
+- L2/L3 added public legal pages, legal footer exposure, and point-of-collection sensitive-data warnings.
+- L4 added durable third-party notices and owner-created asset provenance.
+- L5 added the root security and dependency-maintenance policy.
+- L6 removed identified runtime log fields for tenant slug, email, and binder name and added a source-level guard against user-submitted names/content, emails, passwords, and credentials in logger templates. Remaining path, host, IP-derived data, tenant/user identifiers, and correlation identifiers are disclosed operational/security metadata in the Privacy Policy.
+- The 2026-08-17 follow-up set the public legal effective date, removed draft/audit-process wording from public legal copy, and configured bounded Compose container logging. Provider snapshot/backup and external OTLP wording remains general because exact provider-side retention remains an owner/provider verification fact. No public policy wording claims an exact provider retention period or fixed-minute deletion boundary.
+- The 2026-08-17 GoatCounter follow-up added hosted aggregate usage analytics using a separate `paperbinder` GoatCounter site. The implementation sends explicit public route paths, tenant route templates, approved public event names, and sanitized referrers through direct `/count` image requests. Individual pageview collection for the `paperbinder` site was manually verified disabled on 2026-08-17.
+
+## Open Questions
+
+- Are production provider snapshots or recurring backups enabled for the VM or volumes? If yes, what is the retention period?
+- Does the owner want public policy to name the VM/cloud host provider, or categorize it as a cloud hosting provider?
+- Have the deployed production and shared-test containers been recreated after the Compose logging-driver change?
+- Is any external OTLP endpoint intentionally enabled outside the checked production `.env` evidence?
