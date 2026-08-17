@@ -13,7 +13,7 @@ Define the canonical stable-release sequence for the `V1` line, its ownership bo
 - Current release tag: `v1.1.1`
 - Current release SemVer metadata: `1.1.1`
 - Prior published stable tag: `v1.1.0`
-- The `v1.1.1` release-close-out task (`T-0055`) has recorded main as taggable; merging to `main`, tagging, and deployment remain owner-controlled actions per the sequence below.
+- The `v1.1.1` release-close-out task (`T-0055`) has recorded main as taggable; `v1.1.1` has merged to `main` (PR #54, commit `89ad4aa`, 2026-08-17), and tagging and deployment remain owner-controlled actions per the sequence below.
 - Changelog cut shape:
   - historical first stable cut: `## [V1] - 2026-04-19`
   - subsequent stable releases on the same line: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD` with a fresh empty `## Unreleased`

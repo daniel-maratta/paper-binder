@@ -63,7 +63,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - `docs/30-security/secrets-and-config.md`
 
 ## Blocked By
-- None. Owner approval of the final legal wording is complete (`2026-08-17`); merge, tag, deployment, and smoke validation remain explicit owner-controlled release actions before publication.
+- None. Owner approval of the final legal wording is complete (`2026-08-17`), and the `v1.1.1` candidate branch has merged to `main` (PR #54, commit `89ad4aa`, `2026-08-17`); tag, deployment, and smoke validation remain explicit owner-controlled release actions before publication.
 
 ## Review Gates
 - Scope Lock: Legal readiness for the current public demo only; no commercial SaaS expansion.
@@ -110,7 +110,8 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 
 ## Next Action
 - Owner (Daniel Maratta) approved the final legal wording for publication on `2026-08-17`.
-- Remaining owner-controlled release follow-through: merge the `v1.1.1` candidate branch, tag, deploy with recreated containers so the logging driver applies, and smoke test.
+- The `v1.1.1` candidate branch merged to `main` via PR #54 (commit `89ad4aa`) on `2026-08-17`.
+- Remaining owner-controlled release follow-through: tag `v1.1.1`, deploy with recreated containers so the logging driver applies, and smoke test.
 
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L1 documentation update.
