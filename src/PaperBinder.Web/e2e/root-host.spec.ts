@@ -108,7 +108,7 @@ test("Should_ReachLegalPolicyPages_FromRootHostFooter_InBrowser", async ({ page 
   await footer.getByRole("link", { name: "Cookie Notice" }).click();
   await expect(page).toHaveURL(/\/cookies$/);
   await expect(page.getByRole("heading", { level: 1, name: "Cookie Notice" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Current posture" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Cookie use" })).toBeVisible();
 });
 
 test("Should_ProvisionAndAutoLogin_FromRootHost_InBrowser_AgainstTheExplicitE2ERuntime", async ({ page }) => {

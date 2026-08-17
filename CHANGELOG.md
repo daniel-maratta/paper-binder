@@ -29,6 +29,9 @@ These notes describe the `v1.1.1` patch release, superseding `v1.1.0` as the cur
 - Bounded repo-owned Docker Compose container log retention (`local` logging driver, `max-size=10m`, `max-file=5`) across all Compose files; deployed containers must be recreated for the change to apply.
 - Aligned runtime logging with the no-PII-by-default posture by removing tenant slug, email, and binder name fields from application log templates.
 
+### Fixed
+- Fixed a stale end-to-end test assertion (`e2e/root-host.spec.ts`) that expected the Cookie Notice page's original `Current posture` heading after the public legal content pass renamed it to `Cookie use`.
+
 ### Docs
 - Polished README provenance and reviewer entry-point copy.
 - Added the PaperBinder-hosted flagship article route and restored the About page article link to that hosted article.
