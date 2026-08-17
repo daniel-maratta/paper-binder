@@ -17,7 +17,8 @@ export const testEnvironment: FrontendEnvironment = {
   apiOrigin: "https://paperbinder.example.test",
   challengeSiteKey: "demo-site-key",
   challengeScriptUrl: "https://challenge.example.test/api.js",
-  challengeLocalBypassEnabled: false
+  challengeLocalBypassEnabled: false,
+  analyticsEnabled: true
 };
 
 export function createLocationLike(

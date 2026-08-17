@@ -34,12 +34,13 @@ PaperBinder processes operational information needed to run and protect the demo
 - Tenant, user, actor, and effective-user identifiers where needed for security, authorization, audit, or operational diagnostics.
 - Operational logs for security denials, rate limits, authentication, authorization, and cleanup.
 - Operational traces and metrics for diagnostics.
+- Aggregate usage analytics for public-site and workspace-app route visits, approved public navigation/conversion events, referrers, browser, system, approximate location, language, and screen-width categories. Analytics requests are sent from the visitor's browser to GoatCounter. GoatCounter necessarily processes network and browser information, including IP address and browser headers, to produce privacy-preserving aggregate statistics. Analytics paths are explicit public routes, route templates, or approved synthetic public event names and do not include workspace slugs, user identifiers, binder identifiers, document identifiers, form values, binder names, document titles, or document content.
 
 # Cookies and browser storage
 
 PaperBinder uses strictly necessary cookies for authentication and CSRF protection. The authentication cookie is server-readable and HttpOnly. The CSRF cookie is readable by the application so PaperBinder can send the `X-CSRF-TOKEN` header on protected requests.
 
-PaperBinder does not store its data in your browser's `localStorage` or `sessionStorage`. PaperBinder does not use marketing analytics or advertising cookies.
+PaperBinder does not store its data in your browser's `localStorage` or `sessionStorage`. PaperBinder uses GoatCounter for basic cookie-less usage analytics without analytics cookies or browser storage. PaperBinder does not use marketing analytics or advertising cookies.
 
 # Turnstile challenge processing
 
@@ -57,7 +58,7 @@ PaperBinder does not promise backups, restoration, recovery, availability, or co
 
 # Providers
 
-PaperBinder uses service providers for hosting, database storage, networking, DNS/TLS, security challenges, release support, and operational diagnostics. Operational telemetry is used for diagnostics and is exported outside PaperBinder only if the operator configures an external telemetry endpoint.
+PaperBinder uses service providers for hosting, database storage, networking, DNS/TLS, security challenges, release support, usage analytics, and operational diagnostics. GoatCounter receives basic analytics requests from visitors' browsers and provides aggregate usage analytics for PaperBinder. PaperBinder does not store GoatCounter analytics rows or IP addresses as analytics identifiers in the PaperBinder database. Operational telemetry is used for diagnostics and is exported outside PaperBinder only if the operator configures an external telemetry endpoint.
 
 Some service providers help maintain and publish the PaperBinder software. They do not receive workspace documents through ordinary use, but operational logs may be shared with them for diagnostic or operational purposes.
 

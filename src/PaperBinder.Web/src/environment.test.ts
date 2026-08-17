@@ -11,7 +11,8 @@ describe("frontend environment", () => {
         VITE_PAPERBINDER_TENANT_BASE_DOMAIN: "paperbinder.example.test",
         VITE_PAPERBINDER_CHALLENGE_SITE_KEY: "demo-site-key",
         VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: "https://challenge.example.test/api.js",
-        VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "false"
+        VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "false",
+        VITE_PAPERBINDER_ANALYTICS_ENABLED: "true"
       }
     );
 
@@ -23,7 +24,8 @@ describe("frontend environment", () => {
       apiOrigin: "https://paperbinder.example.test",
       challengeSiteKey: "demo-site-key",
       challengeScriptUrl: "https://challenge.example.test/api.js",
-      challengeLocalBypassEnabled: false
+      challengeLocalBypassEnabled: false,
+      analyticsEnabled: true
     });
   });
 
@@ -36,11 +38,13 @@ describe("frontend environment", () => {
         VITE_PAPERBINDER_TENANT_BASE_DOMAIN: "paperbinder.localhost:8080",
         VITE_PAPERBINDER_CHALLENGE_SITE_KEY: "demo-site-key",
         VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: "https://challenge.example.test/api.js",
-        VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "true"
+        VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "true",
+        VITE_PAPERBINDER_ANALYTICS_ENABLED: "false"
       }
     );
 
     expect(environment.challengeLocalBypassEnabled).toBe(true);
+    expect(environment.analyticsEnabled).toBe(false);
   });
 
   it("Should_RejectFrontendEnvironment_When_LocalChallengeBypassIsEnabledForANonLocalRootUrl", () => {
@@ -53,9 +57,43 @@ describe("frontend environment", () => {
           VITE_PAPERBINDER_TENANT_BASE_DOMAIN: "paperbinder.example.test",
           VITE_PAPERBINDER_CHALLENGE_SITE_KEY: "demo-site-key",
           VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: "https://challenge.example.test/api.js",
-          VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "true"
+          VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "true",
+          VITE_PAPERBINDER_ANALYTICS_ENABLED: "false"
         }
       )
     ).toThrow("VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED");
+  });
+
+  it("Should_DefaultAnalyticsDisabled_When_AnalyticsFlagIsOmitted", () => {
+    const environment = readFrontendEnvironment(
+      {},
+      {
+        VITE_PAPERBINDER_ROOT_URL: "https://paperbinder.example.test",
+        VITE_PAPERBINDER_API_BASE_URL: "https://paperbinder.example.test",
+        VITE_PAPERBINDER_TENANT_BASE_DOMAIN: "paperbinder.example.test",
+        VITE_PAPERBINDER_CHALLENGE_SITE_KEY: "demo-site-key",
+        VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: "https://challenge.example.test/api.js",
+        VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "false"
+      }
+    );
+
+    expect(environment.analyticsEnabled).toBe(false);
+  });
+
+  it("Should_RejectFrontendEnvironment_When_AnalyticsFlagIsNotBoolean", () => {
+    expect(() =>
+      readFrontendEnvironment(
+        {},
+        {
+          VITE_PAPERBINDER_ROOT_URL: "https://paperbinder.example.test",
+          VITE_PAPERBINDER_API_BASE_URL: "https://paperbinder.example.test",
+          VITE_PAPERBINDER_TENANT_BASE_DOMAIN: "paperbinder.example.test",
+          VITE_PAPERBINDER_CHALLENGE_SITE_KEY: "demo-site-key",
+          VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL: "https://challenge.example.test/api.js",
+          VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED: "false",
+          VITE_PAPERBINDER_ANALYTICS_ENABLED: "sometimes"
+        }
+      )
+    ).toThrow("VITE_PAPERBINDER_ANALYTICS_ENABLED");
   });
 });

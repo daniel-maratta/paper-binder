@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppRouter } from "../App";
 import { PaperBinderApiError, type PaperBinderApiClient } from "../api/client";
+import { publicAnalyticsEventNames } from "../analytics/goatcounter";
 import { flagshipArticle } from "../content/articles/flagship-article";
 import {
   createApiClientStub,
@@ -128,6 +129,10 @@ function renderRootRoute({
   };
 }
 
+function expectAnalyticsEvent(element: HTMLElement, eventName: string) {
+  expect(element).toHaveAttribute("data-paperbinder-analytics-event", eventName);
+}
+
 afterEach(() => {
   delete window.turnstile;
   vi.unstubAllGlobals();
@@ -153,7 +158,9 @@ describe("root-host flows", () => {
         "PaperBinder demonstrates tenant isolation, role-aware access, immutable documents, and an ephemeral workspace lifecycle in a working product UI."
       )
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start demo" })).toHaveAttribute("href", "/start-demo");
+    const landingStartDemoLink = screen.getByRole("link", { name: "Start demo" });
+    expect(landingStartDemoLink).toHaveAttribute("href", "/start-demo");
+    expectAnalyticsEvent(landingStartDemoLink, publicAnalyticsEventNames.landingStartDemo);
     expect(
       screen.getByRole("img", {
         name: "PaperBinder dashboard with lease details, recent binders, and next actions."
@@ -189,7 +196,9 @@ describe("root-host flows", () => {
     expect(
       screen.getAllByRole("link", { name: "Start Demo" }).some((link) => link.getAttribute("href") === "/start-demo")
     ).toBe(true);
-    expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/about");
+    const learnMoreLink = screen.getByRole("link", { name: "Learn more" });
+    expect(learnMoreLink).toHaveAttribute("href", "/about");
+    expectAnalyticsEvent(learnMoreLink, publicAnalyticsEventNames.landingLearnMore);
     expect(
       screen.getByText("A production-shaped SaaS demo designed and built by Daniel Maratta.")
     ).toBeInTheDocument();
@@ -208,10 +217,18 @@ describe("root-host flows", () => {
       "https://github.com/daniel-maratta/paper-binder.git"
     );
     expect(screen.getByRole("heading", { level: 2, name: "Legal" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Legal" })).toHaveAttribute("href", "/legal");
-    expect(screen.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
-    expect(screen.getByRole("link", { name: "Terms of Use" })).toHaveAttribute("href", "/terms");
-    expect(screen.getByRole("link", { name: "Cookie Notice" })).toHaveAttribute("href", "/cookies");
+    const legalIndexLink = screen.getByRole("link", { name: "Legal" });
+    const privacyLink = screen.getByRole("link", { name: "Privacy Policy" });
+    const termsLink = screen.getByRole("link", { name: "Terms of Use" });
+    const cookiesLink = screen.getByRole("link", { name: "Cookie Notice" });
+    expect(legalIndexLink).toHaveAttribute("href", "/legal");
+    expect(privacyLink).toHaveAttribute("href", "/privacy");
+    expect(termsLink).toHaveAttribute("href", "/terms");
+    expect(cookiesLink).toHaveAttribute("href", "/cookies");
+    expectAnalyticsEvent(legalIndexLink, publicAnalyticsEventNames.footerLegalNav);
+    expectAnalyticsEvent(privacyLink, publicAnalyticsEventNames.footerLegalNav);
+    expectAnalyticsEvent(termsLink, publicAnalyticsEventNames.footerLegalNav);
+    expectAnalyticsEvent(cookiesLink, publicAnalyticsEventNames.footerLegalNav);
     expect(screen.queryByLabelText("Tenant name")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
@@ -257,10 +274,9 @@ describe("root-host flows", () => {
         "A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind PaperBinder."
       )
     ).toBeInTheDocument();
-    expect(articleScope.getByRole("link", { name: "Read article" })).toHaveAttribute(
-      "href",
-      "/articles/building-paperbinder-production-shaped-saas-demo"
-    );
+    const readArticleLink = articleScope.getByRole("link", { name: "Read article" });
+    expect(readArticleLink).toHaveAttribute("href", "/articles/building-paperbinder-production-shaped-saas-demo");
+    expectAnalyticsEvent(readArticleLink, publicAnalyticsEventNames.aboutReadArticle);
     expect(articleScope.queryByText(/coming soon/i)).not.toBeInTheDocument();
     expect(screen.getByText("WHAT THIS DEMONSTRATES")).toBeInTheDocument();
     expect(
@@ -338,6 +354,10 @@ describe("root-host flows", () => {
     );
     expect(screen.getByRole("navigation", { name: "Article sections" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Where AI Helped" })).toHaveAttribute("href", "#where-ai-helped");
+    expectAnalyticsEvent(
+      screen.getByRole("link", { name: "Where AI Helped" }),
+      publicAnalyticsEventNames.articleSectionNav
+    );
     expect(screen.getByRole("link", { name: "Introduction" })).toHaveAttribute("aria-current", "location");
     expect(screen.getByRole("heading", { name: "Introduction" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "What is PaperBinder, and why build it?" })).toBeInTheDocument();
@@ -437,6 +457,7 @@ describe("root-host flows", () => {
         "Expiration is not the same as deletion. Workspace data may remain in PaperBinder's systems after expiration until automated cleanup removes it. Deletion timing can vary and may be affected by recent authenticated activity, operational failures, and host maintenance."
       )
     ).toBeInTheDocument();
+    expect(screen.getByText(/GoatCounter receives basic analytics requests from visitors' browsers/i)).toBeInTheDocument();
     expect(screen.getByText("PaperBinder does not sell personal information.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "paperbinder@danielmaratta.com" })).toHaveAttribute(
       "href",
@@ -499,8 +520,10 @@ describe("root-host flows", () => {
     expect(screen.getByRole("heading", { name: "Cookie use" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Telemetry" })).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "This Cookie Notice explains how the PaperBinder public demo uses cookies and browser storage. PaperBinder uses only strictly necessary authentication and CSRF cookies. It does not use marketing analytics or advertising cookies."
+      screen.getByText((_content, element) =>
+        element?.tagName === "P" &&
+        element.textContent ===
+          "This Cookie Notice explains how the PaperBinder public demo uses cookies and browser storage. PaperBinder's only cookies are strictly necessary authentication and CSRF cookies. PaperBinder also uses GoatCounter for basic analytics without analytics cookies, advertising cookies, localStorage, or sessionStorage. PaperBinder does not use marketing analytics or advertising cookies."
       )
     ).toBeInTheDocument();
     expect(screen.getByText("An authentication cookie used to keep a user signed in to a temporary workspace. This cookie is HttpOnly and server-readable.")).toBeInTheDocument();
@@ -510,6 +533,7 @@ describe("root-host flows", () => {
         "PaperBinder does not store its data in your browser's localStorage or sessionStorage."
       )
     ).toBeInTheDocument();
+    expect(screen.getByText(/basic aggregate usage analytics through GoatCounter without analytics cookies/i)).toBeInTheDocument();
     expect(screen.queryByText(/static review/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/accept cookies/i)).not.toBeInTheDocument();
     expect(document.title).toBe("Cookie Notice | PaperBinder");

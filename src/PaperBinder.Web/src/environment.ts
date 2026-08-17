@@ -4,7 +4,8 @@ const requiredFrontendKeys = [
   "VITE_PAPERBINDER_TENANT_BASE_DOMAIN",
   "VITE_PAPERBINDER_CHALLENGE_SITE_KEY",
   "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL",
-  "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
+  "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED",
+  "VITE_PAPERBINDER_ANALYTICS_ENABLED"
 ] as const;
 
 type FrontendKey = (typeof requiredFrontendKeys)[number];
@@ -19,6 +20,7 @@ type FrontendEnvironment = {
   challengeSiteKey: string;
   challengeScriptUrl: string;
   challengeLocalBypassEnabled: boolean;
+  analyticsEnabled: boolean;
 };
 
 declare const __PAPERBINDER_FRONTEND_ENV_FALLBACK__: Record<FrontendKey, string>;
@@ -98,6 +100,10 @@ export function readFrontendEnvironment(
     getRequiredValue(env, "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED", fallbackEnv),
     "VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED"
   );
+  const analyticsEnabled = parseBoolean(
+    env.VITE_PAPERBINDER_ANALYTICS_ENABLED ?? fallbackEnv.VITE_PAPERBINDER_ANALYTICS_ENABLED ?? "false",
+    "VITE_PAPERBINDER_ANALYTICS_ENABLED"
+  );
 
   if (challengeLocalBypassEnabled && !isLocalHostLike(new URL(rootUrl).hostname)) {
     throw new Error(
@@ -118,7 +124,8 @@ export function readFrontendEnvironment(
       getRequiredValue(env, "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL", fallbackEnv),
       "VITE_PAPERBINDER_CHALLENGE_SCRIPT_URL"
     ),
-    challengeLocalBypassEnabled
+    challengeLocalBypassEnabled,
+    analyticsEnabled
   };
 }
 

@@ -9,7 +9,7 @@ effectiveDate: August 17, 2026
 
 # Cookie use
 
-This Cookie Notice explains how the PaperBinder public demo uses cookies and browser storage. PaperBinder uses only strictly necessary authentication and CSRF cookies. It does not use marketing analytics or advertising cookies.
+This Cookie Notice explains how the PaperBinder public demo uses cookies and browser storage. PaperBinder's only cookies are strictly necessary authentication and CSRF cookies. PaperBinder also uses GoatCounter for basic analytics without analytics cookies, advertising cookies, `localStorage`, or `sessionStorage`. PaperBinder does not use marketing analytics or advertising cookies.
 
 # Strictly necessary cookies
 
@@ -30,7 +30,7 @@ PaperBinder uses Cloudflare Turnstile on pre-authentication surfaces such as dem
 
 # Telemetry
 
-PaperBinder records operational telemetry for diagnostics.
+PaperBinder records operational telemetry for diagnostics. PaperBinder also records basic aggregate usage analytics through GoatCounter without analytics cookies, advertising cookies, `localStorage`, or `sessionStorage`.
 
 # Contact
 

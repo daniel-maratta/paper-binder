@@ -4,6 +4,7 @@ import type { LoginResponse, PaperBinderApiClient, ProvisionResponse } from "../
 import { Alert, AlertBody, AlertTitle } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
+import { publicAnalyticsEventNames, trackPaperBinderEvent } from "../analytics/goatcounter";
 import { cn } from "../lib/cn";
 import { RootHostChallengeWidget } from "./challenge-widget";
 import { CredentialDisplayField } from "./credential-display-field";
@@ -11,7 +12,7 @@ import { productIdentity } from "./product-identity";
 import { writeClipboardValue } from "./copy-value-chip";
 import type { RootHostContext } from "./host-context";
 import type { FrontendEnvironment } from "../environment";
-import { rootRouteDefinitions } from "./route-registry";
+import { publicLoginRoutePath, rootRouteDefinitions } from "./route-registry";
 import { mapRootHostError, type RootHostErrorViewModel } from "./root-host-errors";
 import { getMarkdownArticleHeadings, MarkdownArticle } from "./markdown-article";
 import { flagshipArticle } from "../content/articles/flagship-article";
@@ -417,6 +418,7 @@ function ArticleSectionNavigation() {
             <a
               aria-current={heading.id === activeHeadingId ? "location" : undefined}
               className={heading.id === activeHeadingId ? "pb-public-article-section-link--active" : undefined}
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleSectionNav}
               href={`#${heading.id}`}
               onClick={() => {
                 if (!isDesktopArticleNavigation) {
@@ -434,7 +436,7 @@ function ArticleSectionNavigation() {
 }
 
 function resolveRootPageTitle(pathname: string): string {
-  if (pathname === "/login") {
+  if (pathname === publicLoginRoutePath) {
     return "Sign in";
   }
 
@@ -607,12 +609,14 @@ function ArticleCard({
   title,
   children,
   href,
+  analyticsEvent,
   cta
 }: {
   meta: string;
   title: string;
   children: ReactNode;
   href?: string;
+  analyticsEvent?: string;
   cta: string;
 }) {
   return (
@@ -622,7 +626,13 @@ function ArticleCard({
         <h3>{title}</h3>
         <p>{children}</p>
       </div>
-      {href ? <a href={href}>{cta}</a> : <span className="pb-public-about-article-status">{cta}</span>}
+      {href ? (
+        <a data-paperbinder-analytics-event={analyticsEvent} href={href}>
+          {cta}
+        </a>
+      ) : (
+        <span className="pb-public-about-article-status">{cta}</span>
+      )}
     </article>
   );
 }
@@ -640,17 +650,19 @@ function ReferenceCard({
   title,
   href,
   label,
+  analyticsEvent,
   children
 }: {
   title: string;
   href: string;
   label: string;
+  analyticsEvent?: string;
   children: ReactNode;
 }) {
   return (
     <li>
       <h3>{title}</h3>
-      <a href={href} rel="noreferrer" target="_blank">
+      <a data-paperbinder-analytics-event={analyticsEvent} href={href} rel="noreferrer" target="_blank">
         {label}
       </a>
       <p>{children}</p>
@@ -704,14 +716,16 @@ function PublicProofIcon({ icon }: { icon: PublicValuePillar["icon"] }) {
 function PublicShellLink({
   className,
   to,
+  analyticsEvent,
   children
 }: {
   className?: string;
   to: string;
+  analyticsEvent?: string;
   children: string;
 }) {
   return (
-    <NavLink className={cn("pb-public-button-link", className)} to={to}>
+    <NavLink className={cn("pb-public-button-link", className)} data-paperbinder-analytics-event={analyticsEvent} to={to}>
       {children}
     </NavLink>
   );
@@ -795,7 +809,12 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
 
   return (
     <header className="pb-public-topbar">
-      <NavLink aria-label="PaperBinder home" className="pb-public-brand" to="/">
+      <NavLink
+        aria-label="PaperBinder home"
+        className="pb-public-brand"
+        data-paperbinder-analytics-event={publicAnalyticsEventNames.headerBrand}
+        to="/"
+      >
         <img
           alt=""
           aria-hidden="true"
@@ -808,6 +827,13 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
         {rootRouteDefinitions.map((route) => (
           <NavLink
             className={({ isActive }) => cn("pb-public-topnav-link", isActive && "pb-public-topnav-link--active")}
+            data-paperbinder-analytics-event={
+              route.path === "/"
+                ? publicAnalyticsEventNames.headerNavProduct
+                : route.path === "/start-demo"
+                  ? publicAnalyticsEventNames.headerNavDemo
+                  : publicAnalyticsEventNames.headerNavAbout
+            }
             end={route.path === "/"}
             key={route.path}
             to={route.path}
@@ -822,11 +848,19 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
           <span className="pb-public-debug-chip">Loopback alias</span>
         ) : null}
         {workspaceReturnUrl ? (
-          <a className="pb-public-button-link pb-public-header-cta" href={workspaceReturnUrl}>
+          <a
+            className="pb-public-button-link pb-public-header-cta"
+            data-paperbinder-analytics-event={publicAnalyticsEventNames.headerOpenWorkspace}
+            href={workspaceReturnUrl}
+          >
             Open Workspace
           </a>
         ) : (
-          <PublicShellLink className="pb-public-header-cta" to="/start-demo">
+          <PublicShellLink
+            analyticsEvent={publicAnalyticsEventNames.headerStartDemo}
+            className="pb-public-header-cta"
+            to="/start-demo"
+          >
             Start Demo
           </PublicShellLink>
         )}
@@ -840,7 +874,12 @@ function PublicFooter() {
     <footer className="pb-public-footer">
       <div className="pb-public-footer-main">
         <div className="pb-public-footer-brand">
-          <NavLink aria-label="PaperBinder home" className="pb-public-footer-logo" to="/">
+          <NavLink
+            aria-label="PaperBinder home"
+            className="pb-public-footer-logo"
+            data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProductNav}
+            to="/"
+          >
             <img alt="" aria-hidden="true" src="/brand/pb-full-logo-white.png" />
           </NavLink>
           <p>A production-shaped SaaS demo designed and built by Daniel Maratta.</p>
@@ -852,7 +891,11 @@ function PublicFooter() {
             <ul>
               {rootRouteDefinitions.map((route) => (
                 <li key={route.path}>
-                  <NavLink className="pb-public-footer-link" to={route.path}>
+                  <NavLink
+                    className="pb-public-footer-link"
+                    data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProductNav}
+                    to={route.path}
+                  >
                     {route.label}
                   </NavLink>
                 </li>
@@ -866,6 +909,7 @@ function PublicFooter() {
               <li>
                 <a
                   className="pb-public-footer-link"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProjectLink}
                   href={productIdentity.canonicalDemoUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -874,13 +918,20 @@ function PublicFooter() {
                 </a>
               </li>
               <li>
-                <a className="pb-public-footer-link" href={productIdentity.authorUrl} rel="noreferrer" target="_blank">
+                <a
+                  className="pb-public-footer-link"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProjectLink}
+                  href={productIdentity.authorUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
                   Portfolio
                 </a>
               </li>
               <li>
                 <a
                   className="pb-public-footer-link"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.footerProjectLink}
                   href={productIdentity.canonicalRepositoryUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -896,7 +947,11 @@ function PublicFooter() {
             <ul>
               {[legalIndexDocument, ...legalPolicyDocuments].map((document) => (
                 <li key={document.path}>
-                  <NavLink className="pb-public-footer-link" to={document.path}>
+                  <NavLink
+                    className="pb-public-footer-link"
+                    data-paperbinder-analytics-event={publicAnalyticsEventNames.footerLegalNav}
+                    to={document.path}
+                  >
                     {document.title}
                   </NavLink>
                 </li>
@@ -959,15 +1014,27 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
           actions={
             <>
               {workspaceReturnUrl ? (
-                <a className="pb-public-button-link pb-public-button-link--light" href={workspaceReturnUrl}>
+                <a
+                  className="pb-public-button-link pb-public-button-link--light"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.landingOpenWorkspace}
+                  href={workspaceReturnUrl}
+                >
                   Open workspace
                 </a>
               ) : (
-                <PublicShellLink className="pb-public-button-link--light" to="/start-demo">
+                <PublicShellLink
+                  analyticsEvent={publicAnalyticsEventNames.landingStartDemo}
+                  className="pb-public-button-link--light"
+                  to="/start-demo"
+                >
                   Start demo
                 </PublicShellLink>
               )}
-              <PublicShellLink className="pb-public-button-link--ghost" to="/about">
+              <PublicShellLink
+                analyticsEvent={publicAnalyticsEventNames.landingLearnMore}
+                className="pb-public-button-link--ghost"
+                to="/about"
+              >
                 Learn more
               </PublicShellLink>
             </>
@@ -1174,11 +1241,17 @@ function ProvisionSuccessPanel({
       </div>
 
       <div className="pb-public-action-row">
-        <Button onClick={onContinue} type="button">
+        <Button
+          data-paperbinder-analytics-event={publicAnalyticsEventNames.demoOpenWorkspace}
+          onClick={onContinue}
+          type="button"
+        >
           Open workspace
         </Button>
         <Button asChild type="button" variant="secondary">
-          <NavLink to="/login">Go to sign in</NavLink>
+          <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.demoGoToSignIn} to={publicLoginRoutePath}>
+            Go to sign in
+          </NavLink>
         </Button>
       </div>
     </PublicFormPanel>
@@ -1224,6 +1297,7 @@ function RootWelcomePage({
 
   async function handleProvisionSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    trackPaperBinderEvent(hostContext, publicAnalyticsEventNames.demoSubmitAttempt);
 
     const nextFieldErrors: RootHostFieldErrors = {};
     if (!tenantName.trim()) {
@@ -1257,6 +1331,7 @@ function RootWelcomePage({
       }
 
       setProvisionedTenant(response);
+      trackPaperBinderEvent(hostContext, publicAnalyticsEventNames.demoSubmitSucceeded);
     } catch (caughtError) {
       const mappedError = mapRootHostError(caughtError);
       setError(mappedError);
@@ -1349,7 +1424,9 @@ function RootWelcomePage({
                   Start demo workspace
                 </Button>
                 <Button asChild type="button" variant="secondary">
-                  <NavLink to="/login">Go to sign in</NavLink>
+                  <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.demoGoToSignIn} to={publicLoginRoutePath}>
+                    Go to sign in
+                  </NavLink>
                 </Button>
               </div>
             </form>
@@ -1363,7 +1440,9 @@ function RootWelcomePage({
             </PublicPanelHeading>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
-                <NavLink to="/login">Go to sign in</NavLink>
+                <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.demoGoToSignIn} to={publicLoginRoutePath}>
+                  Go to sign in
+                </NavLink>
               </Button>
             </div>
           </GlassPanelSection>
@@ -1437,6 +1516,7 @@ function RootLoginPage({
 
   async function handleLoginSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    trackPaperBinderEvent(hostContext, publicAnalyticsEventNames.loginSubmitAttempt);
 
     const nextFieldErrors: RootHostFieldErrors = {};
     if (!email.trim()) {
@@ -1475,6 +1555,7 @@ function RootLoginPage({
       }
 
       setRedirect(response);
+      trackPaperBinderEvent(hostContext, publicAnalyticsEventNames.loginSubmitSucceeded);
     } catch (caughtError) {
       const mappedError = mapRootHostError(caughtError);
       setError(mappedError);
@@ -1576,14 +1657,21 @@ function RootLoginPage({
                 Log in
               </Button>
               <Button asChild type="button" variant="secondary">
-                <NavLink to="/start-demo">Back to start demo</NavLink>
+                <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.loginStartDemo} to="/start-demo">
+                  Back to start demo
+                </NavLink>
               </Button>
             </div>
           </form>
 
           {redirect ? (
             <div className="pb-public-action-row">
-              <Button onClick={handleContinueManually} type="button" variant="secondary">
+              <Button
+                data-paperbinder-analytics-event={publicAnalyticsEventNames.loginContinueManually}
+                onClick={handleContinueManually}
+                type="button"
+                variant="secondary"
+              >
                 Continue manually
               </Button>
             </div>
@@ -1597,7 +1685,9 @@ function RootLoginPage({
             </PublicPanelHeading>
             <div className="pb-public-action-row">
               <Button asChild type="button" variant="secondary">
-                <NavLink to="/start-demo">Start demo instead</NavLink>
+                <NavLink data-paperbinder-analytics-event={publicAnalyticsEventNames.loginStartDemo} to="/start-demo">
+                  Start demo instead
+                </NavLink>
               </Button>
             </div>
           </GlassPanelSection>
@@ -1650,6 +1740,7 @@ function RootAboutPage() {
             </p>
           </div>
           <ArticleCard
+            analyticsEvent={publicAnalyticsEventNames.aboutReadArticle}
             cta="Read article"
             href={flagshipArticlePath}
             meta="Architecture / SaaS demo / AI-assisted development"
@@ -1748,16 +1839,23 @@ function RootAboutPage() {
           </div>
           <ul className="pb-public-about-reference-list">
             <ReferenceCard
+              analyticsEvent={publicAnalyticsEventNames.footerProjectLink}
               href={productIdentity.canonicalDemoUrl}
               label={productIdentity.canonicalDemoHost}
               title="Live project"
             >
               Public demo entry point and product walkthrough.
             </ReferenceCard>
-            <ReferenceCard href={productIdentity.authorUrl} label="danielmaratta.com" title="Portfolio">
+            <ReferenceCard
+              analyticsEvent={publicAnalyticsEventNames.footerProjectLink}
+              href={productIdentity.authorUrl}
+              label="danielmaratta.com"
+              title="Portfolio"
+            >
               Main portfolio and professional context.
             </ReferenceCard>
             <ReferenceCard
+              analyticsEvent={publicAnalyticsEventNames.footerProjectLink}
               href={productIdentity.canonicalRepositoryUrl}
               label="Canonical repository history"
               title="Repository history"
@@ -1781,6 +1879,7 @@ function RootFlagshipArticlePage() {
           <>
             <a
               className="pb-public-button-link pb-public-button-link--light"
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
               href={productIdentity.canonicalDemoUrl}
               rel="noreferrer"
               target="_blank"
@@ -1789,6 +1888,7 @@ function RootFlagshipArticlePage() {
             </a>
             <a
               className="pb-public-button-link pb-public-button-link--ghost"
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
               href={productIdentity.canonicalRepositoryUrl}
               rel="noreferrer"
               target="_blank"
@@ -1818,13 +1918,28 @@ function RootFlagshipArticlePage() {
               and reviewer entry point that support it.
             </p>
             <div className="pb-public-article-evidence-links">
-              <a href={productIdentity.canonicalDemoUrl} rel="noreferrer" target="_blank">
+              <a
+                data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+                href={productIdentity.canonicalDemoUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
                 Live demo
               </a>
-              <a href={productIdentity.canonicalRepositoryUrl} rel="noreferrer" target="_blank">
+              <a
+                data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+                href={productIdentity.canonicalRepositoryUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
                 Repository
               </a>
-              <a href={flagshipArticleReviewGuideUrl} rel="noreferrer" target="_blank">
+              <a
+                data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
+                href={flagshipArticleReviewGuideUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
                 Review guide
               </a>
             </div>
@@ -1856,6 +1971,7 @@ function RootFlagshipArticlePage() {
           <div className="pb-public-article-cta-actions">
             <a
               className="pb-public-button-link pb-public-button-link--light"
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
               href={productIdentity.canonicalDemoUrl}
               rel="noreferrer"
               target="_blank"
@@ -1864,6 +1980,7 @@ function RootFlagshipArticlePage() {
             </a>
             <a
               className="pb-public-button-link pb-public-button-link--ghost"
+              data-paperbinder-analytics-event={publicAnalyticsEventNames.articleExternalLink}
               href={productIdentity.canonicalRepositoryUrl}
               rel="noreferrer"
               target="_blank"
@@ -1920,7 +2037,11 @@ function LegalDocumentPage({ document }: { document: LegalDocument }) {
           <ul className="pb-public-bullet-list">
             {legalPolicyDocuments.map((policyDocument) => (
               <li key={policyDocument.path}>
-                <NavLink className="pb-public-legal-document-link" to={policyDocument.path}>
+                <NavLink
+                  className="pb-public-legal-document-link"
+                  data-paperbinder-analytics-event={publicAnalyticsEventNames.legalPolicyNav}
+                  to={policyDocument.path}
+                >
                   {policyDocument.title}
                 </NavLink>
               </li>
@@ -1977,7 +2098,7 @@ export function RootHostRoutes({
       <Route element={<PublicShell hostContext={hostContext} />}>
         <Route element={<RootLandingPage hostContext={hostContext} />} path="/" />
         <Route element={<RootWelcomePage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/start-demo" />
-        <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path="/login" />
+        <Route element={<RootLoginPage apiClient={apiClient} hostContext={hostContext} navigator={navigator} />} path={publicLoginRoutePath} />
         <Route element={<RootAboutPage />} path="/about" />
         <Route element={<RootFlagshipArticlePage />} path={flagshipArticlePath} />
         {legalDocuments.map((document) => (
