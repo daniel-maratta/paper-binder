@@ -21,6 +21,7 @@
 - `docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md`
 - `docs/90-adr/ADR-0014-tenant-host-failure-externalization-and-trusted-expiry-disclosure.md`
 - `docs/90-adr/ADR-0015-responsive-breakpoint-policy.md`
+- `docs/90-adr/ADR-0016-goatcounter-usage-analytics.md`
 
 ## Key Decision Clusters
 
@@ -35,3 +36,4 @@
 - Presentation canon and reviewer-support posture: `ADR-0013`
 - Tenant-host disclosure and trusted expiry posture: `ADR-0014`
 - Responsive breakpoint policy: `ADR-0015`
+- Usage analytics: `ADR-0016`

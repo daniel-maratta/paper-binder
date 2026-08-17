@@ -14,7 +14,7 @@ This work does not turn PaperBinder into a production SaaS service. It makes the
 
 Included:
 
-- Public Privacy Policy, Terms of Use, Cookie Notice, and Legal index surfaces. Cookie Notice is informational disclosure only for the current strictly necessary cookie posture; do not add a consent-management platform or cookie banner unless the L1 inventory identifies non-essential cookies or telemetry requiring consent.
+- Public Privacy Policy, Terms of Use, Cookie Notice, and Legal index surfaces. Cookie Notice is informational disclosure only for the current strictly necessary cookie and cookie-less aggregate analytics posture; individual GoatCounter pageview collection for the `paperbinder` site was manually verified disabled on 2026-08-17. Do not add a consent-management platform or cookie banner unless the L1 inventory identifies non-essential cookies, individual analytics tracking, advertising, or telemetry requiring consent.
 - Legal document content must live in its own legal content collection, separate from articles and other content.
 - Legal documents must use markdown/MDX-style content with frontmatter and be rendered through the same general content pipeline pattern as the flagship article.
 - Legal document pages should be article-like in implementation, but not in presentation. Use a simpler legal page chrome and a shared `LegalDocumentPage` template rather than the flagship article page template.
@@ -33,7 +33,7 @@ Out of scope unless the owner explicitly changes release scope:
 
 - Payments, subscriptions, customer contracting, or commercial SaaS legal terms.
 - Account deletion/recovery workflows beyond the existing demo tenant lifecycle.
-- A consent-management platform or cookie banner while the inventory confirms only strictly necessary cookies and no consent-triggering telemetry. If analytics, advertising, nonessential cookies, or consent-triggering telemetry are introduced or discovered later, consent handling becomes new work.
+- A consent-management platform or cookie banner while the inventory confirms only strictly necessary cookies, cookie-less aggregate usage analytics, and no consent-triggering telemetry. If advertising, nonessential cookies, individual analytics tracking, or consent-triggering telemetry are introduced or discovered later, consent handling becomes new work.
 - A formal DMCA registered-agent workflow unless the owner decides the public demo should seek DMCA safe-harbor coverage.
 - COPPA-directed product changes. The required v1.1.1 posture is "not intended for children under 13" plus no knowing collection from children.
 
@@ -98,7 +98,7 @@ The Privacy Policy must cover:
 - Retention periods and practical deletion timing as proven by the L1 inventory.
 - Tenant lease duration, lease extensions, immediate access denial after actual expiry, eventual purge, worker cadence, and recent-activity cleanup deferral. Do not claim categorical deletion at any minute-based boundary; user-facing wording must place the deletion boundary at a defensible interval at or beyond the actual expiry-plus-worker-cleanup behavior verified by L1. Public policy wording should say demo workspaces are temporary and expire according to the lease period displayed in the application; the default initial duration may be described separately if L1 verifies it.
 - Infrastructure/providers that process information.
-- Whether analytics are used. Current target wording: no marketing analytics; minimal operational telemetry may be emitted and optional OTLP export may be configured by the operator.
+- Whether analytics are used. Current target wording: GoatCounter provides basic cookie-less usage analytics; no marketing analytics or advertising cookies are used; minimal operational telemetry may be emitted and optional OTLP export may be configured by the operator.
 - No sale of personal information.
 - Data contact path.
 - A clear warning not to submit sensitive, regulated, confidential, proprietary, personal, medical, financial, credential, or important real business information.
@@ -123,8 +123,8 @@ The Cookie Notice must cover:
 - Browser-readable CSRF cookie.
 - Turnstile challenge behavior and Cloudflare reference.
 - No localStorage/sessionStorage use in the current frontend, based on current static review.
-- Cookie Notice is informational disclosure only for the current strictly necessary cookie posture.
-- Do not add a consent-management platform or cookie banner unless the inventory identifies non-essential cookies or telemetry requiring consent.
+- Cookie Notice is informational disclosure only for the current strictly necessary cookie and cookie-less aggregate analytics posture.
+- Do not add a consent-management platform or cookie banner unless the inventory identifies non-essential cookies, individual analytics tracking, advertising, or telemetry requiring consent.
 
 ## Technical Audit Checklist
 
@@ -184,6 +184,7 @@ Minimum closeout:
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1`
 - Frontend unit tests for legal route rendering/footer links.
 - Browser E2E or focused Playwright coverage proving public legal pages are reachable from the root host.
+- Focused frontend utility coverage proving usage analytics uses sanitized route-template paths and does not include tenant route identifiers.
 - Focused backend tests for any logging behavior changed in L6.
 - Static search confirming no `privacy`, `terms`, `legal`, or `cookies` route gap remains.
 - Static search confirming no newly introduced references to private local paths.
@@ -200,6 +201,7 @@ Completed on 2026-08-16.
 - Third-party notices are generated from the current dependency graph and validated by the repo-native check.
 - Legal document frontmatter now uses `effectiveDate: August 17, 2026`, and public legal copy no longer exposes draft/audit-process wording.
 - Provider snapshot/backup retention and any live external OTLP export remain owner/provider facts. The current public wording stays general and does not claim an exact provider retention period or any fixed-minute deletion boundary.
+- GoatCounter usage analytics now use the separate `paperbinder` GoatCounter site, PaperBinder-owned direct `/count` image requests, route-template pageviews, approved public event names, sanitized referrers, and cookie-less public disclosure. Individual pageview collection for the `paperbinder` site was manually verified disabled on 2026-08-17.
 
 ## Review Passes And Outcomes
 
@@ -209,6 +211,7 @@ Completed on 2026-08-16.
 | 2026-08-17 | AI wording-shape pass | Removed public legal wording that sounded like internal audit evidence or generated compliance filler, including phrases such as `Static review for this release`, draft/owner-approval language, and policy instructions written as `should` statements. Added a `validate-docs.ps1` guard so public legal Markdown fails validation if similar draft/audit phrasing returns. |
 | 2026-08-17 | Public legal content remediation | Set all public legal effective dates to `August 17, 2026`, added children-under-13 language, changed legal/privacy/security/copyright contact paths to the configured `paperbinder@danielmaratta.com` alias, clarified MIT-vs-owner-content rights, and tightened the `/legal` policy-list card spacing. |
 | 2026-08-17 | Operational retention remediation | Configured the repo-owned Compose files to use Docker's `local` logging driver with five 10 MB files per container, and documented that deployed containers must be recreated before the logging-driver contract applies. |
+| 2026-08-17 | GoatCounter analytics follow-up | Added the separate `paperbinder` GoatCounter site as a hosted aggregate usage analytics provider, constrained the SPA integration to PaperBinder-owned direct `/count` requests with sanitized route-template pageviews and approved public events, updated public legal copy, recorded `ADR-0016`, and recorded the manually verified disabled individual-pageview setting. |
 | 2026-08-17 | Validation | `scripts/validate-docs.ps1` passed, focused `root-host.test.tsx` frontend tests passed with `22/22`, and Docker Compose config rendering passed for local/e2e and production compose shapes. Compose emitted a local Docker config read warning in the sandbox, but still rendered the config successfully. |
 
 ## Owner Approval Required

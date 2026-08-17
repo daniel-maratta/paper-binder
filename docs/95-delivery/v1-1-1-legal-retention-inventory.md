@@ -1,8 +1,8 @@
 # V1.1.1 Legal Retention Inventory
 
-Status: Post-L7 legal copy and logging follow-up
+Status: Post-L8 GoatCounter usage analytics follow-up
 Task: `T-0055`
-Date: 2026-08-15
+Date: 2026-08-17
 
 ## Purpose
 
@@ -37,7 +37,9 @@ Evidence limits:
 - The successful purge may leave an operational summary log when audit retention mode is configured to retain purge summaries.
 - Browser storage review found no `localStorage` or `sessionStorage` usage. The frontend reads `document.cookie` only to echo the CSRF cookie into the `X-CSRF-TOKEN` header.
 - Current cookies are strictly necessary for auth/session and CSRF. The Cookie Notice should remain informational disclosure only unless future inventory finds nonessential cookies, analytics, advertising, or telemetry requiring consent.
-- No marketing analytics were found. OpenTelemetry exists for operational traces/metrics. Production config evidence did not show an active OTLP endpoint.
+- GoatCounter usage analytics are present for aggregate route usage and public conversion/navigation events in the production frontend build only. The frontend sends constrained direct browser image requests to `https://paperbinder.goatcounter.com/count` only when `VITE_PAPERBINDER_ANALYTICS_ENABLED=true` and the current host is a configured public PaperBinder host. It does not load GoatCounter `count.js` or execute analytics-provider JavaScript. The analytics payload does not include tenant slugs, query strings, hashes, binder ids, document ids, user ids, emails, user-provided names, form values, document titles, or document content.
+- GoatCounter individual pageview collection for the `paperbinder` site was manually verified disabled on 2026-08-17. Aggregate reporting remains enabled.
+- No marketing analytics or advertising cookies were found. OpenTelemetry exists for operational traces/metrics. Production config evidence did not show an active OTLP endpoint.
 - Repo-owned Compose files now configure Docker's `local` logging driver with `max-size=10m` and `max-file=5`. Existing deployed containers need to be recreated during rollout before this contract applies to them.
 
 ## Retention Table
@@ -55,12 +57,13 @@ Evidence limits:
 | Auth cookie | Server auth ticket in `paperbinder.auth` or configured auth cookie name | Login/provisioning/sign-in flows; impersonation state changes | Expired tenants are rejected server-side even if cookie still exists; invalid sessions clear cookies | Logout, invalid security stamp, missing user, invalid impersonation, or browser session end | Session cookie behavior; protected by ASP.NET Core Data Protection keys; not governed by tenant row purge alone | Yes |
 | CSRF cookie | Browser-readable random token in auth-cookie-name plus `.csrf` | Login/provisioning/sign-in and impersonation state changes | Does not grant access by itself; expired tenant still rejected server-side | Logout, invalid session checks, invalid impersonation, or browser session end | Session cookie behavior; browser-readable by design so the frontend can echo it in `X-CSRF-TOKEN` | Yes |
 | Browser storage | No `localStorage` or `sessionStorage` usage found; clipboard API used only for user-initiated copy actions | N/A | N/A | N/A | No current Web Storage retention surface found | Cookie Notice |
+| GoatCounter usage analytics | Explicit public route paths, sanitized tenant route-template paths, approved low-cardinality public event names, sanitized external referrer origin/path, and aggregate browser, system, approximate location, language, and screen-width categories; GoatCounter session handling uses provider-side in-memory data for repeat-visit counting; individual pageview collection for the `paperbinder` site was manually verified disabled on 2026-08-17 | Frontend PaperBinder analytics tracker and GoatCounter.com hosted service through direct `/count` image requests | N/A to tenant expiry; analytics records may outlive workspace expiry and tenant purge | GoatCounter site/account deletion or provider retention lifecycle | Stored outside PaperBinder in GoatCounter.com; PaperBinder does not store analytics rows in its database; provider backup retention is governed by GoatCounter.com | Yes |
 | Turnstile challenge | Browser challenge token; server sends challenge secret, token response, and remote IP when available to Cloudflare Siteverify | Cloudflare Turnstile widget and server verification service | N/A to tenant expiry; Turnstile is pre-auth and provider-side | Provider retention governed by Cloudflare; app does not persist token response in database | Provider retention unknown from repo; app logs some failed verification metadata, including remote IP | Yes |
 | Pre-auth rate limiting | Remote IP partition, path/host, retry metadata on rejections | ASP.NET rate limiter and rejection logger | N/A to tenant expiry | In-memory limiter state and operational logging; no database row | Runtime memory plus bounded container logs after recreated deployment containers pick up the Compose logging driver | Aggregate description |
 | API/app logs | Security denials, rate-limit rejections, auth boundary failures, tenant/user ids where scoped, path, host, correlation id; L6 removed identified app log fields for tenant slug, email, and binder name from runtime logger templates | API runtime structured logs | N/A; logs may outlive tenant expiry and purge | Docker/container log handling, host maintenance, deploy log collection | Bounded by the Compose `local` logging driver after container recreation: five 10 MB files per container, plus any provider snapshots, backups, deployment logs, or external telemetry retention | Aggregate description |
 | Worker logs | Cleanup cycle start/complete/failure, selected/purged/skipped/failed counts, tenant id on purge/failure, optional deleted-row summary | Worker runtime | N/A; logs may outlive tenant expiry and purge | Docker/container log handling and host maintenance | Bounded by the Compose `local` logging driver after container recreation: five 10 MB files per container, plus any provider snapshots, backups, deployment logs, or external telemetry retention | Aggregate description |
 | Caddy/proxy logs | Reverse-proxy operational logs; Caddyfile does not configure a dedicated access-log block, but container stdout/stderr may include proxy/TLS events | Caddy container | N/A | Docker/container log handling and host maintenance | Bounded by the Compose `local` logging driver after container recreation: five 10 MB files per container, plus any provider snapshots, backups, deployment logs, or external telemetry retention | Aggregate description |
-| OpenTelemetry traces/metrics | Operational request/worker traces and metrics; tenant/user/correlation tags where available; no marketing analytics found | API and worker OpenTelemetry wiring | N/A; traces/metrics may outlive tenant expiry if exported | Console exporter in dev/test; optional OTLP exporter only when configured | Production non-secret config did not show an active OTLP endpoint; if enabled later, provider retention must be disclosed | Yes if active; otherwise aggregate no-analytics statement |
+| OpenTelemetry traces/metrics | Operational request/worker traces and metrics; tenant/user/correlation tags where available; separate from GoatCounter usage analytics | API and worker OpenTelemetry wiring | N/A; traces/metrics may outlive tenant expiry if exported | Console exporter in dev/test; optional OTLP exporter only when configured | Production non-secret config did not show an active OTLP endpoint; if enabled later, provider retention must be disclosed | Yes if active |
 | PostgreSQL Docker volume | Persistent database files containing tenant-owned rows and operational schema | PostgreSQL container | Tenant-owned rows can remain in the volume until worker purge; inaccessible through app after expiry | Tenant purge removes tenant-owned rows; volume lifecycle is managed by Docker/host operations | Tenant-owned logical rows are purged by worker; physical storage and database internals may persist until PostgreSQL/storage reuse, vacuum, backup, or volume removal | Yes |
 | Data Protection key ring | ASP.NET Core Data Protection keys under `/data/keys`; certificate-backed protection in deployed environments | App/worker runtime and deployment secret | N/A; keys protect/validate auth cookies and other protected payloads | Key-ring rotation/volume lifecycle, not tenant purge | Operational security state persists outside tenant data lifecycle | Aggregate/security description |
 | Server `.env` and deployment files | Runtime configuration, provider endpoints, secrets, image tags, DB credentials | GitHub deploy workflow and operator | N/A | Operator/deployment lifecycle | Production `.env` persists on host; do not treat it as tenant content | Aggregate/security description |
@@ -77,6 +80,7 @@ Current runtime data path:
 - VM/cloud host provider for the production server and attached storage.
 - Docker/Caddy/PostgreSQL runtime inside the production host.
 - Cloudflare Turnstile for challenge verification on root-host provisioning and login.
+- GoatCounter.com for hosted aggregate usage analytics on public and tenant SPA routes.
 - Optional OTLP provider only if `PAPERBINDER_OTEL_OTLP_ENDPOINT` is configured.
 
 Build/deploy/support path:
@@ -96,7 +100,8 @@ Public policy should avoid implying that build/deploy/support providers process 
 - Say tenant purge deletes tenant-owned database rows, but operational logs, telemetry, deployment logs, provider logs, physical database storage behavior, and snapshots/backups can have different retention. Container stdout/stderr logs are bounded by the Compose logging driver after container recreation.
 - Say there is no backup, recovery, restore, or availability guarantee for users.
 - Say PaperBinder does not use marketing analytics in the current public demo. Operational telemetry may be emitted, and optional OTLP export belongs in public policy only when enabled.
-- Say current cookies are strictly necessary auth/CSRF cookies and the Cookie Notice is informational disclosure only. Do not add a consent-management platform or banner unless future inventory identifies nonessential cookies, analytics, advertising, or consent-triggering telemetry.
+- Say PaperBinder uses GoatCounter for basic cookie-less usage analytics. Analytics requests are sent from the visitor's browser to GoatCounter through PaperBinder-owned direct `/count` requests. Analytics wording must not imply PaperBinder stores analytics rows or IP addresses in its database, user identity, tenant identity, document inspection, session replay, or fine-grained behavior tracking.
+- Say current cookies are strictly necessary auth/CSRF cookies and the Cookie Notice is informational disclosure only. Do not add a consent-management platform or banner unless future inventory identifies nonessential cookies, advertising, or consent-triggering telemetry.
 - Warn users not to submit sensitive, regulated, confidential, proprietary, personal, medical, financial, credential, or important real business information.
 
 ## Closeout Notes
@@ -106,6 +111,7 @@ Public policy should avoid implying that build/deploy/support providers process 
 - L5 added the root security and dependency-maintenance policy.
 - L6 removed identified runtime log fields for tenant slug, email, and binder name and added a source-level guard against user-submitted names/content, emails, passwords, and credentials in logger templates. Remaining path, host, IP-derived data, tenant/user identifiers, and correlation identifiers are disclosed operational/security metadata in the Privacy Policy.
 - The 2026-08-17 follow-up set the public legal effective date, removed draft/audit-process wording from public legal copy, and configured bounded Compose container logging. Provider snapshot/backup and external OTLP wording remains general because exact provider-side retention remains an owner/provider verification fact. No public policy wording claims an exact provider retention period or fixed-minute deletion boundary.
+- The 2026-08-17 GoatCounter follow-up added hosted aggregate usage analytics using a separate `paperbinder` GoatCounter site. The implementation sends explicit public route paths, tenant route templates, approved public event names, and sanitized referrers through direct `/count` image requests. Individual pageview collection for the `paperbinder` site was manually verified disabled on 2026-08-17.
 
 ## Open Questions
 

@@ -45,8 +45,9 @@
 - `VITE_PAPERBINDER_ROOT_URL=https://<production-root-host>`
 - `VITE_PAPERBINDER_API_BASE_URL=https://<production-root-host>`
 - `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=<production-base-domain>`
+- `VITE_PAPERBINDER_ANALYTICS_ENABLED=true` for production only; omit or set `false` everywhere else
 
-Shared test uses the equivalent `<shared-test-root-host>` and `<shared-test-base-domain>` values for `PAPERBINDER_PUBLIC_ROOT_URL`, `PAPERBINDER_AUTH_COOKIE_DOMAIN`, and the `VITE_PAPERBINDER_*` host settings.
+Shared test uses the equivalent `<shared-test-root-host>` and `<shared-test-base-domain>` values for `PAPERBINDER_PUBLIC_ROOT_URL`, `PAPERBINDER_AUTH_COOKIE_DOMAIN`, and the `VITE_PAPERBINDER_*` host settings, but must keep `VITE_PAPERBINDER_ANALYTICS_ENABLED=false`.
 Production and shared test must not share cookie-domain settings.
 Production GHCR deploys also require the workflow-generated `POSTGRES_DB`, `POSTGRES_USER`, and `PAPERBINDER_DB_CONNECTION` values to agree with the existing PostgreSQL role on the host. The current production role is `paperbinder-prod`.
 

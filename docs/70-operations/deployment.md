@@ -88,6 +88,7 @@ DNS:
 - `VITE_PAPERBINDER_ROOT_URL=https://<production-root-host>`
 - `VITE_PAPERBINDER_API_BASE_URL=https://<production-root-host>`
 - `VITE_PAPERBINDER_TENANT_BASE_DOMAIN=<production-base-domain>`
+- `VITE_PAPERBINDER_ANALYTICS_ENABLED=true` for production builds only; shared-test, E2E, and local builds must omit it or set `false`
 - `NAMECHEAP_API_USER=<namecheap-username>` (required for wildcard TLS when using the repo-owned Caddy path)
 - `NAMECHEAP_API_KEY=<secret>` (required for wildcard TLS when using the repo-owned Caddy path)
 - `NAMECHEAP_CLIENT_IP=<whitelisted-ipv4>` (required for wildcard TLS when using the repo-owned Caddy path)
@@ -102,7 +103,7 @@ If production migrations fail with PostgreSQL password-authentication errors suc
 Hyphenated PostgreSQL identifiers require double quotes in SQL. For example: `ALTER USER "paperbinder-prod" WITH PASSWORD '...';`
 Do not enable `PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` or `VITE_PAPERBINDER_CHALLENGE_LOCAL_BYPASS_ENABLED` in deployed/public environments. The app and frontend build now reject that configuration unless the root host is loopback or `.localhost`.
 The shared public test deployment now uses `docker compose -f docker-compose.test-deploy.yml ...` so the tagged-image contract, generated `.env`, and checked-in test proxy assets stay aligned on the host.
-Shared test uses the equivalent `<shared-test-root-host>` and `<shared-test-base-domain>` host values and remains intentionally non-indexable.
+Shared test uses the equivalent `<shared-test-root-host>` and `<shared-test-base-domain>` host values, keeps `VITE_PAPERBINDER_ANALYTICS_ENABLED=false`, and remains intentionally non-indexable.
 The visible Turnstile site key is baked into the frontend image at build time through `VITE_PAPERBINDER_CHALLENGE_SITE_KEY`. Rotating only `PAPERBINDER_CHALLENGE_SECRET_KEY` changes backend verification behavior but does not rotate the browser-visible site key. Rotating the site key requires rebuilding and redeploying the frontend image.
 
 ## GitHub Automation Inputs

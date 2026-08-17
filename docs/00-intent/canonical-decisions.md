@@ -111,6 +111,7 @@ Frontend runtime:
 - No SignalR or other realtime push channels in v1
 - Baseline forms use native controlled/uncontrolled React with lightweight validation
 - `react-hook-form` + `zod` are not baseline v1 dependencies
+- GoatCounter usage analytics may count explicit public-route pageviews, tenant route-template pageviews, and approved low-cardinality public event names only; the integration uses PaperBinder-owned direct `/count` requests rather than analytics-provider JavaScript, and analytics payloads must not include tenant slugs, identifiers, query strings, names, titles, document content, form values, or high-cardinality custom events
 
 AI scope:
 - No AI feature ships in `V1`
