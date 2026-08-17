@@ -1,6 +1,6 @@
 # V1.1.1 Patch Implementation Plan
 
-Status: Complete through CP6; legal-readiness addendum queued
+Status: Complete through CP7 (all checkpoints done)
 Target release: `v1.1.1`
 Authority: This file defines the checkpoint and commit plan for the `v1.1.1` patch. The matching taskboard source is `docs/05-taskboard/v1-1-1-backlog.md`.
 

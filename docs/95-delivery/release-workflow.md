@@ -10,9 +10,10 @@ Define the canonical stable-release sequence for the `V1` line, its ownership bo
 - Stable release line label: `V1`
 - Stable tag spelling: `vMAJOR.MINOR.PATCH`
 - Historical first stable tag: `v1.0.0`
-- Current release-ready candidate tag: `v1.1.1`
-- Current release-ready SemVer metadata: `1.1.1`
-- Current published stable tag: `v1.1.0`
+- Current release tag: `v1.1.1`
+- Current release SemVer metadata: `1.1.1`
+- Prior published stable tag: `v1.1.0`
+- The `v1.1.1` release-close-out task (`T-0055`) has recorded main as taggable; merging to `main`, tagging, and deployment remain owner-controlled actions per the sequence below.
 - Changelog cut shape:
   - historical first stable cut: `## [V1] - 2026-04-19`
   - subsequent stable releases on the same line: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD` with a fresh empty `## Unreleased`
@@ -88,7 +89,7 @@ The release workflow must not introduce a parallel shadow command surface.
 - Stable release tags use `.github/workflows/release.yml`.
 - Owner-approved shared-test GHCR validation uses `.github/workflows/deploy-test.yml`.
 - Owner-approved production rollout uses `.github/workflows/deploy-prod.yml`.
-- Release tags must match `vMAJOR.MINOR.PATCH`; `v1.0.0` is the historical first valid `V1` tag, `v1.1.0` is the current published stable tag, and `v1.1.1` is the current release-ready candidate tag.
+- Release tags must match `vMAJOR.MINOR.PATCH`; `v1.0.0` is the historical first valid `V1` tag, `v1.1.0` is the prior published stable tag, and `v1.1.1` is the current release tag pending owner-controlled tagging and deployment.
 - CI intentionally stays lighter than the release workflow: it validates version metadata, restore, build, repo tests, docs, and launch-profile drift on pull requests and pushes to `main`.
 - The release workflow adds the slower gates that remain tag-time only: browser E2E and the full checkpoint validation bundle.
 - The release workflow validates that repo version metadata matches the tag before it runs the release validation bundle and publishes tagged GHCR images.

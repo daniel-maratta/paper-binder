@@ -2,7 +2,7 @@
 
 This guide is for interviewers and technical reviewers who want a fast, accurate read of the shipped `V1` system and its release evidence.
 
-PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current release-ready candidate is `v1.1.1`; the current published stable tag remains `v1.1.0` until owner-controlled tag and deployment follow-through completes.
+PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current PaperBinder release is `v1.1.1`, fully implemented, validated, and documented; merging to `main`, tagging, and deployment are the remaining owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`.
 
 PaperBinder was designed, directed, reviewed, and validated by Daniel Maratta using AI coding agents as implementation accelerators. Large portions of implementation were generated or modified by AI agents under explicit task prompts; architecture, scope, security model, acceptance criteria, review process, remediation decisions, and the final quality bar remained human-directed. Evaluate it as an example of modern AI-augmented software delivery, not purely hand-typed keystroke authorship.
 
@@ -106,7 +106,7 @@ silent omission:
 
 - **Document archive/unarchive has no frontend UI.** The API, domain rules, and tests are complete
   (`POST /api/documents/{documentId}/archive` / `/unarchive`), but no button triggers it in
-  `v1.1.0`. See
+  `v1.1.x`. See
   [`docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md`](docs/15-feature-definition/FD-0001-binder-document-detail-and-archive-semantics.md)
   for the full gap and deferral rationale.
 - **React Router still needs a major-version upgrade.** The `v1.1.1` patch applied same-major audit

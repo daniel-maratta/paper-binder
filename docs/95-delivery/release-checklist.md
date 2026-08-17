@@ -7,8 +7,8 @@ Own the canonical release gate list for the published stable `V1` release.
 
 ## Required Artifacts
 
-- [x] `CHANGELOG.md` contains the current `## [1.1.1] - 2026-07-28` release-ready candidate entry above the `## [1.1.0] - 2026-07-28` published stable entry, with a fresh empty `## Unreleased`.
-- [x] Repository version metadata matches the `v1.1.1` / `1.1.1` release-ready candidate.
+- [x] `CHANGELOG.md` contains the current `## [1.1.1] - 2026-08-17` entry above the `## [1.1.0] - 2026-07-28` prior stable entry, with a fresh empty `## Unreleased`.
+- [x] Repository version metadata matches the current `v1.1.1` / `1.1.1` release.
 - [x] `CHANGELOG.md` contains the current `## [1.1.0] - 2026-07-28` published stable entry above the `## [1.0.5] - 2026-07-03` stable entry and the historical `## [V1] - 2026-04-19` first-cut release summary, with a fresh empty `## Unreleased`.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, the active branch metadata distinction, the command surface, and ownership.
 - [x] Repository version metadata matched the published stable `V1` release tag `v1.1.0` / `1.1.0` on `main` at the `v1.1.0` release cut.
@@ -282,17 +282,20 @@ release actions.
   footer.
 - [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed on `2026-08-16`.
 - [x] `npm.cmd run third-party-notices:check` passed on `2026-08-16`.
-- [ ] Set final public legal-document effective dates during deployment and approve the final
-  wording for publication.
+- [x] Set final public legal-document effective dates during deployment and approve the final
+  wording for publication - all four public legal documents (`legal-index.md`, `privacy.md`,
+  `terms.md`, `cookies.md`) carry the concrete, non-placeholder effective date `August 17, 2026`
+  with no draft/audit-process wording remaining, and the owner (Daniel Maratta) explicitly approved
+  the final wording for publication on `2026-08-17`.
 
 ## Release Readiness
 
 - Release line: `V1`
 - Historical first stable tag: `v1.0.0`
-- Current published stable tag: `v1.1.0`
-- Published stable SemVer version: `1.1.0`
-- Release-ready candidate tag: `v1.1.1`
-- Release-ready candidate SemVer metadata: `1.1.1`
+- Current release tag: `v1.1.1`
+- Current release SemVer metadata: `1.1.1`
+- Prior published stable tag: `v1.1.0`
+- Prior published stable SemVer version: `1.1.0`
 - Active branch SemVer metadata: `1.1.1`
 - Status: `main` was aligned and taggable for `v1.0.5` as of `2026-07-03`. `release/v1.1.0`
   completed `T-0043` final-review validation on `2026-07-26` — findings resolved, full
@@ -308,7 +311,7 @@ release actions.
   update records the owner-attested merge/tag/Test-deploy/Prod-deploy/smoke evidence.
 - Deferred follow-up note: the React Router major-version upgrade remains tracked as `T-0053` for
   future minor-version maintenance, but the current same-major/patch audit remediation leaves
-  `npm audit --audit-level=moderate` at zero vulnerabilities for this candidate.
+  `npm audit --audit-level=moderate` at zero vulnerabilities for this release.
 - Owner-controlled actions outside `T-0043`: merge-to-`main`, tag creation, release workflow, Test
   deployment, Prod deployment, production smoke validation, and release publication are recorded
   above as complete. No follow-up docs-only checklist PR is expected.
@@ -326,6 +329,14 @@ release actions.
   follow-up actions and are not claimed by this checklist update.
 - V1.1.1 carry-forward attestation: `T-0053` tracks the React Router major-version upgrade, and
   `T-0054` tracks overall API shape and over-ceremony remediation as future minor-version work.
+- V1.1.1 current-release attestation (`2026-08-17`): `v1.1.1` is the canonical, current PaperBinder
+  release. `T-0055` recorded `main` as taggable, and `CHANGELOG.md`, `README.md`, `REVIEWERS.md`,
+  `docs/95-delivery/staging-and-versioning.md`, `docs/95-delivery/release-workflow.md`, and
+  `docs/00-intent/canonical-decisions.md` now describe `v1.1.1` as current rather than as a
+  candidate pending against `v1.1.0`. This attestation does not claim the merge to `main`, tag
+  creation, release workflow run, Test/Prod deployment, or production smoke validation have
+  happened — those remain the sole outstanding owner-controlled actions listed above, and `v1.1.0`
+  remains the actual deployed tag until they complete.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`

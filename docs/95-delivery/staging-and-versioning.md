@@ -9,7 +9,7 @@ Define the delivery terminology and PR artifact expectations used by PaperBinder
 
 - `Phase`: one of the five major execution groupings in `docs/55-execution/`.
 - `Checkpoint`: the mergeable execution unit inside a phase (`CP1` through `CP17`).
-- `Release`: a stable shipped cut on the `V1` line. The initial reviewer-ready cut used prose `V1` with tag `v1.0.0`; the current release-ready candidate tag is `v1.1.1`, while the current published stable tag remains `v1.1.0` until owner-controlled tag and deployment follow-through completes.
+- `Release`: a stable shipped cut on the `V1` line. The initial reviewer-ready cut used prose `V1` with tag `v1.0.0`; the current PaperBinder release is `v1.1.1`, superseding the prior published stable tag `v1.1.0`. Merging to `main`, tagging, and deployment are the remaining owner-controlled release actions.
 
 Do not use legacy `stage` terminology for current execution planning or PR artifacts.
 
@@ -32,7 +32,7 @@ Do not use legacy `stage` terminology for current execution planning or PR artif
 - `V1` is locked as the first stable release line.
 - Stable release tags must use SemVer core spelling with a leading `v`: `vMAJOR.MINOR.PATCH`.
 - The initial stable release identity remains historical `V1` / `v1.0.0` / `1.0.0`.
-- The current release-ready candidate identity is `V1` / `v1.1.1` / `1.1.1`.
+- The current release identity is `V1` / `v1.1.1` / `1.1.1`; `v1.1.0` is the prior published stable tag.
 - Future release branches may stage version metadata before release; do not describe a future tag as stable until the final release close-out task records the taggable state.
 - Repository version metadata must agree before release validation passes:
   - `Directory.Build.props` `VersionPrefix`

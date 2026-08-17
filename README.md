@@ -168,6 +168,6 @@ Policy:
 
 ## Status
 
-PaperBinder is reviewer-ready at `v1.1.1`.
-The current release-ready candidate tag is `v1.1.1`; the current published stable tag remains `v1.1.0` until owner-controlled tag and deployment follow-through completes.
+PaperBinder is reviewer-ready at `v1.1.1`, the current PaperBinder release.
+`v1.1.1` is fully implemented, validated, and documented; merging to `main`, tagging, and deployment are the remaining owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`.
 Release readiness is recorded in `docs/95-delivery/release-checklist.md`, with the release snapshot in `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`.
