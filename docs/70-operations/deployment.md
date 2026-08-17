@@ -31,6 +31,7 @@ Services:
 - ASP.NET app container (SPA + API).
 - ASP.NET worker container.
 - PostgreSQL container.
+- Compose-managed containers use Docker's `local` logging driver with `max-size=10m` and `max-file=5`.
 
 Repository deployment baseline:
 - `docker-compose.prod.yml`
@@ -176,6 +177,7 @@ Before the first rollout of certificate-backed Data Protection key protection on
    - `docker compose --env-file .env -f docker-compose.prod.yml run --rm migrations`
 6. Start/update services:
    - `docker compose --env-file .env -f docker-compose.prod.yml up -d`
+   - If the logging driver or logging options changed, add `--force-recreate` so existing containers receive the updated log configuration.
 7. Verify, allowing bounded warm-up retries before treating health checks as failed:
    - unauthenticated `GET /health/live` returns `200`
    - unauthenticated `GET /health/ready` returns `200`
@@ -203,6 +205,7 @@ Before the first rollout of certificate-backed Data Protection key protection on
 ## Data and Observability Minimums
 
 - PaperBinder `V1` demo tenants are ephemeral, so tenant-content durability requirements are intentionally low. The environment still has persistent operational state that matters for recovery: the PostgreSQL Docker volume, the Data Protection key-ring volume mounted at `/data/keys`, the Caddy data/config volumes, and the server-side `.env` files.
+- Container stdout/stderr logs are bounded by the Compose logging contract. The production and shared-test compose files use Docker's `local` logging driver with five 10 MB files per container. Docker applies logging driver changes only to newly created containers, so recreate containers after changing the logging block.
 - For `V1`, recoverability may be satisfied by a documented rebuild procedure plus provider snapshots or selective off-host volume backup. If the environment is expected to be recoverable after host loss, recurring backups or snapshots are not conceptually optional.
 - Take a provider snapshot before risky infrastructure changes such as Droplet rebuilds, major Docker or OS upgrades, or production cutover work.
 - If recurring backups are enabled, prefer off-host storage and periodically validate that the restore path is still executable from the current runbooks.

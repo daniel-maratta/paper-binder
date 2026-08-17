@@ -6,6 +6,7 @@
 - API, worker, and representative database execution paths emit PaperBinder-owned trace activity in the current build.
 - Development and Test export target: console.
 - Optional export target: OTLP endpoint when `PAPERBINDER_OTEL_OTLP_ENDPOINT` is configured.
+- Compose-managed container stdout/stderr logs use Docker's `local` logging driver with `max-size=10m` and `max-file=5` in the repo-owned Compose files.
 
 ## Correlation Contract
 
@@ -28,6 +29,7 @@
 
 - No PII in logs/traces by default.
 - Demo sampling strategy is always-on unless a measured reason requires change.
+- Container logs are retained according to the Compose logging driver limits, plus any provider snapshots, backups, deployment logs, or external telemetry retention that the operator enables.
 
 ## Guardrails
 
