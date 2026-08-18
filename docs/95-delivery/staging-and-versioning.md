@@ -9,7 +9,7 @@ Define the delivery terminology and PR artifact expectations used by PaperBinder
 
 - `Phase`: one of the five major execution groupings in `docs/55-execution/`.
 - `Checkpoint`: the mergeable execution unit inside a phase (`CP1` through `CP17`).
-- `Release`: a stable shipped cut on the `V1` line. The initial reviewer-ready cut used prose `V1` with tag `v1.0.0`; the current PaperBinder release is `v1.1.1`, superseding the prior published stable tag `v1.1.0`. `v1.1.1` has merged to `main` (PR #54, commit `89ad4aa`, 2026-08-17); tagging and deployment are the remaining owner-controlled release actions.
+- `Release`: a stable shipped cut on the `V1` line. The initial reviewer-ready cut used prose `V1` with tag `v1.0.0`; the current PaperBinder release is `v1.1.1`, superseding the prior published stable tag `v1.1.0`. `v1.1.1` has merged to `main`, and the `v1.1.1` tag's `release.yml` run has passed; deployment is the remaining owner-controlled release action.
 
 Do not use legacy `stage` terminology for current execution planning or PR artifacts.
 
