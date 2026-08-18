@@ -181,8 +181,9 @@ This section records the `v1.1.1` patch candidate validation and final hiring as
 not replace the historical `V1.1.0` evidence above.
 The later legality audit added a release-blocking legal-readiness addendum tracked by `T-0055`; that
 addendum completed on `2026-08-16`, with a follow-up public-copy and logging pass on `2026-08-17`.
-Final legal wording approval, the merge to `main`, tag creation, the release workflow run, and Test/Prod deployment with smoke validation are complete; publishing the draft GitHub Release remains the
-sole owner-controlled release action.
+Final legal wording approval, the merge to `main`, tag creation, the release workflow run, Test/Prod
+deployment with smoke validation, and publishing the GitHub Release are all complete. `v1.1.1` is
+the published stable PaperBinder release; see the updated `Release Readiness` section below.
 
 ### Checkpoint Completion
 
@@ -280,9 +281,10 @@ sole owner-controlled release action.
   check passed both `/health/live` (attempt 2/12, a normal transient blip during container restart)
   and `/health/ready` (attempt 1/24), confirmed directly via `gh run view --log`. `v1.1.1` is
   confirmed running in Prod.
-- [ ] Publish the draft GitHub Release at
-  [github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1](https://github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1)
-  (`isDraft: true` as of this update). This is the sole remaining owner-controlled release action.
+- [x] Publish the draft GitHub Release at
+  [github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1](https://github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1) -
+  published on `2026-08-18T05:29:33Z` (`isDraft: false`), confirmed directly via `gh release view`.
+  All `v1.1.1` owner-controlled release actions are complete.
 
 ### Legal Readiness Addendum
 
@@ -337,8 +339,8 @@ sole owner-controlled release action.
 
 - Release line: `V1`
 - Historical first stable tag: `v1.0.0`
-- Current release tag: `v1.1.1`
-- Current release SemVer metadata: `1.1.1`
+- Current published stable tag: `v1.1.1`
+- Current published stable SemVer version: `1.1.1`
 - Prior published stable tag: `v1.1.0`
 - Prior published stable SemVer version: `1.1.0`
 - Active branch SemVer metadata: `1.1.1`
@@ -367,8 +369,8 @@ sole owner-controlled release action.
   reports zero vulnerabilities after same-major/patch remediation for `nanoid`, `react-router`, and
   `react-router-dom`, and the prior test-tooling `SSH.NET` vulnerability warning is remediated by a
   test-only `SSH.NET 2026.0.0` override. Final legal effective-date selection, the merge to `main`,
-  tag creation, the tag-driven release workflow run, and Test/Prod deployment with smoke validation
-  are complete; publishing the draft GitHub Release remains the sole owner-controlled action.
+  tag creation, the tag-driven release workflow run, Test/Prod deployment with smoke validation, and
+  publishing the GitHub Release are all complete. No owner-controlled release action remains.
 - V1.1.1 executor attestation: `CHANGELOG.md`, repo version metadata, current-state delivery docs,
   and the taskboard are aligned for `v1.1.1` release readiness. The merge to `main` (PR #54, commit
   `89ad4aa`, 2026-08-17), tag creation (`v1.1.1` at commit `2568291`, 2026-08-18, after deleting and
@@ -378,16 +380,19 @@ sole owner-controlled release action.
   ([32101782918](https://github.com/daniel-maratta/paper-binder/actions/runs/32101782918), success,
   including a passing live smoke check), and the `deploy-prod.yml` run
   ([32102278515](https://github.com/daniel-maratta/paper-binder/actions/runs/32102278515), success,
-  including a passing live smoke check against `https://paperbinder.danielmaratta.com`) are recorded
-  above as complete. Only publishing the draft GitHub Release remains a separate follow-up action
-  and is not claimed by this checklist update.
+  including a passing live smoke check against `https://paperbinder.danielmaratta.com`), and
+  publishing the GitHub Release (`isDraft: false`, `publishedAt: 2026-08-18T05:29:33Z`, confirmed
+  directly via `gh release view`) are recorded above as complete. No `v1.1.1` release action remains
+  outstanding.
 - V1.1.1 carry-forward attestation: `T-0053` tracks the React Router major-version upgrade, and
   `T-0054` tracks overall API shape and over-ceremony remediation as future minor-version work.
-- V1.1.1 current-release attestation (`2026-08-17`): `v1.1.1` is the canonical, current PaperBinder
-  release. `T-0055` recorded `main` as taggable, and `CHANGELOG.md`, `README.md`, `REVIEWERS.md`,
-  `docs/95-delivery/staging-and-versioning.md`, `docs/95-delivery/release-workflow.md`, and
-  `docs/00-intent/canonical-decisions.md` now describe `v1.1.1` as current rather than as a
-  candidate pending against `v1.1.0`.
+- V1.1.1 current-release attestation (`2026-08-17`, superseded `2026-08-18`): `v1.1.1` is the
+  canonical, current PaperBinder release. `T-0055` recorded `main` as taggable, and `CHANGELOG.md`,
+  `README.md`, `REVIEWERS.md`, `docs/95-delivery/staging-and-versioning.md`,
+  `docs/95-delivery/release-workflow.md`, and `docs/00-intent/canonical-decisions.md` now describe
+  `v1.1.1` as current rather than as a candidate pending against `v1.1.0`. As of `2026-08-18`,
+  `v1.1.1` is fully released (merged, tagged, deployed to Test and Prod, GitHub Release published);
+  see the `Release Readiness` section below for the final published-stable-tag status.
 - V1.1.1 merge attestation (`2026-08-17`): `release/v1.1.1` merged into `main` via
   [PR #54](https://github.com/daniel-maratta/paper-binder/pull/54), merge commit
   `89ad4aa891d733265c42429d2954b625cd70257d`, at `2026-08-17T22:04:39Z`, verified directly against
@@ -424,9 +429,10 @@ sole owner-controlled release action.
   passed both `/health/live` (attempt 2/12) and `/health/ready` (attempt 1/24) against
   `https://paperbinder.danielmaratta.com`, confirmed directly via `gh run view --log`. `v1.1.1` is
   confirmed deployed in Prod.
-- V1.1.1 remaining-gap attestation (`2026-08-18`): publishing the draft GitHub Release
-  (`isDraft: true` as of this update, confirmed via `gh release view`) has not happened yet and is
-  not claimed here — it is the sole remaining owner-controlled action.
+- V1.1.1 publish attestation (`2026-08-18T05:29:33Z`): the draft GitHub Release at
+  [github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1](https://github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1)
+  was published (`isDraft: false`), confirmed directly via `gh release view`. This was the last
+  outstanding owner-controlled `v1.1.1` release action; none remain.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`

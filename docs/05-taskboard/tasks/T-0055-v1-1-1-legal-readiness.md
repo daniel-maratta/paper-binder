@@ -63,7 +63,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - `docs/30-security/secrets-and-config.md`
 
 ## Blocked By
-- None. Owner approval of the final legal wording is complete (`2026-08-17`), the `v1.1.1` candidate branch has merged to `main` (PR #54, commit `89ad4aa`, `2026-08-17`), the `v1.1.1` tag's `release.yml` run passed on `2026-08-18` (GHCR images published, draft GitHub Release created), and `v1.1.1` is deployed and smoke-verified on both Test and Prod (`2026-08-18`); publishing the draft GitHub Release remains the explicit owner-controlled release action before publication.
+- None. `v1.1.1` is fully released: owner approval of the final legal wording (`2026-08-17`), the merge to `main` (PR #54, commit `89ad4aa`, `2026-08-17`), the `v1.1.1` tag's `release.yml` run (`2026-08-18`, GHCR images published), Test/Prod deployment with smoke validation (`2026-08-18`), and publishing the GitHub Release (`2026-08-18T05:29:33Z`) are all complete.
 
 ## Review Gates
 - Scope Lock: Legal readiness for the current public demo only; no commercial SaaS expansion.
@@ -109,9 +109,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - L7: Validate legal readiness and update release evidence.
 
 ## Next Action
-- Owner (Daniel Maratta) approved the final legal wording for publication on `2026-08-17`.
-- The `v1.1.1` candidate branch merged to `main` via PR #54 (commit `89ad4aa`) on `2026-08-17`.
-- Remaining owner-controlled release follow-through: tag `v1.1.1`, deploy with recreated containers so the logging driver applies, and smoke test.
+- None. Owner (Daniel Maratta) approved the final legal wording for publication on `2026-08-17`; the `v1.1.1` candidate branch merged to `main` via PR #54 (commit `89ad4aa`) on `2026-08-17`; the tag's `release.yml` run passed, Test and Prod deployment with live smoke validation succeeded, and the GitHub Release was published, all on `2026-08-18`. `v1.1.1` is the current published stable PaperBinder release.
 
 ## Validation Evidence
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-15 for the L1 documentation update.
