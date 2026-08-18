@@ -169,5 +169,5 @@ Policy:
 ## Status
 
 PaperBinder is reviewer-ready at `v1.1.1`, the current PaperBinder release.
-`v1.1.1` is fully implemented, validated, and documented; `v1.1.1` has merged to `main` and the `v1.1.1` tag's `release.yml` run has passed, publishing GHCR images and a draft GitHub Release. Deployment (Test/Prod), production smoke validation, and publishing the release remain the outstanding owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`.
+`v1.1.1` is fully implemented, validated, and documented; `v1.1.1` has merged to `main`, the `v1.1.1` tag's `release.yml` run has passed (GHCR images and a draft GitHub Release published), and `v1.1.1` is deployed and smoke-verified on both Test and Prod. Publishing the draft GitHub Release is the sole outstanding owner-controlled release action, tracked in `docs/95-delivery/release-checklist.md`.
 Release readiness is recorded in `docs/95-delivery/release-checklist.md`, with the release snapshot in `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`.

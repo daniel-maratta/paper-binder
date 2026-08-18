@@ -35,7 +35,7 @@ Reviewer experience:
 
 Release boundary:
 - The shipped release line is prose `V1`; the current PaperBinder release is `v1.1.1`, fully implemented, validated, and documented, with `v1.1.0` as the prior published stable tag
-- `v1.1.1` has merged to `main`, and the `v1.1.1` tag's `release.yml` run has passed (GHCR images published, draft GitHub Release created); deployment remains the outstanding owner-controlled release action, tracked in `docs/95-delivery/release-checklist.md`
+- `v1.1.1` has merged to `main`, the `v1.1.1` tag's `release.yml` run has passed (GHCR images published, draft GitHub Release created), and `v1.1.1` is deployed and smoke-verified on both Test and Prod; publishing the draft GitHub Release remains the outstanding owner-controlled release action, tracked in `docs/95-delivery/release-checklist.md`
 - The historical first stable tag remains `v1.0.0`
 - Release readiness is documented through the delivery lane; live public-host operation is not a `V1` release gate
 

@@ -181,8 +181,8 @@ This section records the `v1.1.1` patch candidate validation and final hiring as
 not replace the historical `V1.1.0` evidence above.
 The later legality audit added a release-blocking legal-readiness addendum tracked by `T-0055`; that
 addendum completed on `2026-08-16`, with a follow-up public-copy and logging pass on `2026-08-17`.
-Final legal wording approval, the merge to `main`, tag creation, and the release workflow run are complete; deployment and smoke validation remain owner-controlled
-release actions.
+Final legal wording approval, the merge to `main`, tag creation, the release workflow run, and Test/Prod deployment with smoke validation are complete; publishing the draft GitHub Release remains the
+sole owner-controlled release action.
 
 ### Checkpoint Completion
 
@@ -259,9 +259,30 @@ release actions.
   `paperbinder-proxy`) published to GHCR tagged `1.1.1`/`v1.1.1`/`latest`, and a **draft** GitHub
   Release "PaperBinder v1.1.1" was created at
   [github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1](https://github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1).
-- [ ] Owner-controlled deploy follow-through: run `deploy-test.yml`, `deploy-prod.yml` (with
-  containers recreated so the new Compose logging driver applies), complete production smoke
-  validation, and publish the draft GitHub Release. None of this has happened yet.
+- [x] Run `deploy-test.yml` for `v1.1.1` - a first attempt
+  ([32101650509](https://github.com/daniel-maratta/paper-binder/actions/runs/32101650509)) failed
+  at the `Deploy release` step: the `deploy_path` workflow input was corrupted by MSYS/Git-Bash
+  path conversion in the invoking local shell (`/opt/paperbinder` became
+  `C:/Program Files/Git/opt/paperbinder`), so `proxy` failed to recreate on an invalid Caddyfile
+  bind-mount path after `db`, `migrations`, `worker`, and `app` had already recreated successfully
+  on the real `1.1.1` images. This was a local tooling issue, not a codebase or pipeline defect, so
+  no CHANGELOG entry was added. Re-run with MSYS path conversion disabled
+  ([32101782918](https://github.com/daniel-maratta/paper-binder/actions/runs/32101782918)) passed
+  in full on `2026-08-18T05:09:16Z`: all containers (including `proxy`, picking up the new logging
+  driver) recreated on the `1.1.1` images, migrations ran cleanly, and the workflow's own smoke
+  check passed against the live `/health/live` and `/health/ready` endpoints on the Test droplet.
+  `v1.1.1` is confirmed running on Test.
+- [x] Run `deploy-prod.yml` for `v1.1.1` and complete production smoke validation - run
+  [32102278515](https://github.com/daniel-maratta/paper-binder/actions/runs/32102278515) passed in
+  full on `2026-08-18T05:16:57Z`: `db`, `migrations`, `worker`, `app`, and `proxy` (picking up the
+  new logging driver) all recreated on the `1.1.1` images against
+  `https://paperbinder.danielmaratta.com`, migrations ran cleanly, and the workflow's own live smoke
+  check passed both `/health/live` (attempt 2/12, a normal transient blip during container restart)
+  and `/health/ready` (attempt 1/24), confirmed directly via `gh run view --log`. `v1.1.1` is
+  confirmed running in Prod.
+- [ ] Publish the draft GitHub Release at
+  [github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1](https://github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1)
+  (`isDraft: true` as of this update). This is the sole remaining owner-controlled release action.
 
 ### Legal Readiness Addendum
 
@@ -346,16 +367,20 @@ release actions.
   reports zero vulnerabilities after same-major/patch remediation for `nanoid`, `react-router`, and
   `react-router-dom`, and the prior test-tooling `SSH.NET` vulnerability warning is remediated by a
   test-only `SSH.NET 2026.0.0` override. Final legal effective-date selection, the merge to `main`,
-  tag creation, and the tag-driven release workflow run are complete; deployment, smoke validation,
-  and release publication remain owner-controlled actions.
+  tag creation, the tag-driven release workflow run, and Test/Prod deployment with smoke validation
+  are complete; publishing the draft GitHub Release remains the sole owner-controlled action.
 - V1.1.1 executor attestation: `CHANGELOG.md`, repo version metadata, current-state delivery docs,
   and the taskboard are aligned for `v1.1.1` release readiness. The merge to `main` (PR #54, commit
   `89ad4aa`, 2026-08-17), tag creation (`v1.1.1` at commit `2568291`, 2026-08-18, after deleting and
-  recreating the initial tag to include the `e2e/root-host.spec.ts` fix in PR #56), and the
+  recreating the initial tag to include the `e2e/root-host.spec.ts` fix in PR #56), the
   `release.yml` run ([32099838508](https://github.com/daniel-maratta/paper-binder/actions/runs/32099838508),
-  success) are recorded above as complete. Owner-controlled deployment, smoke validation, and
-  release publication remain separate follow-up actions and are not claimed by this checklist
-  update.
+  success), and the `deploy-test.yml` run
+  ([32101782918](https://github.com/daniel-maratta/paper-binder/actions/runs/32101782918), success,
+  including a passing live smoke check), and the `deploy-prod.yml` run
+  ([32102278515](https://github.com/daniel-maratta/paper-binder/actions/runs/32102278515), success,
+  including a passing live smoke check against `https://paperbinder.danielmaratta.com`) are recorded
+  above as complete. Only publishing the draft GitHub Release remains a separate follow-up action
+  and is not claimed by this checklist update.
 - V1.1.1 carry-forward attestation: `T-0053` tracks the React Router major-version upgrade, and
   `T-0054` tracks overall API shape and over-ceremony remediation as future minor-version work.
 - V1.1.1 current-release attestation (`2026-08-17`): `v1.1.1` is the canonical, current PaperBinder
@@ -382,11 +407,26 @@ release actions.
   `paperbinder-proxy`) and a draft GitHub Release created at
   [github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1](https://github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1),
   confirmed directly via `gh run view` and `gh release view`.
-- V1.1.1 remaining-gap attestation (`2026-08-18`): Test/Prod deployment (`deploy-test.yml`,
-  `deploy-prod.yml`), container recreation for the new Compose logging driver, production smoke
-  validation, and publishing the draft GitHub Release have not happened yet and are not claimed
-  here — those remain the sole outstanding owner-controlled actions listed above, and `v1.1.0`
-  remains the actual deployed tag until they complete.
+- V1.1.1 Test-deploy attestation (`2026-08-18`): `deploy-test.yml` was run twice for `v1.1.1`. The
+  first run ([32101650509](https://github.com/daniel-maratta/paper-binder/actions/runs/32101650509))
+  failed at the `Deploy release` step because the `deploy_path` input was corrupted by MSYS/Git-Bash
+  path conversion in the invoking local shell, not by any codebase or pipeline defect; `db`,
+  `migrations`, `worker`, and `app` had already recreated successfully on the real `1.1.1` images
+  before `proxy` failed on the resulting invalid Caddyfile bind-mount path. Re-run with MSYS path
+  conversion disabled
+  ([32101782918](https://github.com/daniel-maratta/paper-binder/actions/runs/32101782918)) passed
+  in full, including the workflow's own live smoke check against `/health/live` and `/health/ready`
+  on the Test droplet, confirmed directly via `gh run view`. `v1.1.1` is confirmed deployed on Test.
+- V1.1.1 Prod-deploy attestation (`2026-08-18`): `deploy-prod.yml` run
+  [32102278515](https://github.com/daniel-maratta/paper-binder/actions/runs/32102278515) passed in
+  full on the first attempt: `db`, `migrations`, `worker`, `app`, and `proxy` (picking up the new
+  logging driver) all recreated on the `1.1.1` images, and the workflow's own live smoke check
+  passed both `/health/live` (attempt 2/12) and `/health/ready` (attempt 1/24) against
+  `https://paperbinder.danielmaratta.com`, confirmed directly via `gh run view --log`. `v1.1.1` is
+  confirmed deployed in Prod.
+- V1.1.1 remaining-gap attestation (`2026-08-18`): publishing the draft GitHub Release
+  (`isDraft: true` as of this update, confirmed via `gh release view`) has not happened yet and is
+  not claimed here — it is the sole remaining owner-controlled action.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`
