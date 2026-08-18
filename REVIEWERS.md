@@ -2,7 +2,7 @@
 
 This guide is for interviewers and technical reviewers who want a fast, accurate read of the shipped `V1` system and its release evidence.
 
-PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current PaperBinder release is `v1.1.1`, fully implemented, validated, and documented; `v1.1.1` has merged to `main` (PR #54, commit `89ad4aa`, 2026-08-17), and tagging and deployment are the remaining owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`.
+PaperBinder is intentionally narrow: a multi-tenant SaaS demonstration that prioritizes tenant isolation, explicit boundaries, and reviewable engineering decisions over feature breadth. The current PaperBinder release is `v1.1.1`, fully implemented, validated, and documented; `v1.1.1` has merged to `main` and the `v1.1.1` tag's `release.yml` run has passed, publishing GHCR images and a draft GitHub Release. Deployment (Test/Prod), production smoke validation, and publishing the release remain the outstanding owner-controlled release actions, tracked in `docs/95-delivery/release-checklist.md`.
 
 PaperBinder was designed, directed, reviewed, and validated by Daniel Maratta using AI coding agents as implementation accelerators. Large portions of implementation were generated or modified by AI agents under explicit task prompts; architecture, scope, security model, acceptance criteria, review process, remediation decisions, and the final quality bar remained human-directed. Evaluate it as an example of modern AI-augmented software delivery, not purely hand-typed keystroke authorship.
 

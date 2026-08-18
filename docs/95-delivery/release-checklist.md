@@ -181,7 +181,7 @@ This section records the `v1.1.1` patch candidate validation and final hiring as
 not replace the historical `V1.1.0` evidence above.
 The later legality audit added a release-blocking legal-readiness addendum tracked by `T-0055`; that
 addendum completed on `2026-08-16`, with a follow-up public-copy and logging pass on `2026-08-17`.
-Final legal wording approval and the merge to `main` are complete; tag, deployment, and smoke validation remain owner-controlled
+Final legal wording approval, the merge to `main`, tag creation, and the release workflow run are complete; deployment and smoke validation remain owner-controlled
 release actions.
 
 ### Checkpoint Completion
@@ -237,9 +237,31 @@ release actions.
 - [x] Complete `T-0055` legal-readiness addendum - completed on `2026-08-16`.
 - [x] Merge the `v1.1.1` candidate branch to the release target - merged via
   [PR #54](https://github.com/daniel-maratta/paper-binder/pull/54), merge commit
-  `89ad4aa891d733265c42429d2954b625cd70257d`, on `2026-08-17T22:04:39Z`.
-- [ ] Create and push the `v1.1.1` SemVer tag.
-- [ ] Run the tag-driven release workflow and owner-controlled deploy follow-through.
+  `89ad4aa891d733265c42429d2954b625cd70257d`, on `2026-08-17T22:04:39Z`. A documentation-only
+  follow-up recording that merge landed via
+  [PR #55](https://github.com/daniel-maratta/paper-binder/pull/55), merge commit
+  `3ce64c6f44eee45bbb4419c22b198a04bc634711`, on `2026-08-17T22:18:45Z`.
+- [x] Create and push the `v1.1.1` SemVer tag - an initial tag at commit `3ce64c6` was pushed on
+  `2026-08-17` but its `release.yml` run
+  ([32075491068](https://github.com/daniel-maratta/paper-binder/actions/runs/32075491068)) failed
+  at the Browser E2E step: `e2e/root-host.spec.ts` still asserted the Cookie Notice page's original
+  `Current posture` heading after commit `1c908f6` renamed it to `Cookie use` the same day, so no
+  images were published and no release was created from that tag. Fixed via
+  [PR #56](https://github.com/daniel-maratta/paper-binder/pull/56), merge commit
+  `256829103bac573b3c3e17e301fcf7e59171250d`, on `2026-08-18T04:31:35Z` (verified locally first:
+  `run-browser-e2e.ps1` root-host `5/5` passing). The `v1.1.1` tag was deleted and recreated
+  pointing at `2568291`, and CHANGELOG.md records the stale-assertion fix under `v1.1.1`.
+- [x] Run the tag-driven release workflow - the recreated tag's `release.yml` run
+  ([32099838508](https://github.com/daniel-maratta/paper-binder/actions/runs/32099838508)) passed
+  in full on `2026-08-18T04:37:42Z`: `validate-release` (build, repo tests, browser E2E, docs,
+  launch profiles, checkpoint bundle) succeeded, all five images
+  (`paperbinder-api`, `paperbinder-api-test`, `paperbinder-worker`, `paperbinder-migrations`,
+  `paperbinder-proxy`) published to GHCR tagged `1.1.1`/`v1.1.1`/`latest`, and a **draft** GitHub
+  Release "PaperBinder v1.1.1" was created at
+  [github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1](https://github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1).
+- [ ] Owner-controlled deploy follow-through: run `deploy-test.yml`, `deploy-prod.yml` (with
+  containers recreated so the new Compose logging driver applies), complete production smoke
+  validation, and publish the draft GitHub Release. None of this has happened yet.
 
 ### Legal Readiness Addendum
 
@@ -323,14 +345,17 @@ release actions.
   gates are green or recorded with final rerun evidence in `T-0052` and `T-0055`; `npm audit` now
   reports zero vulnerabilities after same-major/patch remediation for `nanoid`, `react-router`, and
   `react-router-dom`, and the prior test-tooling `SSH.NET` vulnerability warning is remediated by a
-  test-only `SSH.NET 2026.0.0` override. Final legal effective-date selection and the merge to
-  `main` are complete; tag creation, deployment, smoke validation, and release publication remain
-  owner-controlled actions.
+  test-only `SSH.NET 2026.0.0` override. Final legal effective-date selection, the merge to `main`,
+  tag creation, and the tag-driven release workflow run are complete; deployment, smoke validation,
+  and release publication remain owner-controlled actions.
 - V1.1.1 executor attestation: `CHANGELOG.md`, repo version metadata, current-state delivery docs,
   and the taskboard are aligned for `v1.1.1` release readiness. The merge to `main` (PR #54, commit
-  `89ad4aa`, 2026-08-17) is recorded above as complete. Owner-controlled tag creation, release
-  workflow, deployment, smoke validation, and release publication remain separate follow-up actions
-  and are not claimed by this checklist update.
+  `89ad4aa`, 2026-08-17), tag creation (`v1.1.1` at commit `2568291`, 2026-08-18, after deleting and
+  recreating the initial tag to include the `e2e/root-host.spec.ts` fix in PR #56), and the
+  `release.yml` run ([32099838508](https://github.com/daniel-maratta/paper-binder/actions/runs/32099838508),
+  success) are recorded above as complete. Owner-controlled deployment, smoke validation, and
+  release publication remain separate follow-up actions and are not claimed by this checklist
+  update.
 - V1.1.1 carry-forward attestation: `T-0053` tracks the React Router major-version upgrade, and
   `T-0054` tracks overall API shape and over-ceremony remediation as future minor-version work.
 - V1.1.1 current-release attestation (`2026-08-17`): `v1.1.1` is the canonical, current PaperBinder
@@ -341,8 +366,25 @@ release actions.
 - V1.1.1 merge attestation (`2026-08-17`): `release/v1.1.1` merged into `main` via
   [PR #54](https://github.com/daniel-maratta/paper-binder/pull/54), merge commit
   `89ad4aa891d733265c42429d2954b625cd70257d`, at `2026-08-17T22:04:39Z`, verified directly against
-  `origin/main` via `git fetch` and `gh pr view`. Tag creation, the tag-driven release workflow run,
-  Test/Prod deployment, and production smoke validation have not happened yet and are not claimed
+  `origin/main` via `git fetch` and `gh pr view`.
+- V1.1.1 tag and release-workflow attestation (`2026-08-18`): the `v1.1.1` tag was pushed twice.
+  The first push (commit `3ce64c6`, `2026-08-17`) triggered
+  [release.yml run 32075491068](https://github.com/daniel-maratta/paper-binder/actions/runs/32075491068),
+  which **failed** at Browser E2E because `e2e/root-host.spec.ts` still asserted the Cookie Notice
+  page's pre-rename `Current posture` heading; no images were published and no release was created
+  from it. The stale assertion was fixed and verified locally (`run-browser-e2e.ps1` root-host
+  `5/5`) via [PR #56](https://github.com/daniel-maratta/paper-binder/pull/56), merge commit
+  `256829103bac573b3c3e17e301fcf7e59171250d`, `2026-08-18T04:31:35Z`. The `v1.1.1` tag was then
+  deleted and recreated at commit `2568291`, triggering
+  [release.yml run 32099838508](https://github.com/daniel-maratta/paper-binder/actions/runs/32099838508),
+  which **passed** in full on `2026-08-18T04:37:42Z` — all five GHCR images published
+  (`paperbinder-api`, `paperbinder-api-test`, `paperbinder-worker`, `paperbinder-migrations`,
+  `paperbinder-proxy`) and a draft GitHub Release created at
+  [github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1](https://github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1),
+  confirmed directly via `gh run view` and `gh release view`.
+- V1.1.1 remaining-gap attestation (`2026-08-18`): Test/Prod deployment (`deploy-test.yml`,
+  `deploy-prod.yml`), container recreation for the new Compose logging driver, production smoke
+  validation, and publishing the draft GitHub Release have not happened yet and are not claimed
   here — those remain the sole outstanding owner-controlled actions listed above, and `v1.1.0`
   remains the actual deployed tag until they complete.
 - Mirrors:
