@@ -63,7 +63,7 @@ Close the legal-surface gaps found during the legality audit before the `v1.1.1`
 - `docs/30-security/secrets-and-config.md`
 
 ## Blocked By
-- None. Owner approval of the final legal wording is complete (`2026-08-17`), the `v1.1.1` candidate branch has merged to `main` (PR #54, commit `89ad4aa`, `2026-08-17`), the `v1.1.1` tag's `release.yml` run passed on `2026-08-18` (GHCR images published, draft GitHub Release created), and `v1.1.1` is deployed and smoke-verified on Test (`2026-08-18`); Prod deployment and production smoke validation remain explicit owner-controlled release actions before publication.
+- None. Owner approval of the final legal wording is complete (`2026-08-17`), the `v1.1.1` candidate branch has merged to `main` (PR #54, commit `89ad4aa`, `2026-08-17`), the `v1.1.1` tag's `release.yml` run passed on `2026-08-18` (GHCR images published, draft GitHub Release created), and `v1.1.1` is deployed and smoke-verified on both Test and Prod (`2026-08-18`); publishing the draft GitHub Release remains the explicit owner-controlled release action before publication.
 
 ## Review Gates
 - Scope Lock: Legal readiness for the current public demo only; no commercial SaaS expansion.
