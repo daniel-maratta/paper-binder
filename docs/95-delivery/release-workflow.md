@@ -13,7 +13,7 @@ Define the canonical stable-release sequence for the `V1` line, its ownership bo
 - Current release tag: `v1.1.1`
 - Current release SemVer metadata: `1.1.1`
 - Prior published stable tag: `v1.1.0`
-- The `v1.1.1` release-close-out task (`T-0055`) has recorded main as taggable; `v1.1.1` has merged to `main`, and the `v1.1.1` tag's `release.yml` run has passed (GHCR images published, draft GitHub Release created). Deployment remains an owner-controlled action per the sequence below.
+- The `v1.1.1` release-close-out task (`T-0055`) has recorded main as taggable; `v1.1.1` has merged to `main`, the `v1.1.1` tag's `release.yml` run has passed (GHCR images published, draft GitHub Release created), and `v1.1.1` is deployed and smoke-verified on Test. Prod deployment remains an owner-controlled action per the sequence below.
 - Changelog cut shape:
   - historical first stable cut: `## [V1] - 2026-04-19`
   - subsequent stable releases on the same line: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD` with a fresh empty `## Unreleased`
