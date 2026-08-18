@@ -9,7 +9,6 @@ Own the canonical release gate list for the published stable `V1` release.
 
 - [x] `CHANGELOG.md` contains the current `## [1.1.1] - 2026-08-17` entry above the `## [1.1.0] - 2026-07-28` prior stable entry, with a fresh empty `## Unreleased`.
 - [x] Repository version metadata matches the current `v1.1.1` / `1.1.1` release.
-- [x] `CHANGELOG.md` contains the current `## [1.1.0] - 2026-07-28` published stable entry above the `## [1.0.5] - 2026-07-03` stable entry and the historical `## [V1] - 2026-04-19` first-cut release summary, with a fresh empty `## Unreleased`.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, the active branch metadata distinction, the command surface, and ownership.
 - [x] Repository version metadata matched the published stable `V1` release tag `v1.1.0` / `1.1.0` on `main` at the `v1.1.0` release cut.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.

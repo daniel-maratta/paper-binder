@@ -150,6 +150,30 @@ function Assert-ReleaseChecklistStructure {
   if ($releaseWorkflowContent -notmatch [regex]::Escape("docs/95-delivery/release-checklist.md")) {
     throw "Release workflow must reference the canonical release checklist."
   }
+
+  $currentVersionMatch = [regex]::Match(
+    $releaseWorkflowContent,
+    '(?m)^- Current published stable SemVer metadata: `(?<version>\d+\.\d+\.\d+)`'
+  )
+  if (-not $currentVersionMatch.Success) {
+    throw "Release workflow must declare the current published stable SemVer metadata."
+  }
+
+  $currentSemVer = $currentVersionMatch.Groups["version"].Value
+  $currentChangelogAssertions = [regex]::Matches(
+    $releaseChecklistContent,
+    'contains the current `## \[(?<version>\d+\.\d+\.\d+)\]'
+  )
+  if ($currentChangelogAssertions.Count -eq 0) {
+    throw "Release checklist must assert the current changelog entry."
+  }
+
+  foreach ($assertion in $currentChangelogAssertions) {
+    $assertedVersion = $assertion.Groups["version"].Value
+    if ($assertedVersion -ne $currentSemVer) {
+      throw "Release checklist current changelog assertion uses $assertedVersion, but release workflow current SemVer is $currentSemVer."
+    }
+  }
 }
 
 function Assert-NoLocalPathLeakage {
