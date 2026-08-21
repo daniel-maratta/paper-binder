@@ -42,6 +42,7 @@ export type RootHostNavigator = (redirectUrl: string) => void;
 const localChallengeBypassToken = "paperbinder-test-challenge-pass";
 const flagshipArticlePath = flagshipArticle.path;
 const articleNavigationMediaQuery = "(min-width: 1181px)";
+const publicMobileNavigationMediaQuery = "(max-width: 1024px)";
 const flagshipArticleReviewGuideUrl = "https://github.com/daniel-maratta/paper-binder/blob/main/review/README.md";
 const flagshipArticleHeadings = getMarkdownArticleHeadings(flagshipArticle.body);
 
@@ -275,6 +276,47 @@ function useIsDesktopArticleNavigation() {
   }, []);
 
   return isDesktopArticleNavigation;
+}
+
+function useIsMobilePublicNavigation() {
+  const getMatches = () =>
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(publicMobileNavigationMediaQuery).matches
+      : false;
+  const [isMobilePublicNavigation, setIsMobilePublicNavigation] = useState(getMatches);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      setIsMobilePublicNavigation(false);
+      return;
+    }
+
+    const mediaQueryList = window.matchMedia(publicMobileNavigationMediaQuery);
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMobilePublicNavigation(event.matches);
+    };
+
+    setIsMobilePublicNavigation(mediaQueryList.matches);
+    mediaQueryList.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQueryList.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  return isMobilePublicNavigation;
+}
+
+function resolveHeaderNavigationAnalyticsEvent(routePath: string) {
+  if (routePath === "/") {
+    return publicAnalyticsEventNames.headerNavProduct;
+  }
+
+  if (routePath === "/start-demo") {
+    return publicAnalyticsEventNames.headerNavDemo;
+  }
+
+  return publicAnalyticsEventNames.headerNavAbout;
 }
 
 function ArticleSectionNavigation() {
@@ -806,6 +848,62 @@ function RootHostErrorNotice({ error }: { error: RootHostErrorViewModel | null }
 function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
   const location = useLocation();
   const workspaceReturnUrl = resolveWorkspaceReturnUrl(location.search, hostContext.environment);
+  const isMobilePublicNavigation = useIsMobilePublicNavigation();
+  const [isMobileMenuExpanded, setIsMobileMenuExpanded] = useState(false);
+  const mobileNavigationRef = useRef<HTMLElement>(null);
+  const mobileNavigationToggleRef = useRef<HTMLButtonElement>(null);
+  const mobileNavigationId = "paperbinder-mobile-public-navigation";
+
+  useEffect(() => {
+    setIsMobileMenuExpanded(false);
+  }, [location.pathname, location.search, isMobilePublicNavigation]);
+
+  useEffect(() => {
+    if (!isMobilePublicNavigation || !isMobileMenuExpanded || typeof document === "undefined") {
+      return;
+    }
+
+    function closeMenuWhenEscapeIsPressed(event: KeyboardEvent) {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      event.preventDefault();
+      setIsMobileMenuExpanded(false);
+      mobileNavigationToggleRef.current?.focus();
+    }
+
+    document.addEventListener("keydown", closeMenuWhenEscapeIsPressed);
+
+    return () => {
+      document.removeEventListener("keydown", closeMenuWhenEscapeIsPressed);
+    };
+  }, [isMobileMenuExpanded, isMobilePublicNavigation]);
+
+  useEffect(() => {
+    if (!isMobilePublicNavigation || !isMobileMenuExpanded || typeof document === "undefined") {
+      return;
+    }
+
+    function closeMenuWhenPointerStartsOutside(event: PointerEvent) {
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        (mobileNavigationRef.current?.contains(target) === true ||
+          mobileNavigationToggleRef.current?.contains(target) === true)
+      ) {
+        return;
+      }
+
+      setIsMobileMenuExpanded(false);
+    }
+
+    document.addEventListener("pointerdown", closeMenuWhenPointerStartsOutside);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeMenuWhenPointerStartsOutside);
+    };
+  }, [isMobileMenuExpanded, isMobilePublicNavigation]);
 
   return (
     <header className="pb-public-topbar">
@@ -827,13 +925,7 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
         {rootRouteDefinitions.map((route) => (
           <NavLink
             className={({ isActive }) => cn("pb-public-topnav-link", isActive && "pb-public-topnav-link--active")}
-            data-paperbinder-analytics-event={
-              route.path === "/"
-                ? publicAnalyticsEventNames.headerNavProduct
-                : route.path === "/start-demo"
-                  ? publicAnalyticsEventNames.headerNavDemo
-                  : publicAnalyticsEventNames.headerNavAbout
-            }
+            data-paperbinder-analytics-event={resolveHeaderNavigationAnalyticsEvent(route.path)}
             end={route.path === "/"}
             key={route.path}
             to={route.path}
@@ -846,6 +938,22 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
       <div className="pb-public-topbar-actions">
         {hostContext.debugAlias ? (
           <span className="pb-public-debug-chip">Loopback alias</span>
+        ) : null}
+        {isMobilePublicNavigation ? (
+          <button
+            aria-controls={mobileNavigationId}
+            aria-expanded={isMobileMenuExpanded}
+            aria-label="Public navigation"
+            className="pb-public-mobile-nav-toggle"
+            onClick={() => {
+              setIsMobileMenuExpanded((currentValue) => !currentValue);
+            }}
+            ref={mobileNavigationToggleRef}
+            type="button"
+          >
+            <span>Menu</span>
+            <span aria-hidden="true" className="pb-public-mobile-nav-toggle__icon" />
+          </button>
         ) : null}
         {workspaceReturnUrl ? (
           <a
@@ -865,6 +973,29 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
           </PublicShellLink>
         )}
       </div>
+      {isMobilePublicNavigation && isMobileMenuExpanded ? (
+        <nav
+          aria-label="Mobile public navigation"
+          className="pb-public-mobile-nav"
+          id={mobileNavigationId}
+          ref={mobileNavigationRef}
+        >
+          {rootRouteDefinitions.map((route) => (
+            <NavLink
+              className={({ isActive }) => cn("pb-public-mobile-nav-link", isActive && "pb-public-mobile-nav-link--active")}
+              data-paperbinder-analytics-event={resolveHeaderNavigationAnalyticsEvent(route.path)}
+              end={route.path === "/"}
+              key={route.path}
+              onClick={() => {
+                setIsMobileMenuExpanded(false);
+              }}
+              to={route.path}
+            >
+              {route.label}
+            </NavLink>
+          ))}
+        </nav>
+      ) : null}
     </header>
   );
 }
@@ -981,7 +1112,12 @@ function PublicFooter() {
 function PublicShell({ hostContext }: { hostContext: RootHostContext }) {
   const location = useLocation();
   const isLandingRoute = location.pathname === "/";
-  const shouldClipDecor = location.pathname === "/start-demo" || location.pathname === publicLoginRoutePath;
+  const isKnownPublicRoute =
+    rootRouteDefinitions.some((route) => route.path === location.pathname) ||
+    location.pathname === flagshipArticlePath ||
+    findLegalDocumentByPath(location.pathname) !== undefined;
+  const shouldClipDecor =
+    location.pathname === "/start-demo" || location.pathname === publicLoginRoutePath || !isKnownPublicRoute;
 
   useEffect(() => {
     setDocumentTitle(resolveRootPageTitle(location.pathname));
@@ -1057,8 +1193,8 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
           title="A focused workspace for policies, procedures, and internal docs."
           variant="landing"
         >
-          PaperBinder gives each demo workspace a clear place to organize binders, read-only documents, and
-          access controls you can try in the live product.
+          PaperBinder gives small teams one place to organize binders, keep read-only documents, and decide who can
+          access them.
         </PublicHero>
 
         <section aria-label="PaperBinder product preview" className="pb-public-product-mockup">

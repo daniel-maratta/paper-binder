@@ -20,7 +20,7 @@ export const flagshipArticle = {
   category: "Architecture / SaaS demo / AI-assisted development",
   description:
     "A technical article about the engineering practices used to move AI-generated implementation toward production quality in PaperBinder, a constrained SaaS application.",
-  artifactLabel: "V1.1.1 public artifact",
+  artifactLabel: "V1.1.2 public artifact",
   readingTimeLabel: `${estimateReadingTimeMinutes(articleBody)} min read`,
   body: articleBody,
   socialImagePath: "/presentation/after-redesign.png"

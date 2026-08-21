@@ -6,6 +6,6 @@ export const productIdentity = {
   authorUrl: "https://danielmaratta.com",
   canonicalDemoUrl,
   canonicalDemoHost: new URL(canonicalDemoUrl).host,
-  canonicalRepositoryUrl: "https://github.com/daniel-maratta/paper-binder.git",
+  canonicalRepositoryUrl: "https://github.com/daniel-maratta/paper-binder",
   provenanceSummary: "PaperBinder is a production-shaped SaaS demo designed and built by Daniel Maratta."
 } as const;

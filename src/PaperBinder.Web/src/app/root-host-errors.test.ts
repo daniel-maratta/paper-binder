@@ -24,7 +24,7 @@ describe("root-host error mapping", () => {
     });
 
     expect(mapRootHostError(createApiError("TENANT_NAME_CONFLICT", 409, "Conflict."))).toMatchObject({
-      title: "Tenant name already exists.",
+      title: "Workspace name already exists.",
       field: "tenantName"
     });
 

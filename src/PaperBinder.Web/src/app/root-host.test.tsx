@@ -91,6 +91,22 @@ function installMatchMediaStub(matches: boolean) {
   );
 }
 
+function installResponsiveMatchMediaStub(resolveMatches: (query: string) => boolean) {
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn((query: string) => ({
+      matches: resolveMatches(query),
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn()
+    }))
+  );
+}
+
 function renderRootRoute({
   route = "/",
   apiClient,
@@ -192,11 +208,12 @@ describe("root-host flows", () => {
     expect(
       screen.getByRole("heading", { name: "A focused workspace for policies, procedures, and internal docs." })
     ).toBeInTheDocument();
+    expect(screen.getByText(/one place to organize binders/i)).toBeInTheDocument();
     expect(
-      screen.getByText(
+      screen.queryByText(
         "PaperBinder gives each demo workspace a clear place to organize binders, read-only documents, and access controls you can try in the live product."
       )
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
     const landingStartDemoLink = screen.getByRole("link", { name: "Start demo" });
     expect(landingStartDemoLink).toHaveAttribute("href", "/start-demo");
     expectAnalyticsEvent(landingStartDemoLink, publicAnalyticsEventNames.landingStartDemo);
@@ -258,7 +275,7 @@ describe("root-host flows", () => {
     );
     expect(screen.getByRole("link", { name: "Repository history" })).toHaveAttribute(
       "href",
-      "https://github.com/daniel-maratta/paper-binder.git"
+      "https://github.com/daniel-maratta/paper-binder"
     );
     expect(screen.getByRole("heading", { level: 2, name: "Legal" })).toBeInTheDocument();
     const legalIndexLink = screen.getByRole("link", { name: "Legal" });
@@ -278,11 +295,57 @@ describe("root-host flows", () => {
     expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
   });
 
+  it("Should_ExposeTrackedPublicNavigation_When_PublicHeaderRendersAtMobileWidth", async () => {
+    installResponsiveMatchMediaStub((query) => query === "(max-width: 1024px)");
+
+    renderRootRoute({
+      route: "/"
+    });
+
+    const menuButton = screen.getByRole("button", { name: "Public navigation" });
+    expect(menuButton).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("navigation", { name: "Mobile public navigation" })).not.toBeInTheDocument();
+
+    fireEvent.click(menuButton);
+
+    expect(menuButton).toHaveAttribute("aria-expanded", "true");
+    const mobileNavigation = screen.getByRole("navigation", { name: "Mobile public navigation" });
+    const productLink = within(mobileNavigation).getByRole("link", { name: "Product" });
+    const demoLink = within(mobileNavigation).getByRole("link", { name: "Demo" });
+    const aboutLink = within(mobileNavigation).getByRole("link", { name: "About" });
+
+    expect(productLink).toHaveAttribute("href", "/");
+    expect(demoLink).toHaveAttribute("href", "/start-demo");
+    expect(aboutLink).toHaveAttribute("href", "/about");
+    expectAnalyticsEvent(productLink, publicAnalyticsEventNames.headerNavProduct);
+    expectAnalyticsEvent(demoLink, publicAnalyticsEventNames.headerNavDemo);
+    expectAnalyticsEvent(aboutLink, publicAnalyticsEventNames.headerNavAbout);
+
+    fireEvent.click(aboutLink);
+
+    expect(await screen.findByRole("heading", { name: "About PaperBinder" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Public navigation" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("navigation", { name: "Mobile public navigation" })).not.toBeInTheDocument();
+  });
+
   it("Should_ClipPublicDecor_AndKeepDecorNodes_When_StartDemoLoads", async () => {
     renderRootRoute({
       route: "/start-demo"
     });
 
+    expect(document.querySelector(".pb-public-site")).toHaveClass("pb-public-site--clipped-decor");
+    const decorLayer = document.querySelector(".pb-public-decor-layer");
+    expect(decorLayer).toHaveAttribute("aria-hidden", "true");
+    expect(decorLayer?.querySelector(".pb-public-decor--ring")).toBeInTheDocument();
+    expect(decorLayer?.querySelector(".pb-public-decor--glow")).toBeInTheDocument();
+  });
+
+  it("Should_ClipPublicDecor_AndKeepDecorNodes_When_RootHostRouteIsUnavailable", async () => {
+    renderRootRoute({
+      route: "/app"
+    });
+
+    expect(screen.getByRole("heading", { name: "Page unavailable" })).toBeInTheDocument();
     expect(document.querySelector(".pb-public-site")).toHaveClass("pb-public-site--clipped-decor");
     const decorLayer = document.querySelector(".pb-public-decor-layer");
     expect(decorLayer).toHaveAttribute("aria-hidden", "true");
@@ -376,7 +439,7 @@ describe("root-host flows", () => {
     );
     expect(screen.getByRole("link", { name: "Canonical repository history" })).toHaveAttribute(
       "href",
-      "https://github.com/daniel-maratta/paper-binder.git"
+      "https://github.com/daniel-maratta/paper-binder"
     );
     expect(screen.queryByText(/in progress/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/placeholder/i)).not.toBeInTheDocument();
@@ -402,7 +465,7 @@ describe("root-host flows", () => {
     expect(screen.getByText("Flagship article")).toBeInTheDocument();
     expect(within(screen.getByLabelText("Article metadata")).getByText("Daniel Maratta")).toBeInTheDocument();
     expect(screen.getByText(flagshipArticle.readingTimeLabel)).toBeInTheDocument();
-    expect(screen.getByText("V1.1.1 public artifact")).toBeInTheDocument();
+    expect(screen.getByText("V1.1.2 public artifact")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Inspect the product, source, and review guide." })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Review guide" })).toHaveAttribute(
       "href",
@@ -459,7 +522,7 @@ describe("root-host flows", () => {
     );
     expect(screen.getAllByRole("link", { name: "Repository" })[0]).toHaveAttribute(
       "href",
-      "https://github.com/daniel-maratta/paper-binder.git"
+      "https://github.com/daniel-maratta/paper-binder"
     );
     expect(screen.getByRole("heading", { name: "Review the running demo and the source history." })).toBeInTheDocument();
     expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute(
