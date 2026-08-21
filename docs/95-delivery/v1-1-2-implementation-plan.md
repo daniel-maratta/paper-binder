@@ -101,4 +101,4 @@ Manual rendered review is required before declaring the task done:
 
 ## Release Boundary
 
-`v1.1.2` was published as a canonical patch release on 2026-08-21 after PR review, merge, tag creation, tag-driven release workflow execution, Test deployment, smoke validation, and GitHub Release publication. The later unauthenticated mobile-header fix is staged separately as `v1.1.3` so the published `v1.1.2` tag is not rewritten.
+`v1.1.2` was published as a canonical patch release on 2026-08-21 after PR review, merge, tag creation, tag-driven release workflow execution, Test deployment, smoke validation, and GitHub Release publication. The later unauthenticated mobile-header fix is released separately as `v1.1.3` so the published `v1.1.2` tag is not rewritten.

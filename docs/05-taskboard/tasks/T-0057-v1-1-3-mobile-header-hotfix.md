@@ -4,7 +4,7 @@ Status: done
 
 ## Summary
 
-Ship a narrow `v1.1.3` patch after the canonical `v1.1.2` publication so the unauthenticated
+Record and close out the narrow `v1.1.3` patch after the canonical `v1.1.2` publication so the unauthenticated
 mobile header keeps the logo, Start Demo CTA, and public-navigation menu on one line.
 
 ## Scope
@@ -12,7 +12,7 @@ mobile header keeps the logo, Start Demo CTA, and public-navigation menu on one 
 - Keep the mobile public menu on the right.
 - Keep Start Demo centered in the mobile public header.
 - Make the menu icon-only at the smallest breakpoint while preserving `aria-label="Public navigation"`.
-- Stage `1.1.3` release metadata because `v1.1.2` was already published as canonical.
+- Release `1.1.3` metadata because `v1.1.2` was already published as canonical.
 
 ## Out Of Scope
 
@@ -25,7 +25,7 @@ mobile header keeps the logo, Start Demo CTA, and public-navigation menu on one 
 - [x] Smallest-breakpoint menu text is visually hidden while the accessible button name remains
   `Public navigation`.
 - [x] Browser geometry coverage verifies the mobile public-header one-line order and alignment.
-- [x] Version metadata is staged for `1.1.3`.
+- [x] Version metadata is released for `1.1.3`.
 - [x] Release validation evidence is recorded in `docs/95-delivery/release-checklist.md`.
 
 ## Validation
@@ -41,8 +41,7 @@ mobile header keeps the logo, Start Demo CTA, and public-navigation menu on one 
 
 ## Outcome
 
-- Done on 2026-08-21. The `v1.1.3` hotfix candidate keeps the unauthenticated mobile header on one
-  line, makes the smallest-breakpoint menu icon-only while preserving its accessible label, stages
-  `1.1.3` version metadata, records validation evidence, and has a green, mergeable PR (#61). Merge,
-  tag, Test deployment, smoke validation, and GitHub Release publication remain owner-controlled
-  release actions.
+- Done on 2026-08-21. The released `v1.1.3` hotfix keeps the unauthenticated mobile header on one
+  line, makes the smallest-breakpoint menu icon-only while preserving its accessible label, records
+  `1.1.3` version metadata, records validation evidence, and supersedes the published `v1.1.2`
+  release.
