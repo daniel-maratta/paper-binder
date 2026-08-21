@@ -13,7 +13,7 @@ Define the canonical stable-release sequence for the `V1` line, its ownership bo
 - Current published stable tag: `v1.1.3`
 - Current published stable SemVer metadata: `1.1.3`
 - Prior published stable tag: `v1.1.2`
-- The `v1.1.3` mobile public-header hotfix merged to `main`, the `v1.1.3` tag's `release.yml` run passed (GHCR images published), it was deployed and smoke-verified on Test, and its GitHub Release is published. It supersedes `v1.1.2`, which remains immutable release history after its canonical publication.
+- The `v1.1.3` mobile public-header hotfix merged to `main`, the `v1.1.3` tag's `release.yml` run passed (GHCR images published), it was deployed and smoke-verified on Test and Prod, and its GitHub Release is published. It supersedes `v1.1.2`, which remains immutable release history after its canonical publication.
 - Changelog cut shape:
   - historical first stable cut: `## [V1] - 2026-04-19`
   - subsequent stable releases on the same line: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD` with a fresh empty `## Unreleased`

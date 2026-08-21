@@ -37,6 +37,10 @@ mobile header keeps the logo, Start Demo CTA, and public-navigation menu on one 
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1` - passed.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` - passed with `0 Warning(s), 0 Error(s)`.
 - PR #61 CI `build-test-validate` - passed for the hotfix branch on 2026-08-21.
+- PR #62 CI `build-test-validate` - passed for the release-closeout amendment on 2026-08-21.
+- `release.yml` for tag `v1.1.3` - passed and published tagged GHCR images on 2026-08-21.
+- `deploy-test.yml` for `1.1.3` - passed with smoke validation on 2026-08-21.
+- `deploy-prod.yml` for `1.1.3` - passed with smoke validation on 2026-08-21.
 - `git diff --check` - passed.
 
 ## Outcome
@@ -44,4 +48,5 @@ mobile header keeps the logo, Start Demo CTA, and public-navigation menu on one 
 - Done on 2026-08-21. The released `v1.1.3` hotfix keeps the unauthenticated mobile header on one
   line, makes the smallest-breakpoint menu icon-only while preserving its accessible label, records
   `1.1.3` version metadata, records validation evidence, and supersedes the published `v1.1.2`
-  release.
+  release. The tag-driven release workflow, Test deployment, Prod deployment, smoke validation, and
+  GitHub Release publication are complete.
