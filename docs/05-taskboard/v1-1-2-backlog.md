@@ -17,7 +17,7 @@ This patch improves first-time visitor comprehension, flagship-article discovera
 
 | Checkpoint | Task | Required outcome |
 | --- | --- | --- |
-| CP1 | `T-0056` | Scope-lock the `v1.1.2` positioning patch, execute behavior-first frontend and analytics slices, update version/release docs, validate the candidate, and record release-readiness evidence. |
+| CP1 | `T-0056` | Scope-lock the `v1.1.2` positioning patch, execute behavior-first frontend and analytics slices, update version/release docs, validate the release, and record release-readiness evidence. |
 
 ## Explicit Out Of Scope
 

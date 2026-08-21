@@ -9,7 +9,7 @@ Own the canonical release gate list for the published stable `V1` release.
 
 - [x] `CHANGELOG.md` contains the current `## [1.1.2] - 2026-08-21` entry above the `## [1.1.1] - 2026-08-17` prior stable entry, with a fresh `## Unreleased`.
 - [x] Repository version metadata matched the current `v1.1.2` / `1.1.2` release on `main` at the `v1.1.2` release cut.
-- [x] Active branch version metadata may stage `1.1.3` for the `v1.1.3` patch hotfix while this checklist continues to identify `v1.1.2` as the current published stable release until close-out and owner-controlled release actions complete.
+- [x] Active branch version metadata stages `1.1.3` for the validated `v1.1.3` patch hotfix while this checklist continues to identify `v1.1.2` as the current published stable release until PR #61 merges and owner-controlled release actions complete.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, the active branch metadata distinction, the command surface, and ownership.
 - [x] Repository version metadata matched the published stable `V1` release tag `v1.1.0` / `1.1.0` on `main` at the `v1.1.0` release cut.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
@@ -353,7 +353,8 @@ This section records the published `v1.1.2` positioning patch. It supersedes the
   full on `2026-08-21`, including release validation and GHCR image publishing.
 - [x] Deploy to Test with smoke validation - owner-confirmed completed before the mobile-header
   hotfix was opened.
-- [ ] Deploy to Prod with smoke validation.
+- [x] Do not deploy `v1.1.2` to Prod - intentionally superseded by the `v1.1.3` mobile-header hotfix
+  before production rollout.
 - [x] Publish the matching GitHub Release - `v1.1.2` was published as a canonical GitHub Release on
   `2026-08-21`.
 
@@ -406,10 +407,12 @@ This section records the published `v1.1.2` positioning patch. It supersedes the
   with no draft/audit-process wording remaining, and the owner (Daniel Maratta) explicitly approved
   the final wording for publication on `2026-08-17`.
 
-## V1.1.3 Mobile Header Hotfix Candidate
+## V1.1.3 Mobile Header Hotfix PR-Ready Evidence
 
-This section records the active `v1.1.3` patch hotfix candidate opened after `v1.1.2` was published
-as a canonical release and then found to have a narrow unauthenticated mobile-header layout issue.
+This section records the validated `v1.1.3` patch hotfix candidate opened after `v1.1.2` was
+published as a canonical release and then found to have a narrow unauthenticated mobile-header
+layout issue. PR #61 is open, mergeable, and green; `v1.1.3` is not the current published stable tag
+until the PR is merged, tagged, released, deployed to Test, smoke-verified, and published.
 
 ### Candidate Scope
 
@@ -434,11 +437,13 @@ as a canonical release and then found to have a narrow unauthenticated mobile-he
   `v1.1.3` release-doc update.
 - [x] [validate-launch-profiles.ps1](../../scripts/validate-launch-profiles.ps1) passed on
   `2026-08-21`.
+- [x] PR #61 CI `build-test-validate` passed on `2026-08-21` for head `9ff42cf`:
+  [32514800372](https://github.com/daniel-maratta/paper-binder/actions/runs/32514800372).
 - [x] `git diff --check` passed on `2026-08-21` after the hotfix correction.
 
 ### Remaining Owner-Controlled Steps
 
-- [ ] Merge the accepted `v1.1.3` hotfix PR to `main`.
+- [ ] Merge the accepted, green `v1.1.3` hotfix PR (#61) to `main`.
 - [ ] Create and push the `v1.1.3` SemVer tag after `main` is recorded as taggable.
 - [ ] Run the tag-driven release workflow.
 - [ ] Deploy to Test with smoke validation.
@@ -547,12 +552,14 @@ as a canonical release and then found to have a narrow unauthenticated mobile-he
   [32509220660](https://github.com/daniel-maratta/paper-binder/actions/runs/32509220660) passed and
   published the tagged GHCR images, the release was deployed and smoke-verified on Test, and the
   GitHub Release was published as canonical. Because the release was published before the
-  mobile-header issue was found, `v1.1.2` remains immutable release history and the narrow fix is
-  staged as `v1.1.3`.
+  mobile-header issue was found, `v1.1.2` remains immutable release history; further `v1.1.2`
+  rollout is intentionally superseded by the `v1.1.3` hotfix before Prod deployment.
 - V1.1.3 hotfix candidate attestation (`2026-08-21`): the active branch stages `1.1.3` metadata and
-  Unreleased changelog notes for the unauthenticated mobile-header hotfix. `v1.1.3` is not yet the
-  current published stable tag; PR merge, tag creation, release workflow execution, Test deployment,
-  smoke validation, and GitHub Release publication remain owner-controlled steps.
+  Unreleased changelog notes for the unauthenticated mobile-header hotfix. Local validation is green
+  and PR #61 CI `build-test-validate` passed for head `9ff42cf`; the PR is open and mergeable.
+  `v1.1.3` is not yet the current published stable tag; PR merge, tag creation, release workflow
+  execution, Test deployment, smoke validation, and GitHub Release publication remain
+  owner-controlled steps.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`

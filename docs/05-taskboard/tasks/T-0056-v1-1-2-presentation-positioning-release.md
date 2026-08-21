@@ -47,8 +47,8 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - [x] The public footer `Daniel Maratta` attribution links to `https://danielmaratta.com` using existing external-link conventions.
 - [x] New or modified public CTAs retain or gain GoatCounter event coverage through the existing analytics abstraction.
 - [x] Individual GoatCounter pageview collection remains disabled by contract; no PII, tenant slugs, document content, form values, or high-cardinality identifiers are tracked.
-- [x] Current-artifact visible version labels and public repository/history links align with the staged `v1.1.2` candidate and browser-facing repository URL.
-- [x] Version metadata and release docs are consistently staged for `1.1.2` without describing the future tag as stable before close-out.
+- [x] Current-artifact visible version labels and public repository/history links align with the `v1.1.2` release and browser-facing repository URL.
+- [x] Version metadata and release docs were consistently staged for `1.1.2` without describing the tag as stable before close-out.
 - [x] Tests assert stable user-observable behavior rather than implementation details or brittle full-page copy.
 - [x] Final rendered desktop/mobile review confirms the changes still look native to the existing PaperBinder site.
 - [x] Validation evidence is recorded before this task is marked done.
@@ -69,7 +69,7 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - Escalation Notes: Frontend/Vitest, browser E2E, build, Docker-backed integration, and git write workflows may require known elevated PaperBinder commands.
 
 ## Current State
-- Slices 1 through 6 are implemented and focused validation is green. The homepage now includes an early product-model explanation and a direct flagship-article discovery path, the first tenant dashboard now explains the workspace/binder/document model with a clear first action, the public footer attribution links Daniel Maratta to the author site, GoatCounter event tracking now drops unapproved synthetic event names at runtime, and `1.1.2` candidate metadata/release evidence is staged without treating `v1.1.2` as stable. A pre-PR copy review then replaced public-facing clinical terms with friendlier workspace, access-control, and read-only-record language.
+- Slices 1 through 6 are implemented and focused validation is green. The homepage now includes an early product-model explanation and a direct flagship-article discovery path, the first tenant dashboard now explains the workspace/binder/document model with a clear first action, the public footer attribution links Daniel Maratta to the author site, GoatCounter event tracking now drops unapproved synthetic event names at runtime, and `1.1.2` metadata/release evidence was staged without treating `v1.1.2` as stable before release close-out. A pre-PR copy review then replaced public-facing clinical terms with friendlier workspace, access-control, and read-only-record language.
 - The Fable cold-review correction pass is implemented in scope: the hero subheadline now describes PaperBinder rather than demo workspaces, mobile public navigation exposes Product/Demo/About with the existing header analytics event taxonomy, unsupported short root-host routes use clipped public decoration, user-facing repository/history links use the browser-facing GitHub URL, the hosted article chip reads `V1.1.2 public artifact`, and the users-page role hint no longer says `one role in v1`.
 
 ## Touch Points

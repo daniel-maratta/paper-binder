@@ -36,11 +36,13 @@ mobile header keeps the logo, Start Demo CTA, and public-navigation menu on one 
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` - passed.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1` - passed.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` - passed with `0 Warning(s), 0 Error(s)`.
+- PR #61 CI `build-test-validate` - passed for head `9ff42cf` on 2026-08-21.
 - `git diff --check` - passed.
 
 ## Outcome
 
 - Done on 2026-08-21. The `v1.1.3` hotfix candidate keeps the unauthenticated mobile header on one
   line, makes the smallest-breakpoint menu icon-only while preserving its accessible label, stages
-  `1.1.3` version metadata, and records validation evidence. Merge, tag, Test deployment, smoke
-  validation, and GitHub Release publication remain owner-controlled release actions.
+  `1.1.3` version metadata, records validation evidence, and has a green, mergeable PR (#61). Merge,
+  tag, Test deployment, smoke validation, and GitHub Release publication remain owner-controlled
+  release actions.

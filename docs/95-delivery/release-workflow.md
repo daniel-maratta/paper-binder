@@ -13,7 +13,7 @@ Define the canonical stable-release sequence for the `V1` line, its ownership bo
 - Current published stable tag: `v1.1.2`
 - Current published stable SemVer metadata: `1.1.2`
 - Prior published stable tag: `v1.1.1`
-- The `v1.1.2` positioning release merged to `main`, the `v1.1.2` tag's `release.yml` run passed (GHCR images published), it was deployed and smoke-verified on Test, and its GitHub Release is published. The active `v1.1.3` hotfix branch stages a narrow mobile public-header correction.
+- The `v1.1.2` positioning release merged to `main`, the `v1.1.2` tag's `release.yml` run passed (GHCR images published), it was deployed and smoke-verified on Test, and its GitHub Release is published. The `v1.1.3` mobile public-header hotfix is validated and merge-ready in PR #61, superseding further `v1.1.2` rollout.
 - Changelog cut shape:
   - historical first stable cut: `## [V1] - 2026-04-19`
   - subsequent stable releases on the same line: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD` with a fresh empty `## Unreleased`

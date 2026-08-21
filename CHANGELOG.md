@@ -8,7 +8,7 @@ All notable changes to this project are documented in this file.
 - Tightened the smallest mobile public-header breakpoint so the menu becomes icon-only while preserving its accessible label, keeping the logo, Start Demo CTA, and menu aligned on one line.
 
 ### Docs
-- Staged `1.1.3` patch metadata for the mobile header hotfix after the canonical `v1.1.2` publication.
+- Staged and validated `1.1.3` patch metadata for the mobile header hotfix after the canonical `v1.1.2` publication.
 
 ## [1.1.2] - 2026-08-21
 
