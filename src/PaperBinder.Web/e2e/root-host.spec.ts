@@ -28,9 +28,40 @@ test("Should_ExposePublicNavigationAcrossDesktopAndMobileWidths_InBrowser", asyn
   await page.reload();
 
   const mobileMenuButton = page.getByRole("button", { name: "Public navigation" });
+  const mobileHeader = page.locator(".pb-public-topbar");
+  const mobileBrand = mobileHeader.getByRole("link", { name: "PaperBinder home" });
+  const mobileHeaderStartDemoLink = mobileHeader.getByRole("link", { name: "Start Demo" });
   await expect(page.getByRole("navigation", { name: "Primary navigation" })).toBeHidden();
+  await expect(mobileHeaderStartDemoLink).toBeVisible();
   await expect(mobileMenuButton).toBeVisible();
   await expect(mobileMenuButton).toHaveAttribute("aria-expanded", "false");
+  const mobileHeaderBox = await mobileHeader.boundingBox();
+  const mobileBrandBox = await mobileBrand.boundingBox();
+  const mobileHeaderStartDemoBox = await mobileHeaderStartDemoLink.boundingBox();
+  const mobileMenuBox = await mobileMenuButton.boundingBox();
+
+  expect(mobileHeaderBox).not.toBeNull();
+  expect(mobileBrandBox).not.toBeNull();
+  expect(mobileHeaderStartDemoBox).not.toBeNull();
+  expect(mobileMenuBox).not.toBeNull();
+
+  if (!mobileHeaderBox || !mobileBrandBox || !mobileHeaderStartDemoBox || !mobileMenuBox) {
+    throw new Error("Expected mobile header controls to have measurable layout boxes.");
+  }
+
+  const mobileHeaderCenterX = mobileHeaderBox.x + mobileHeaderBox.width / 2;
+  const mobileBrandCenterY = mobileBrandBox.y + mobileBrandBox.height / 2;
+  const mobileStartDemoCenterX = mobileHeaderStartDemoBox.x + mobileHeaderStartDemoBox.width / 2;
+  const mobileStartDemoCenterY = mobileHeaderStartDemoBox.y + mobileHeaderStartDemoBox.height / 2;
+  const mobileMenuCenterY = mobileMenuBox.y + mobileMenuBox.height / 2;
+
+  expect(Math.abs(mobileStartDemoCenterX - mobileHeaderCenterX)).toBeLessThanOrEqual(12);
+  expect(Math.abs(mobileBrandCenterY - mobileStartDemoCenterY)).toBeLessThanOrEqual(4);
+  expect(Math.abs(mobileMenuCenterY - mobileStartDemoCenterY)).toBeLessThanOrEqual(4);
+  expect(mobileBrandBox.x + mobileBrandBox.width).toBeLessThan(mobileHeaderStartDemoBox.x);
+  expect(mobileHeaderStartDemoBox.x + mobileHeaderStartDemoBox.width).toBeLessThan(mobileMenuBox.x);
+  expect(mobileHeaderBox.x + mobileHeaderBox.width - (mobileMenuBox.x + mobileMenuBox.width)).toBeLessThanOrEqual(20);
+  expect(mobileMenuBox.y).toBeLessThan(mobileHeaderBox.y + mobileHeaderBox.height);
 
   await mobileMenuButton.click();
 

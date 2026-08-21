@@ -16,6 +16,7 @@ All notable changes to this project are documented in this file.
 - Updated the hosted article's current-artifact label to `V1.1.2 public artifact`.
 - Changed public repository/history links to the browser-facing GitHub repository URL instead of the raw clone URL.
 - Linked the public footer author attribution to Daniel Maratta's portfolio site using the existing external-link conventions.
+- Adjusted the mobile public header so the logo, Start Demo CTA, and menu control stay on one line with the menu on the right.
 
 ### Fixed
 - Added a runtime allow-list guard so unapproved synthetic GoatCounter event names are dropped before a direct `/count` request can be sent.
