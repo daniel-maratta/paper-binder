@@ -30,6 +30,12 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 - [docs/10-product/presentation-contract-v1-1.md](./10-product/presentation-contract-v1-1.md) `(Approved)`
 - [docs/90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md](./90-adr/ADR-0013-v1-1-presentation-direction-and-canon-reset.md) `(Approved)`
 
+## Active V1.1.2 Patch Planning
+
+- [docs/95-delivery/v1-1-2-implementation-plan.md](./95-delivery/v1-1-2-implementation-plan.md) `(Planned checkpoint and validation plan for the v1.1.2 positioning patch)`
+- [docs/05-taskboard/v1-1-2-backlog.md](./05-taskboard/v1-1-2-backlog.md) `(Active taskboard source for the v1.1.2 positioning patch)`
+- [docs/05-taskboard/tasks/T-0056-v1-1-2-presentation-positioning-release.md](./05-taskboard/tasks/T-0056-v1-1-2-presentation-positioning-release.md) `(Active v1.1.2 positioning task)`
+
 ## Completed V1.1.1 Patch Execution
 
 - [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md) `(Completed checkpoint and commit plan for the v1.1.1 patch)`
@@ -80,6 +86,7 @@ The approved `v1.1` presentation contract and `ADR-0013` are the active presenta
 ## Focused Retrieval
 
 - For release work, start with [docs/95-delivery/README.md](./95-delivery/README.md), then load `release-workflow.md` or `release-checklist.md`. Open a specific PR artifact only when historical delivery context is needed.
+- For the active `v1.1.2` positioning patch, start with [docs/95-delivery/v1-1-2-implementation-plan.md](./95-delivery/v1-1-2-implementation-plan.md), then load [docs/05-taskboard/v1-1-2-backlog.md](./05-taskboard/v1-1-2-backlog.md) and [T-0056](./05-taskboard/tasks/T-0056-v1-1-2-presentation-positioning-release.md).
 - For the `v1.1.1` patch, start with [docs/95-delivery/v1-1-1-implementation-plan.md](./95-delivery/v1-1-1-implementation-plan.md), then load [docs/05-taskboard/v1-1-1-backlog.md](./05-taskboard/v1-1-1-backlog.md) and the matching `T-0046` through `T-0052` task files. For the legal-readiness addendum, also load [docs/95-delivery/v1-1-1-legal-readiness-plan.md](./95-delivery/v1-1-1-legal-readiness-plan.md), [docs/95-delivery/v1-1-1-legal-retention-inventory.md](./95-delivery/v1-1-1-legal-retention-inventory.md), and [T-0055](./05-taskboard/tasks/T-0055-v1-1-1-legal-readiness.md).
 - For future minor-version carry-forwards from `v1.1.1`, load [docs/05-taskboard/work-queue.md](./05-taskboard/work-queue.md), then [T-0053](./05-taskboard/tasks/T-0053-react-router-major-version-upgrade.md) for the React Router major-version upgrade or [T-0054](./05-taskboard/tasks/T-0054-minor-version-api-shape-and-ceremony-review.md) for PaperBinder API shape, frontend composition, and over-ceremony remediation.
 - For checkpoint history, start with [docs/archive/v1/checkpoints/checkpoint-status.md](./archive/v1/checkpoints/checkpoint-status.md), then load a specific `T-####` task or PR artifact only when the current task depends on internal V1 execution history.

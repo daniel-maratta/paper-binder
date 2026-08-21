@@ -11,7 +11,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Now (WIP 1-3)
 
-- (empty)
+- [T-0056: V1.1.2 Presentation Positioning Release](./tasks/T-0056-v1-1-2-presentation-positioning-release.md)
 
 ## Next
 
