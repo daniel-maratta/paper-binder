@@ -1,6 +1,6 @@
 # V1.1.2 Backlog
 
-Status: Review Ready
+Status: Released
 Authority: This file is the taskboard source for the `v1.1.2` positioning patch and must agree with `docs/95-delivery/v1-1-2-implementation-plan.md`.
 
 ## Purpose

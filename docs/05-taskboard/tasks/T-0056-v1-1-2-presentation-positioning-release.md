@@ -193,7 +193,7 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
   - Confirm final copy does not imply compliance, classified-data suitability, regulated-record suitability, production service guarantees, document versioning, collaboration, audit-history browsing, or commercial maturity beyond repo truth.
 
 ## Outcome
-- Done for the scoped `v1.1.2` correction pass. The minimal Fable cold-review correction set is implemented, validated, and release-ready pending owner-controlled PR, tag, deployment, and publication steps.
+- Done for the scoped `v1.1.2` correction pass. The minimal Fable cold-review correction set was implemented, validated, merged through PR #60, tagged as `v1.1.2`, deployed to Test with smoke validation, and published as a canonical GitHub Release. The later unauthenticated mobile-header fix is staged separately as `v1.1.3` so the published `v1.1.2` tag is not rewritten.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/` if needed.

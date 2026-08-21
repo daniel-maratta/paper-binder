@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+### Changed
+- Tightened the smallest mobile public-header breakpoint so the menu becomes icon-only while preserving its accessible label, keeping the logo, Start Demo CTA, and menu aligned on one line.
+
+### Docs
+- Staged `1.1.3` patch metadata for the mobile header hotfix after the canonical `v1.1.2` publication.
+
+## [1.1.2] - 2026-08-21
+
+### V1.1.2 Release Notes
+
+These notes describe the published `v1.1.2` patch release, superseding `v1.1.1` as the current PaperBinder release.
+
 ### Added
 - Added a plain-language homepage explanation of PaperBinder as a lightweight workspace for important internal documents, with concrete policy, procedure, handbook, and internal-reference use cases.
 - Added a direct homepage path to the flagship engineering article.
@@ -23,7 +35,7 @@ All notable changes to this project are documented in this file.
 - Fixed short root-host pages, including the `/app` unavailable state, so public decorative artwork stays clipped instead of appearing below the footer.
 
 ### Docs
-- Staged `1.1.2` candidate version metadata and release evidence without describing `v1.1.2` as the published stable release.
+- Recorded `1.1.2` version metadata and release evidence for the published positioning patch.
 
 ## [1.1.1] - 2026-08-17
 

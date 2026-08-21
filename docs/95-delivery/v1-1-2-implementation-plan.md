@@ -1,7 +1,7 @@
 # V1.1.2 Positioning Patch Implementation Plan
 
-Status: Review Ready
-Target release: `v1.1.2` candidate
+Status: Released
+Target release: `v1.1.2`
 Authority: This file defines the checkpoint and validation plan for the `v1.1.2` positioning patch. The matching taskboard source is `docs/05-taskboard/v1-1-2-backlog.md`.
 
 ## Purpose
@@ -101,4 +101,4 @@ Manual rendered review is required before declaring the task done:
 
 ## Release Boundary
 
-`v1.1.2` remains a patch candidate after final validation and release-readiness evidence are recorded. PR review, merge, tag creation, release workflow execution, Test/Prod deployment, smoke validation, and GitHub Release publication remain owner-controlled actions under the existing release workflow.
+`v1.1.2` was published as a canonical patch release on 2026-08-21 after PR review, merge, tag creation, tag-driven release workflow execution, Test deployment, smoke validation, and GitHub Release publication. The later unauthenticated mobile-header fix is staged separately as `v1.1.3` so the published `v1.1.2` tag is not rewritten.
