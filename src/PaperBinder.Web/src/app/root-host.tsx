@@ -981,6 +981,7 @@ function PublicFooter() {
 function PublicShell({ hostContext }: { hostContext: RootHostContext }) {
   const location = useLocation();
   const isLandingRoute = location.pathname === "/";
+  const shouldClipDecor = location.pathname === "/start-demo" || location.pathname === publicLoginRoutePath;
 
   useEffect(() => {
     setDocumentTitle(resolveRootPageTitle(location.pathname));
@@ -991,12 +992,14 @@ function PublicShell({ hostContext }: { hostContext: RootHostContext }) {
   }, [location.pathname, location.search]);
 
   return (
-    <div className="pb-public-site">
+    <div className={cn("pb-public-site", shouldClipDecor && "pb-public-site--clipped-decor")}>
       <a className="pb-public-skip-link" href="#public-main">
         Skip to content
       </a>
-      <div aria-hidden="true" className="pb-public-decor pb-public-decor--ring" />
-      <div aria-hidden="true" className="pb-public-decor pb-public-decor--glow" />
+      <div aria-hidden="true" className="pb-public-decor-layer">
+        <div className="pb-public-decor pb-public-decor--ring" />
+        <div className="pb-public-decor pb-public-decor--glow" />
+      </div>
 
       <PublicHeader hostContext={hostContext} />
 

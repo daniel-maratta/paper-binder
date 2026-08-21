@@ -278,6 +278,18 @@ describe("root-host flows", () => {
     expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
   });
 
+  it("Should_ClipPublicDecor_AndKeepDecorNodes_When_StartDemoLoads", async () => {
+    renderRootRoute({
+      route: "/start-demo"
+    });
+
+    expect(document.querySelector(".pb-public-site")).toHaveClass("pb-public-site--clipped-decor");
+    const decorLayer = document.querySelector(".pb-public-decor-layer");
+    expect(decorLayer).toHaveAttribute("aria-hidden", "true");
+    expect(decorLayer?.querySelector(".pb-public-decor--ring")).toBeInTheDocument();
+    expect(decorLayer?.querySelector(".pb-public-decor--glow")).toBeInTheDocument();
+  });
+
   it("Should_RenderReviewerOrientedAboutPage_When_AboutRouteLoads", async () => {
     renderRootRoute({
       route: "/about"
