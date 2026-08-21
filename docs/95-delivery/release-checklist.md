@@ -446,6 +446,7 @@ rollout.
 - [x] Create and push the `v1.1.3` SemVer tag after `main` is recorded as taggable.
 - [x] Run the tag-driven release workflow.
 - [x] Deploy to Test with smoke validation.
+- [x] Deploy to Prod with smoke validation.
 - [x] Publish the matching GitHub Release.
 
 ## Release Readiness
@@ -553,10 +554,16 @@ rollout.
   GitHub Release was published as canonical. Because the release was published before the
   mobile-header issue was found, `v1.1.2` remains immutable release history; further `v1.1.2`
   rollout is intentionally superseded by the `v1.1.3` hotfix before Prod deployment.
-- V1.1.3 release attestation (`2026-08-21`): PR #61 released the unauthenticated mobile-header
-  hotfix, `v1.1.3` is the current published stable tag, repository metadata records `1.1.3`, local
-  validation is green, PR #61 CI `build-test-validate` passed for the hotfix branch, the release was
-  deployed and smoke-verified on Test, and the GitHub Release was published as canonical.
+- V1.1.3 release attestation (`2026-08-21`): PR #61 shipped the unauthenticated mobile-header
+  hotfix, PR #62 recorded the release closeout, `v1.1.3` is the current published stable tag,
+  repository metadata records `1.1.3`, local validation is green, PR #61 and PR #62 CI
+  `build-test-validate` passed, `release.yml` run
+  [32521342041](https://github.com/daniel-maratta/paper-binder/actions/runs/32521342041) passed
+  and published the tagged GHCR images, Test deploy run
+  [32522522721](https://github.com/daniel-maratta/paper-binder/actions/runs/32522522721) passed
+  with smoke validation, Prod deploy run
+  [32523064129](https://github.com/daniel-maratta/paper-binder/actions/runs/32523064129) passed
+  with smoke validation, and the GitHub Release was published as canonical.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`
