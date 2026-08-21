@@ -65,7 +65,7 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - Escalation Notes: Frontend/Vitest, browser E2E, build, Docker-backed integration, and git write workflows may require known elevated PaperBinder commands.
 
 ## Current State
-- Slices 1 through 3 are implemented and focused frontend validation is green. The homepage now includes an early product-model explanation and a direct flagship-article discovery path, and the first tenant dashboard now explains the workspace/binder/document model with a clear first action. Remaining slices are footer attribution link, GoatCounter coverage, and version/release evidence.
+- Slices 1 through 4 are implemented and focused frontend validation is green. The homepage now includes an early product-model explanation and a direct flagship-article discovery path, the first tenant dashboard now explains the workspace/binder/document model with a clear first action, and the public footer attribution links Daniel Maratta to the author site. Remaining slices are GoatCounter coverage and version/release evidence.
 
 ## Touch Points
 - `src/PaperBinder.Web/src/app/root-host.tsx`
@@ -113,7 +113,7 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
   - Update version metadata, changelog, current-state docs, taskboard outcome, and release readiness only after behavior slices are implemented and validated.
 
 ## Next Action
-- Begin Slice 4 by adding the smallest focused root-host test for the public footer attribution link.
+- Begin Slice 5 by reviewing GoatCounter taxonomy and regression coverage for the new public events.
 
 ## Validation Evidence
 - RED Slice 1: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` failed on 2026-08-21 before implementation because the homepage did not expose a `What is PaperBinder?` heading or the planned plain-language product explanation.
@@ -123,6 +123,9 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - Analytics guard after Slice 2: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/analytics/goatcounter.test.ts` passed on 2026-08-21: `14/14` analytics tests passed.
 - RED Slice 3: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/tenant-shell.test.tsx` failed on 2026-08-21 before implementation because the first tenant dashboard did not explain the workspace/binder/document model for a new guest.
 - GREEN Slice 3: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/tenant-shell.test.tsx` passed on 2026-08-21 after implementation: `30/30` tenant-shell tests passed.
+- RED Slice 4: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` failed on 2026-08-21 before implementation because the public footer did not expose an accessible `Daniel Maratta` author link.
+- GREEN Slice 4: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` passed on 2026-08-21 after implementation: `25/25` root-host tests passed.
+- Analytics guard after Slice 4: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/analytics/goatcounter.test.ts` passed on 2026-08-21: `14/14` analytics tests passed.
 
 ## Decision Notes
 - The canonical article process favors outcome/constraint definition, scoped implementation, validation, independent review, scoped remediation, verification, and release acceptance. This task follows that sequence.

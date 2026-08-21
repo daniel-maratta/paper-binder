@@ -27,6 +27,7 @@ export const publicAnalyticsEventNames = {
   footerProductNav: "pb_event_public_footer_product_nav",
   footerLegalNav: "pb_event_public_footer_legal_nav",
   footerProjectLink: "pb_event_public_footer_project_link",
+  footerAuthorLink: "pb_event_public_footer_author_link",
   legalPolicyNav: "pb_event_public_legal_policy_nav",
   articleExternalLink: "pb_event_public_article_external_link",
   articleSectionNav: "pb_event_public_article_section_nav",

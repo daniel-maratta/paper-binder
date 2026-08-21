@@ -5,6 +5,7 @@ import { AppRouter } from "../App";
 import { PaperBinderApiError, type PaperBinderApiClient } from "../api/client";
 import { publicAnalyticsEventNames } from "../analytics/goatcounter";
 import { flagshipArticle } from "../content/articles/flagship-article";
+import { productIdentity } from "./product-identity";
 import {
   createApiClientStub,
   createProvisionResponse,
@@ -165,6 +166,19 @@ describe("root-host flows", () => {
     expectAnalyticsEvent(readArticleLink, "pb_event_public_landing_read_article");
   });
 
+  it("Should_LinkPublicFooterAttributionToAuthorSite_When_PublicHomeLoads", async () => {
+    renderRootRoute({
+      route: "/"
+    });
+
+    const authorLink = screen.getByRole("link", { name: productIdentity.authorName });
+    expect(authorLink).toHaveAttribute("href", productIdentity.authorUrl);
+    expect(authorLink).toHaveAttribute("rel", "noreferrer");
+    expect(authorLink).toHaveAttribute("target", "_blank");
+    expectAnalyticsEvent(authorLink, publicAnalyticsEventNames.footerAuthorLink);
+    expect(authorLink.closest("p")).toHaveTextContent("\u00a9 2026 Daniel Maratta");
+  });
+
   it("Should_RenderProductLedLanding_Without_InlineProvisioningOrLogin_When_PublicHomeLoads", async () => {
     renderRootRoute({
       route: "/"
@@ -227,7 +241,12 @@ describe("root-host flows", () => {
     expect(
       screen.getByText("A production-shaped SaaS demo designed and built by Daniel Maratta.")
     ).toBeInTheDocument();
-    expect(screen.getByText("\u00a9 2026 Daniel Maratta")).toBeInTheDocument();
+    expect(
+      screen.getByText((_content, element) =>
+        element?.classList.contains("pb-public-footer-copyright") === true &&
+        element.textContent === "\u00a9 2026 Daniel Maratta"
+      )
+    ).toBeInTheDocument();
     expect(document.title).toBe("Home | PaperBinder");
     expect(screen.getByRole("link", { name: "Live project" })).toHaveAttribute(
       "href",
@@ -369,7 +388,7 @@ describe("root-host flows", () => {
       )
     ).toBeInTheDocument();
     expect(screen.getByText("Flagship article")).toBeInTheDocument();
-    expect(screen.getByText("Daniel Maratta")).toBeInTheDocument();
+    expect(within(screen.getByLabelText("Article metadata")).getByText("Daniel Maratta")).toBeInTheDocument();
     expect(screen.getByText(flagshipArticle.readingTimeLabel)).toBeInTheDocument();
     expect(screen.getByText("V1.1.1 public artifact")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Inspect the product, source, and review guide." })).toBeInTheDocument();

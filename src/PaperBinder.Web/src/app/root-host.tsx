@@ -962,7 +962,17 @@ function PublicFooter() {
       </div>
 
       <div className="pb-public-footer-meta">
-        <p className="pb-public-footer-copyright">&copy; 2026 {productIdentity.authorName}</p>
+        <p className="pb-public-footer-copyright">
+          &copy; 2026{" "}
+          <a
+            data-paperbinder-analytics-event={publicAnalyticsEventNames.footerAuthorLink}
+            href={productIdentity.authorUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {productIdentity.authorName}
+          </a>
+        </p>
       </div>
     </footer>
   );
