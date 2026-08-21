@@ -22,6 +22,7 @@ export const publicAnalyticsEventNames = {
   landingStartDemo: "pb_event_public_landing_start_demo",
   landingOpenWorkspace: "pb_event_public_landing_open_workspace",
   landingLearnMore: "pb_event_public_landing_learn_more",
+  landingReadArticle: "pb_event_public_landing_read_article",
   aboutReadArticle: "pb_event_public_about_read_article",
   footerProductNav: "pb_event_public_footer_product_nav",
   footerLegalNav: "pb_event_public_footer_legal_nav",

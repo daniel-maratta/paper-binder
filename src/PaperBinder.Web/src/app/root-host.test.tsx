@@ -140,6 +140,31 @@ afterEach(() => {
 });
 
 describe("root-host flows", () => {
+  it("Should_ExplainPaperBinderInPlainLanguage_When_PublicHomeLoads", async () => {
+    renderRootRoute({
+      route: "/"
+    });
+
+    expect(screen.getByRole("heading", { name: "What is PaperBinder?" })).toBeInTheDocument();
+    expect(screen.getByText(/controlled organizational documents/i)).toBeInTheDocument();
+    expect(screen.getByText(/policies, procedures, handbooks, and internal reference material/i)).toBeInTheDocument();
+    expect(screen.getByText(/workspace contains binders and immutable text documents/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start demo" })).toHaveAttribute("href", "/start-demo");
+  });
+
+  it("Should_LinkFlagshipArticleFromHomepage_When_PublicHomeLoads", async () => {
+    renderRootRoute({
+      route: "/"
+    });
+
+    expect(screen.getByRole("heading", { name: "Behind the build" })).toBeInTheDocument();
+    expect(screen.getByText(/the demo shows what was built/i)).toBeInTheDocument();
+
+    const readArticleLink = screen.getByRole("link", { name: "Read article" });
+    expect(readArticleLink).toHaveAttribute("href", flagshipArticle.path);
+    expectAnalyticsEvent(readArticleLink, "pb_event_public_landing_read_article");
+  });
+
   it("Should_RenderProductLedLanding_Without_InlineProvisioningOrLogin_When_PublicHomeLoads", async () => {
     renderRootRoute({
       route: "/"

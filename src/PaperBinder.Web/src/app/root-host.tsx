@@ -1085,6 +1085,41 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
       </section>
 
       <div className="pb-public-story-stack">
+        <PublicStorySection variant="accent">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">PRODUCT MODEL</p>
+            <h2>What is PaperBinder?</h2>
+            <p>
+              PaperBinder is a lightweight workspace for organizing controlled organizational documents. A
+              workspace contains binders and immutable text documents, with role-aware access around the work.
+            </p>
+            <p>
+              Use it conceptually for policies, procedures, handbooks, and internal reference material where a
+              small organization needs a clear place to collect and manage text records.
+            </p>
+          </div>
+        </PublicStorySection>
+
+        <PublicStorySection className="pb-public-about-articles-section" variant="split">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">ENGINEERING CASE STUDY</p>
+            <h2>Behind the build</h2>
+            <p>
+              The demo shows what was built. The flagship article explains how and why PaperBinder was shaped as a
+              narrow, production-oriented SaaS demonstration.
+            </p>
+          </div>
+          <ArticleCard
+            analyticsEvent={publicAnalyticsEventNames.landingReadArticle}
+            cta="Read article"
+            href={flagshipArticlePath}
+            meta="Architecture / scope / AI-assisted delivery"
+            title={flagshipArticle.title}
+          >
+            Read the implementation story, validation approach, and tradeoffs behind the running demo.
+          </ArticleCard>
+        </PublicStorySection>
+
         <PublicStorySection variant="split">
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">USERS AND ACCESS</p>
