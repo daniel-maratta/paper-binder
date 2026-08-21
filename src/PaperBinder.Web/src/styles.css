@@ -4144,29 +4144,28 @@ a {
 
 @media (max-width: 420px) {
   .pb-public-brand-image {
-    width: 132px;
+    width: clamp(96px, 28vw, 112px);
   }
 
   .pb-public-header-cta {
-    min-height: 38px;
-    padding: 0 10px;
-    font-size: 12.5px;
-  }
-
-  .pb-public-brand-image {
-    width: clamp(96px, 30vw, 120px);
+    min-height: 36px;
+    padding: 0 9px;
+    font-size: 12px;
   }
 
   .pb-public-mobile-nav-toggle {
-    gap: 6px;
-    min-height: 38px;
-    padding: 0 10px;
-    font-size: 12.5px;
+    width: 38px;
+    min-height: 36px;
+    padding: 0;
+  }
+
+  .pb-public-mobile-nav-toggle span:first-child {
+    display: none;
   }
 
   .pb-public-mobile-nav-toggle__icon {
     width: 14px;
-    height: 11px;
+    height: 10px;
   }
 
   .pb-public-mobile-nav-toggle__icon::before {

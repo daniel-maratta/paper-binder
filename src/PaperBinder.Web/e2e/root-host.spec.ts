@@ -35,6 +35,7 @@ test("Should_ExposePublicNavigationAcrossDesktopAndMobileWidths_InBrowser", asyn
   await expect(mobileHeaderStartDemoLink).toBeVisible();
   await expect(mobileMenuButton).toBeVisible();
   await expect(mobileMenuButton).toHaveAttribute("aria-expanded", "false");
+  await expect(mobileMenuButton.locator("span").first()).toBeHidden();
   const mobileHeaderBox = await mobileHeader.boundingBox();
   const mobileBrandBox = await mobileBrand.boundingBox();
   const mobileHeaderStartDemoBox = await mobileHeaderStartDemoLink.boundingBox();
