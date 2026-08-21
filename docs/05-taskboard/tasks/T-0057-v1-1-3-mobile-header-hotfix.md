@@ -36,7 +36,7 @@ mobile header keeps the logo, Start Demo CTA, and public-navigation menu on one 
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` - passed.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1` - passed.
 - `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` - passed with `0 Warning(s), 0 Error(s)`.
-- PR #61 CI `build-test-validate` - passed for head `9ff42cf` on 2026-08-21.
+- PR #61 CI `build-test-validate` - passed for the hotfix branch on 2026-08-21.
 - `git diff --check` - passed.
 
 ## Outcome

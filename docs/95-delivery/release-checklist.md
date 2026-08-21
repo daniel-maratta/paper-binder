@@ -437,8 +437,8 @@ until the PR is merged, tagged, released, deployed to Test, smoke-verified, and 
   `v1.1.3` release-doc update.
 - [x] [validate-launch-profiles.ps1](../../scripts/validate-launch-profiles.ps1) passed on
   `2026-08-21`.
-- [x] PR #61 CI `build-test-validate` passed on `2026-08-21` for head `9ff42cf`:
-  [32514800372](https://github.com/daniel-maratta/paper-binder/actions/runs/32514800372).
+- [x] PR #61 CI `build-test-validate` passed on `2026-08-21` for the hotfix branch; local
+  docs validation and `git diff --check` were rerun after the final release-doc closeout edits.
 - [x] `git diff --check` passed on `2026-08-21` after the hotfix correction.
 
 ### Remaining Owner-Controlled Steps
@@ -556,7 +556,7 @@ until the PR is merged, tagged, released, deployed to Test, smoke-verified, and 
   rollout is intentionally superseded by the `v1.1.3` hotfix before Prod deployment.
 - V1.1.3 hotfix candidate attestation (`2026-08-21`): the active branch stages `1.1.3` metadata and
   Unreleased changelog notes for the unauthenticated mobile-header hotfix. Local validation is green
-  and PR #61 CI `build-test-validate` passed for head `9ff42cf`; the PR is open and mergeable.
+  and PR #61 CI `build-test-validate` passed for the hotfix branch; the PR is open and mergeable.
   `v1.1.3` is not yet the current published stable tag; PR merge, tag creation, release workflow
   execution, Test deployment, smoke validation, and GitHub Release publication remain
   owner-controlled steps.
