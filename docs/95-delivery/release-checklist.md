@@ -296,10 +296,17 @@ release close-out.
 
 - [x] Homepage product comprehension copy added for controlled organizational documents and concrete
   policy/procedure/handbook/internal-reference use cases.
+- [x] Homepage hero copy now describes PaperBinder itself instead of framing the product as a demo workspace.
 - [x] Homepage flagship-article discovery path added.
+- [x] Mobile and narrow-tablet public navigation now exposes the same meaningful Product, Demo, and
+  About destinations as the desktop public navigation.
+- [x] Short public/root-host pages, including the `/app` unavailable route, use the clipped
+  public-decoration treatment.
 - [x] First tenant dashboard orientation copy updated for the workspace/binder/document model and a
   useful first binder action.
 - [x] Public footer author attribution now links Daniel Maratta to the author site.
+- [x] Public repository/history links now use the browser-facing GitHub repository URL, and the hosted
+  article current-artifact label is staged as `V1.1.2 public artifact`.
 - [x] GoatCounter public event coverage preserved and strengthened with a runtime allow-list guard
   for approved synthetic event names.
 - [x] Repository version metadata is staged for `1.1.2` as a patch candidate.
@@ -307,15 +314,33 @@ release close-out.
 ### Candidate Validation
 
 - [x] [test-frontend.ps1](../../scripts/test-frontend.ps1) `-TestPath src/app/root-host.test.tsx`
-  passed on `2026-08-21`: root-host tests `25/25`.
+  passed on `2026-08-21` after the Fable correction pass: root-host tests `28/28`.
 - [x] [test-frontend.ps1](../../scripts/test-frontend.ps1) `-TestPath src/app/tenant-shell.test.tsx`
   passed on `2026-08-21`: tenant-shell tests `30/30`.
 - [x] [test-frontend.ps1](../../scripts/test-frontend.ps1) `-TestPath src/analytics/goatcounter.test.ts`
   passed on `2026-08-21`: GoatCounter tests `15/15`.
+- [x] [test-frontend.ps1](../../scripts/test-frontend.ps1) passed on `2026-08-21` after the
+  final correction pass: `10/10` test files, `95/95` frontend tests.
 - [x] [validate-version.ps1](../../scripts/validate-version.ps1) failed for `-ExpectedVersion 1.1.2`
   before the metadata bump and passed after `1.1.2` candidate metadata was staged.
+- [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-08-21`
+  after the final correction pass: frontend production build completed and .NET build succeeded
+  with `0 Warning(s), 0 Error(s)`.
+- [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require`
+  passed on `2026-08-21` after the final correction pass: frontend `95/95`, unit `143/143`,
+  non-Docker integration `34/34`, Docker-backed integration `103/103`.
+- [x] [run-browser-e2e.ps1](../../scripts/run-browser-e2e.ps1) passed on `2026-08-21` after
+  the final correction pass: root-host `6/6`, tenant-host `3/3`.
 - [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed on `2026-08-21` after the candidate
   documentation update.
+- [x] [validate-launch-profiles.ps1](../../scripts/validate-launch-profiles.ps1) passed on
+  `2026-08-21` after the final correction pass.
+- [x] [reviewer-full-stack.ps1](../../scripts/reviewer-full-stack.ps1) `-NoBrowser` passed on
+  `2026-08-21` after the final correction pass: the root host, demo tenant URL, live/ready
+  health endpoints, compose services, and worker cleanup logs were available.
+- [x] Rendered desktop/mobile review passed on `2026-08-21`: homepage hero, public navigation,
+  mobile menu, footer, and `/app` unavailable-route decoration rendered without horizontal
+  overflow or orphaned post-footer artwork.
 - [x] `git diff --check` passed on `2026-08-21`.
 
 ### Remaining Owner-Controlled Steps

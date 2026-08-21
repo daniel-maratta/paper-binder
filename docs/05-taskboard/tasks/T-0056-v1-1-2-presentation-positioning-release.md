@@ -37,17 +37,21 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 
 ## Acceptance Criteria
 - [x] Homepage explains in plain language that PaperBinder is a lightweight document workspace for important internal documents.
+- [x] Homepage hero subheadline describes PaperBinder itself rather than defining the product through demo-workspace framing.
 - [x] Homepage includes concise concrete use cases such as policies, procedures, handbooks, internal reference material, or governance documents.
 - [x] Homepage distinguishes the product concept from the reason the project exists as a deliberately scoped engineering demonstration.
 - [x] The flagship article is directly discoverable from the homepage through an appropriately prominent CTA/link.
+- [x] Mobile and narrow-tablet public visitors can reach the same meaningful Product, Demo, and About destinations exposed by the desktop public navigation.
+- [x] Short public/root-host pages, including unavailable routes such as `/app`, visually terminate at the footer without orphaned decorative artwork.
 - [x] The first tenant dashboard gives a new guest enough context to understand the workspace, binders/documents, and useful first actions.
 - [x] The public footer `Daniel Maratta` attribution links to `https://danielmaratta.com` using existing external-link conventions.
 - [x] New or modified public CTAs retain or gain GoatCounter event coverage through the existing analytics abstraction.
 - [x] Individual GoatCounter pageview collection remains disabled by contract; no PII, tenant slugs, document content, form values, or high-cardinality identifiers are tracked.
+- [x] Current-artifact visible version labels and public repository/history links align with the staged `v1.1.2` candidate and browser-facing repository URL.
 - [x] Version metadata and release docs are consistently staged for `1.1.2` without describing the future tag as stable before close-out.
 - [x] Tests assert stable user-observable behavior rather than implementation details or brittle full-page copy.
-- [ ] Final rendered desktop/mobile review confirms the changes still look native to the existing PaperBinder site.
-- [ ] Validation evidence is recorded before this task is marked done.
+- [x] Final rendered desktop/mobile review confirms the changes still look native to the existing PaperBinder site.
+- [x] Validation evidence is recorded before this task is marked done.
 
 ## Dependencies
 - `docs/10-product/presentation-contract-v1-1.md`
@@ -66,12 +70,16 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 
 ## Current State
 - Slices 1 through 6 are implemented and focused validation is green. The homepage now includes an early product-model explanation and a direct flagship-article discovery path, the first tenant dashboard now explains the workspace/binder/document model with a clear first action, the public footer attribution links Daniel Maratta to the author site, GoatCounter event tracking now drops unapproved synthetic event names at runtime, and `1.1.2` candidate metadata/release evidence is staged without treating `v1.1.2` as stable. A pre-PR copy review then replaced public-facing clinical terms with friendlier workspace, access-control, and read-only-record language.
+- The Fable cold-review correction pass is implemented in scope: the hero subheadline now describes PaperBinder rather than demo workspaces, mobile public navigation exposes Product/Demo/About with the existing header analytics event taxonomy, unsupported short root-host routes use clipped public decoration, user-facing repository/history links use the browser-facing GitHub URL, the hosted article chip reads `V1.1.2 public artifact`, and the users-page role hint no longer says `one role in v1`.
 
 ## Touch Points
 - `src/PaperBinder.Web/src/app/root-host.tsx`
 - `src/PaperBinder.Web/src/app/root-host.test.tsx`
+- `src/PaperBinder.Web/e2e/root-host.spec.ts`
+- `src/PaperBinder.Web/src/styles.css`
 - `src/PaperBinder.Web/src/app/tenant-dashboard-route.tsx`
 - `src/PaperBinder.Web/src/app/tenant-shell.test.tsx`
+- `src/PaperBinder.Web/src/app/tenant-users-route.tsx`
 - `src/PaperBinder.Web/src/analytics/goatcounter.ts`
 - `src/PaperBinder.Web/src/analytics/goatcounter.test.ts`
 - `docs/90-adr/ADR-0016-goatcounter-usage-analytics.md` if event taxonomy changes materially
@@ -111,9 +119,18 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
   - Public seam: version validation script and release-facing docs.
   - First failing check: `scripts/validate-version.ps1` before metadata alignment, if version bump is not already staged.
   - Update version metadata, changelog, current-state docs, taskboard outcome, and release readiness only after behavior slices are implemented and validated.
+- Correction Slice 7 - Fable public-header/mobile navigation: `RED -> GREEN -> REFACTOR`
+  - Public seam: public root-host header at the existing mobile navigation breakpoint.
+  - First failing test: focused root-host test asserting a semantic mobile public-navigation button, Product/Demo/About links, aria-expanded state, route navigation, and reuse of existing header analytics events.
+- Correction Slice 8 - Fable short-page decoration: `RED -> GREEN -> REFACTOR`
+  - Public seam: unsupported root-host route rendering, especially `/app`.
+  - First failing test: focused root-host test asserting the unavailable route renders the known public error state and receives the short-page clipped-decoration treatment while retaining decorative nodes.
+- Correction Slice 9 - Fable copy/link/version cleanup: `RED -> GREEN -> REFACTOR`
+  - Public seam: homepage hero copy, hosted article metadata, public repository links, and users-page role hint.
+  - First failing tests: focused root-host and tenant-shell assertions for durable visible text/link outcomes.
 
 ## Next Action
-- Run final rendered review and any owner-requested broad validation before opening the release PR.
+- Owner review and PR/release close-out.
 
 ## Validation Evidence
 - RED Slice 1: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` failed on 2026-08-21 before implementation because the homepage did not expose a `What is PaperBinder?` heading or the planned plain-language product explanation.
@@ -133,6 +150,22 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - GREEN Slice 6: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-version.ps1` passed on 2026-08-21 after implementation: version validation passed for `1.1.2`.
 - Candidate docs validation after Slice 6: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-21.
 - Diff hygiene after Slice 6: `git diff --check` passed on 2026-08-21.
+- RED Correction Slice 7: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` failed on 2026-08-21 before implementation because no accessible `Public navigation` mobile menu button existed.
+- GREEN Correction Slice 7: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` passed on 2026-08-21 after implementation: `27/27` root-host tests passed.
+- RED Correction Slice 8: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` failed on 2026-08-21 before implementation because `/app` rendered the unavailable route without `pb-public-site--clipped-decor`.
+- GREEN Correction Slice 8: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` passed on 2026-08-21 after implementation: `28/28` root-host tests passed.
+- RED Correction Slice 9a: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` failed on 2026-08-21 before implementation because the old hero subheadline, `.git` repository URL, and `V1.1.1 public artifact` label were still rendered.
+- GREEN Correction Slice 9a: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` passed on 2026-08-21 after implementation: `28/28` root-host tests passed.
+- RED Correction Slice 9b: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/tenant-shell.test.tsx` failed on 2026-08-21 before implementation because the users page still rendered `Each workspace member has one role in v1.`
+- GREEN Correction Slice 9b: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/tenant-shell.test.tsx` passed on 2026-08-21 after implementation: `30/30` tenant-shell tests passed.
+- Final frontend validation: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1` passed on 2026-08-21: `10/10` test files, `95/95` tests.
+- Final version validation: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-version.ps1` passed on 2026-08-21: version validation passed for `1.1.2`.
+- Final build validation: `powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configuration Release` passed on 2026-08-21: frontend production build completed and .NET build succeeded with `0 Warning(s), 0 Error(s)`.
+- Final full test validation: `powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1 -Configuration Release -DockerIntegrationMode Require` passed on 2026-08-21: frontend `95/95`, unit `143/143`, non-Docker integration `34/34`, Docker-backed integration `103/103`.
+- Final browser validation: `powershell -ExecutionPolicy Bypass -File .\scripts\run-browser-e2e.ps1` passed on 2026-08-21: root-host `6/6`, tenant-host `3/3`.
+- Final docs and launch validation: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` and `powershell -ExecutionPolicy Bypass -File .\scripts\validate-launch-profiles.ps1` passed on 2026-08-21.
+- Final reviewer stack validation: `powershell -ExecutionPolicy Bypass -File .\scripts\reviewer-full-stack.ps1 -NoBrowser` passed on 2026-08-21: root host, demo tenant URL, live/ready health endpoints, compose services, and worker cleanup logs were available.
+- Final rendered review passed on 2026-08-21 at desktop and mobile widths: homepage hero, public navigation, mobile menu, footer, and `/app` unavailable-route decoration rendered without horizontal overflow or orphaned post-footer artwork.
 
 ## Decision Notes
 - The canonical article process favors outcome/constraint definition, scoped implementation, validation, independent review, scoped remediation, verification, and release acceptance. This task follows that sequence.
@@ -159,8 +192,8 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
   - Confirm the homepage answers what PaperBinder is within the first screen or early page.
   - Confirm final copy does not imply compliance, classified-data suitability, regulated-record suitability, production service guarantees, document versioning, collaboration, audit-history browsing, or commercial maturity beyond repo truth.
 
-## Outcome (Fill when done)
-- Pending.
+## Outcome
+- Done for the scoped `v1.1.2` correction pass. The minimal Fable cold-review correction set is implemented, validated, and release-ready pending owner-controlled PR, tag, deployment, and publication steps.
 
 ## Notes
 Keep task docs stable. Put iterative discoveries in `../task-log/` if needed.
