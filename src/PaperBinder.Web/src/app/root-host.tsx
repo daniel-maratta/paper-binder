@@ -48,22 +48,22 @@ const flagshipArticleHeadings = getMarkdownArticleHeadings(flagshipArticle.body)
 const publicValuePillars: PublicValuePillar[] = [
   {
     icon: "boundary",
-    title: "Tenant isolation",
-    body: "Each workspace stays inside its own scoped boundary."
+    title: "Separate workspaces",
+    body: "Each demo workspace keeps its information separate."
   },
   {
     icon: "key",
-    title: "Role-aware access",
-    body: "Assigned roles control what each user can see and do."
+    title: "Access controls",
+    body: "Roles decide what each user can see and do."
   },
   {
     icon: "document",
-    title: "Immutable documents",
-    body: "Documents are reviewable records, not freeform editor content."
+    title: "Read-only records",
+    body: "Documents are kept as reviewable text records instead of editable drafts."
   },
   {
     icon: "timer",
-    title: "Temporary demo lifecycle",
+    title: "Temporary demo space",
     body: "Demo workspaces expire automatically."
   }
 ];
@@ -79,7 +79,7 @@ const publicDemoSteps: PublicDemoStep[] = [
   },
   {
     title: "Review the live product flows",
-    body: "Move through binders, immutable documents, and tenant access from the active workspace."
+    body: "Move through binders, read-only documents, and access controls from the active workspace."
   }
 ];
 
@@ -882,7 +882,7 @@ function PublicFooter() {
           >
             <img alt="" aria-hidden="true" src="/brand/pb-full-logo-white.png" />
           </NavLink>
-          <p>A production-shaped SaaS demo designed and built by Daniel Maratta.</p>
+          <p>A focused document workspace demo designed and built by Daniel Maratta.</p>
         </div>
 
         <div className="pb-public-footer-nav">
@@ -1051,11 +1051,11 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
           }
           eyebrow="PaperBinder"
           id="public-hero-title"
-          title="A production-shaped SaaS demo for document workspaces."
+          title="A focused workspace for policies, procedures, and internal docs."
           variant="landing"
         >
-          PaperBinder demonstrates tenant isolation, role-aware access, immutable documents, and an ephemeral
-          workspace lifecycle in a working product UI.
+          PaperBinder gives each demo workspace a clear place to organize binders, read-only documents, and
+          access controls you can try in the live product.
         </PublicHero>
 
         <section aria-label="PaperBinder product preview" className="pb-public-product-mockup">
@@ -1100,12 +1100,12 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
             <p className="pb-public-panel-eyebrow">PRODUCT MODEL</p>
             <h2>What is PaperBinder?</h2>
             <p>
-              PaperBinder is a lightweight workspace for organizing controlled organizational documents. A
-              workspace contains binders and immutable text documents, with role-aware access around the work.
+              PaperBinder is a lightweight workspace for organizing important internal documents. A workspace
+              contains binders, read-only text records, and access controls around the work.
             </p>
             <p>
-              Use it conceptually for policies, procedures, handbooks, and internal reference material where a
-              small organization needs a clear place to collect and manage text records.
+              Use it for policies, procedures, handbooks, and internal reference material when a small
+              organization needs one clear place to collect and review shared documents.
             </p>
           </div>
         </PublicStorySection>
@@ -1115,8 +1115,8 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
             <p className="pb-public-panel-eyebrow">ENGINEERING CASE STUDY</p>
             <h2>Behind the build</h2>
             <p>
-              The demo shows what was built. The flagship article explains how and why PaperBinder was shaped as a
-              narrow, production-oriented SaaS demonstration.
+              The live demo shows the product. The flagship article explains the choices behind the build: scope,
+              validation, and the tradeoffs that shaped PaperBinder.
             </p>
           </div>
           <ArticleCard
@@ -1238,12 +1238,12 @@ function ProvisionSuccessPanel({
 
       <dl className="pb-public-stat-grid">
         <PublicStat
-          label="Tenant slug"
+          label="Workspace slug"
           value={
             <span className="pb-public-stat-copy">
               <span>{provisionedTenant.tenantSlug}</span>
               <button
-                aria-label="Copy tenant slug"
+                aria-label="Copy workspace slug"
                 className="pb-public-copy-button pb-public-copy-button--inline"
                 onClick={() => {
                   void copyValue("tenant-slug", provisionedTenant.tenantSlug);
@@ -1346,7 +1346,7 @@ function RootWelcomePage({
 
     const nextFieldErrors: RootHostFieldErrors = {};
     if (!tenantName.trim()) {
-      nextFieldErrors.tenantName = "Tenant name is required.";
+      nextFieldErrors.tenantName = "Workspace name is required.";
     }
 
     if (!challengeLocalBypassEnabled && !challengeToken) {
@@ -1763,15 +1763,15 @@ function RootAboutPage() {
         <PublicStorySection className="pb-public-about-overview" variant="accent">
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">PROJECT OVERVIEW</p>
-            <h2>A small, complete SaaS demo for document workspaces.</h2>
+            <h2>A small, complete demo for internal document workspaces.</h2>
             <p>
-              PaperBinder includes tenant-scoped workspaces, binder-level access, immutable text documents, and
-              temporary demo workspaces with generated credentials.
+              PaperBinder includes separate demo workspaces, binder-level access, read-only text documents, and
+              generated credentials for trying the product.
             </p>
           </div>
           <dl className="pb-public-about-summary-grid">
-            <PublicStat label="Core model" value="Binders and immutable text documents." />
-            <PublicStat label="Access boundary" value="Role-aware access inside isolated workspaces." />
+            <PublicStat label="Core model" value="Binders and read-only text documents." />
+            <PublicStat label="Access boundary" value="Access controls inside separate workspaces." />
             <PublicStat label="Demo path" value="Temporary demo workspaces with generated credentials." />
           </dl>
         </PublicStorySection>
@@ -1788,7 +1788,7 @@ function RootAboutPage() {
             analyticsEvent={publicAnalyticsEventNames.aboutReadArticle}
             cta="Read article"
             href={flagshipArticlePath}
-            meta="Architecture / SaaS demo / AI-assisted development"
+            meta="Build story / scope / validation"
             title={flagshipArticle.title}
           >
             A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind
@@ -1799,18 +1799,18 @@ function RootAboutPage() {
         <PublicStorySection>
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">WHAT THIS DEMONSTRATES</p>
-            <h2>A narrow product scope with real SaaS boundaries.</h2>
+            <h2>A narrow product scope with real workspace boundaries.</h2>
           </div>
           <ul className="pb-public-about-card-grid">
-            <ProofCard title="Tenant-scoped workspaces">Each demo workspace stays isolated from the others.</ProofCard>
+            <ProofCard title="Separate workspaces">Each demo workspace keeps its information separate.</ProofCard>
             <ProofCard title="Binder-level access">
               Users can be assigned roles that affect what they can see and do.
             </ProofCard>
-            <ProofCard title="Immutable documents">
+            <ProofCard title="Read-only documents">
               Documents are treated as reviewable records rather than freeform editor content.
             </ProofCard>
-            <ProofCard title="Temporary demo lifecycle">
-              Temporary tenants, expiry state, and cleanup behavior are part of the demo flow.
+            <ProofCard title="Temporary demo workspace">
+              Expiry state and cleanup behavior are part of the demo flow.
             </ProofCard>
           </ul>
         </PublicStorySection>
@@ -1820,8 +1820,8 @@ function RootAboutPage() {
             <p className="pb-public-panel-eyebrow">INTENTIONAL SCOPE</p>
             <h2>Small by design.</h2>
             <p>
-              PaperBinder is intentionally narrow. It demonstrates SaaS architecture, access boundaries, document
-              workflows, and deployment quality without expanding into a full document-management platform.
+              PaperBinder is intentionally narrow. It demonstrates workspace separation, access boundaries,
+              document workflows, and deployment quality without expanding into a full document-management platform.
             </p>
           </div>
           <div className="pb-public-about-scope-grid">
@@ -1829,9 +1829,9 @@ function RootAboutPage() {
               <h3 id="about-in-scope">In scope</h3>
               <ul>
                 <li>Temporary demo workspaces</li>
-                <li>Tenant isolation</li>
+                <li>Workspace separation</li>
                 <li>Binder and document workflows</li>
-                <li>Role-aware access</li>
+                <li>Access controls</li>
                 <li>Public demo path</li>
               </ul>
             </section>
@@ -1842,7 +1842,7 @@ function RootAboutPage() {
                 <li>Broad CMS functionality</li>
                 <li>Rich document editing</li>
                 <li>Enterprise SSO</li>
-                <li>Long-lived customer tenants</li>
+                <li>Long-lived customer workspaces</li>
               </ul>
             </section>
           </div>

@@ -338,7 +338,7 @@ describe("tenant shell", () => {
     expect(screen.queryByRole("link", { name: "paperbinder.danielmaratta.com" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Daniel Maratta" })).not.toBeInTheDocument();
     expect(screen.getByText("acme")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Copy tenant slug" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Copy workspace slug" })).not.toBeInTheDocument();
   });
 
   it("Should_RenderAddYourFirstBinder_When_DashboardLoadsWithoutVisibleBinders", async () => {
@@ -361,9 +361,10 @@ describe("tenant shell", () => {
     });
 
     expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
-    expect(screen.getByText(/A workspace represents one temporary organization/i)).toBeInTheDocument();
-    expect(screen.getByText(/binders group the controlled text documents/i)).toBeInTheDocument();
+    expect(screen.getByText(/A workspace is a temporary place to try PaperBinder/i)).toBeInTheDocument();
+    expect(screen.getByText(/Binders group the important text documents/i)).toBeInTheDocument();
     expect(await screen.findByText(/Start with a binder, then add documents inside it/i)).toBeInTheDocument();
+    expect(screen.getByText(/keeps related records together/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Add your first binder" })).toHaveAttribute("href", "/app/binders");
   });
 

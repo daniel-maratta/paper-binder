@@ -36,7 +36,7 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - GoatCounter analytics are production-gated direct `/count` requests through the existing frontend abstraction. Individual GoatCounter pageview collection must remain disabled.
 
 ## Acceptance Criteria
-- [x] Homepage explains in plain language that PaperBinder is a lightweight document/policy workspace for controlled organizational documents.
+- [x] Homepage explains in plain language that PaperBinder is a lightweight document workspace for important internal documents.
 - [x] Homepage includes concise concrete use cases such as policies, procedures, handbooks, internal reference material, or governance documents.
 - [x] Homepage distinguishes the product concept from the reason the project exists as a deliberately scoped engineering demonstration.
 - [x] The flagship article is directly discoverable from the homepage through an appropriately prominent CTA/link.
@@ -65,7 +65,7 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - Escalation Notes: Frontend/Vitest, browser E2E, build, Docker-backed integration, and git write workflows may require known elevated PaperBinder commands.
 
 ## Current State
-- Slices 1 through 6 are implemented and focused validation is green. The homepage now includes an early product-model explanation and a direct flagship-article discovery path, the first tenant dashboard now explains the workspace/binder/document model with a clear first action, the public footer attribution links Daniel Maratta to the author site, GoatCounter event tracking now drops unapproved synthetic event names at runtime, and `1.1.2` candidate metadata/release evidence is staged without treating `v1.1.2` as stable.
+- Slices 1 through 6 are implemented and focused validation is green. The homepage now includes an early product-model explanation and a direct flagship-article discovery path, the first tenant dashboard now explains the workspace/binder/document model with a clear first action, the public footer attribution links Daniel Maratta to the author site, GoatCounter event tracking now drops unapproved synthetic event names at runtime, and `1.1.2` candidate metadata/release evidence is staged without treating `v1.1.2` as stable. A pre-PR copy review then replaced public-facing clinical terms with friendlier workspace, access-control, and read-only-record language.
 
 ## Touch Points
 - `src/PaperBinder.Web/src/app/root-host.tsx`

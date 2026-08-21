@@ -5,11 +5,12 @@ All notable changes to this project are documented in this file.
 ## Unreleased
 
 ### Added
-- Added a plain-language homepage explanation of PaperBinder as a lightweight workspace for controlled organizational documents, with concrete policy, procedure, handbook, and internal-reference use cases.
+- Added a plain-language homepage explanation of PaperBinder as a lightweight workspace for important internal documents, with concrete policy, procedure, handbook, and internal-reference use cases.
 - Added a direct homepage path to the flagship engineering article.
 
 ### Changed
-- Clarified first-entry tenant dashboard orientation so new guests understand the temporary workspace, binders, immutable text documents, and the first useful action.
+- Clarified first-entry workspace dashboard orientation so new guests understand the temporary workspace, binders, read-only documents, and the first useful action.
+- Revised public and first-demo copy to prefer workspace, access-control, and read-only-record language over internal tenant and systems terminology.
 - Linked the public footer author attribution to Daniel Maratta's portfolio site using the existing external-link conventions.
 
 ### Fixed

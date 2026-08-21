@@ -102,8 +102,8 @@ export function DashboardPage() {
         <p className="pb-auth-eyebrow">Overview</p>
         <h2 className="pb-auth-page-title">Workspace dashboard</h2>
         <p className="pb-auth-page-copy">
-          A workspace represents one temporary organization. Binders group the controlled text documents that
-          organization manages, and this dashboard shows lease status, recent binders, and next actions.
+          A workspace is a temporary place to try PaperBinder. Binders group the important text documents in that
+          space, and this dashboard shows time remaining, recent binders, and suggested next steps.
         </p>
       </section>
 
@@ -126,9 +126,9 @@ export function DashboardPage() {
             </svg>
           </div>
           <div>
-            <h3 className="pb-auth-callout__title">This demo tenant will be available for an hour after creation</h3>
+            <h3 className="pb-auth-callout__title">This demo workspace is available for one hour after creation</h3>
             <p className="pb-auth-callout__body">
-              When less than 10 minutes are left, the opportunity to extend the demo by 15 minutes appears if you need more time. You can extend the tenant demo by up to 3 times (45 minutes).
+              When less than 10 minutes are left, you can add 15 more minutes if you need time to finish looking around. Each workspace can be extended up to 3 times.
             </p>
           </div>
         </section>
@@ -151,7 +151,7 @@ export function DashboardPage() {
               <Alert variant="info">
                 <AlertTitle>No binders yet.</AlertTitle>
                 <AlertBody>
-                  Start with a binder, then add documents inside it to see how PaperBinder organizes controlled text records in this workspace.
+                  Start with a binder, then add documents inside it to see how PaperBinder keeps related records together.
                 </AlertBody>
               </Alert>
             ) : (
@@ -164,7 +164,7 @@ export function DashboardPage() {
           <div className="pb-auth-panel-header">
             <h3 className="pb-auth-panel-title pb-auth-panel-title--lg">Next actions</h3>
             <p className="pb-auth-panel-copy">
-              Jump to the pages most likely to matter in this workspace.
+              Jump to the pages most useful from here.
             </p>
           </div>
           <div className="pb-auth-panel-body pb-auth-action-stack">

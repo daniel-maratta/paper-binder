@@ -75,16 +75,16 @@ export function mapRootHostError(error: unknown): RootHostErrorViewModel {
       };
     case "TENANT_NAME_INVALID":
       return {
-        title: "Tenant name is not available.",
-        detail: error.detail ?? "Choose a workspace name that can be used for this demo.",
+        title: "Workspace name is not available.",
+        detail: "Choose a workspace name that can be used for this demo.",
         field: "tenantName",
         correlationId: error.correlationId,
         retryAfterLabel
       };
     case "TENANT_NAME_CONFLICT":
       return {
-        title: "Tenant name already exists.",
-        detail: error.detail ?? "Choose a different tenant name and retry.",
+        title: "Workspace name already exists.",
+        detail: "Choose a different workspace name and retry.",
         field: "tenantName",
         correlationId: error.correlationId,
         retryAfterLabel
