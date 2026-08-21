@@ -186,6 +186,17 @@ describe("GoatCounter analytics", () => {
     expect(requestUrl.searchParams.get("e")).toBe("true");
   });
 
+  it("Should_DropUnapprovedSyntheticEventNames_BeforeSendingDirectRequests", () => {
+    installAnalyticsRequestStub();
+
+    trackPaperBinderEvent(
+      createPublicHostContext(),
+      "pb_event_public_demo_submit_succeeded_acme" as typeof publicAnalyticsEventNames.demoSubmitSucceeded
+    );
+
+    expect(createdImageUrls).toHaveLength(0);
+  });
+
   it("Should_KeepPublicEventNamesNamespacedAndLowCardinality", () => {
     const eventNames = Object.values(publicAnalyticsEventNames);
 

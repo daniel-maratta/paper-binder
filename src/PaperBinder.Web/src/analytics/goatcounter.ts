@@ -44,6 +44,8 @@ export const publicAnalyticsEventNames = {
 export type PublicAnalyticsEventName =
   (typeof publicAnalyticsEventNames)[keyof typeof publicAnalyticsEventNames];
 
+const publicAnalyticsEventNameSet = new Set<string>(Object.values(publicAnalyticsEventNames));
+
 type GoatCounterHit = {
   path: string;
   title: string;
@@ -270,6 +272,10 @@ export function trackPaperBinderPageview(hostContext: HostContext, pathname: str
 
 export function trackPaperBinderEvent(hostContext: HostContext, eventName: PublicAnalyticsEventName) {
   if (!shouldEnablePaperBinderAnalytics(hostContext, resolveHostContextHostname(hostContext))) {
+    return;
+  }
+
+  if (!publicAnalyticsEventNameSet.has(eventName)) {
     return;
   }
 
