@@ -9,7 +9,7 @@ Define the delivery terminology and PR artifact expectations used by PaperBinder
 
 - `Phase`: one of the five major execution groupings in `docs/55-execution/`.
 - `Checkpoint`: the mergeable execution unit inside a phase (`CP1` through `CP17`).
-- `Release`: a stable shipped cut on the `V1` line. The initial reviewer-ready cut used prose `V1` with tag `v1.0.0`; the current published stable PaperBinder release is `v1.1.1`, superseding the prior published stable tag `v1.1.0`. `v1.1.1` is merged to `main`, tagged, deployed and smoke-verified on both Test and Prod, and its GitHub Release is published. No owner-controlled release action remains.
+- `Release`: a stable shipped cut on the `V1` line. The initial reviewer-ready cut used prose `V1` with tag `v1.0.0`; the current published stable PaperBinder release is `v1.1.2`, superseding the prior published stable tag `v1.1.1`. `v1.1.2` is merged to `main`, tagged, deployed and smoke-verified on Test, and its GitHub Release is published. The `v1.1.3` mobile public-header hotfix is validated and merge-ready in PR #61, superseding further `v1.1.2` rollout.
 
 Do not use legacy `stage` terminology for current execution planning or PR artifacts.
 
@@ -32,8 +32,8 @@ Do not use legacy `stage` terminology for current execution planning or PR artif
 - `V1` is locked as the first stable release line.
 - Stable release tags must use SemVer core spelling with a leading `v`: `vMAJOR.MINOR.PATCH`.
 - The initial stable release identity remains historical `V1` / `v1.0.0` / `1.0.0`.
-- The current published stable release identity is `V1` / `v1.1.1` / `1.1.1`; `v1.1.0` is the prior published stable tag.
-- The active `v1.1.2` branch may stage `1.1.2` metadata as a patch candidate, but `v1.1.2` is not the current stable tag until release close-out records the taggable state and owner-controlled release actions complete.
+- The current published stable release identity is `V1` / `v1.1.2` / `1.1.2`; `v1.1.1` is the prior published stable tag.
+- The active `v1.1.3` branch stages `1.1.3` metadata as a validated patch candidate, but `v1.1.3` is not the current stable tag until PR #61 merges, release close-out records the taggable state, and owner-controlled release actions complete.
 - Future release branches may stage version metadata before release; do not describe a future tag as stable until the final release close-out task records the taggable state.
 - Repository version metadata must agree before release validation passes:
   - `Directory.Build.props` `VersionPrefix`

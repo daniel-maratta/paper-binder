@@ -28,6 +28,7 @@ This is the active PaperBinder task board for agent execution.
 
 ## Recently Done
 
+- [T-0057: V1.1.3 Mobile Header Hotfix](./tasks/T-0057-v1-1-3-mobile-header-hotfix.md)
 - [T-0056: V1.1.2 Presentation Positioning Release](./tasks/T-0056-v1-1-2-presentation-positioning-release.md)
 - [T-0055: V1.1.1 Legal Readiness](./tasks/T-0055-v1-1-1-legal-readiness.md)
 - [T-0052: V1.1.1 Final Validation And Hiring Assessment Review](./tasks/T-0052-v1-1-1-final-validation-and-hiring-assessment-review.md)

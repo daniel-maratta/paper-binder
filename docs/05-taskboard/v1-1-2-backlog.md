@@ -1,6 +1,6 @@
 # V1.1.2 Backlog
 
-Status: Review Ready
+Status: Released
 Authority: This file is the taskboard source for the `v1.1.2` positioning patch and must agree with `docs/95-delivery/v1-1-2-implementation-plan.md`.
 
 ## Purpose
@@ -17,7 +17,7 @@ This patch improves first-time visitor comprehension, flagship-article discovera
 
 | Checkpoint | Task | Required outcome |
 | --- | --- | --- |
-| CP1 | `T-0056` | Scope-lock the `v1.1.2` positioning patch, execute behavior-first frontend and analytics slices, update version/release docs, validate the candidate, and record release-readiness evidence. |
+| CP1 | `T-0056` | Scope-lock the `v1.1.2` positioning patch, execute behavior-first frontend and analytics slices, update version/release docs, validate the release, and record release-readiness evidence. |
 
 ## Explicit Out Of Scope
 

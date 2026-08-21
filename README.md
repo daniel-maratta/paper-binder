@@ -168,6 +168,6 @@ Policy:
 
 ## Status
 
-PaperBinder is reviewer-ready at `v1.1.1`, the current published stable PaperBinder release.
-`v1.1.1` is merged to `main`, tagged, deployed and smoke-verified on both Test and Prod, and its GitHub Release is published. No owner-controlled release action remains outstanding.
+PaperBinder is reviewer-ready at `v1.1.2`, the current published stable PaperBinder release.
+`v1.1.2` is merged to `main`, tagged, deployed and smoke-verified on Test, and its GitHub Release is published. The `v1.1.3` mobile public-header hotfix is validated and merge-ready in PR #61; it supersedes further `v1.1.2` rollout.
 Release readiness is recorded in `docs/95-delivery/release-checklist.md`, with the release snapshot in `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`.

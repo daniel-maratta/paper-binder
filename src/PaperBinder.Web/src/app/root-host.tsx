@@ -939,22 +939,6 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
         {hostContext.debugAlias ? (
           <span className="pb-public-debug-chip">Loopback alias</span>
         ) : null}
-        {isMobilePublicNavigation ? (
-          <button
-            aria-controls={mobileNavigationId}
-            aria-expanded={isMobileMenuExpanded}
-            aria-label="Public navigation"
-            className="pb-public-mobile-nav-toggle"
-            onClick={() => {
-              setIsMobileMenuExpanded((currentValue) => !currentValue);
-            }}
-            ref={mobileNavigationToggleRef}
-            type="button"
-          >
-            <span>Menu</span>
-            <span aria-hidden="true" className="pb-public-mobile-nav-toggle__icon" />
-          </button>
-        ) : null}
         {workspaceReturnUrl ? (
           <a
             className="pb-public-button-link pb-public-header-cta"
@@ -972,6 +956,22 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
             Start Demo
           </PublicShellLink>
         )}
+        {isMobilePublicNavigation ? (
+          <button
+            aria-controls={mobileNavigationId}
+            aria-expanded={isMobileMenuExpanded}
+            aria-label="Public navigation"
+            className="pb-public-mobile-nav-toggle"
+            onClick={() => {
+              setIsMobileMenuExpanded((currentValue) => !currentValue);
+            }}
+            ref={mobileNavigationToggleRef}
+            type="button"
+          >
+            <span>Menu</span>
+            <span aria-hidden="true" className="pb-public-mobile-nav-toggle__icon" />
+          </button>
+        ) : null}
       </div>
       {isMobilePublicNavigation && isMobileMenuExpanded ? (
         <nav

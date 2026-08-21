@@ -7,9 +7,9 @@ Own the canonical release gate list for the published stable `V1` release.
 
 ## Required Artifacts
 
-- [x] `CHANGELOG.md` contains the current `## [1.1.1] - 2026-08-17` entry above the `## [1.1.0] - 2026-07-28` prior stable entry, with a fresh empty `## Unreleased`.
-- [x] Repository version metadata matches the current `v1.1.1` / `1.1.1` release.
-- [x] Active branch version metadata may stage `1.1.2` for the `v1.1.2` patch candidate while this checklist continues to identify `v1.1.1` as the current published stable release until close-out and owner-controlled release actions complete.
+- [x] `CHANGELOG.md` contains the current `## [1.1.2] - 2026-08-21` entry above the `## [1.1.1] - 2026-08-17` prior stable entry, with a fresh `## Unreleased`.
+- [x] Repository version metadata matched the current `v1.1.2` / `1.1.2` release on `main` at the `v1.1.2` release cut.
+- [x] Active branch version metadata stages `1.1.3` for the validated `v1.1.3` patch hotfix while this checklist continues to identify `v1.1.2` as the current published stable release until PR #61 merges and owner-controlled release actions complete.
 - [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, the active branch metadata distinction, the command surface, and ownership.
 - [x] Repository version metadata matched the published stable `V1` release tag `v1.1.0` / `1.1.0` on `main` at the `v1.1.0` release cut.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
@@ -286,11 +286,10 @@ the published stable PaperBinder release; see the updated `Release Readiness` se
   published on `2026-08-18T05:29:33Z` (`isDraft: false`), confirmed directly via `gh release view`.
   All `v1.1.1` owner-controlled release actions are complete.
 
-## V1.1.2 Patch Candidate Evidence (T-0056)
+## V1.1.2 Patch Release Evidence (T-0056)
 
-This section records the active `v1.1.2` positioning patch candidate. It does not replace the
-published `v1.1.1` release evidence above, and it does not describe `v1.1.2` as stable before
-release close-out.
+This section records the published `v1.1.2` positioning patch. It supersedes the published
+`v1.1.1` release evidence above.
 
 ### Candidate Scope
 
@@ -309,7 +308,7 @@ release close-out.
   article current-artifact label is staged as `V1.1.2 public artifact`.
 - [x] GoatCounter public event coverage preserved and strengthened with a runtime allow-list guard
   for approved synthetic event names.
-- [x] Repository version metadata is staged for `1.1.2` as a patch candidate.
+- [x] Repository version metadata was staged for `1.1.2` as a patch candidate before the release cut.
 
 ### Candidate Validation
 
@@ -345,12 +344,19 @@ release close-out.
 
 ### Remaining Owner-Controlled Steps
 
-- [ ] Review the candidate branch and open a PR only after all slice checkpoints are complete.
-- [ ] Merge the accepted candidate to the release target.
-- [ ] Create and push the `v1.1.2` SemVer tag after `main` is recorded as taggable.
-- [ ] Run the tag-driven release workflow.
-- [ ] Deploy to Test and Prod with smoke validation.
-- [ ] Publish the matching GitHub Release.
+- [x] Review the candidate branch and open a PR only after all slice checkpoints are complete - PR #60.
+- [x] Merge the accepted candidate to the release target - PR #60 merged to `main` at `8db37ef`.
+- [x] Create and push the `v1.1.2` SemVer tag after `main` is recorded as taggable - annotated tag
+  `v1.1.2` points at `8db37ef`.
+- [x] Run the tag-driven release workflow - `release.yml` run
+  [32509220660](https://github.com/daniel-maratta/paper-binder/actions/runs/32509220660) passed in
+  full on `2026-08-21`, including release validation and GHCR image publishing.
+- [x] Deploy to Test with smoke validation - owner-confirmed completed before the mobile-header
+  hotfix was opened.
+- [x] Do not deploy `v1.1.2` to Prod - intentionally superseded by the `v1.1.3` mobile-header hotfix
+  before production rollout.
+- [x] Publish the matching GitHub Release - `v1.1.2` was published as a canonical GitHub Release on
+  `2026-08-21`.
 
 ### Legal Readiness Addendum
 
@@ -401,15 +407,57 @@ release close-out.
   with no draft/audit-process wording remaining, and the owner (Daniel Maratta) explicitly approved
   the final wording for publication on `2026-08-17`.
 
+## V1.1.3 Mobile Header Hotfix PR-Ready Evidence
+
+This section records the validated `v1.1.3` patch hotfix candidate opened after `v1.1.2` was
+published as a canonical release and then found to have a narrow unauthenticated mobile-header
+layout issue. PR #61 is open, mergeable, and green; `v1.1.3` is not the current published stable tag
+until the PR is merged, tagged, released, deployed to Test, smoke-verified, and published.
+
+### Candidate Scope
+
+- [x] Mobile public header keeps the logo, Start Demo CTA, and menu control on one line.
+- [x] The menu control is right-aligned and becomes icon-only at the smallest breakpoint while
+  preserving `aria-label="Public navigation"`.
+- [x] Header spacing and vertical alignment are covered by browser geometry assertions at a narrow
+  mobile viewport.
+- [x] Repository version metadata is staged for `1.1.3` as a patch hotfix candidate.
+
+### Candidate Validation
+
+- [x] [validate-version.ps1](../../scripts/validate-version.ps1) passed for `1.1.3` on `2026-08-21`.
+- [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-08-21`:
+  frontend production build completed and .NET build succeeded with `0 Warning(s), 0 Error(s)`.
+- [x] [test.ps1](../../scripts/test.ps1) `-Configuration Release -DockerIntegrationMode Require`
+  passed on `2026-08-21` after the hotfix correction: frontend `95/95`, unit `143/143`,
+  non-Docker integration `34/34`, Docker-backed integration `103/103`.
+- [x] [run-browser-e2e.ps1](../../scripts/run-browser-e2e.ps1) passed on `2026-08-21` after the
+  icon-only smallest-breakpoint correction: root-host `6/6`, tenant-host `3/3`.
+- [x] [validate-docs.ps1](../../scripts/validate-docs.ps1) passed on `2026-08-21` after the
+  `v1.1.3` release-doc update.
+- [x] [validate-launch-profiles.ps1](../../scripts/validate-launch-profiles.ps1) passed on
+  `2026-08-21`.
+- [x] PR #61 CI `build-test-validate` passed on `2026-08-21` for the hotfix branch; local
+  docs validation and `git diff --check` were rerun after the final release-doc closeout edits.
+- [x] `git diff --check` passed on `2026-08-21` after the hotfix correction.
+
+### Remaining Owner-Controlled Steps
+
+- [ ] Merge the accepted, green `v1.1.3` hotfix PR (#61) to `main`.
+- [ ] Create and push the `v1.1.3` SemVer tag after `main` is recorded as taggable.
+- [ ] Run the tag-driven release workflow.
+- [ ] Deploy to Test with smoke validation.
+- [ ] Publish the matching GitHub Release.
+
 ## Release Readiness
 
 - Release line: `V1`
 - Historical first stable tag: `v1.0.0`
-- Current published stable tag: `v1.1.1`
-- Current published stable SemVer version: `1.1.1`
-- Prior published stable tag: `v1.1.0`
-- Prior published stable SemVer version: `1.1.0`
-- Active branch SemVer metadata: `1.1.2`
+- Current published stable tag: `v1.1.2`
+- Current published stable SemVer version: `1.1.2`
+- Prior published stable tag: `v1.1.1`
+- Prior published stable SemVer version: `1.1.1`
+- Active branch SemVer metadata: `1.1.3`
 - Status: `main` was aligned and taggable for `v1.0.5` as of `2026-07-03`. `release/v1.1.0`
   completed `T-0043` final-review validation on `2026-07-26` — findings resolved, full
   scripted and browser validation green, version metadata consistent, no unresolved High/Critical
@@ -499,10 +547,19 @@ release close-out.
   [github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1](https://github.com/daniel-maratta/paper-binder/releases/tag/v1.1.1)
   was published (`isDraft: false`), confirmed directly via `gh release view`. This was the last
   outstanding owner-controlled `v1.1.1` release action; none remain.
-- V1.1.2 candidate attestation (`2026-08-21`): the active branch stages `1.1.2` metadata and
-  Unreleased changelog notes for the positioning patch candidate. `v1.1.2` is not yet the current
-  published stable tag; PR review, merge, tag creation, release workflow execution, Test/Prod
-  deployment, smoke validation, and GitHub Release publication remain owner-controlled steps.
+- V1.1.2 release attestation (`2026-08-21`): PR #60 merged the positioning patch to `main` at
+  `8db37ef`, annotated tag `v1.1.2` points at that merge commit, `release.yml` run
+  [32509220660](https://github.com/daniel-maratta/paper-binder/actions/runs/32509220660) passed and
+  published the tagged GHCR images, the release was deployed and smoke-verified on Test, and the
+  GitHub Release was published as canonical. Because the release was published before the
+  mobile-header issue was found, `v1.1.2` remains immutable release history; further `v1.1.2`
+  rollout is intentionally superseded by the `v1.1.3` hotfix before Prod deployment.
+- V1.1.3 hotfix candidate attestation (`2026-08-21`): the active branch stages `1.1.3` metadata and
+  Unreleased changelog notes for the unauthenticated mobile-header hotfix. Local validation is green
+  and PR #61 CI `build-test-validate` passed for the hotfix branch; the PR is open and mergeable.
+  `v1.1.3` is not yet the current published stable tag; PR merge, tag creation, release workflow
+  execution, Test deployment, smoke validation, and GitHub Release publication remain
+  owner-controlled steps.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`

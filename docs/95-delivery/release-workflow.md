@@ -10,10 +10,10 @@ Define the canonical stable-release sequence for the `V1` line, its ownership bo
 - Stable release line label: `V1`
 - Stable tag spelling: `vMAJOR.MINOR.PATCH`
 - Historical first stable tag: `v1.0.0`
-- Current published stable tag: `v1.1.1`
-- Current published stable SemVer metadata: `1.1.1`
-- Prior published stable tag: `v1.1.0`
-- The `v1.1.1` release-close-out task (`T-0055`) recorded main as taggable; `v1.1.1` merged to `main`, the `v1.1.1` tag's `release.yml` run passed (GHCR images published), it was deployed and smoke-verified on both Test and Prod, and its GitHub Release is published. No owner-controlled release action remains.
+- Current published stable tag: `v1.1.2`
+- Current published stable SemVer metadata: `1.1.2`
+- Prior published stable tag: `v1.1.1`
+- The `v1.1.2` positioning release merged to `main`, the `v1.1.2` tag's `release.yml` run passed (GHCR images published), it was deployed and smoke-verified on Test, and its GitHub Release is published. The `v1.1.3` mobile public-header hotfix is validated and merge-ready in PR #61, superseding further `v1.1.2` rollout.
 - Changelog cut shape:
   - historical first stable cut: `## [V1] - 2026-04-19`
   - subsequent stable releases on the same line: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD` with a fresh empty `## Unreleased`
@@ -89,7 +89,7 @@ The release workflow must not introduce a parallel shadow command surface.
 - Stable release tags use `.github/workflows/release.yml`.
 - Owner-approved shared-test GHCR validation uses `.github/workflows/deploy-test.yml`.
 - Owner-approved production rollout uses `.github/workflows/deploy-prod.yml`.
-- Release tags must match `vMAJOR.MINOR.PATCH`; `v1.0.0` is the historical first valid `V1` tag, `v1.1.0` is the prior published stable tag, and `v1.1.1` is the current published stable tag.
+- Release tags must match `vMAJOR.MINOR.PATCH`; `v1.0.0` is the historical first valid `V1` tag, `v1.1.1` is the prior published stable tag, and `v1.1.2` is the current published stable tag.
 - CI intentionally stays lighter than the release workflow: it validates version metadata, restore, build, repo tests, docs, and launch-profile drift on pull requests and pushes to `main`.
 - The release workflow adds the slower gates that remain tag-time only: browser E2E and the full checkpoint validation bundle.
 - The release workflow validates that repo version metadata matches the tag before it runs the release validation bundle and publishes tagged GHCR images.
