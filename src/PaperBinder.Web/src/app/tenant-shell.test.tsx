@@ -895,6 +895,7 @@ describe("tenant shell", () => {
     });
 
     expect(await screen.findByRole("heading", { name: "Users and access" })).toBeInTheDocument();
+    expect(screen.getByText("Each workspace member has one assigned role.")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "member@acme-demo.local" }

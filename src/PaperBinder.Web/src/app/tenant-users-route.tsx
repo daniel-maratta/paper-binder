@@ -685,7 +685,7 @@ export function UsersPage() {
               </Field>
               <Field
                 error={fieldErrors.tenantUserRole}
-                hint="Each workspace member has one role in v1."
+                hint="Each workspace member has one assigned role."
                 label="Role"
               >
                 <select
