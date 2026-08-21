@@ -36,16 +36,16 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - GoatCounter analytics are production-gated direct `/count` requests through the existing frontend abstraction. Individual GoatCounter pageview collection must remain disabled.
 
 ## Acceptance Criteria
-- [ ] Homepage explains in plain language that PaperBinder is a lightweight document/policy workspace for controlled organizational documents.
-- [ ] Homepage includes concise concrete use cases such as policies, procedures, handbooks, internal reference material, or governance documents.
-- [ ] Homepage distinguishes the product concept from the reason the project exists as a deliberately scoped engineering demonstration.
-- [ ] The flagship article is directly discoverable from the homepage through an appropriately prominent CTA/link.
-- [ ] The first tenant dashboard gives a new guest enough context to understand the workspace, binders/documents, and useful first actions.
-- [ ] The public footer `Daniel Maratta` attribution links to `https://danielmaratta.com` using existing external-link conventions.
-- [ ] New or modified public CTAs retain or gain GoatCounter event coverage through the existing analytics abstraction.
-- [ ] Individual GoatCounter pageview collection remains disabled by contract; no PII, tenant slugs, document content, form values, or high-cardinality identifiers are tracked.
-- [ ] Version metadata and release docs are consistently staged for `1.1.2` without describing the future tag as stable before close-out.
-- [ ] Tests assert stable user-observable behavior rather than implementation details or brittle full-page copy.
+- [x] Homepage explains in plain language that PaperBinder is a lightweight document/policy workspace for controlled organizational documents.
+- [x] Homepage includes concise concrete use cases such as policies, procedures, handbooks, internal reference material, or governance documents.
+- [x] Homepage distinguishes the product concept from the reason the project exists as a deliberately scoped engineering demonstration.
+- [x] The flagship article is directly discoverable from the homepage through an appropriately prominent CTA/link.
+- [x] The first tenant dashboard gives a new guest enough context to understand the workspace, binders/documents, and useful first actions.
+- [x] The public footer `Daniel Maratta` attribution links to `https://danielmaratta.com` using existing external-link conventions.
+- [x] New or modified public CTAs retain or gain GoatCounter event coverage through the existing analytics abstraction.
+- [x] Individual GoatCounter pageview collection remains disabled by contract; no PII, tenant slugs, document content, form values, or high-cardinality identifiers are tracked.
+- [x] Version metadata and release docs are consistently staged for `1.1.2` without describing the future tag as stable before close-out.
+- [x] Tests assert stable user-observable behavior rather than implementation details or brittle full-page copy.
 - [ ] Final rendered desktop/mobile review confirms the changes still look native to the existing PaperBinder site.
 - [ ] Validation evidence is recorded before this task is marked done.
 
@@ -65,7 +65,7 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - Escalation Notes: Frontend/Vitest, browser E2E, build, Docker-backed integration, and git write workflows may require known elevated PaperBinder commands.
 
 ## Current State
-- Slices 1 through 5 are implemented and focused frontend validation is green. The homepage now includes an early product-model explanation and a direct flagship-article discovery path, the first tenant dashboard now explains the workspace/binder/document model with a clear first action, the public footer attribution links Daniel Maratta to the author site, and GoatCounter event tracking now drops unapproved synthetic event names at runtime. The remaining slice is version/release evidence.
+- Slices 1 through 6 are implemented and focused validation is green. The homepage now includes an early product-model explanation and a direct flagship-article discovery path, the first tenant dashboard now explains the workspace/binder/document model with a clear first action, the public footer attribution links Daniel Maratta to the author site, GoatCounter event tracking now drops unapproved synthetic event names at runtime, and `1.1.2` candidate metadata/release evidence is staged without treating `v1.1.2` as stable.
 
 ## Touch Points
 - `src/PaperBinder.Web/src/app/root-host.tsx`
@@ -113,7 +113,7 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
   - Update version metadata, changelog, current-state docs, taskboard outcome, and release readiness only after behavior slices are implemented and validated.
 
 ## Next Action
-- Begin Slice 6 by aligning version metadata and release-facing evidence for `1.1.2`.
+- Run final rendered review and any owner-requested broad validation before opening the release PR.
 
 ## Validation Evidence
 - RED Slice 1: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` failed on 2026-08-21 before implementation because the homepage did not expose a `What is PaperBinder?` heading or the planned plain-language product explanation.
@@ -129,6 +129,10 @@ Ship a narrow `v1.1.2` positioning patch that helps first-time visitors understa
 - RED Slice 5: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/analytics/goatcounter.test.ts` failed on 2026-08-21 before implementation because an event-shaped but unapproved synthetic event still produced a direct GoatCounter request.
 - GREEN Slice 5: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/analytics/goatcounter.test.ts` passed on 2026-08-21 after implementation: `15/15` analytics tests passed.
 - Root-host regression after Slice 5: `powershell -ExecutionPolicy Bypass -File .\scripts\test-frontend.ps1 -TestPath src/app/root-host.test.tsx` passed on 2026-08-21: `25/25` root-host tests passed.
+- RED Slice 6: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-version.ps1 -ExpectedVersion 1.1.2` failed on 2026-08-21 before implementation because `Directory.Build.props` still declared `1.1.1`.
+- GREEN Slice 6: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-version.ps1` passed on 2026-08-21 after implementation: version validation passed for `1.1.2`.
+- Candidate docs validation after Slice 6: `powershell -ExecutionPolicy Bypass -File .\scripts\validate-docs.ps1` passed on 2026-08-21.
+- Diff hygiene after Slice 6: `git diff --check` passed on 2026-08-21.
 
 ## Decision Notes
 - The canonical article process favors outcome/constraint definition, scoped implementation, validation, independent review, scoped remediation, verification, and release acceptance. This task follows that sequence.

@@ -1,6 +1,6 @@
 # V1.1.2 Positioning Patch Implementation Plan
 
-Status: Planned
+Status: Active
 Target release: `v1.1.2` candidate
 Authority: This file defines the checkpoint and validation plan for the `v1.1.2` positioning patch. The matching taskboard source is `docs/05-taskboard/v1-1-2-backlog.md`.
 

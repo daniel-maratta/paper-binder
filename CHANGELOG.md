@@ -4,7 +4,19 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
-No unreleased changes.
+### Added
+- Added a plain-language homepage explanation of PaperBinder as a lightweight workspace for controlled organizational documents, with concrete policy, procedure, handbook, and internal-reference use cases.
+- Added a direct homepage path to the flagship engineering article.
+
+### Changed
+- Clarified first-entry tenant dashboard orientation so new guests understand the temporary workspace, binders, immutable text documents, and the first useful action.
+- Linked the public footer author attribution to Daniel Maratta's portfolio site using the existing external-link conventions.
+
+### Fixed
+- Added a runtime allow-list guard so unapproved synthetic GoatCounter event names are dropped before a direct `/count` request can be sent.
+
+### Docs
+- Staged `1.1.2` candidate version metadata and release evidence without describing `v1.1.2` as the published stable release.
 
 ## [1.1.1] - 2026-08-17
 
