@@ -10,6 +10,7 @@
 
 - `docs/05-taskboard/task-tracking-policy.md`
 - `docs/05-taskboard/work-queue.md`
+- `docs/05-taskboard/v1-1-2-backlog.md`
 - `docs/05-taskboard/v1-1-1-backlog.md`
 - `docs/05-taskboard/taskboard-intake.md`
 
@@ -17,6 +18,7 @@
 
 - `docs/05-taskboard/taskboard-intake.md`
 - `docs/05-taskboard/work-queue.md`
+- `docs/05-taskboard/v1-1-2-backlog.md`
 - `docs/05-taskboard/v1-1-1-backlog.md`
 - `docs/05-taskboard/v1-1-backlog.md`
 - `docs/05-taskboard/tasks/`

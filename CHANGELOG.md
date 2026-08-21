@@ -4,7 +4,25 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
-No unreleased changes.
+### Added
+- Added a plain-language homepage explanation of PaperBinder as a lightweight workspace for important internal documents, with concrete policy, procedure, handbook, and internal-reference use cases.
+- Added a direct homepage path to the flagship engineering article.
+- Added accessible mobile public navigation for the Product, Demo, and About destinations using the existing public-navigation GoatCounter event taxonomy.
+
+### Changed
+- Revised the homepage hero subheadline to describe PaperBinder itself instead of foregrounding demo-workspace framing.
+- Clarified first-entry workspace dashboard orientation so new guests understand the temporary workspace, binders, read-only documents, and the first useful action.
+- Revised public and first-demo copy to prefer workspace, access-control, and read-only-record language over internal tenant and systems terminology.
+- Updated the hosted article's current-artifact label to `V1.1.2 public artifact`.
+- Changed public repository/history links to the browser-facing GitHub repository URL instead of the raw clone URL.
+- Linked the public footer author attribution to Daniel Maratta's portfolio site using the existing external-link conventions.
+
+### Fixed
+- Added a runtime allow-list guard so unapproved synthetic GoatCounter event names are dropped before a direct `/count` request can be sent.
+- Fixed short root-host pages, including the `/app` unavailable state, so public decorative artwork stays clipped instead of appearing below the footer.
+
+### Docs
+- Staged `1.1.2` candidate version metadata and release evidence without describing `v1.1.2` as the published stable release.
 
 ## [1.1.1] - 2026-08-17
 

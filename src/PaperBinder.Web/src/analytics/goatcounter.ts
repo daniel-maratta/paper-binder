@@ -22,10 +22,12 @@ export const publicAnalyticsEventNames = {
   landingStartDemo: "pb_event_public_landing_start_demo",
   landingOpenWorkspace: "pb_event_public_landing_open_workspace",
   landingLearnMore: "pb_event_public_landing_learn_more",
+  landingReadArticle: "pb_event_public_landing_read_article",
   aboutReadArticle: "pb_event_public_about_read_article",
   footerProductNav: "pb_event_public_footer_product_nav",
   footerLegalNav: "pb_event_public_footer_legal_nav",
   footerProjectLink: "pb_event_public_footer_project_link",
+  footerAuthorLink: "pb_event_public_footer_author_link",
   legalPolicyNav: "pb_event_public_legal_policy_nav",
   articleExternalLink: "pb_event_public_article_external_link",
   articleSectionNav: "pb_event_public_article_section_nav",
@@ -41,6 +43,8 @@ export const publicAnalyticsEventNames = {
 
 export type PublicAnalyticsEventName =
   (typeof publicAnalyticsEventNames)[keyof typeof publicAnalyticsEventNames];
+
+const publicAnalyticsEventNameSet = new Set<string>(Object.values(publicAnalyticsEventNames));
 
 type GoatCounterHit = {
   path: string;
@@ -268,6 +272,10 @@ export function trackPaperBinderPageview(hostContext: HostContext, pathname: str
 
 export function trackPaperBinderEvent(hostContext: HostContext, eventName: PublicAnalyticsEventName) {
   if (!shouldEnablePaperBinderAnalytics(hostContext, resolveHostContextHostname(hostContext))) {
+    return;
+  }
+
+  if (!publicAnalyticsEventNameSet.has(eventName)) {
     return;
   }
 

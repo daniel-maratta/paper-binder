@@ -42,28 +42,29 @@ export type RootHostNavigator = (redirectUrl: string) => void;
 const localChallengeBypassToken = "paperbinder-test-challenge-pass";
 const flagshipArticlePath = flagshipArticle.path;
 const articleNavigationMediaQuery = "(min-width: 1181px)";
+const publicMobileNavigationMediaQuery = "(max-width: 1024px)";
 const flagshipArticleReviewGuideUrl = "https://github.com/daniel-maratta/paper-binder/blob/main/review/README.md";
 const flagshipArticleHeadings = getMarkdownArticleHeadings(flagshipArticle.body);
 
 const publicValuePillars: PublicValuePillar[] = [
   {
     icon: "boundary",
-    title: "Tenant isolation",
-    body: "Each workspace stays inside its own scoped boundary."
+    title: "Separate workspaces",
+    body: "Each demo workspace keeps its information separate."
   },
   {
     icon: "key",
-    title: "Role-aware access",
-    body: "Assigned roles control what each user can see and do."
+    title: "Access controls",
+    body: "Roles decide what each user can see and do."
   },
   {
     icon: "document",
-    title: "Immutable documents",
-    body: "Documents are reviewable records, not freeform editor content."
+    title: "Read-only records",
+    body: "Documents are kept as reviewable text records instead of editable drafts."
   },
   {
     icon: "timer",
-    title: "Temporary demo lifecycle",
+    title: "Temporary demo space",
     body: "Demo workspaces expire automatically."
   }
 ];
@@ -79,7 +80,7 @@ const publicDemoSteps: PublicDemoStep[] = [
   },
   {
     title: "Review the live product flows",
-    body: "Move through binders, immutable documents, and tenant access from the active workspace."
+    body: "Move through binders, read-only documents, and access controls from the active workspace."
   }
 ];
 
@@ -275,6 +276,47 @@ function useIsDesktopArticleNavigation() {
   }, []);
 
   return isDesktopArticleNavigation;
+}
+
+function useIsMobilePublicNavigation() {
+  const getMatches = () =>
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(publicMobileNavigationMediaQuery).matches
+      : false;
+  const [isMobilePublicNavigation, setIsMobilePublicNavigation] = useState(getMatches);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      setIsMobilePublicNavigation(false);
+      return;
+    }
+
+    const mediaQueryList = window.matchMedia(publicMobileNavigationMediaQuery);
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMobilePublicNavigation(event.matches);
+    };
+
+    setIsMobilePublicNavigation(mediaQueryList.matches);
+    mediaQueryList.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQueryList.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  return isMobilePublicNavigation;
+}
+
+function resolveHeaderNavigationAnalyticsEvent(routePath: string) {
+  if (routePath === "/") {
+    return publicAnalyticsEventNames.headerNavProduct;
+  }
+
+  if (routePath === "/start-demo") {
+    return publicAnalyticsEventNames.headerNavDemo;
+  }
+
+  return publicAnalyticsEventNames.headerNavAbout;
 }
 
 function ArticleSectionNavigation() {
@@ -806,6 +848,62 @@ function RootHostErrorNotice({ error }: { error: RootHostErrorViewModel | null }
 function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
   const location = useLocation();
   const workspaceReturnUrl = resolveWorkspaceReturnUrl(location.search, hostContext.environment);
+  const isMobilePublicNavigation = useIsMobilePublicNavigation();
+  const [isMobileMenuExpanded, setIsMobileMenuExpanded] = useState(false);
+  const mobileNavigationRef = useRef<HTMLElement>(null);
+  const mobileNavigationToggleRef = useRef<HTMLButtonElement>(null);
+  const mobileNavigationId = "paperbinder-mobile-public-navigation";
+
+  useEffect(() => {
+    setIsMobileMenuExpanded(false);
+  }, [location.pathname, location.search, isMobilePublicNavigation]);
+
+  useEffect(() => {
+    if (!isMobilePublicNavigation || !isMobileMenuExpanded || typeof document === "undefined") {
+      return;
+    }
+
+    function closeMenuWhenEscapeIsPressed(event: KeyboardEvent) {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      event.preventDefault();
+      setIsMobileMenuExpanded(false);
+      mobileNavigationToggleRef.current?.focus();
+    }
+
+    document.addEventListener("keydown", closeMenuWhenEscapeIsPressed);
+
+    return () => {
+      document.removeEventListener("keydown", closeMenuWhenEscapeIsPressed);
+    };
+  }, [isMobileMenuExpanded, isMobilePublicNavigation]);
+
+  useEffect(() => {
+    if (!isMobilePublicNavigation || !isMobileMenuExpanded || typeof document === "undefined") {
+      return;
+    }
+
+    function closeMenuWhenPointerStartsOutside(event: PointerEvent) {
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        (mobileNavigationRef.current?.contains(target) === true ||
+          mobileNavigationToggleRef.current?.contains(target) === true)
+      ) {
+        return;
+      }
+
+      setIsMobileMenuExpanded(false);
+    }
+
+    document.addEventListener("pointerdown", closeMenuWhenPointerStartsOutside);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeMenuWhenPointerStartsOutside);
+    };
+  }, [isMobileMenuExpanded, isMobilePublicNavigation]);
 
   return (
     <header className="pb-public-topbar">
@@ -827,13 +925,7 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
         {rootRouteDefinitions.map((route) => (
           <NavLink
             className={({ isActive }) => cn("pb-public-topnav-link", isActive && "pb-public-topnav-link--active")}
-            data-paperbinder-analytics-event={
-              route.path === "/"
-                ? publicAnalyticsEventNames.headerNavProduct
-                : route.path === "/start-demo"
-                  ? publicAnalyticsEventNames.headerNavDemo
-                  : publicAnalyticsEventNames.headerNavAbout
-            }
+            data-paperbinder-analytics-event={resolveHeaderNavigationAnalyticsEvent(route.path)}
             end={route.path === "/"}
             key={route.path}
             to={route.path}
@@ -846,6 +938,22 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
       <div className="pb-public-topbar-actions">
         {hostContext.debugAlias ? (
           <span className="pb-public-debug-chip">Loopback alias</span>
+        ) : null}
+        {isMobilePublicNavigation ? (
+          <button
+            aria-controls={mobileNavigationId}
+            aria-expanded={isMobileMenuExpanded}
+            aria-label="Public navigation"
+            className="pb-public-mobile-nav-toggle"
+            onClick={() => {
+              setIsMobileMenuExpanded((currentValue) => !currentValue);
+            }}
+            ref={mobileNavigationToggleRef}
+            type="button"
+          >
+            <span>Menu</span>
+            <span aria-hidden="true" className="pb-public-mobile-nav-toggle__icon" />
+          </button>
         ) : null}
         {workspaceReturnUrl ? (
           <a
@@ -865,6 +973,29 @@ function PublicHeader({ hostContext }: { hostContext: RootHostContext }) {
           </PublicShellLink>
         )}
       </div>
+      {isMobilePublicNavigation && isMobileMenuExpanded ? (
+        <nav
+          aria-label="Mobile public navigation"
+          className="pb-public-mobile-nav"
+          id={mobileNavigationId}
+          ref={mobileNavigationRef}
+        >
+          {rootRouteDefinitions.map((route) => (
+            <NavLink
+              className={({ isActive }) => cn("pb-public-mobile-nav-link", isActive && "pb-public-mobile-nav-link--active")}
+              data-paperbinder-analytics-event={resolveHeaderNavigationAnalyticsEvent(route.path)}
+              end={route.path === "/"}
+              key={route.path}
+              onClick={() => {
+                setIsMobileMenuExpanded(false);
+              }}
+              to={route.path}
+            >
+              {route.label}
+            </NavLink>
+          ))}
+        </nav>
+      ) : null}
     </header>
   );
 }
@@ -882,7 +1013,7 @@ function PublicFooter() {
           >
             <img alt="" aria-hidden="true" src="/brand/pb-full-logo-white.png" />
           </NavLink>
-          <p>A production-shaped SaaS demo designed and built by Daniel Maratta.</p>
+          <p>A focused document workspace demo designed and built by Daniel Maratta.</p>
         </div>
 
         <div className="pb-public-footer-nav">
@@ -962,7 +1093,17 @@ function PublicFooter() {
       </div>
 
       <div className="pb-public-footer-meta">
-        <p className="pb-public-footer-copyright">&copy; 2026 {productIdentity.authorName}</p>
+        <p className="pb-public-footer-copyright">
+          &copy; 2026{" "}
+          <a
+            data-paperbinder-analytics-event={publicAnalyticsEventNames.footerAuthorLink}
+            href={productIdentity.authorUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {productIdentity.authorName}
+          </a>
+        </p>
       </div>
     </footer>
   );
@@ -971,6 +1112,12 @@ function PublicFooter() {
 function PublicShell({ hostContext }: { hostContext: RootHostContext }) {
   const location = useLocation();
   const isLandingRoute = location.pathname === "/";
+  const isKnownPublicRoute =
+    rootRouteDefinitions.some((route) => route.path === location.pathname) ||
+    location.pathname === flagshipArticlePath ||
+    findLegalDocumentByPath(location.pathname) !== undefined;
+  const shouldClipDecor =
+    location.pathname === "/start-demo" || location.pathname === publicLoginRoutePath || !isKnownPublicRoute;
 
   useEffect(() => {
     setDocumentTitle(resolveRootPageTitle(location.pathname));
@@ -981,12 +1128,14 @@ function PublicShell({ hostContext }: { hostContext: RootHostContext }) {
   }, [location.pathname, location.search]);
 
   return (
-    <div className="pb-public-site">
+    <div className={cn("pb-public-site", shouldClipDecor && "pb-public-site--clipped-decor")}>
       <a className="pb-public-skip-link" href="#public-main">
         Skip to content
       </a>
-      <div aria-hidden="true" className="pb-public-decor pb-public-decor--ring" />
-      <div aria-hidden="true" className="pb-public-decor pb-public-decor--glow" />
+      <div aria-hidden="true" className="pb-public-decor-layer">
+        <div className="pb-public-decor pb-public-decor--ring" />
+        <div className="pb-public-decor pb-public-decor--glow" />
+      </div>
 
       <PublicHeader hostContext={hostContext} />
 
@@ -1041,11 +1190,11 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
           }
           eyebrow="PaperBinder"
           id="public-hero-title"
-          title="A production-shaped SaaS demo for document workspaces."
+          title="A focused workspace for policies, procedures, and internal docs."
           variant="landing"
         >
-          PaperBinder demonstrates tenant isolation, role-aware access, immutable documents, and an ephemeral
-          workspace lifecycle in a working product UI.
+          PaperBinder gives small teams one place to organize binders, keep read-only documents, and decide who can
+          access them.
         </PublicHero>
 
         <section aria-label="PaperBinder product preview" className="pb-public-product-mockup">
@@ -1085,6 +1234,41 @@ function RootLandingPage({ hostContext }: { hostContext: RootHostContext }) {
       </section>
 
       <div className="pb-public-story-stack">
+        <PublicStorySection variant="accent">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">PRODUCT MODEL</p>
+            <h2>What is PaperBinder?</h2>
+            <p>
+              PaperBinder is a lightweight workspace for organizing important internal documents. A workspace
+              contains binders, read-only text records, and access controls around the work.
+            </p>
+            <p>
+              Use it for policies, procedures, handbooks, and internal reference material when a small
+              organization needs one clear place to collect and review shared documents.
+            </p>
+          </div>
+        </PublicStorySection>
+
+        <PublicStorySection className="pb-public-about-articles-section" variant="split">
+          <div className="pb-public-story-copy">
+            <p className="pb-public-panel-eyebrow">ENGINEERING CASE STUDY</p>
+            <h2>Behind the build</h2>
+            <p>
+              The live demo shows the product. The flagship article explains the choices behind the build: scope,
+              validation, and the tradeoffs that shaped PaperBinder.
+            </p>
+          </div>
+          <ArticleCard
+            analyticsEvent={publicAnalyticsEventNames.landingReadArticle}
+            cta="Read article"
+            href={flagshipArticlePath}
+            meta="Architecture / scope / AI-assisted delivery"
+            title={flagshipArticle.title}
+          >
+            Read the implementation story, validation approach, and tradeoffs behind the running demo.
+          </ArticleCard>
+        </PublicStorySection>
+
         <PublicStorySection variant="split">
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">USERS AND ACCESS</p>
@@ -1193,12 +1377,12 @@ function ProvisionSuccessPanel({
 
       <dl className="pb-public-stat-grid">
         <PublicStat
-          label="Tenant slug"
+          label="Workspace slug"
           value={
             <span className="pb-public-stat-copy">
               <span>{provisionedTenant.tenantSlug}</span>
               <button
-                aria-label="Copy tenant slug"
+                aria-label="Copy workspace slug"
                 className="pb-public-copy-button pb-public-copy-button--inline"
                 onClick={() => {
                   void copyValue("tenant-slug", provisionedTenant.tenantSlug);
@@ -1301,7 +1485,7 @@ function RootWelcomePage({
 
     const nextFieldErrors: RootHostFieldErrors = {};
     if (!tenantName.trim()) {
-      nextFieldErrors.tenantName = "Tenant name is required.";
+      nextFieldErrors.tenantName = "Workspace name is required.";
     }
 
     if (!challengeLocalBypassEnabled && !challengeToken) {
@@ -1718,15 +1902,15 @@ function RootAboutPage() {
         <PublicStorySection className="pb-public-about-overview" variant="accent">
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">PROJECT OVERVIEW</p>
-            <h2>A small, complete SaaS demo for document workspaces.</h2>
+            <h2>A small, complete demo for internal document workspaces.</h2>
             <p>
-              PaperBinder includes tenant-scoped workspaces, binder-level access, immutable text documents, and
-              temporary demo workspaces with generated credentials.
+              PaperBinder includes separate demo workspaces, binder-level access, read-only text documents, and
+              generated credentials for trying the product.
             </p>
           </div>
           <dl className="pb-public-about-summary-grid">
-            <PublicStat label="Core model" value="Binders and immutable text documents." />
-            <PublicStat label="Access boundary" value="Role-aware access inside isolated workspaces." />
+            <PublicStat label="Core model" value="Binders and read-only text documents." />
+            <PublicStat label="Access boundary" value="Access controls inside separate workspaces." />
             <PublicStat label="Demo path" value="Temporary demo workspaces with generated credentials." />
           </dl>
         </PublicStorySection>
@@ -1743,7 +1927,7 @@ function RootAboutPage() {
             analyticsEvent={publicAnalyticsEventNames.aboutReadArticle}
             cta="Read article"
             href={flagshipArticlePath}
-            meta="Architecture / SaaS demo / AI-assisted development"
+            meta="Build story / scope / validation"
             title={flagshipArticle.title}
           >
             A walkthrough of the architecture, tradeoffs, scope boundaries, and implementation choices behind
@@ -1754,18 +1938,18 @@ function RootAboutPage() {
         <PublicStorySection>
           <div className="pb-public-story-copy">
             <p className="pb-public-panel-eyebrow">WHAT THIS DEMONSTRATES</p>
-            <h2>A narrow product scope with real SaaS boundaries.</h2>
+            <h2>A narrow product scope with real workspace boundaries.</h2>
           </div>
           <ul className="pb-public-about-card-grid">
-            <ProofCard title="Tenant-scoped workspaces">Each demo workspace stays isolated from the others.</ProofCard>
+            <ProofCard title="Separate workspaces">Each demo workspace keeps its information separate.</ProofCard>
             <ProofCard title="Binder-level access">
               Users can be assigned roles that affect what they can see and do.
             </ProofCard>
-            <ProofCard title="Immutable documents">
+            <ProofCard title="Read-only documents">
               Documents are treated as reviewable records rather than freeform editor content.
             </ProofCard>
-            <ProofCard title="Temporary demo lifecycle">
-              Temporary tenants, expiry state, and cleanup behavior are part of the demo flow.
+            <ProofCard title="Temporary demo workspace">
+              Expiry state and cleanup behavior are part of the demo flow.
             </ProofCard>
           </ul>
         </PublicStorySection>
@@ -1775,8 +1959,8 @@ function RootAboutPage() {
             <p className="pb-public-panel-eyebrow">INTENTIONAL SCOPE</p>
             <h2>Small by design.</h2>
             <p>
-              PaperBinder is intentionally narrow. It demonstrates SaaS architecture, access boundaries, document
-              workflows, and deployment quality without expanding into a full document-management platform.
+              PaperBinder is intentionally narrow. It demonstrates workspace separation, access boundaries,
+              document workflows, and deployment quality without expanding into a full document-management platform.
             </p>
           </div>
           <div className="pb-public-about-scope-grid">
@@ -1784,9 +1968,9 @@ function RootAboutPage() {
               <h3 id="about-in-scope">In scope</h3>
               <ul>
                 <li>Temporary demo workspaces</li>
-                <li>Tenant isolation</li>
+                <li>Workspace separation</li>
                 <li>Binder and document workflows</li>
-                <li>Role-aware access</li>
+                <li>Access controls</li>
                 <li>Public demo path</li>
               </ul>
             </section>
@@ -1797,7 +1981,7 @@ function RootAboutPage() {
                 <li>Broad CMS functionality</li>
                 <li>Rich document editing</li>
                 <li>Enterprise SSO</li>
-                <li>Long-lived customer tenants</li>
+                <li>Long-lived customer workspaces</li>
               </ul>
             </section>
           </div>

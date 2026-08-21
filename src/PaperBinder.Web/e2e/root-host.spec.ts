@@ -13,6 +13,51 @@ let provisionedTenantSlug: string | null = null;
 
 test.describe.configure({ mode: "serial" });
 
+test("Should_ExposePublicNavigationAcrossDesktopAndMobileWidths_InBrowser", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  await expect(page.getByRole("navigation", { name: "Primary navigation" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Public navigation" })).toBeHidden();
+  await expect(page.getByText(/one place to organize binders/i)).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+    true
+  );
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+
+  const mobileMenuButton = page.getByRole("button", { name: "Public navigation" });
+  await expect(page.getByRole("navigation", { name: "Primary navigation" })).toBeHidden();
+  await expect(mobileMenuButton).toBeVisible();
+  await expect(mobileMenuButton).toHaveAttribute("aria-expanded", "false");
+
+  await mobileMenuButton.click();
+
+  const mobileNavigation = page.getByRole("navigation", { name: "Mobile public navigation" });
+  await expect(mobileMenuButton).toHaveAttribute("aria-expanded", "true");
+  await expect(mobileNavigation.getByRole("link", { name: "Product" })).toHaveAttribute("href", "/");
+  await expect(mobileNavigation.getByRole("link", { name: "Demo" })).toHaveAttribute("href", "/start-demo");
+  await expect(mobileNavigation.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+    true
+  );
+
+  await mobileNavigation.getByRole("link", { name: "About" }).click();
+
+  await expect(page).toHaveURL(/\/about$/);
+  await expect(page.getByRole("heading", { name: "About PaperBinder" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Public navigation" })).toHaveAttribute("aria-expanded", "false");
+
+  await page.goto("/app");
+
+  await expect(page.getByRole("heading", { name: "Page unavailable" })).toBeVisible();
+  await expect(page.getByRole("contentinfo")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+    true
+  );
+});
+
 test("Should_RenderFlagshipArticleRoute_InBrowserAcrossResponsiveWidths", async ({ page }) => {
   const articleResponse = await page.request.get("/articles/building-paperbinder-production-shaped-saas-demo");
   expect(articleResponse.status()).toBe(200);
