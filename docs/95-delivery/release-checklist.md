@@ -7,10 +7,9 @@ Own the canonical release gate list for the published stable `V1` release.
 
 ## Required Artifacts
 
-- [x] `CHANGELOG.md` contains the current `## [1.1.2] - 2026-08-21` entry above the `## [1.1.1] - 2026-08-17` prior stable entry, with a fresh `## Unreleased`.
-- [x] Repository version metadata matched the current `v1.1.2` / `1.1.2` release on `main` at the `v1.1.2` release cut.
-- [x] Active branch version metadata stages `1.1.3` for the validated `v1.1.3` patch hotfix while this checklist continues to identify `v1.1.2` as the current published stable release until PR #61 merges and owner-controlled release actions complete.
-- [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, the active branch metadata distinction, the command surface, and ownership.
+- [x] `CHANGELOG.md` contains the current `## [1.1.3] - 2026-08-21` entry above the `## [1.1.2] - 2026-08-21` prior stable entry, with a fresh `## Unreleased`.
+- [x] Repository version metadata matches the current `v1.1.3` / `1.1.3` release.
+- [x] `docs/95-delivery/release-workflow.md` and `docs/95-delivery/release-checklist.md` agree on the `V1` release line, the published stable tag, version metadata, the command surface, and ownership.
 - [x] Repository version metadata matched the published stable `V1` release tag `v1.1.0` / `1.1.0` on `main` at the `v1.1.0` release cut.
 - [x] `.github/workflows/ci.yml` validates version metadata on pull requests and pushes to `main`.
 - [x] `.github/workflows/release.yml` defines the tag-driven release validation pipeline for stable SemVer tags.
@@ -407,23 +406,23 @@ This section records the published `v1.1.2` positioning patch. It supersedes the
   with no draft/audit-process wording remaining, and the owner (Daniel Maratta) explicitly approved
   the final wording for publication on `2026-08-17`.
 
-## V1.1.3 Mobile Header Hotfix PR-Ready Evidence
+## V1.1.3 Mobile Header Hotfix Release Evidence
 
-This section records the validated `v1.1.3` patch hotfix candidate opened after `v1.1.2` was
+This section records the released `v1.1.3` patch hotfix opened after `v1.1.2` was
 published as a canonical release and then found to have a narrow unauthenticated mobile-header
-layout issue. PR #61 is open, mergeable, and green; `v1.1.3` is not the current published stable tag
-until the PR is merged, tagged, released, deployed to Test, smoke-verified, and published.
+layout issue. `v1.1.3` is the current published stable tag and supersedes further `v1.1.2`
+rollout.
 
-### Candidate Scope
+### Released Scope
 
 - [x] Mobile public header keeps the logo, Start Demo CTA, and menu control on one line.
 - [x] The menu control is right-aligned and becomes icon-only at the smallest breakpoint while
   preserving `aria-label="Public navigation"`.
 - [x] Header spacing and vertical alignment are covered by browser geometry assertions at a narrow
   mobile viewport.
-- [x] Repository version metadata is staged for `1.1.3` as a patch hotfix candidate.
+- [x] Repository version metadata records `1.1.3` as the released patch hotfix.
 
-### Candidate Validation
+### Release Validation
 
 - [x] [validate-version.ps1](../../scripts/validate-version.ps1) passed for `1.1.3` on `2026-08-21`.
 - [x] [build.ps1](../../scripts/build.ps1) `-Configuration Release` passed on `2026-08-21`:
@@ -441,22 +440,22 @@ until the PR is merged, tagged, released, deployed to Test, smoke-verified, and 
   docs validation and `git diff --check` were rerun after the final release-doc closeout edits.
 - [x] `git diff --check` passed on `2026-08-21` after the hotfix correction.
 
-### Remaining Owner-Controlled Steps
+### Release Closeout
 
-- [ ] Merge the accepted, green `v1.1.3` hotfix PR (#61) to `main`.
-- [ ] Create and push the `v1.1.3` SemVer tag after `main` is recorded as taggable.
-- [ ] Run the tag-driven release workflow.
-- [ ] Deploy to Test with smoke validation.
-- [ ] Publish the matching GitHub Release.
+- [x] Merge the accepted, green `v1.1.3` hotfix PR (#61) to `main`.
+- [x] Create and push the `v1.1.3` SemVer tag after `main` is recorded as taggable.
+- [x] Run the tag-driven release workflow.
+- [x] Deploy to Test with smoke validation.
+- [x] Publish the matching GitHub Release.
 
 ## Release Readiness
 
 - Release line: `V1`
 - Historical first stable tag: `v1.0.0`
-- Current published stable tag: `v1.1.2`
-- Current published stable SemVer version: `1.1.2`
-- Prior published stable tag: `v1.1.1`
-- Prior published stable SemVer version: `1.1.1`
+- Current published stable tag: `v1.1.3`
+- Current published stable SemVer version: `1.1.3`
+- Prior published stable tag: `v1.1.2`
+- Prior published stable SemVer version: `1.1.2`
 - Active branch SemVer metadata: `1.1.3`
 - Status: `main` was aligned and taggable for `v1.0.5` as of `2026-07-03`. `release/v1.1.0`
   completed `T-0043` final-review validation on `2026-07-26` — findings resolved, full
@@ -554,12 +553,10 @@ until the PR is merged, tagged, released, deployed to Test, smoke-verified, and 
   GitHub Release was published as canonical. Because the release was published before the
   mobile-header issue was found, `v1.1.2` remains immutable release history; further `v1.1.2`
   rollout is intentionally superseded by the `v1.1.3` hotfix before Prod deployment.
-- V1.1.3 hotfix candidate attestation (`2026-08-21`): the active branch stages `1.1.3` metadata and
-  Unreleased changelog notes for the unauthenticated mobile-header hotfix. Local validation is green
-  and PR #61 CI `build-test-validate` passed for the hotfix branch; the PR is open and mergeable.
-  `v1.1.3` is not yet the current published stable tag; PR merge, tag creation, release workflow
-  execution, Test deployment, smoke validation, and GitHub Release publication remain
-  owner-controlled steps.
+- V1.1.3 release attestation (`2026-08-21`): PR #61 released the unauthenticated mobile-header
+  hotfix, `v1.1.3` is the current published stable tag, repository metadata records `1.1.3`, local
+  validation is green, PR #61 CI `build-test-validate` passed for the hotfix branch, the release was
+  deployed and smoke-verified on Test, and the GitHub Release was published as canonical.
 - Mirrors:
   - `docs/archive/v1/checkpoints/pr/cp17-release-preparation-and-reviewer-snapshot/description.md`
   - `docs/archive/v1/checkpoints/checkpoint-status.md`
