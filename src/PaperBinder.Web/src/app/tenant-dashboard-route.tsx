@@ -102,7 +102,8 @@ export function DashboardPage() {
         <p className="pb-auth-eyebrow">Overview</p>
         <h2 className="pb-auth-page-title">Workspace dashboard</h2>
         <p className="pb-auth-page-copy">
-          See lease status, recent binders, and the next actions available in this workspace.
+          A workspace represents one temporary organization. Binders group the controlled text documents that
+          organization manages, and this dashboard shows lease status, recent binders, and next actions.
         </p>
       </section>
 
@@ -150,7 +151,7 @@ export function DashboardPage() {
               <Alert variant="info">
                 <AlertTitle>No binders yet.</AlertTitle>
                 <AlertBody>
-                  Add a binder from the binders page to start organizing documents in this workspace.
+                  Start with a binder, then add documents inside it to see how PaperBinder organizes controlled text records in this workspace.
                 </AlertBody>
               </Alert>
             ) : (

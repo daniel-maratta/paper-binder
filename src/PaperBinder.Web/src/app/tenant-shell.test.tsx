@@ -353,6 +353,20 @@ describe("tenant shell", () => {
     expect(screen.queryByRole("link", { name: "Review binders" })).not.toBeInTheDocument();
   });
 
+  it("Should_OrientFirstTimeGuest_When_DashboardLoadsWithoutVisibleBinders", async () => {
+    renderTenantRoute({
+      apiClient: createApiClientStub({
+        listBinders: vi.fn(async () => []) as PaperBinderApiClient["listBinders"]
+      })
+    });
+
+    expect(await screen.findByRole("heading", { name: "Workspace dashboard" })).toBeInTheDocument();
+    expect(screen.getByText(/A workspace represents one temporary organization/i)).toBeInTheDocument();
+    expect(screen.getByText(/binders group the controlled text documents/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Start with a binder, then add documents inside it/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Add your first binder" })).toHaveAttribute("href", "/app/binders");
+  });
+
   it("Should_RenderWorkspaceDashboard_With_CountdownMetric_And_ExtensionWindowBanner_When_TenantBootstrapSucceeds", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-04-17T12:00:00Z"));
