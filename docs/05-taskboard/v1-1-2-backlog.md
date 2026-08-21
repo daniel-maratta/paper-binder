@@ -1,6 +1,6 @@
 # V1.1.2 Backlog
 
-Status: Active
+Status: Review Ready
 Authority: This file is the taskboard source for the `v1.1.2` positioning patch and must agree with `docs/95-delivery/v1-1-2-implementation-plan.md`.
 
 ## Purpose
@@ -11,7 +11,7 @@ This patch improves first-time visitor comprehension, flagship-article discovera
 
 ## Reconciled Execution Order
 
-1. [T-0056: V1.1.2 Presentation Positioning Release](./tasks/T-0056-v1-1-2-presentation-positioning-release.md) - active
+1. [T-0056: V1.1.2 Presentation Positioning Release](./tasks/T-0056-v1-1-2-presentation-positioning-release.md) - done
 
 ## Checkpoint Agreement
 

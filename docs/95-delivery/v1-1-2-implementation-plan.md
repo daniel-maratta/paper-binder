@@ -1,6 +1,6 @@
 # V1.1.2 Positioning Patch Implementation Plan
 
-Status: Active
+Status: Review Ready
 Target release: `v1.1.2` candidate
 Authority: This file defines the checkpoint and validation plan for the `v1.1.2` positioning patch. The matching taskboard source is `docs/05-taskboard/v1-1-2-backlog.md`.
 
@@ -18,9 +18,14 @@ Included:
 - Concise concrete use cases for controlled organizational documents.
 - Homepage explanation of why PaperBinder exists as a deliberately scoped engineering demonstration.
 - Direct homepage path to the flagship article.
+- Accessible mobile and narrow-tablet public navigation for the same Product, Demo, and About
+  destinations exposed on desktop.
+- Short public/root-host pages, including unsupported routes such as `/app`, visually terminate
+  without orphaned decorative artwork.
 - Lightweight orientation on the first tenant dashboard after entering the demo.
 - Public footer attribution link from `Daniel Maratta` to `https://danielmaratta.com`.
 - GoatCounter event coverage for new or modified public CTAs through the existing abstraction.
+- Browser-facing public repository/history links and the hosted article current-artifact label.
 - `1.1.2` version metadata and proportional release/documentation updates.
 
 Out of scope:
@@ -96,4 +101,4 @@ Manual rendered review is required before declaring the task done:
 
 ## Release Boundary
 
-`v1.1.2` is a patch candidate until final validation, review, and release-readiness evidence are recorded. Merge, tag creation, release workflow execution, Test/Prod deployment, smoke validation, and GitHub Release publication remain owner-controlled actions under the existing release workflow.
+`v1.1.2` remains a patch candidate after final validation and release-readiness evidence are recorded. PR review, merge, tag creation, release workflow execution, Test/Prod deployment, smoke validation, and GitHub Release publication remain owner-controlled actions under the existing release workflow.
